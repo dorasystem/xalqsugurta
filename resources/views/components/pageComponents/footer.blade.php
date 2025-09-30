@@ -8,23 +8,21 @@
 
                         <ul class="footer-menu">
                             <li class="footer-menu__item">
-                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/about" class="footer-menu__link">О компании</a>
+                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/about" class="footer-menu__link">{{ __('messages.about_company') }}</a>
                             </li>
                             <li class="footer-menu__item">
                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/affilirovannye-lica"
-                                    class="footer-menu__link">Акционерам и
-                                    инвесторам</a>
+                                    class="footer-menu__link">{{ __('messages.shareholders') }}</a>
                             </li>
                             <li class="footer-menu__item">
-                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/strahovanie" class="footer-menu__link">Страхование</a>
+                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/strahovanie" class="footer-menu__link">{{ __('messages.insurance') }}</a>
                             </li>
                             <li class="footer-menu__item">
-                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/news" class="footer-menu__link">Пресс-центр</a>
+                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/news" class="footer-menu__link">{{ __('messages.press_center') }}</a>
                             </li>
                             <li class="footer-menu__item">
                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/zakonodatelstvo-v-sfere-strahovaniya"
-                                    class="footer-menu__link">Полезная
-                                    информация</a>
+                                    class="footer-menu__link">{{ __('messages.useful_info') }}</a>
                             </li>
                         </ul>
                     </div>
@@ -33,32 +31,29 @@
 
                         <ul class="footer-contacts">
                             <li class="footer-contacts__block">
-                                <h3 class="footer-contacts__title">Телефон:</h3>
+                                <h3 class="footer-contacts__title">{{ __('messages.phone') }}:</h3>
                                 <a href="tel:+(+998 71) 202-19-66" class="footer-contacts__text">(+998 71)
                                     202-19-66</a>
                             </li>
                             <li class="footer-contacts__block">
-                                <h3 class="footer-contacts__title"> Адрес:</h3>
-                                <p class="footer-contacts__text">г. Ташкент, Мирзо-Улугбекский район, СГМ Лашкарбеги,
-                                    ул. Хамид Алимджана, 13 А</p>
+                                <h3 class="footer-contacts__title">{{ __('messages.address') }}:</h3>
+                                <p class="footer-contacts__text">{{ __('messages.company_address') }}</p>
                             </li>
                             <li class="footer-contacts__block">
-                                <h3 class="footer-contacts__title">Email:</h3>
+                                <h3 class="footer-contacts__title">{{ __('messages.email') }}:</h3>
                                 <a href="mailto:info@xalqsugurta.uz"
                                     class="footer-contacts__text">info@xalqsugurta.uz</a>
                             </li>
                             <li class="footer-contacts__block">
-                                <h3 class="footer-contacts__title">График работы:</h3>
-                                <p class="footer-contacts__text">Пн - Пт с 09:00 до 18:00</p>
+                                <h3 class="footer-contacts__title">{{ __('messages.work_schedule') }}:</h3>
+                                <p class="footer-contacts__text">{{ __('messages.work_schedule_time') }}</p>
                             </li>
                         </ul>
                     </div>
                     <div class="footer-column">
                         <div class="subscription">
-                            <h3 class="subscription__title">Подписка</h3>
-                            <span class="subscription__description">Подпишитесь на нашу рассылку чтобы быть в курсе
-                                всех
-                                новых событий</span>
+                            <h3 class="subscription__title">{{ __('messages.subscription') }}</h3>
+                            <span class="subscription__description">{{ __('messages.subscribe_newsletter') }}</span>
                             <form class="subscription-form">
                                 <input class="subscription-form__input" type="text" name="subscription"
                                     placeholder="Email">
@@ -69,8 +64,7 @@
                                 </button>
                             </form>
                         </div>
-                        <span class="footer-description">При использовании материалов сайта «XALQ SUGU`RTA», ссылка на
-                            сайт обязательна</span>
+                        <span class="footer-description">{{ __('messages.site_materials_notice') }}</span>
                     </div>
                 </div>
                 <div class="footer-bottom">

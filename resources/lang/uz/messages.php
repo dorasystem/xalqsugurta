@@ -74,6 +74,15 @@ return [
     'completed' => 'Tugallangan',
     'in_progress' => 'Jarayonda',
     'cancelled' => 'Bekor qilingan',
-    
-];
+    'shareholders' => 'Aktsiyadorlari va investorlari',
+    'useful_info' => 'Foydali ma\'lumotlar',
+    'press_center' => 'Matbuot - markazi',
+    'about_company' => 'Kompaniya haqida',
+    'work_schedule' => 'Grafik ishlar',
+    'subscription' => 'Obuna',
+    'subscribe_newsletter' => 'Bizning axborot byulletenimizga obuna bo\'ling barcha yangi voqealardan xabardor bo\'lish uchun',
+    'site_materials_notice' => '“XALQ SUGU`RTA” sayti materiallaridan foydalanilganda saytga havola bo\'lishi shart',
+    'company_address' => 'Toshkent shahri, Mirzo-Ulug\'bek tumani, Lashkarbegi, Hamid Olimjon ko\'chasi, 13 A',
+    'work_schedule_time' => 'Dush - Juma dan 09:00 uchun 18:00',
 
+];

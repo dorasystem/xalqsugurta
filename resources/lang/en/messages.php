@@ -74,5 +74,15 @@ return [
     'completed' => 'Completed',
     'in_progress' => 'In Progress',
     'cancelled' => 'Cancelled',
-];
+    'shareholders' => 'Shareholders and investors',
+    'useful_info' => 'Useful information',
+    'press_center' => 'Press Center',
+    'about_company' => 'About Us',
+    'work_schedule' => 'Graphic works',
+    'subscription' => 'Subscription',
+    'subscribe_newsletter' => 'Subscribe to our newsletter to keep up to date with all new events',
+    'site_materials_notice' => 'When using materials from the “XALQ SUGU`RTA” site, a link to the site is required',
+    'company_address' => 'Tashkent, Mirzo-Ulugbek district, SGM lashkarbegi, Hamid Alimdzhan str., 13 A',
+    'work_schedule_time' => 'Mon-Fri from 09:00 to 18:00',
 
+];
