@@ -74,5 +74,6 @@ return [
     'completed' => 'Tugallangan',
     'in_progress' => 'Jarayonda',
     'cancelled' => 'Bekor qilingan',
+    
 ];
 
