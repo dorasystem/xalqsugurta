@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: impex-insurance-app
+        restart: unless-stopped
+        working_dir: /var/www/html
+        volumes:
+            - ./:/var/www/html
+            - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+        networks:
+            - impex-network
+        depends_on:
+            - mysql
+            - redis
+        environment:
+            - APP_ENV=local
+            - APP_DEBUG=true
+
+    nginx:
+        image: nginx:alpine
+        container_name: impex-insurance-nginx
+        restart: unless-stopped
+        ports:
+            - "8080:80"
+        volumes:
+            - ./:/var/www/html
+            - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+        networks:
+            - impex-network
+        depends_on:
+            - app
+
+    mysql:
+        image: mysql:8.0
+        container_name: impex-insurance-mysql
+        restart: unless-stopped
+        environment:
+            MYSQL_ROOT_PASSWORD: rootpassword123
+            MYSQL_DATABASE: impex_db
+            MYSQL_USER: impex_user
+            MYSQL_PASSWORD: impex_pass
+        volumes:
+            - mysql_data:/var/lib/mysql
+            - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+        ports:
+            - "3307:3306"
+        networks:
+            - impex-network
+
+    redis:
+        image: redis:7-alpine
+        container_name: impex-insurance-redis
+        restart: unless-stopped
+        ports:
+            - "6379:6379"
+        volumes:
+            - redis_data:/data
+        networks:
+            - impex-network
+        command: redis-server --appendonly yes
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: impex-insurance-phpmyadmin
+        restart: unless-stopped
+        environment:
+            PMA_HOST: mysql
+            PMA_PORT: 3306
+            PMA_USER: impex_user
+            PMA_PASSWORD: impex_pass
+        ports:
+            - "8081:80"
+        networks:
+            - impex-network
+        depends_on:
+            - mysql
+
+    redis-commander:
+        image: rediscommander/redis-commander:latest
+        container_name: impex-insurance-redis-commander
+        restart: unless-stopped
+        environment:
+            REDIS_HOSTS: local:redis:6379
+        ports:
+            - "8082:8081"
+        networks:
+            - impex-network
+        depends_on:
+            - redis
+
+volumes:
+    mysql_data:
+        driver: local
+    redis_data:
+        driver: local
+
+networks:
+    impex-network:
+        driver: bridge
