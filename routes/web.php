@@ -22,5 +22,3 @@ Route::get('/', function () {
 Route::get('/fallback', function () {
     return view('welcome');
 })->name('fallback');
-
-require_once 'insurence/osago.php';

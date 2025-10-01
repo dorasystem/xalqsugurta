@@ -8,6 +8,6 @@
             <p>{{ __('messages.language') }}: {{ getCurrentLocale() }}</p>
         </div>
 
-        <a href="{{ route('osago', ['locale' => getCurrentLocale()]) }}">{{ __('messages.osago') }}</a>
+        <a href="{{ route('osago.main', ['locale' => getCurrentLocale()]) }}">{{ __('messages.osago') }}</a>
     </div>
 @endsection
