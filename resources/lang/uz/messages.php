@@ -166,10 +166,10 @@ return [
     'disabled' => 'Nogiron',
 
     // Insurance cases options
-    'one_case' => 'Bitta sug'urta hodisasi, avvalgi majburiy sug'urta shartnomasi davrida sodir bo'lgan',
-    'two_cases' => 'Ikki sug'urta hodisasi, avvalgi majburiy sug'urta shartnomasi davrida yuz bergan',
-    'three_or_more_cases' => 'Uch va undan ko'p sug'urta hodisasi, avvalgi majburiy sug'urta shartnomasi davrida sodir bo'lgan',
-    'first_time_no_cases' => 'Birinchi marta, shuningdek avvalgi majburiy sug'urta shartnomasi davrida sug'urta hodisalari bo'lmagan holatda',
+    'one_case' => 'Bitta sug\'urta hodisasi, avvalgi majburiy sug\'urta shartnomasi davrida sodir bo\'lgan',
+    'two_cases' => 'Ikki sug\'urta hodisasi, avvalgi majburiy sug\'urta shartnomasi davrida yuz bergan',
+    'three_or_more_cases' => 'Uch va undan ko\'p sug\'urta hodisasi, avvalgi majburiy sug\'urta shartnomasi davrida sodir bo\'lgan',
+    'first_time_no_cases' => 'Birinchi marta, shuningdek avvalgi majburiy sug\'urta shartnomasi davrida sug\'urta hodisalari bo\'lmagan holatda',
     'policy_start_date' => 'Polis amal qilish boshlanish sanasi',
     'policy_end_date' => 'Polis amal qilish tugash sanasi',
     'calculate' => 'Hisoblash',
@@ -181,9 +181,13 @@ return [
     'total_price' => 'Yakuniy narx',
     'calculated_period' => 'Hisoblangan davr',
     'sum' => 'so\'m',
+    'sum_per_year' => 'yiliga',
+    'sum_per_month' => 'oyiga',
+    'sum_per_day' => 'kuniga',
     'year' => 'yil',
     'months' => 'oy',
-
+    'insurance_premium' => 'Sug\'urta premia',
+    'insurance_sum' => 'Sug\'urta summa',
     // Policy Note
     'policy_note_title' => 'ESLATMA!',
     'policy_note_text' => 'Agar avtomashina boshqarish huquqi vasiylik orqali berilsa, u holda haydovchi ma\'lumotlariga vasiylik orqali huquq berilgan shaxsning ma\'lumotlari ham kiritilishi kerak.',

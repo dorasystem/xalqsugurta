@@ -181,6 +181,11 @@ return [
     'total_price' => 'Total Price',
     'calculated_period' => 'Calculated Period',
     'sum' => 'sum',
+    'sum_per_year' => 'year',
+    'sum_per_month' => 'month',
+    'sum_per_day' => 'day',
+    'insurance_premium' => 'Insurance Premium',
+    'insurance_sum' => 'Insurance Sum',
     'year' => 'year',
     'months' => 'months',
 

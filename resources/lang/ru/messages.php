@@ -183,6 +183,11 @@ return [
     'sum' => 'сум',
     'year' => 'год',
     'months' => 'месяца',
+    'sum_per_year' => 'год',
+    'sum_per_month' => 'месяц',
+    'sum_per_day' => 'день',
+    'insurance_premium' => 'Страховая премия',
+    'insurance_sum' => 'Страховая сумма',
 
     // Policy Note
     'policy_note_title' => 'ПРИМЕЧАНИЕ!',
