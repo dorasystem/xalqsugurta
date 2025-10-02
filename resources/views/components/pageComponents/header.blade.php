@@ -250,7 +250,7 @@
                             </li>
                             <li class="menu-header__item menu-item"> {{-- Foydali ma’lumotlar --}}
                                 <a class="menu-item__link menu-item-title"
-                                    href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/zakonodatelstvo-v-sfere-strahovaniya">
+                                    href="https://xalqsugurta.uz/ru/zakonodatelstvo-v-sfere-strahovaniya">
                                     <span>{{ __('messages.header_useful_info') }}</span>
                                     <svg width="20" height="20">
                                         <use xlink:href="#icon-more"></use>
@@ -261,19 +261,19 @@
                                     <div class="menu-item-dropdown__content">
                                         <ul class="menu-item__list">
                                             <li class="menu-item__row">
-                                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/zakonodatelstvo-v-sfere-strahovaniya"
+                                                <a href="https://xalqsugurta.uz/ru/zakonodatelstvo-v-sfere-strahovaniya"
                                                     class="menu-item__link">
                                                     <span>{{ __('messages.header_insurance_legislation') }}</span>
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
-                                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/osnovanie-predostavleniya-nalogovyh-lgot"
+                                                <a href="https://xalqsugurta.uz/ru/osnovanie-predostavleniya-nalogovyh-lgot"
                                                     class="menu-item__link">
                                                     <span>{{ __('messages.header_tax_benefits_basis') }}</span>
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
-                                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/strahovye-terminy"
+                                                <a href="https://xalqsugurta.uz/{{  getCurrentLocale() }}/@lang('routes.useful-information')"
                                                     class="menu-item__link">
                                                     <span>{{ __('messages.header_insurance_terms') }}</span>
                                                 </a>
@@ -403,7 +403,7 @@
                                     href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/osnovanie-predostavleniya-nalogovyh-lgot">{{ __('messages.header_tax_benefits_basis') }}</a>
                             </li>
                             <li class="menu-block__item">
-                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/strahovye-terminy">{{ __('messages.header_insurance_terms') }}</a>
+                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{  getCurrentLocale() }}/@lang('routes.useful-information')s">{{ __('messages.header_insurance_terms') }}</a>
                             </li>
                         </ul>
                     </div>

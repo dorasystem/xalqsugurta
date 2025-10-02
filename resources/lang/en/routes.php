@@ -24,4 +24,5 @@ return [
     'essential-facts' => 'essential-facts',
     'useful-information' => 'useful-information',
     'login' => 'signin',
+    'useful-information' => 'useful-information',
 ];
