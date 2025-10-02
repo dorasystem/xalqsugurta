@@ -127,7 +127,7 @@ return [
     // OSAGO Form
     'vehicle_info_title' => 'Vehicle Information',
     'gov_number' => 'State Number',
-    'gov_number_placeholder' => '01L97RB',
+    'gov_number_placeholder' => '01L097RB',
     'tech_passport_series' => 'Technical Passport Series',
     'tech_passport_series_placeholder' => 'AAG',
     'tech_passport_number' => 'Technical Passport Number',
