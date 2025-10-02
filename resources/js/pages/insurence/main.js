@@ -1030,14 +1030,14 @@
             formData.append('_vehicleTypeC', vehicleTypeC);
 
             // Add region coefficient based on vehicle registration
-            let regionIdC = 1.2; // Default
+            let regionIdC = 1.0; // Default
             if (window.vehicleData && window.vehicleData.govNumber) {
                 const govNumber = window.vehicleData.govNumber;
                 const regionCode = govNumber.substring(0, 2);
                 if (regionCode === '01' || regionCode === '10') {
-                    regionIdC = 1.4; // Tashkent region
+                    regionIdC = 1.0; // Tashkent region
                 } else {
-                    regionIdC = 1.2; // Other regions
+                    regionIdC = 0.8; // Other regions
                 }
             }
             formData.append('regionIdC', regionIdC);
@@ -1088,7 +1088,7 @@
             console.log('Amount element found:', amountElement);
 
             if (premiumElement) {
-                const premiumValue = data.discount_amount?.toLocaleString() || '0';
+                const premiumValue = data.base_price?.toLocaleString() || '0';
                 premiumElement.textContent = premiumValue;
                 console.log('Updated premium to:', premiumValue);
             } else {

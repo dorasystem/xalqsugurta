@@ -40,7 +40,7 @@ class OsagoController extends Controller
 
             // Get coefficients from request
             $vehicleTypeC = (float) $request->input('_vehicleTypeC', 0.1);
-            $regionIdC = (float) $request->input('regionIdC', 1.2);
+            $regionIdC = (float) $request->input('regionIdC', 1.0);
 
             // Period multipliers
             $periodMultipliers = [
