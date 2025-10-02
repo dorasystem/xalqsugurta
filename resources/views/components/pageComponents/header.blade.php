@@ -13,7 +13,7 @@
                             <svg width="20" height="20">
                                 <use xlink:href="#icon-pin"></use>
                             </svg>
-                            <span>Филиалы</span>
+                            <span>{{ __('messages.header_branches') }}</span>
                         </a>
                         <a href="tel:998712021966" class="header-button mob-hidden" type="button">
                             <svg width="20" height="20">
@@ -25,25 +25,25 @@
                             <svg width="20" height="20">
                                 <use xlink:href="#icon-faq"></use>
                             </svg>
-                            <span>Опросник</span>
+                            <span>{{ __('messages.header_survey_form') }}</span>
                         </a>
                         <details class="opportunities">
                             <summary class="opportunities-opener" aria-label="Специальные возможности">
                                 <svg width="20" height="20" aria-hidden="true">
                                     <use xlink:href="#icon-eye"></use>
                                 </svg>
-                                <span>Спец.возможности</span>
+                                <span>{{ __('messages.header_special_features') }}</span>
                             </summary>
                             <div class="opportunities-list">
                                 <button class="opportunities-item" type="button" data-vision="off">
                                     <span class="switch"></span>
-                                    <span class="opportunities-text">Версия для слабовидящих</span>
+                                    <span class="opportunities-text">{{ __('messages.header_accessibility_version') }}</span>
                                 </button>
                                 <button class="opportunities-item" type="button" data-voice="off"
                                     data-voice-lang="ru_RU">
                                     <!-- ru_RU / en_GB / uz_UZ -->
                                     <span class="switch"></span>
-                                    <span class="opportunities-text">Озвучивание</span>
+                                    <span class="opportunities-text">{{ __('messages.header_audio_support') }}</span>
                                 </button>
                             </div>
                         </details>
@@ -78,7 +78,7 @@
                             <svg width="20" height="20">
                                 <use xlink:href="#icon-pdf-file"></use>
                             </svg>
-                            <span>Европротокол</span>
+                            <span>{{ __('messages.header_euro_protocol') }}</span>
                         </a>
                         <button class="burger" type="button" aria-label="Открыть меню" data-open="menu">
                             <span></span>
@@ -97,9 +97,9 @@
                     </a>
                     <nav class="menu-header">
                         <ul class="menu-header__list">
-                            <li class="menu-header__item menu-item">
+                            <li class="menu-header__item menu-item"> {{-- Kompaniya Haqida --}}
                                 <a class="menu-item__link menu-item-title" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/about">
-                                    <span>О компании</span>
+                                    <span>{{ __('messages.header_about_company') }}</span>
                                     <svg width="20" height="20">
                                         <use xlink:href="#icon-more"></use>
                                     </svg>
@@ -109,64 +109,64 @@
                                     <div class="menu-item-dropdown__content">
                                         <ul class="menu-item__list">
                                             <li class="menu-item__row">
-                                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/management"
+                                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/{{ __('routes.management') }}"
                                                     class="menu-item__link">
-                                                    <span>Руководство</span>
+                                                    <span>{{ __('messages.header_management') }}</span>
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
                                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/licenses" class="menu-item__link">
-                                                    <span>Лицензия и сертификаты</span>
+                                                    <span>{{ __('messages.header_licenses') }}</span>
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
                                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/financial-statements"
                                                     class="menu-item__link">
-                                                    <span>Финансовая отчетность</span>
+                                                    <span>{{ __('messages.header_financial_reports') }}</span>
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
                                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/audit-zaklyuchenie"
                                                     class="menu-item__link">
-                                                    <span>Аудит</span>
+                                                    <span>{{ __('messages.header_audit') }}</span>
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
                                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/biznes-plan" class="menu-item__link">
-                                                    <span>Бизнес-план</span>
+                                                    <span>{{ __('messages.header_business_plan') }}</span>
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
                                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/vacancies" class="menu-item__link">
-                                                    <span>Вакансии</span>
+                                                    <span>{{ __('messages.header_vacancies') }}</span>
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
                                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/kollegialnye-organy"
                                                     class="menu-item__link">
-                                                    <span>Коллегиальные органы</span>
+                                                    <span>{{ __('messages.header_collegial_bodies') }}</span>
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
                                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/predmet-i-celi-deyatelnosti-obshestva"
                                                     class="menu-item__link">
-                                                    <span>Предмет и цели деятельности общества</span>
+                                                    <span>{{ __('messages.header_objectives') }}</span>
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
                                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/struktura-kompanii"
                                                     class="menu-item__link">
-                                                    <span>Структура компании</span>
+                                                    <span>{{ __('messages.header_company_structure') }}</span>
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
                                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/polozheniya" class="menu-item__link">
-                                                    <span>Положения</span>
+                                                    <span>{{ __('messages.header_regulations') }}</span>
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
                                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/oprosnik" class="menu-item__link">
-                                                    <span>Опросник</span>
+                                                    <span>{{ __('messages.header_questionnaire') }}</span>
                                                 </a>
                                             </li>
                                         </ul>
@@ -174,10 +174,10 @@
                                 </div>
 
                             </li>
-                            <li class="menu-header__item menu-item">
+                            <li class="menu-header__item menu-item">  {{-- Aktsiyadorlari va investorlari --}}
                                 <a class="menu-item__link menu-item-title"
                                     href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/affilirovannye-lica">
-                                    <span>Акционерам и инвесторам</span>
+                                    <span>{{ __('messages.header_shareholders') }}</span>
                                     <svg width="20" height="20">
                                         <use xlink:href="#icon-more"></use>
                                     </svg>
@@ -189,23 +189,23 @@
                                             <li class="menu-item__row">
                                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/affilirovannye-lica"
                                                     class="menu-item__link">
-                                                    <span>Аффилированные лица</span>
+                                                    <span>{{ __('messages.header_affiliated_persons') }}</span>
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
                                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/akcii" class="menu-item__link">
-                                                    <span>Акции</span>
+                                                    <span>{{ __('messages.header_shares') }}</span>
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
                                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/dividendy" class="menu-item__link">
-                                                    <span>Дивиденды</span>
+                                                    <span>{{ __('messages.header_dividends') }}</span>
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
                                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/essential-facts"
                                                     class="menu-item__link">
-                                                    <span>Существенные факты</span>
+                                                    <span>{{ __('messages.header_important_facts') }}</span>
                                                 </a>
                                             </li>
                                         </ul>
@@ -213,9 +213,9 @@
                                 </div>
 
                             </li>
-                            <li class="menu-header__item menu-item">
+                            <li class="menu-header__item menu-item"> {{-- Sug’urta --}}
                                 <a class="menu-item__link menu-item-title" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/strahovanie">
-                                    <span>Страхование</span>
+                                    <span>{{ __('messages.header_insurance') }}</span>
                                     <svg width="20" height="20">
                                         <use xlink:href="#icon-more"></use>
                                     </svg>
@@ -227,13 +227,13 @@
                                             <li class="menu-item__row">
                                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/strahovanie#private"
                                                     class="menu-item__link" data-scroll="private">
-                                                    <span>Частным клиентам</span>
+                                                    <span>{{ __('messages.header_private_clients') }}</span>
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
                                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/strahovanie#corporate"
                                                     class="menu-item__link" data-scroll="corporate">
-                                                    <span>Корпоративным клиентам</span>
+                                                    <span>{{ __('messages.header_corporate_clients') }}</span>
                                                 </a>
                                             </li>
                                         </ul>
@@ -241,17 +241,17 @@
                                 </div>
 
                             </li>
-                            <li class="menu-header__item menu-item">
+                            <li class="menu-header__item menu-item"> {{-- Matbuot – markazi --}}
                                 <a class="menu-item__link menu-item-title" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/news">
-                                    <span>Пресс-центр</span>
+                                    <span>{{ __('messages.header_press_center') }}</span>
 
                                 </a>
 
                             </li>
-                            <li class="menu-header__item menu-item">
+                            <li class="menu-header__item menu-item"> {{-- Foydali ma’lumotlar --}}
                                 <a class="menu-item__link menu-item-title"
                                     href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/zakonodatelstvo-v-sfere-strahovaniya">
-                                    <span>Полезная информация</span>
+                                    <span>{{ __('messages.header_useful_info') }}</span>
                                     <svg width="20" height="20">
                                         <use xlink:href="#icon-more"></use>
                                     </svg>
@@ -263,19 +263,19 @@
                                             <li class="menu-item__row">
                                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/zakonodatelstvo-v-sfere-strahovaniya"
                                                     class="menu-item__link">
-                                                    <span>Законодательство в сфере страхования</span>
+                                                    <span>{{ __('messages.header_insurance_legislation') }}</span>
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
                                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/osnovanie-predostavleniya-nalogovyh-lgot"
                                                     class="menu-item__link">
-                                                    <span>Основание предоставления налоговых льгот</span>
+                                                    <span>{{ __('messages.header_tax_benefits_basis') }}</span>
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
                                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/strahovye-terminy"
                                                     class="menu-item__link">
-                                                    <span>Страховые термины</span>
+                                                    <span>{{ __('messages.header_insurance_terms') }}</span>
                                                 </a>
                                             </li>
                                         </ul>
@@ -297,7 +297,7 @@
                             <svg width="20" height="20">
                                 <use xlink:href="#icon-user"></use>
                             </svg>
-                            <span>Личный кабинет</span>
+                            <span>{{ __('messages.header_personal_account') }}</span>
                         </a>
                     </div>
                 </div>
@@ -312,112 +312,98 @@
 
             <div class="menu__columnL">
                 <div class="menu-content">
-                    <div class="menu-block">
-                        <a class="menu-block__title" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/about" data-id="67e288002adb5">О
-                            компании</a>
+                    <div class="menu-block"> {{-- Kompaniya Haqida --}}
+                        <a class="menu-block__title" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/about" data-id="67e288002adb5">{{ __('messages.header_about_company') }}</a>
                         <ul class="menu-block__list">
                             <li class="menu-block__item">
-                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/management">Руководство</a>
+                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/management">{{ __('messages.header_management') }}</a>
                             </li>
                             <li class="menu-block__item">
-                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/licenses">Лицензия и
-                                    сертификаты</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link"
-                                    href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/financial-statements">Финансовая отчетность</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/audit-zaklyuchenie">Аудит</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/biznes-plan">Бизнес-план</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/vacancies">Вакансии</a>
+                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/licenses">{{ __('messages.header_licenses') }}</a>
                             </li>
                             <li class="menu-block__item">
                                 <a class="menu-block__link"
-                                    href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/kollegialnye-organy">Коллегиальные органы</a>
+                                    href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/financial-statements">{{ __('messages.header_financial_reports') }}</a>
+                            </li>
+                            <li class="menu-block__item">
+                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/audit-zaklyuchenie">{{ __('messages.header_audit') }}</a>
+                            </li>
+                            <li class="menu-block__item">
+                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/biznes-plan">{{ __('messages.header_business_plan') }}</a>
+                            </li>
+                            <li class="menu-block__item">
+                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/vacancies">{{ __('messages.header_vacancies') }}</a>
                             </li>
                             <li class="menu-block__item">
                                 <a class="menu-block__link"
-                                    href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/predmet-i-celi-deyatelnosti-obshestva">Предмет
-                                    и
-                                    цели деятельности общества</a>
+                                    href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/kollegialnye-organy">{{ __('messages.header_collegial_bodies') }}</a>
                             </li>
                             <li class="menu-block__item">
-                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/struktura-kompanii">Структура
-                                    компании</a>
+                                <a class="menu-block__link"
+                                    href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/predmet-i-celi-deyatelnosti-obshestva">{{ __('messages.header_objectives') }}</a>
                             </li>
                             <li class="menu-block__item">
-                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/polozheniya">Положения</a>
+                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/struktura-kompanii">{{ __('messages.header_company_structure') }}</a>
                             </li>
                             <li class="menu-block__item">
-                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/oprosnik">Опросник</a>
+                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/polozheniya">{{ __('messages.header_regulations') }}</a>
+                            </li>
+                            <li class="menu-block__item">
+                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/oprosnik">{{ __('messages.header_questionnaire') }}</a>
                             </li>
                         </ul>
                     </div>
-                    <div class="menu-block">
+                    <div class="menu-block"> {{-- Aktsiyadorlari va investorlari --}}
                         <a class="menu-block__title" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/affilirovannye-lica"
-                            data-id="67e288002adc1">Акционерам
-                            и инвесторам</a>
+                            data-id="67e288002adc1">{{ __('messages.header_shareholders') }}</a>
                         <ul class="menu-block__list">
                             <li class="menu-block__item">
                                 <a class="menu-block__link"
-                                    href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/affilirovannye-lica">Аффилированные лица</a>
+                                    href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/affilirovannye-lica">{{ __('messages.header_affiliated_persons') }}</a>
                             </li>
                             <li class="menu-block__item">
-                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/akcii">Акции</a>
+                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/akcii">{{ __('messages.header_shares') }}</a>
                             </li>
                             <li class="menu-block__item">
-                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/dividendy">Дивиденды</a>
+                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/dividendy">{{ __('messages.header_dividends') }}</a>
                             </li>
                             <li class="menu-block__item">
-                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/essential-facts">Существенные
-                                    факты</a>
+                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/essential-facts">{{ __('messages.header_important_facts') }}</a>
                             </li>
                         </ul>
                     </div>
-                    <div class="menu-block">
+                    <div class="menu-block"> {{-- Sug’urta --}}
                         <a class="menu-block__title" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/strahovanie"
-                            data-id="67e288002adc6">Страхование</a>
+                            data-id="67e288002adc6">{{ __('messages.header_insurance') }}</a>
                         <ul class="menu-block__list">
                             <li class="menu-block__item">
-                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/strahovanie#private">Частным
-                                    клиентам</a>
+                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/strahovanie#private">{{ __('messages.header_private_clients') }}</a>
                             </li>
                             <li class="menu-block__item">
                                 <a class="menu-block__link"
-                                    href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/strahovanie#corporate">Корпоративным
-                                    клиентам</a>
+                                    href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/strahovanie#corporate">{{ __('messages.header_corporate_clients') }}</a>
                             </li>
                         </ul>
                     </div>
-                    <div class="menu-block">
+                    <div class="menu-block"> {{-- Matbuot – markazi --}}
                         <a class="menu-block__title" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/news"
-                            data-id="67e288002adc9">Пресс-центр</a>
+                            data-id="67e288002adc9">{{ __('messages.header_press_center') }}</a>
                     </div>
-                    <div class="menu-block">
+                    <div class="menu-block"> {{-- Foydali ma’lumotlar --}}
                         <a class="menu-block__title"
                             href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/zakonodatelstvo-v-sfere-strahovaniya"
-                            data-id="67e288002adca">Полезная информация</a>
+                            data-id="67e288002adca">{{ __('messages.header_useful_info') }}</a>
                         <ul class="menu-block__list">
                             <li class="menu-block__item">
                                 <a class="menu-block__link"
-                                    href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/zakonodatelstvo-v-sfere-strahovaniya">Законодательство
-                                    в сфере
-                                    страхования</a>
+                                    href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/zakonodatelstvo-v-sfere-strahovaniya">{{ __('messages.header_insurance_legislation') }}</a>
                             </li>
                             <li class="menu-block__item">
                                 <a class="menu-block__link"
-                                    href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/osnovanie-predostavleniya-nalogovyh-lgot">Основание
-                                    предоставления
-                                    налоговых льгот</a>
+                                    href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/osnovanie-predostavleniya-nalogovyh-lgot">{{ __('messages.header_tax_benefits_basis') }}</a>
                             </li>
                             <li class="menu-block__item">
-                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/strahovye-terminy">Страховые
-                                    термины</a>
+                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/strahovye-terminy">{{ __('messages.header_insurance_terms') }}</a>
                             </li>
                         </ul>
                     </div>
@@ -483,14 +469,14 @@
                         <svg width="20" height="20">
                             <use xlink:href="#icon-user"></use>
                         </svg>
-                        <span>Личный кабинет</span>
+                        <span>{{ __('messages.header_personal_account') }}</span>
                     </span>
                     <ul class="menu-bar__list">
                         <li class="menu-bar__line">
-                            <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/signin" class="menu-bar__link">Войти</a>
+                            <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/signin" class="menu-bar__link">{{ __('messages.login') }}</a>
                         </li>
                         <li class="menu-bar__line">
-                            <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/signup" class="menu-bar__link">Зарегистрироваться</a>
+                            <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/signup" class="menu-bar__link">{{ __('messages.register') }}</a>
                         </li>
                     </ul>
                 </div>
@@ -499,7 +485,7 @@
                         <svg width="20" height="20">
                             <use xlink:href="#icon-phone"></use>
                         </svg>
-                        <h4>Служба поддержки</h4>
+                        <h4>{{ __('messages.support_service') }}</h4>
                     </div>
                     <ul class="menu-bar__list">
                         <li class="menu-bar__line">
@@ -512,13 +498,11 @@
                         <svg width="20" height="20">
                             <use xlink:href="#icon-pin"></use>
                         </svg>
-                        <h4> Адрес:</h4>
+                        <h4> {{ __('messages.address') }}:</h4>
                     </div>
                     <ul class="menu-bar__list">
                         <li class="menu-bar__line">
-                            <a href="#" class="menu-bar__link">г. Ташкент, Мирзо-Улугбекский район, СГМ
-                                Лашкарбеги, ул.
-                                Хамид Алимджана, 13 А</a>
+                            <a href="#" class="menu-bar__link">{{ __('messages.company_address') }}</a>
                         </li>
                     </ul>
                 </div>
@@ -527,7 +511,7 @@
                         <svg width="20" height="20">
                             <use xlink:href="#icon-email-02"></use>
                         </svg>
-                        <h4>Email:</h4>
+                        <h4>{{ __('messages.footer_email') }}:</h4>
                     </div>
                     <ul class="menu-bar__list">
                         <li class="menu-bar__line">
@@ -540,11 +524,11 @@
                         <svg width="20" height="20">
                             <use xlink:href="#icon-clock"></use>
                         </svg>
-                        <h4>График работы:</h4>
+                        <h4>{{ __('messages.work_schedule') }}:</h4>
                     </div>
                     <ul class="menu-bar__list">
                         <li class="menu-bar__line">
-                            <a href="#" class="menu-bar__link">Пн - Пт с 09:00 до 18:00</a>
+                            <a href="#" class="menu-bar__link">{{ __('messages.work_schedule_time') }}</a>
                         </li>
                     </ul>
                 </div>

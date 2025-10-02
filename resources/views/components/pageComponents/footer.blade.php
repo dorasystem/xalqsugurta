@@ -7,22 +7,20 @@
                         </a>
 
                         <ul class="footer-menu">
-                            <li class="footer-menu__item">
+                            <li class="footer-menu__item"> {{-- Kompaniya haqida --}}
                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/about" class="footer-menu__link">{{ __('messages.about_company') }}</a>
                             </li>
-                            <li class="footer-menu__item">
-                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/affilirovannye-lica"
-                                    class="footer-menu__link">{{ __('messages.shareholders') }}</a>
+                            <li class="footer-menu__item">{{-- Aktsiyadorlari va investorlari --}}
+                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/{{ __('routes.shareholders') }}" class="footer-menu__link">{{ __('messages.shareholders') }}</a>
                             </li>
-                            <li class="footer-menu__item">
-                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/strahovanie" class="footer-menu__link">{{ __('messages.insurance') }}</a>
+                            <li class="footer-menu__item">{{-- Sug'urta --}}
+                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/{{ __('routes.insurance') }}" class="footer-menu__link">{{ __('messages.insurance') }}</a>
                             </li>
-                            <li class="footer-menu__item">
-                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/news" class="footer-menu__link">{{ __('messages.press_center') }}</a>
+                            <li class="footer-menu__item">{{-- Matbuot - markazi --}}
+                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/{{ __('routes.news') }}" class="footer-menu__link">{{ __('messages.press_center') }}</a>
                             </li>
-                            <li class="footer-menu__item">
-                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/zakonodatelstvo-v-sfere-strahovaniya"
-                                    class="footer-menu__link">{{ __('messages.useful_info') }}</a>
+                            <li class="footer-menu__item">{{-- Foydali ma'lumotlar --}}
+                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/{{ __('routes.useful_info') }}" class="footer-menu__link">{{ __('messages.useful_info') }}</a>
                             </li>
                         </ul>
                     </div>
@@ -31,16 +29,16 @@
 
                         <ul class="footer-contacts">
                             <li class="footer-contacts__block">
-                                <h3 class="footer-contacts__title">{{ __('messages.phone') }}:</h3>
+                                <h3 class="footer-contacts__title">{{ __('messages.footer_phone') }}:</h3>
                                 <a href="tel:+(+998 71) 202-19-66" class="footer-contacts__text">(+998 71)
                                     202-19-66</a>
                             </li>
                             <li class="footer-contacts__block">
-                                <h3 class="footer-contacts__title">{{ __('messages.address') }}:</h3>
+                                <h3 class="footer-contacts__title">{{ __('messages.footer_address') }}:</h3>
                                 <p class="footer-contacts__text">{{ __('messages.company_address') }}</p>
                             </li>
                             <li class="footer-contacts__block">
-                                <h3 class="footer-contacts__title">{{ __('messages.email') }}:</h3>
+                                <h3 class="footer-contacts__title">{{ __('messages.footer_email') }}:</h3>
                                 <a href="mailto:info@xalqsugurta.uz"
                                     class="footer-contacts__text">info@xalqsugurta.uz</a>
                             </li>
