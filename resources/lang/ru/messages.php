@@ -137,7 +137,9 @@ return [
     'applicant_phone_number' => 'Номер телефона заявителя',
 
     // Policy Calculation
+    'policy_calculation' => 'Расчет полиса',
     'policy_calculation_title' => 'Расчет полиса',
+    'driver_limit' => 'Ограничение водителей',
     'driver_limit_title' => 'Выберите количество водителей - ?',
     'limited_drivers' => 'Ограничено до 5 человек',
     'unlimited_drivers' => 'Не ограничено',
@@ -146,6 +148,7 @@ return [
     'loyalty_discount' => 'Скидка за лояльность',
     'family_discount' => 'Семейная скидка',
     'senior_discount' => 'Скидка для пенсионеров',
+    'insurance_period' => 'Период страхования',
     'insurance_period_title' => 'Выберите период страхования - ?',
     '1_year' => 'На 1 год',
     '6_months' => 'На 6 месяцев',

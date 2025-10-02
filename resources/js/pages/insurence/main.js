@@ -628,30 +628,6 @@
             }
         },
 
-        displayResults: function (calculation) {
-            // Update result display
-            const basePriceElement = document.getElementById('base-price');
-            const discountAmountElement = document.getElementById('discount-amount');
-            const totalPriceElement = document.getElementById('total-price');
-            const calculatedPeriodElement = document.getElementById('calculated-period');
-            const resultsDiv = document.getElementById('policy-results');
-
-            if (basePriceElement) basePriceElement.textContent = calculation.basePrice.toLocaleString();
-            if (discountAmountElement) discountAmountElement.textContent = calculation.discountAmount.toLocaleString();
-            if (totalPriceElement) totalPriceElement.textContent = calculation.totalPrice.toLocaleString();
-            if (calculatedPeriodElement) {
-                const periodText = {
-                    '1_year': window.translations?.period_1_year || '1 год',
-                    '6_months': window.translations?.period_6_months || '6 месяцев',
-                    '3_months': window.translations?.period_3_months || '3 месяца'
-                };
-                calculatedPeriodElement.textContent = periodText[calculation.insurancePeriod] || window.translations?.period_1_year || '1 год';
-            }
-            if (resultsDiv) {
-                resultsDiv.classList.remove('d-none');
-            }
-        },
-
         updateEndDate: function () {
             const startDate = document.getElementById('policy_start_date')?.value;
             const insurancePeriod = document.getElementById('insurance_period')?.value;
@@ -1016,18 +992,119 @@
                     return;
                 }
 
-                // Perform calculation
-                const calculation = policyCalc.calculatePolicy();
-                policyCalc.displayResults(calculation);
+                // Submit form to server
+                handlers.submitCalculationForm();
 
-                policyCalc.updateSteps(4); // Mark calculation step as completed, results step as active
-                utils.showToast(window.translations?.policy_calculated || 'Расчет полиса выполнен успешно!', 'success');
-
-                console.log('Policy calculation completed:', calculation);
             } catch (error) {
                 console.error('Policy calculation error:', error);
                 utils.showToast(window.translations?.policy_calculation_error || 'Ошибка при расчете полиса', 'error');
             }
+        },
+
+        submitCalculationForm: async function () {
+            const form = document.getElementById('policy-calculation-form');
+            const formData = new FormData(form);
+            const submitBtn = document.getElementById('calculate-policy-btn');
+
+            // Add vehicle type coefficient from window.vehicleData
+            let vehicleTypeC = 0.1; // Default for passenger car
+            if (window.vehicleData && window.vehicleData.vehicleTypeId) {
+                switch (window.vehicleData.vehicleTypeId) {
+                    case 2:
+                        vehicleTypeC = 0.1; // Passenger car
+                        break;
+                    case 6:
+                        vehicleTypeC = 0.12; // Truck
+                        break;
+                    case 9:
+                        vehicleTypeC = 0.12; // Bus
+                        break;
+                    case 15:
+                        vehicleTypeC = 0.04; // Motorcycle
+                        break;
+                    default:
+                        vehicleTypeC = 0.1; // Default
+                        break;
+                }
+            }
+            formData.append('_vehicleTypeC', vehicleTypeC);
+
+            // Add region coefficient based on vehicle registration
+            let regionIdC = 1.2; // Default
+            if (window.vehicleData && window.vehicleData.govNumber) {
+                const govNumber = window.vehicleData.govNumber;
+                const regionCode = govNumber.substring(0, 2);
+                if (regionCode === '01' || regionCode === '10') {
+                    regionIdC = 1.4; // Tashkent region
+                } else {
+                    regionIdC = 1.2; // Other regions
+                }
+            }
+            formData.append('regionIdC', regionIdC);
+
+            utils.showLoading(submitBtn);
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Display server calculation results
+                    this.displayServerResults(result.data);
+                    policyCalc.updateSteps(4); // Mark calculation step as completed
+                    utils.showToast(window.translations?.policy_calculated || 'Расчет полиса выполнен успешно!', 'success');
+                } else {
+                    utils.showToast(result.message || 'Ошибка расчета', 'error');
+                }
+
+            } catch (error) {
+                console.error('Form submission error:', error);
+                utils.showToast(window.translations?.request_error || 'Ошибка отправки запроса', 'error');
+            } finally {
+                utils.hideLoading(submitBtn, 'icon-calculator');
+            }
+        },
+
+        displayServerResults: function (data) {
+            console.log('Displaying server results:', data);
+
+            // Update calculate component with server response
+            const premiumElement = document.getElementById('premium');
+            const amountElement = document.getElementById('amount');
+
+            console.log('Premium element found:', premiumElement);
+            console.log('Amount element found:', amountElement);
+
+            if (premiumElement) {
+                const premiumValue = data.discount_amount?.toLocaleString() || '0';
+                premiumElement.textContent = premiumValue;
+                console.log('Updated premium to:', premiumValue);
+            } else {
+                console.error('Premium element not found!');
+            }
+
+            if (amountElement) {
+                const amountValue = data.insurance_amount?.toLocaleString() || '0';
+                amountElement.textContent = amountValue;
+                console.log('Updated amount to:', amountValue);
+            } else {
+                console.error('Amount element not found!');
+            }
+
+            // Store server calculation result
+            window.serverCalculationResult = data;
         },
 
         onInsurancePeriodChange: function (_e) {

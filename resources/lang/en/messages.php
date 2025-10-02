@@ -137,7 +137,9 @@ return [
     'applicant_phone_number' => 'Applicant Phone Number',
 
     // Policy Calculation
+    'policy_calculation' => 'Policy Calculation',
     'policy_calculation_title' => 'Policy Calculation',
+    'driver_limit' => 'Driver Limit',
     'driver_limit_title' => 'Select number of drivers - ?',
     'limited_drivers' => 'Limited to 5 people',
     'unlimited_drivers' => 'Unlimited',
@@ -146,6 +148,7 @@ return [
     'loyalty_discount' => 'Loyalty discount',
     'family_discount' => 'Family discount',
     'senior_discount' => 'Senior discount',
+    'insurance_period' => 'Insurance Period',
     'insurance_period_title' => 'Select insurance period - ?',
     '1_year' => '1 year',
     '6_months' => '6 months',
