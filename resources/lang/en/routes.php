@@ -10,6 +10,18 @@ return [
     'questionnaire' => 'questionnaire',
     'about' => 'about',
     'licenses' => 'licenses',
-    'financial-statements' => 'financial-statements'
-
+    'financial-statements' => 'financial-statements',
+    'audit' => 'audit-zaklyuchenie',
+    'business-plan' => 'business-plan',
+    'vacancies' => 'vacancies',
+    'collegial-bodies' => 'collegial-bodies',
+    'subject-objectives' => 'the-subject-and-objectives-of-the-society',
+    'company-structure' => 'struktura-kompanii',
+    'regulation' => 'regulations',
+    'affiliates' => 'affiliates',
+    'stocks' => 'stocks',
+    'dividend' => 'dividends',
+    'essential-facts' => 'essential-facts',
+    'useful-information' => 'useful-information',
+    'login' => 'signin',
 ];

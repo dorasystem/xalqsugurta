@@ -10,6 +10,18 @@ return [
     'questionnaire' => 'anketa',
     'about' => 'about',
     'licenses' => 'licenses',
-    'financial-statements' => 'financial-statements'
-
+    'financial-statements' => 'financial-statements',
+    'audit' => 'audit-zaklyuchenie',
+    'business-plan' => 'biznes-reja',
+    'vacancies' => 'vacancies',
+    'collegial-bodies' => 'kollegial-organlar',
+    'subject-objectives' => 'jamiyati-faoliyatining-predmeti-va-maqsadlari',
+    'company-structure' => 'struktura-kompanii',
+    'regulation' => 'qoidalar',
+    'affiliates' => 'affilangan-shaxslar',
+    'stocks' => 'aksiyalar',
+    'dividend' => 'dividendlar',
+    'essential-facts' => 'essential-facts',
+    'useful-information' => 'foydali-malumotlar',
+    'login' => 'signin',
 ];
