@@ -108,7 +108,7 @@
                                 <div class="menu-item__dropdown">
                                     <div class="menu-item-dropdown__content">
                                         <ul class="menu-item__list">
-                                            <li class="menu-item__row">
+                                            <li class="menu-item__row">{{-- ////////////////////////////////////////////////////////////// --}}
                                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/{{ __('routes.management') }}"
                                                     class="menu-item__link">
                                                     <span>{{ __('messages.header_management') }}</span>
