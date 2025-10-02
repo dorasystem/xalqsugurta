@@ -1,5 +1,5 @@
         <!-- header -->
-        <header class="header">
+        <header class="header" style="background: #393185 !important;">
             <div class="header__wrapper">
 
                 <div class="header-top">
@@ -9,7 +9,7 @@
                             <span></span>
                             <span></span>
                         </button>
-                        <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/filialy" class="header-button mob-hidden" type="button">
+                        <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/@lang('routes.branches')" class="header-button mob-hidden" type="button">
                             <svg width="20" height="20">
                                 <use xlink:href="#icon-pin"></use>
                             </svg>
@@ -21,7 +21,7 @@
                             </svg>
                             <span>(+998 71) 202-19-66</span>
                         </a>
-                        <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/oprosnik" class="header-button mob-hidden" type="button">
+                        <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/@lang('routes.questionnaire')" class="header-button mob-hidden" type="button">
                             <svg width="20" height="20">
                                 <use xlink:href="#icon-faq"></use>
                             </svg>
@@ -98,7 +98,7 @@
                     <nav class="menu-header">
                         <ul class="menu-header__list">
                             <li class="menu-header__item menu-item"> {{-- Kompaniya Haqida --}}
-                                <a class="menu-item__link menu-item-title" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/about">
+                                <a class="menu-item__link menu-item-title" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/@lang('routes.about')">
                                     <span>{{ __('messages.header_about_company') }}</span>
                                     <svg width="20" height="20">
                                         <use xlink:href="#icon-more"></use>
@@ -115,12 +115,12 @@
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
-                                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/licenses" class="menu-item__link">
+                                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/@lang('routes.licenses')" class="menu-item__link">
                                                     <span>{{ __('messages.header_licenses') }}</span>
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
-                                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/financial-statements"
+                                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/@lang('routes.financial-statements')"
                                                     class="menu-item__link">
                                                     <span>{{ __('messages.header_financial_reports') }}</span>
                                                 </a>

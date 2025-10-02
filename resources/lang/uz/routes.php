@@ -6,6 +6,10 @@ return [
     'news' => 'news',
     'useful_info' => 'foydali-malumotlar',
     'management' => 'management',
-    
+    'branches' => 'filiallar',
+    'questionnaire' => 'anketa',
+    'about' => 'about',
+    'licenses' => 'licenses',
+    'financial-statements' => 'financial-statements'
 
 ];
