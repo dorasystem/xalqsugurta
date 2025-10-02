@@ -18,121 +18,81 @@
                         <div class="card-body">
                             <div class="row gap-1">
 
-                                <x-inputs.input_form :col=3 :name="'gov_number'" :placeholder="'messages.gov_number_placeholder'"  :label="'messages.tech_passport_series'"/>
+                                <x-inputs.input_form :class="'col-md-3'" :idFor="'gov_number'" :name="'gov_number'" :placeholder="'messages.gov_number_placeholder'"
+                                    :label="'messages.tech_passport_series'" />
 
-                                <x-inputs.input_form :col=2 :name="'tech_passport_series'" :placeholder="'messages.tech_passport_series_placeholder'"  :label="'messages.gov_number'"/>
+                                <x-inputs.input_form :class="'col-md-2'" :idFor="'tech_passport_series'" :name="'tech_passport_series'" :placeholder="'messages.tech_passport_series_placeholder'"
+                                    :label="'messages.gov_number'" />
 
-                                <x-inputs.input_form :col=3 :name="'tech_passport_number'" :placeholder="'messages.tech_passport_number_placeholder'" :label="'messages.tech_passport_number'" />
-                                
+                                <x-inputs.input_form :class="'col-md-3'" :idFor="'tech_passport_number'" :name="'tech_passport_number'"
+                                    :placeholder="'messages.tech_passport_number_placeholder'" :label="'messages.tech_passport_number'" />
+
                                 <x-inputs.button :class="'col-md-3'" :button="'vehicle-search-btn'" />
-
-
-
 
                             </div>
                         </div>
 
                         <div id="vehicle-info-display" class="card-footer d-none">
                             <div class="row">
-                                <div class="col-md-4">
-                                    <label for="brand" class="form-label">{{ __('messages.brand') }}</label>
-                                    <input type="text" id="brand"
-                                        placeholder="{{ __('messages.brand_placeholder') }}" name="brand"
-                                        class="form-input" readonly>
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="car_type" class="form-label">{{ __('messages.car_type') }}</label>
-                                    <input type="text" id="car_type"
-                                        placeholder="{{ __('messages.car_type_placeholder') }}" name="car_type"
-                                        class="form-input" readonly>
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="car_year" class="form-label">{{ __('messages.car_year') }}</label>
-                                    <input type="text" id="car_year"
-                                        placeholder="{{ __('messages.car_year_placeholder') }}" name="car_year"
-                                        class="form-input" readonly>
-                                </div>
+
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'brand'" :name="'brand'"
+                                    :label="'messages.brand'" :placeholder="'messages.brand_placeholder'" />
+
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'car_type'" :name="'car_type'"
+                                    :label="'messages.car_type'" :placeholder="'messages.car_type_placeholder'" />
+
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'car_year'" :name="'car_year'"
+                                    :label="'messages.car_year'" :placeholder="'messages.car_year_placeholder'" />
+
                             </div>
+
                             <div class="row">
-                                <div class="col-md-4">
-                                    <label for="registration_region"
-                                        class="form-label">{{ __('messages.registration_region') }}</label>
-                                    <input type="text" id="registration_region"
-                                        placeholder="{{ __('messages.registration_region_placeholder') }}"
-                                        name="registration_region" class="form-input" readonly>
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="car_owner" class="form-label">{{ __('messages.car_owner') }}</label>
-                                    <input type="text" id="car_owner"
-                                        placeholder="{{ __('messages.car_owner_placeholder') }}" name="car_owner"
-                                        class="form-input" readonly>
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="model" class="form-label">{{ __('messages.model') }}</label>
-                                    <input type="text" id="model"
-                                        placeholder="{{ __('messages.model_placeholder') }}" name="model"
-                                        class="form-input" readonly>
-                                </div>
+
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'registration_region'" :name="'registration_region'"
+                                    :label="'messages.registration_region'" :placeholder="'messages.registration_region_placeholder'" />
+
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'car_owner'" :name="'car_owner'"
+                                    :label="'messages.car_owner'" :placeholder="'messages.car_owner_placeholder'" />
+
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'model'" :name="'model'"
+                                    :label="'messages.model'" :placeholder="'messages.model_placeholder'" />
+
                             </div>
                         </div>
 
                     </div>
+
                     <div id="owner-info" class="card d-none">
                         <div class="card-header">
                             <h4 class="card-title">{{ __('messages.owner_info_title') }}</h4>
                         </div>
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-md-2 d-flex flex-column justify-content-end">
-                                    <label for="insurance-passport-series"
-                                        class="form-label">{{ __('messages.passport_series') }}</label>
-                                    <input type="text" id="insurance-passport-series"
-                                        placeholder="{{ __('messages.passport_series_placeholder') }}"
-                                        name="passport_series" class="form-input">
-                                </div>
-                                <div class="col-md-3 d-flex flex-column  justify-content-end">
-                                    <label for="insurance-passport-number"
-                                        class="form-label">{{ __('messages.passport_number') }}</label>
-                                    <input type="text" id="insurance-passport-number"
-                                        placeholder="{{ __('messages.passport_number_placeholder') }}"
-                                        name="passport_number" class="form-input">
-                                </div>
-                                <div class="col-md-4 d-flex flex-column justify-content-end">
-                                    <label for="insurance-pinfl"
-                                        class="form-label">{{ __('messages.owner_pinfl') }}</label>
-                                    <input type="text" id="insurance-pinfl" disabled
-                                        placeholder="{{ __('messages.owner_pinfl_placeholder') }}" name="pinfl"
-                                        class="form-input">
-                                </div>
-                                <div class="col-md-2 d-flex flex-column justify-content-end">
-                                    <button id="owner-information-search-btn" class="btn btn-icon"><svg width="20"
-                                            height="20">
-                                            <use xlink:href="#icon-search"></use>
-                                        </svg></button>
-                                </div>
+
+                                <x-inputs.input_form :class="'col-md-2'" :idFor="'insurance-passport-series'" :name="'passport_series'"
+                                    :placeholder="'messages.passport_series_placeholder'" :label="'messages.passport_series'" />
+
+                                <x-inputs.input_form :class="'col-md-3'" :idFor="'insurance-passport-number'" :name="'passport_number'"
+                                    :placeholder="'messages.passport_number_placeholder'" :label="'messages.passport_number'" />
+
+                                <x-inputs.input_form :class="'col-md-4'" :idFor="'insurance-pinfl'" :name="'pinfl'"
+                                    :placeholder="'messages.owner_pinfl_placeholder'" :label="'messages.owner_pinfl'" :disabled="true" />
+
+                                <x-inputs.button :class="'col-md-2'" :button="'owner-information-search-btn'" />
+
                             </div>
+
                             <div class="row d-none" id="insurance-driver-full-information">
-                                <div class="col-md-2 px-3 d-flex flex-column justify-content-end">
-                                    <label for="insurance-last-name"
-                                        class="form-label">{{ __('messages.owner_last_name') }}</label>
-                                    <input type="text" id="insurance-last-name"
-                                        placeholder="{{ __('messages.owner_last_name_placeholder') }}" name="last_name"
-                                        readonly class="form-input">
-                                </div>
-                                <div class="col-md-4 d-flex flex-column justify-content-end">
-                                    <label for="insurance-first-name"
-                                        class="form-label">{{ __('messages.owner_first_name') }}</label>
-                                    <input type="text" id="insurance-first-name"
-                                        placeholder="{{ __('messages.owner_first_name_placeholder') }}" name="first_name"
-                                        readonly class="form-input">
-                                </div>
-                                <div class="col-md-4 d-flex flex-column justify-content-end">
-                                    <label for="insurance-middle-name"
-                                        class="form-label">{{ __('messages.owner_middle_name') }}</label>
-                                    <input type="text" id="insurance-middle-name"
-                                        placeholder="{{ __('messages.owner_middle_name_placeholder') }}"
-                                        name="middle_name" readonly class="form-input">
-                                </div>
+
+                                <x-inputs.input_info :class="'col-md-2'" :idFor="'insurance-last-name'" :name="'last_name'"
+                                    :label="'messages.owner_last_name'" :placeholder="'messages.owner_last_name_placeholder'" />
+
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-first-name'" :name="'first_name'"
+                                    :label="'messages.owner_first_name'" :placeholder="'messages.owner_first_name_placeholder'" />
+
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-middle-name'" :name="'middle_name'"
+                                    :label="'messages.owner_middle_name'" :placeholder="'messages.owner_middle_name_placeholder'" />
+
                             </div>
                             <!-- Hidden fields for storing data -->
                             <input type="hidden" id="pinfl-hidden" name="pinfl_hidden">
@@ -154,72 +114,37 @@
 
                             <div id="applicant-info-search">
                                 <div class="row">
-                                    <div class="col-md-2 d-flex flex-column justify-content-end">
-                                        <label for="applicant-passport-series"
-                                            class="form-label">{{ __('messages.applicant_passport_series') }}</label>
-                                        <input type="text" id="applicant-passport-series"
-                                            placeholder="{{ __('messages.applicant_passport_series_placeholder') }}"
-                                            name="applicant_passport_series" class="form-input">
-                                    </div>
-                                    <div class="col-md-3 d-flex flex-column justify-content-end">
-                                        <label for="applicant-passport-number"
-                                            class="form-label">{{ __('messages.applicant_passport_number') }}</label>
-                                        <input type="text" id="applicant-passport-number"
-                                            placeholder="{{ __('messages.applicant_passport_number_placeholder') }}"
-                                            name="applicant_passport_number" class="form-input">
-                                    </div>
-                                    <div class="col-md-4 d-flex flex-column justify-content-end">
-                                        <label for="applicant-pinfl"
-                                            class="form-label">{{ __('messages.applicant_pinfl') }}</label>
-                                        <input type="text" id="applicant-pinfl"
-                                            placeholder="{{ __('messages.applicant_pinfl_placeholder') }}"
-                                            name="applicant_pinfl" class="form-input">
-                                    </div>
-                                    <div class="col-md-2 d-flex flex-column justify-content-end">
-                                        <button type="button" id="applicant-information-search-btn"
-                                            class="btn btn-icon">
-                                            <svg width="20" height="20">
-                                                <use xlink:href="#icon-search"></use>
-                                            </svg>
-                                        </button>
-                                    </div>
+                                    <x-inputs.input_form :class="'col-md-2'" :idFor="'applicant-passport-series'" :name="'applicant_passport_series'"
+                                        :placeholder="'messages.applicant_passport_series_placeholder'" :label="'messages.applicant_passport_series'" />
+
+                                    <x-inputs.input_form :class="'col-md-3'" :idFor="'applicant-passport-number'" :name="'applicant_passport_number'"
+                                        :placeholder="'messages.applicant_passport_number_placeholder'" :label="'messages.applicant_passport_number'" />
+
+                                    <x-inputs.input_form :class="'col-md-4'" :idFor="'applicant-pinfl'" :name="'applicant_pinfl'"
+                                        :placeholder="'messages.applicant_pinfl_placeholder'" :label="'messages.applicant_pinfl'" />
+
+                                    <x-inputs.button :class="'col-md-2'" :button="'applicant-information-search-btn'" />
                                 </div>
                             </div>
 
                             <div id="applicant-info-display" class="d-none">
                                 <div class="row">
-                                    <div class="col-md-4">
-                                        <label for="applicant-last-name"
-                                            class="form-label">{{ __('messages.applicant_last_name') }}</label>
-                                        <input type="text" id="applicant-last-name" name="applicant_last_name"
-                                            readonly class="form-input">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="applicant-first-name"
-                                            class="form-label">{{ __('messages.applicant_first_name') }}</label>
-                                        <input type="text" id="applicant-first-name" name="applicant_first_name"
-                                            readonly class="form-input">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="applicant-middle-name"
-                                            class="form-label">{{ __('messages.applicant_middle_name') }}</label>
-                                        <input type="text" id="applicant-middle-name" name="applicant_middle_name"
-                                            readonly class="form-input">
-                                    </div>
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-last-name'" :name="'applicant_last_name'"
+                                        :label="'messages.applicant_last_name'" />
+
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-first-name'" :name="'applicant_first_name'"
+                                        :label="'messages.applicant_first_name'" />
+
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant_middle_name'"
+                                        :label="'messages.applicant_middle_name'" />
                                 </div>
+                                
                                 <div class="row">
-                                    <div class="col-md-4">
-                                        <label for="applicant-address"
-                                            class="form-label">{{ __('messages.applicant_address') }}</label>
-                                        <input type="text" id="applicant-address" name="applicant_address" readonly
-                                            class="form-input">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="applicant-phone-number"
-                                            class="form-label">{{ __('messages.applicant_phone_number') }}</label>
-                                        <input type="text" id="applicant-phone-number" name="applicant_phone_number"
-                                            readonly class="form-input">
-                                    </div>
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-address'" :name="'applicant_address'"
+                                        :label="'messages.applicant_address'" />
+
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-phone-number'" :name="'applicant_phone_number'"
+                                        :label="'messages.applicant_phone_number'" />
                                 </div>
                             </div>
 
@@ -256,8 +181,7 @@
                                     <div class="col-md-6">
                                         <label for="insurance_period"
                                             class="form-label">{{ __('messages.insurance_period') }}</label>
-                                        <select class="form-select" id="insurance_period" name="insurance_period"
-                                            required>
+                                        <select class="form-select" id="insurance_period" name="insurance_period" required>
                                             <option value="1_year">{{ __('messages.period_1_year') }}</option>
                                             <option value="6_months">{{ __('messages.period_6_months') }}</option>
                                             <option value="3_months">{{ __('messages.period_3_months') }}</option>
