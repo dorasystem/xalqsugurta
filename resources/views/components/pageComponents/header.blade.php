@@ -74,7 +74,7 @@
                                 @endforeach
                             </ul>
                         </details>
-                        <a class="btn" href="uploads/files/xalq.pdf">
+                        <a class="btn" href="https://xalqsugurta.uz/uploads/files/xalq.pdf">
                             <svg width="20" height="20">
                                 <use xlink:href="#icon-pdf-file"></use>
                             </svg>
