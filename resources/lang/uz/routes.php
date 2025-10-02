@@ -6,4 +6,6 @@ return [
     'news' => 'news',
     'useful_info' => 'foydali-malumotlar',
     'management' => 'management',
+    
+
 ];

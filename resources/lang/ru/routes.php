@@ -6,5 +6,6 @@ return [
     'news' => '',
     'useful_info' => 'strahovye-terminy',
     'management' => '',
+    
 
 ];
