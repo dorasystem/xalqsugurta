@@ -4,7 +4,9 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "build:prod": "vite build --mode production",
+        "dev": "vite",
+        "minify:js": "vite build --mode production --minify"
     },
     "devDependencies": {
         "@tailwindcss/vite": "^4.0.0",
@@ -12,6 +14,7 @@
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^2.0.0",
         "tailwindcss": "^4.0.0",
+        "terser": "^5.44.0",
         "vite": "^7.0.4"
     }
 }

@@ -8,15 +8,21 @@
     <link rel="apple-touch-icon" sizes="60x60" href="assets/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
-    <link rel="manifest" href="assets/site.webmanifest">
-    <link rel="mask-icon" href="assets/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="manifest" href="{{ asset('assets/site.webmanifest') }}">
+    <link rel="mask-icon" href="{{ asset('assets/safari-pinned-tab.svg') }}" color="#5bbad5">
     <meta name="msapplication-TileColor" content="#2d89ef">
     <meta name="theme-color" content="#ffffff">
 
     <title>Xalq sugurta | @yield('title')</title>
+    {{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"> --}}
+    <link rel="stylesheet" href="{{ asset('assets/css/test.css') }}">
 
     <link rel="stylesheet" href="{{ asset('assets/css/main.min.css') }}">
+
     <link rel="stylesheet" href="{{ asset('assets/css/form.css') }}">
+
+    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.css') }}">
+
 
 </head>
 
@@ -425,6 +431,9 @@
         </main><!-- footer -->
         @include('components.pageComponents.footer')
 
+        <!-- Scripts -->
+        @stack('scripts')
+        @vite(['resources/js/app.js'])
 
 </body>
 
