@@ -17,32 +17,18 @@
                         </div>
                         <div class="card-body">
                             <div class="row gap-1">
-                                <div class="col-md-3 d-flex flex-column justify-content-end">
-                                    <label for="gov_number" class="form-label">{{ __('messages.gov_number') }}</label>
-                                    <input type="text" id="gov_number"
-                                        placeholder="{{ __('messages.gov_number_placeholder') }}" name="gov_number"
-                                        class="form-input">
-                                </div>
-                                <div class="col-md-2 d-flex flex-column  justify-content-end">
-                                    <label for="tech_passport_series"
-                                        class="form-label">{{ __('messages.tech_passport_series') }}</label>
-                                    <input type="text" id="tech_passport_series"
-                                        placeholder="{{ __('messages.tech_passport_series_placeholder') }}"
-                                        name="tech_passport_series" class="form-input">
-                                </div>
-                                <div class="col-md-3 d-flex flex-column justify-content-end">
-                                    <label for="tech_passport_number"
-                                        class="form-label">{{ __('messages.tech_passport_number') }}</label>
-                                    <input type="text" id="tech_passport_number"
-                                        placeholder="{{ __('messages.tech_passport_number_placeholder') }}"
-                                        name="tech_passport_number" class="form-input">
-                                </div>
-                                <div class="col-md-3 d-flex flex-column align-items-end justify-content-end">
-                                    <button type="button" id="vehicle-search-btn" class="btn btn-icon"><svg width="20"
-                                            height="20">
-                                            <use xlink:href="#icon-search"></use>
-                                        </svg></button>
-                                </div>
+
+                                <x-inputs.input_form :col=3 :name="'gov_number'" :placeholder="'messages.gov_number_placeholder'"  :label="'messages.tech_passport_series'"/>
+
+                                <x-inputs.input_form :col=2 :name="'tech_passport_series'" :placeholder="'messages.tech_passport_series_placeholder'"  :label="'messages.gov_number'"/>
+
+                                <x-inputs.input_form :col=3 :name="'tech_passport_number'" :placeholder="'messages.tech_passport_number_placeholder'" :label="'messages.tech_passport_number'" />
+                                
+                                <x-inputs.button :class="'col-md-3'" :button="'vehicle-search-btn'" />
+
+
+
+
                             </div>
                         </div>
 
@@ -373,6 +359,7 @@
                 </div>
                 <x-insurence.calculate />
             </div>
+        </div>
     </section>
 
     @push('scripts')
