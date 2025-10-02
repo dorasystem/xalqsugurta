@@ -176,7 +176,9 @@ return [
     'applicant_phone_number' => 'Ariza beruvchi telefon raqami',
 
     // Policy Calculation
+    'policy_calculation' => 'Polis hisobi',
     'policy_calculation_title' => 'Polis hisobi',
+    'driver_limit' => 'Haydovchilar chegarasi',
     'driver_limit_title' => 'Haydovchilar sonini tanlang - ?',
     'limited_drivers' => '5 kishigacha cheklangan',
     'unlimited_drivers' => 'Cheklanmagan',
@@ -185,6 +187,7 @@ return [
     'loyalty_discount' => 'Sodiqlik uchun chegirma',
     'family_discount' => 'Oila uchun chegirma',
     'senior_discount' => 'Pensionerlar uchun chegirma',
+    'insurance_period' => 'Sug\'urta davri',
     'insurance_period_title' => 'Sug\'urta davrini tanlang - ?',
     '1_year' => '1 yil',
     '6_months' => '6 oy',

@@ -10,7 +10,7 @@
     <section class="container-fluid product-page py-4" id="osago-main" style="">
         <div class="container">
             <div class="row g-4">
-                <div class="col-lg-8">
+                <div class="col-md-8">
                     <div id="vehicle-info" class="card">
                         <div class="card-header">
                             <h4 class="card-title">{{ __('messages.vehicle_info_title') }}</h4>
@@ -228,132 +228,98 @@
 
                     <div id="policy-calculation" class="card">
                         <div class="card-header">
-                            <h4 class="card-title">{{ __('messages.policy_calculation_title') }}</h4>
+                            <h4>{{ __('messages.policy_calculation') }}</h4>
                         </div>
                         <div class="card-body">
+                            <!-- Policy calculation form -->
+                            <form id="policy-calculation-form" method="POST"
+                                action="{{ route('osago.calculation', app()->getLocale()) }}">
+                                @csrf
 
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label class="form-label">{{ __('messages.driver_limit_title') }}</label>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="driver_limit"
-                                            id="limited_drivers" value="1" checked>
-                                        <label class="form-check-label" for="limited_drivers">
-                                            {{ __('messages.limited_drivers') }}
-                                        </label>
+                                <!-- Policy details -->
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="policy_start_date"
+                                            class="form-label">{{ __('messages.policy_start_date') }}</label>
+                                        <input type="date" class="form-control" id="policy_start_date"
+                                            name="policy_start_date" required>
                                     </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="driver_limit"
-                                            id="unlimited_drivers" value="3">
-                                        <label class="form-check-label" for="unlimited_drivers">
-                                            {{ __('messages.unlimited_drivers') }}
-                                        </label>
+                                    <div class="col-md-6">
+                                        <label for="policy_end_date"
+                                            class="form-label">{{ __('messages.policy_end_date') }}</label>
+                                        <input type="date" class="form-control" id="policy_end_date"
+                                            name="policy_end_date" readonly>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="discount_option"
-                                        class="form-label">{{ __('messages.discount_option_title') }}</label>
-                                    <select class="form-select" id="discount_option" name="discount_option">
-                                        <option value="1.0">{{ __('messages.no_discount') }}</option>
-                                        <option value="0.5">{{ __('messages.war_participants') }}</option>
-                                        <option value="0.5">{{ __('messages.labor_veterans') }}</option>
-                                        <option value="0.5">{{ __('messages.concentration_camp_survivors') }}</option>
-                                        <option value="0.5">{{ __('messages.military_injured') }}</option>
-                                        <option value="0.5">{{ __('messages.military_victims') }}</option>
-                                        <option value="0.5">{{ __('messages.pensioner') }}</option>
-                                        <option value="0.5">{{ __('messages.disabled') }}</option>
-                                    </select>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="insurance_period"
+                                            class="form-label">{{ __('messages.insurance_period') }}</label>
+                                        <select class="form-select" id="insurance_period" name="insurance_period"
+                                            required>
+                                            <option value="1_year">{{ __('messages.period_1_year') }}</option>
+                                            <option value="6_months">{{ __('messages.period_6_months') }}</option>
+                                            <option value="3_months">{{ __('messages.period_3_months') }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="discount_option"
+                                            class="form-label">{{ __('messages.discount_option_title') }}</label>
+                                        <select class="form-select" id="discount_option" name="discount_option" required>
+                                            <option value="1.0">{{ __('messages.no_discount') }}</option>
+                                            <option value="0.5">{{ __('messages.war_participants') }}</option>
+                                            <option value="0.5">{{ __('messages.labor_veterans') }}</option>
+                                            <option value="0.5">{{ __('messages.concentration_camp_survivors') }}
+                                            </option>
+                                            <option value="0.5">{{ __('messages.military_injured') }}</option>
+                                            <option value="0.5">{{ __('messages.military_victims') }}</option>
+                                            <option value="0.5">{{ __('messages.pensioner') }}</option>
+                                            <option value="0.5">{{ __('messages.disabled') }}</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="insurance_period"
-                                        class="form-label">{{ __('messages.insurance_period_title') }}</label>
-                                    <select class="form-select" id="insurance_period" name="insurance_period">
-                                        <option value="1">{{ __('messages.1_year') }}</option>
-                                        <option value="2">{{ __('messages.6_months') }}</option>
-                                        <option value="3">{{ __('messages.3_months') }}</option>
-                                    </select>
+
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label for="cases"
+                                            class="form-label">{{ __('messages.incidents_option_title') }}</label>
+                                        <select class="form-select" id="cases" name="cases" required>
+                                            <option value="1">{{ __('messages.first_time_no_cases') }}</option>
+                                            <option value="2">{{ __('messages.one_case') }}</option>
+                                            <option value="2.5">{{ __('messages.two_cases') }}</option>
+                                            <option value="3">{{ __('messages.three_or_more_cases') }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">{{ __('messages.driver_limit') }}</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="driver_limit"
+                                                id="driver_limited" value="limited" checked>
+                                            <label class="form-check-label" for="driver_limited">
+                                                {{ __('messages.limited_drivers') }}
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="driver_limit"
+                                                id="driver_unlimited" value="unlimited">
+                                            <label class="form-check-label" for="driver_unlimited">
+                                                {{ __('messages.unlimited_drivers') }}
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="cases"
-                                        class="form-label">{{ __('messages.incidents_option_title') }}</label>
-                                    <select required="" class="form-select" aria-label="" name="cases"
-                                        id="cases">
-                                        <option value="2">{{ __('messages.one_case') }}</option>
-                                        <option value="2.5">{{ __('messages.two_cases') }}</option>
-                                        <option value="3">{{ __('messages.three_or_more_cases') }}</option>
-                                        <option value="1">{{ __('messages.first_time_no_cases') }}</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="policy_start_date"
-                                        class="form-label">{{ __('messages.policy_start_date') }}</label>
-                                    <input type="date" class="form-input" id="policy_start_date"
-                                        name="policy_start_date">
-                                </div>
-                                <div class="col-md-6 ">
-                                    <label for="policy_end_date"
-                                        class="form-label">{{ __('messages.policy_end_date') }}</label>
-                                    <input type="date" class="form-input" id="policy_end_date" name="policy_end_date"
-                                        readonly>
-                                </div>
-                                <div class="col-md-6 d-flex mt-3 align-items-end">
-                                    <button type="button" id="calculate-policy-btn" class="btn btn-icon">
+
+                                <!-- Submit button -->
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-primary-custom" id="calculate-policy-btn">
                                         <svg width="20" height="20">
                                             <use xlink:href="#icon-calculator"></use>
                                         </svg>
                                     </button>
                                 </div>
-                            </div>
+                            </form>
 
-                            <div class="alert alert-warning" role="alert">
-                                <strong>{{ __('messages.policy_note_title') }}</strong><br>
-                                {{ __('messages.policy_note_text') }}
-                            </div>
-
-                            <div class="row mt-3">
-                                <div class="col-md-6">
-                                    <button type="button" id="add-driver-btn" class="btn btn-icon">
-                                        <svg width="20" height="20">
-                                            <use xlink:href="#icon-add-user"></use>
-                                        </svg>
-                                    </button>
-                                </div>
-                                <div class="col-md-6 text-end">
-                                    <button type="button" id="next-step-btn" class="btn btn-icon">
-                                        <svg width="20" height="20">
-                                            <use xlink:href="#icon-arrow-right"></use>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Policy calculation results -->
-                            <div id="policy-results" class="mt-4 d-none">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h3>{{ __('messages.calculation_results') }}</h3>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <p><strong>{{ __('messages.base_price') }}:</strong> <span
-                                                        id="base-price">0</span> {{ __('messages.sum') }}
-                                                </p>
-                                                <p><strong>{{ __('messages.discount_amount') }}:</strong> <span
-                                                        id="discount-amount">0</span> {{ __('messages.sum') }}</p>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <p><strong>{{ __('messages.total_price') }}:</strong> <span
-                                                        id="total-price">0</span> {{ __('messages.sum') }}
-                                                </p>
-                                                <p><strong>{{ __('messages.calculated_period') }}:</strong> <span
-                                                        id="calculated-period">1
-                                                        {{ __('messages.year') }}</span></p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\App;
 Route::get('/osago', [OsagoController::class, 'main'])->name('osago.main');
 Route::get('/osago/application', [OsagoController::class, 'application'])->name('osago.application');
 Route::get('/osago/payment', [OsagoController::class, 'payment'])->name('osago.payment');
+Route::post('/osago/calculation', [OsagoController::class, 'calculation'])->name('osago.calculation');
 
 
 // AAG 0756068 01L097RB
