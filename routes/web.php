@@ -15,7 +15,7 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
 
 // Default route (redirects to Russian)
 Route::get('/', function () {
-    return redirect()->route('home', ['locale' => 'ru']);
+    return redirect()->route('home', ['locale' => 'uz']);
 });
 
 // Fallback routes without language prefix (for backward compatibility)

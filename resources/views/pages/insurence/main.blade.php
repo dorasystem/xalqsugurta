@@ -125,7 +125,7 @@
 
                                     <x-inputs.button :class="'col-md-2'" :button="'applicant-information-search-btn'" />
                                 </div>
-                            </div>
+                            </div>  
 
                             <div id="applicant-info-display" class="d-none">
                                 <div class="row">
@@ -138,7 +138,7 @@
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant_middle_name'"
                                         :label="'messages.applicant_middle_name'" />
                                 </div>
-                                
+
                                 <div class="row">
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-address'" :name="'applicant_address'"
                                         :label="'messages.applicant_address'" />
