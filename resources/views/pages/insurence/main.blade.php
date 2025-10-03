@@ -182,9 +182,9 @@
                                         <label for="insurance_period"
                                             class="form-label">{{ __('messages.insurance_period') }}</label>
                                         <select class="form-select" id="insurance_period" name="insurance_period" required>
-                                            <option value="1_year">{{ __('messages.period_1_year') }}</option>
-                                            <option value="6_months">{{ __('messages.period_6_months') }}</option>
-                                            <option value="3_months">{{ __('messages.period_3_months') }}</option>
+                                            <option value="1_year">{{ __('messages.1_year') }}</option>
+                                            <option value="6_months">{{ __('messages.6_months') }}</option>
+                                            <option value="3_months">{{ __('messages.3_months') }}</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6">
