@@ -165,8 +165,8 @@
                 const response = await fetch('https://impex-insurance.uz/api/fetch-vehicle-info', {
                     method: 'POST',
                     headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
                     },
                     body: JSON.stringify(requestData)
                 });
@@ -175,21 +175,12 @@
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                // Parse the response once
-                const data = await response.json();
-
-                // Log the data
-                console.log(data, "bu joyda mashina ma'lumotlari keldi!");
-
-                // Return it
-                return data;
-
+                return await response.json();
             } catch (error) {
-            console.error('API Error:', error);
-            throw error;
+                console.error('API Error:', error);
+                throw error;
             }
         },
-
 
         fetchOwnerInfo: async function (requestData) {
             try {
