@@ -10,7 +10,7 @@ class OsagoController extends Controller
 {
     public function main(): View
     {
-        return view('pages.insurence.main');
+        return view('pages.insurence.osago.main');
     }
 
 

@@ -19,10 +19,10 @@
                             <div class="row gap-1">
 
                                 <x-inputs.input_form :class="'col-md-3'" :idFor="'gov_number'" :name="'gov_number'" :placeholder="'messages.gov_number_placeholder'"
-                                    :label="'messages.tech_passport_series'" />
+                                    :label="'messages.gov_number'" />
 
                                 <x-inputs.input_form :class="'col-md-2'" :idFor="'tech_passport_series'" :name="'tech_passport_series'" :placeholder="'messages.tech_passport_series_placeholder'"
-                                    :label="'messages.gov_number'" />
+                                    :label="'messages.tech_passport_series'" />
 
                                 <x-inputs.input_form :class="'col-md-3'" :idFor="'tech_passport_number'" :name="'tech_passport_number'"
                                     :placeholder="'messages.tech_passport_number_placeholder'" :label="'messages.tech_passport_number'" />
@@ -138,7 +138,7 @@
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant_middle_name'"
                                         :label="'messages.applicant_middle_name'" />
                                 </div>
-                                
+
                                 <div class="row">
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-address'" :name="'applicant_address'"
                                         :label="'messages.applicant_address'" />
@@ -182,9 +182,9 @@
                                         <label for="insurance_period"
                                             class="form-label">{{ __('messages.insurance_period') }}</label>
                                         <select class="form-select" id="insurance_period" name="insurance_period" required>
-                                            <option value="1_year">{{ __('messages.period_1_year') }}</option>
-                                            <option value="6_months">{{ __('messages.period_6_months') }}</option>
-                                            <option value="3_months">{{ __('messages.period_3_months') }}</option>
+                                            <option value="1_year">{{ __('messages.1_year') }}</option>
+                                            <option value="6_months">{{ __('messages.6_months') }}</option>
+                                            <option value="3_months">{{ __('messages.3_months') }}</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6">
@@ -251,46 +251,104 @@
             </div>
         </div>
     </section>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const searchBtn = document.getElementById('vehicle-search-btn');
 
-    @push('scripts')
+            searchBtn.addEventListener('click', async function() {
+                const govNumber = document.getElementById('gov_number').value;
+                const techPassportSeries = document.getElementById('tech_passport_series').value;
+                const techPassportNumber = document.getElementById('tech_passport_number').value;
+
+                // Validate inputs
+                if (!govNumber || !techPassportSeries || !techPassportNumber) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+
+                // Prepare data
+                const data = {
+                    gov_number: govNumber,
+                    tech_passport_series: techPassportSeries,
+                    tech_passport_number: techPassportNumber
+                };
+
+                // Disable button during request
+                searchBtn.disabled = true;
+                searchBtn.innerHTML = '<span>Loading...</span>';
+
+                try {
+                    const response = await fetch('/get-vehicle-info', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.message || 'Failed to fetch vehicle info');
+                    }
+
+                    console.log('Vehicle Info:', result);
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error: ' + error.message);
+                } finally {
+                    // Re-enable button
+                    searchBtn.disabled = false;
+                    searchBtn.innerHTML =
+                        '<svg width="20" height="20"><use xlink:href="#icon-search"></use></svg>';
+                }
+            });
+        });
+    </script>
+
+    {{-- @push('scripts')
         <script>
-            window.translations = {
-                // Messages
-                search: "{{ __('messages.search') }}",
-                searching: "{{ __('messages.searching') }}",
-                vehicle_data_loaded: "{{ __('messages.vehicle_data_loaded') }}",
-                owner_data_loaded: "{{ __('messages.owner_data_loaded') }}",
-                applicant_data_loaded: "{{ __('messages.applicant_data_loaded') }}",
-                owner_copied_as_applicant: "{{ __('messages.owner_copied_as_applicant') }}",
-                applicant_fields_cleared: "{{ __('messages.applicant_fields_cleared') }}",
-                policy_calculated: "{{ __('messages.policy_calculated') }}",
-                next_step_clicked: "{{ __('messages.next_step_clicked') }}",
-                add_driver_soon: "{{ __('messages.add_driver_soon') }}",
-                load_owner_first: "{{ __('messages.load_owner_first') }}",
+            // window.translations = {
+            //     // Messages
+            //     search: "{{ __('messages.search') }}",
+            //     searching: "{{ __('messages.searching') }}",
+            //     vehicle_data_loaded: "{{ __('messages.vehicle_data_loaded') }}",
+            //     owner_data_loaded: "{{ __('messages.owner_data_loaded') }}",
+            //     applicant_data_loaded: "{{ __('messages.applicant_data_loaded') }}",
+            //     owner_copied_as_applicant: "{{ __('messages.owner_copied_as_applicant') }}",
+            //     applicant_fields_cleared: "{{ __('messages.applicant_fields_cleared') }}",
+            //     policy_calculated: "{{ __('messages.policy_calculated') }}",
+            //     next_step_clicked: "{{ __('messages.next_step_clicked') }}",
+            //     add_driver_soon: "{{ __('messages.add_driver_soon') }}",
+            //     load_owner_first: "{{ __('messages.load_owner_first') }}",
 
-                // Errors
-                all_fields_required: "{{ __('messages.all_fields_required') }}",
-                pinfl_mismatch: "{{ __('messages.pinfl_mismatch') }}",
-                api_error: "{{ __('messages.api_error') }}",
-                request_error: "{{ __('messages.request_error') }}",
-                policy_calculation_error: "{{ __('messages.policy_calculation_error') }}",
-                select_policy_start_date: "{{ __('messages.select_policy_start_date') }}",
-                calculate_policy_first: "{{ __('messages.calculate_policy_first') }}",
+            //     // Errors
+            //     all_fields_required: "{{ __('messages.all_fields_required') }}",
+            //     pinfl_mismatch: "{{ __('messages.pinfl_mismatch') }}",
+            //     api_error: "{{ __('messages.api_error') }}",
+            //     request_error: "{{ __('messages.request_error') }}",
+            //     policy_calculation_error: "{{ __('messages.policy_calculation_error') }}",
+            //     select_policy_start_date: "{{ __('messages.select_policy_start_date') }}",
+            //     calculate_policy_first: "{{ __('messages.calculate_policy_first') }}",
 
-                // Validation
-                validation_3_letters: "{{ __('messages.validation_3_letters') }}",
-                validation_7_digits: "{{ __('messages.validation_7_digits') }}",
-                validation_year_range: "{{ __('messages.validation_year_range') }}",
+            //     // Validation
+            //     validation_3_letters: "{{ __('messages.validation_3_letters') }}",
+            //     validation_7_digits: "{{ __('messages.validation_7_digits') }}",
+            //     validation_year_range: "{{ __('messages.validation_year_range') }}",
 
-                // Period text
-                period_1_year: "{{ __('messages.1_year') }}",
-                period_6_months: "{{ __('messages.6_months') }}",
-                period_3_months: "{{ __('messages.3_months') }}",
+            //     // Period text
+            //     period_1_year: "{{ __('messages.1_year') }}",
+            //     period_6_months: "{{ __('messages.6_months') }}",
+            //     period_3_months: "{{ __('messages.3_months') }}",
 
-                // Currency
-                sum: "{{ __('messages.sum') }}"
-            };
+            //     // Currency
+            //     sum: "{{ __('messages.sum') }}"
+            // };
         </script>
         @vite(['resources/js/pages/insurence/main.js'])
-    @endpush
+    @endpush --}}
 @endsection

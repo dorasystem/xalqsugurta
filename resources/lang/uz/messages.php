@@ -127,7 +127,7 @@ return [
     // OSAGO Form
     'vehicle_info_title' => 'Avtomobil haqida ma\'lumot',
     'gov_number' => 'Davlat raqami',
-    'gov_number_placeholder' => '01L97RB',
+    'gov_number_placeholder' => '01L097RB',
     'tech_passport_series' => 'Tex. pasport seriyasi',
     'tech_passport_series_placeholder' => 'AAG',
     'tech_passport_number' => 'Tex. pasport raqami',

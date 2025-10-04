@@ -5,7 +5,7 @@ return [
     'insurance' => 'strahovanie',
     'news' => '',
     'useful_info' => 'strahovye-terminy',
-    'management' => '',
+    'management' => 'management',
     'branches' => 'filialy',
     'questionnaire' => 'oprosnik',
     'about' => 'about',
