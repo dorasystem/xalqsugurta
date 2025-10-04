@@ -125,7 +125,7 @@
 
                                     <x-inputs.button :class="'col-md-2'" :button="'applicant-information-search-btn'" />
                                 </div>
-                            </div>  
+                            </div>
 
                             <div id="applicant-info-display" class="d-none">
                                 <div class="row">
@@ -252,9 +252,36 @@
         </div>
     </section>
     <script>
-        
+        document.getElementById('vehicle-search-btn').addEventListener('click', async function() {
+            const govNumber = document.getElementById('gov_number').value.trim();
+            const techSeries = document.getElementById('tech_passport_series').value.trim();
+            const techNumber = document.getElementById('tech_passport_number').value.trim();
+
+            const data = {
+                gov_number: govNumber,
+                tech_passport_series: techSeries,
+                tech_passport_number: techNumber
+            };
+
+            try {
+                const response = await fetch('/api/get-vehicle-info', { // 👈 direct URL
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                // const result = await response.json();
+                console.log('Vehicle Info:', response);
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
     </script>
-    @push('scripts')
+
+    {{-- @push('scripts')
         <script>
             // window.translations = {
             //     // Messages
@@ -294,5 +321,5 @@
             // };
         </script>
         @vite(['resources/js/pages/insurence/main.js'])
-    @endpush
+    @endpush --}}
 @endsection
