@@ -252,32 +252,61 @@
         </div>
     </section>
     <script>
-        document.getElementById('vehicle-search-btn').addEventListener('click', async function() {
-            const govNumber = document.getElementById('gov_number').value.trim();
-            const techSeries = document.getElementById('tech_passport_series').value.trim();
-            const techNumber = document.getElementById('tech_passport_number').value.trim();
+        document.addEventListener('DOMContentLoaded', function() {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const searchBtn = document.getElementById('vehicle-search-btn');
 
-            const data = {
-                gov_number: govNumber,
-                tech_passport_series: techSeries,
-                tech_passport_number: techNumber
-            };
+            searchBtn.addEventListener('click', async function() {
+                const govNumber = document.getElementById('gov_number').value;
+                const techPassportSeries = document.getElementById('tech_passport_series').value;
+                const techPassportNumber = document.getElementById('tech_passport_number').value;
 
-            try {
-                const response = await fetch('/api/get-vehicle-info', { // 👈 direct URL
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
+                // Validate inputs
+                if (!govNumber || !techPassportSeries || !techPassportNumber) {
+                    alert('Please fill in all fields');
+                    return;
+                }
 
-                // const result = await response.json();
-                console.log('Vehicle Info:', response);
+                // Prepare data
+                const data = {
+                    gov_number: govNumber,
+                    tech_passport_series: techPassportSeries,
+                    tech_passport_number: techPassportNumber
+                };
 
-            } catch (error) {
-                console.error('Error:', error);
-            }
+                // Disable button during request
+                searchBtn.disabled = true;
+                searchBtn.innerHTML = '<span>Loading...</span>';
+
+                try {
+                    const response = await fetch('/get-vehicle-info', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.message || 'Failed to fetch vehicle info');
+                    }
+
+                    console.log('Vehicle Info:', result);
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error: ' + error.message);
+                } finally {
+                    // Re-enable button
+                    searchBtn.disabled = false;
+                    searchBtn.innerHTML =
+                        '<svg width="20" height="20"><use xlink:href="#icon-search"></use></svg>';
+                }
+            });
         });
     </script>
 

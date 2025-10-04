@@ -1,7 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ApiControllers\VehicleInfoController;
 
 // Language routes
 Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], function () {
@@ -12,6 +13,8 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
 
     require_once 'insurence/osago.php';
 });
+
+Route::post('/get-vehicle-info', [VehicleInfoController::class, 'getVehicleInfo']);
 
 // Default route (redirects to Russian)
 Route::get('/', function () {
