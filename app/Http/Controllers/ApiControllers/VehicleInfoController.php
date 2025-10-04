@@ -24,8 +24,11 @@ class VehicleInfoController extends Controller
             'techPassportNumber' => $request->tech_passport_number
         ];
 
-        $response = Http::post('https://impex-insurance.uz/api/fetch-vehicle-info',$data);
+        $response = Http::post('https://impex-insurance.uz/api/fetch-vehicle-info', $data);
 
-        return $response->json();
+        return response()->json([
+            'success' => true,
+            'data' => $response->json(),
+        ]);
     }
 }

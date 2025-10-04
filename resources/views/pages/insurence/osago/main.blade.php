@@ -130,21 +130,21 @@
                             <div id="applicant-info-display" class="d-none">
                                 <div class="row">
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-last-name'" :name="'applicant_last_name'"
-                                        :label="'messages.applicant_last_name'" />
+                                        :label="'messages.applicant_last_name'" :placeholder="'messages.applicant_last_name_placeholder'" />
 
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-first-name'" :name="'applicant_first_name'"
-                                        :label="'messages.applicant_first_name'" />
+                                        :label="'messages.applicant_first_name'" :placeholder="'messages.applicant_first_name_placeholder'" />
 
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant_middle_name'"
-                                        :label="'messages.applicant_middle_name'" />
+                                        :label="'messages.applicant_middle_name'" :placeholder="'messages.applicant_middle_name_placeholder'" />
                                 </div>
 
                                 <div class="row">
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-address'" :name="'applicant_address'"
-                                        :label="'messages.applicant_address'" />
+                                        :label="'messages.applicant_address'" :placeholder="'messages.applicant_address_placeholder'" />
 
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-phone-number'" :name="'applicant_phone_number'"
-                                        :label="'messages.applicant_phone_number'" />
+                                        :label="'messages.applicant_phone_number'" :placeholder="'messages.applicant_phone_number_placeholder'" />
                                 </div>
                             </div>
 
@@ -293,6 +293,37 @@
 
                     if (!response.ok) {
                         throw new Error(result.message || 'Failed to fetch vehicle info');
+                    }
+                    
+                    if (result.data) {
+                        // Get all input elements
+                        const brand = document.getElementById('brand');
+                        let carType = document.getElementById('car_type');
+                        const carYear = document.getElementById('car_year');
+                        const registrationRegion = document.getElementById('registration_region');
+                        const carOwner = document.getElementById('car_owner');
+                        const model = document.getElementById('model');
+
+                        // Populate the fields
+                        brand.value = result.data.result.modelName || '';
+                        carType.value = result.data.result.car_type || '';
+                        carYear.value = result.data.result.issueYear || '';
+                        registrationRegion.value = result.data.result.division || '';
+                        carOwner.value = result.data.result.owner || '';
+                        model.value = result.data.result.modelName || '';
+
+                        // Show the vehicle info display (CORRECTED)
+                        const vehicleInfoDisplay = document.getElementById('vehicle-info-display');
+                        vehicleInfoDisplay.classList.remove('d-none');
+
+                        const vehicleOwnerInfo = document.getElementById('owner-info');
+                        vehicleOwnerInfo.classList.remove('d-none');
+
+                        // Optional: Scroll to the displayed info
+                        vehicleInfoDisplay.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'nearest'
+                        });
                     }
 
                     console.log('Vehicle Info:', result);
