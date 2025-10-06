@@ -296,9 +296,9 @@
                         throw new Error(result.message || 'Failed to fetch vehicle info');
                     }
 
-                    if (result.data) {
+                    if (result.data != null) {
                         // Get all input elements
-                        const engineNumber = document.getElementById('engine_number');
+                        const engine_number = document.getElementById('engine_number');
                         let carType = document.getElementById('car_type');
                         const carYear = document.getElementById('car_year');
                         const registrationRegion = document.getElementById('registration_region');
@@ -306,7 +306,7 @@
                         const model = document.getElementById('model');
 
                         // Populate the fields
-                        engineNumber.value = result.data.result.engineNumber || '';
+                        engine_number.value = result.data.result.engineNumber || '';
                         carType.value = result.data.result.car_type || '';
                         carYear.value = result.data.result.issueYear || '';
                         registrationRegion.value = result.data.result.division || '';
@@ -325,6 +325,8 @@
                             behavior: 'smooth',
                             block: 'nearest'
                         });
+                    }else{
+                        alert(result.message.error.error_message);
                     }
 
                     console.log('Vehicle Info:', result);

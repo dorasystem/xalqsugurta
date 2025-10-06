@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Insurence\ApiController;
 use App\Http\Controllers\ApiControllers\VehicleInfoController;
 
 // Language routes

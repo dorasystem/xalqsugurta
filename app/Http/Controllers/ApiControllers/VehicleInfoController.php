@@ -26,6 +26,14 @@ class VehicleInfoController extends Controller
 
         $response = Http::post('https://impex-insurance.uz/api/fetch-vehicle-info', $data);
 
+        if ($response->failed()) {
+            return response()->json([
+                'success' => false,
+                'data' => null,
+                'message' => $response->json()
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'data' => $response->json(),
