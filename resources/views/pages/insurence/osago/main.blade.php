@@ -144,8 +144,8 @@
                                     <x-inputs.input_info :class="'col-md-6'" :idFor="'applicant-address'" :name="'applicant_address'"
                                         :label="'messages.applicant_address'" :placeholder="'address_placeholder'" />
 
-                                    <x-inputs.input_info :class="'col-md-6'" :idFor="'applicant-phone-number'" :name="'applicant_phone_number'"
-                                        :label="'messages.applicant_phone_number'" :placeholder="'messages.applicant_phone_number_placeholder'" />
+                                    <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'applicant-phone-number'"
+                                        :name="'applicant_phone_number'" :label="'messages.applicant_phone_number'" :placeholder="'messages.applicant_phone_number_placeholder'" />
                                 </div>
                             </div>
 
@@ -239,7 +239,7 @@
                                 <div class="d-flex justify-content-end">
                                     <button type="submit" class="btn btn-primary-custom" id="calculate-policy-btn">
                                         <svg width="20" height="20">
-                                            <use xlink:href="#icon-calculator"></use>
+                                            <use xlink:href="#icon-calculate"></use>
                                         </svg>
                                     </button>
                                 </div>
@@ -254,10 +254,10 @@
     </section>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const searchBtn = document.getElementById('vehicle-search-btn');
             const ownerInfoBtn = document.getElementById('owner-information-search-btn');
             const applicantInfoCheck = document.getElementById('is-applicant-owner');
+            const applicantInfoBtn = document.getElementById('applicant-information-search-btn');
 
 
             searchBtn.addEventListener('click', async function() {
@@ -283,21 +283,8 @@
                 searchBtn.innerHTML = '<span>Loading...</span>';
 
                 try {
-                    const response = await fetch('/get-vehicle-info', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(data)
-                    });
 
-                    const result = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(result.message || 'Failed to fetch vehicle info');
-                    }
+                    const result = await sendPostRequest('/get-vehicle-info', data);
 
                     if (result.data != null) {
                         // Get all input elements
@@ -371,21 +358,7 @@
                     isConsent: "Y"
                 };
                 try {
-                    const response = await fetch('/get-person-info', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(data)
-                    });
-
-                    const result = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(result.message || 'Failed to fetch vehicle info');
-                    }
+                    const result = await sendPostRequest('/get-person-info', data);
 
                     if (result.data != null) {
                         // Get all input elements
@@ -432,19 +405,19 @@
 
             applicantInfoCheck.addEventListener('change', function() {
 
+                const applicantLastName = document.getElementById('applicant-last-name');
+                const applicantFirstName = document.getElementById('applicant-first-name');
+                const applicantMiddleName = document.getElementById('applicant-middle-name');
+                const lastName = document.getElementById('insurance-last-name');
+                const firstName = document.getElementById('insurance-first-name');
+                const middleName = document.getElementById('insurance-middle-name');
+
                 if (applicantInfoCheck.checked) {
                     const applicantInfoSearch = document.getElementById('applicant-info-search');
                     applicantInfoSearch.classList.toggle('d-none');
 
                     const applicantInfoDisplay = document.getElementById('applicant-info-display');
                     applicantInfoDisplay.classList.remove('d-none');
-
-                    const applicantLastName = document.getElementById('applicant-last-name');
-                    const applicantFirstName = document.getElementById('applicant-first-name');
-                    const applicantMiddleName = document.getElementById('applicant-middle-name');
-                    const lastName = document.getElementById('insurance-last-name');
-                    const firstName = document.getElementById('insurance-first-name');
-                    const middleName = document.getElementById('insurance-middle-name');
 
                     applicantLastName.value = lastName.value || '';
                     applicantFirstName.value = firstName.value || '';
@@ -459,6 +432,89 @@
                 }
             })
 
+            applicantInfoBtn.addEventListener('click', async function() {
+                const insurantPassportSeries = document.getElementById('applicant-passport-series')
+                    .value;
+                const insurantPassportNumber = document.getElementById('applicant-passport-number')
+                    .value;
+                const insurantPinfl = document.getElementById('applicant-pinfl').value;
+
+                // Validate required fields
+                if (!insurantPassportSeries || !insurantPassportNumber || !insurantPinfl) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+
+                applicantInfoBtn.disabled = true;
+                applicantInfoBtn.innerHTML = '<span>Loading...</span>';
+
+                const data = {
+                    senderPinfl: insurantPinfl,
+                    passport_series: insurantPassportSeries,
+                    passport_number: insurantPassportNumber,
+                    pinfl: insurantPinfl,
+                    isConsent: "Y"
+                };
+                try {
+                    const result = await sendPostRequest('/get-person-info', data);
+
+                    if (result.data != null) {
+                        // Get all input elements
+                        const lastName = document.getElementById('applicant-last-name');
+                        const firstName = document.getElementById('applicant-first-name');
+                        const middleName = document.getElementById('applicant-middle-name');
+                        const address = document.getElementById('applicant-address');
+
+                        // // Populate the fields
+                        lastName.value = result.data.result.lastNameLatin || '';
+                        firstName.value = result.data.result.firstNameLatin || '';
+                        middleName.value = result.data.result.middleNameLatin || '';
+                        address.value = result.data.result.address || '';
+
+                        // Show the vehicle info display (CORRECTED)
+                        const applicantInfo = document.getElementById('applicant-info-display');
+                        applicantInfo.classList.remove('d-none');
+                    } else {
+                        alert(result.message.error.error_message);
+                    }
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error: ' + error.message);
+                } finally {
+                    // Re-enable button
+                    ownerInfoBtn.disabled = false;
+                    ownerInfoBtn.innerHTML =
+                        '<svg width="20" height="20"><use xlink:href="#icon-search"></use></svg>';
+                }
+
+            });
+            async function sendPostRequest(url, data) {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')
+                    .getAttribute('content');
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken, // make sure csrfToken is globally available
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.message || 'Request failed');
+                    }
+
+                    return result; // return the successful result
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    throw error; // let the caller handle it
+                }
+            }
         });
     </script>
 
