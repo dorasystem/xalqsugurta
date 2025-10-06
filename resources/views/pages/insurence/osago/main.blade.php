@@ -35,8 +35,8 @@
                         <div id="vehicle-info-display" class="card-footer d-none">
                             <div class="row">
 
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'brand'" :name="'brand'"
-                                    :label="'messages.brand'" :placeholder="'messages.brand_placeholder'" />
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'model'" :name="'model'"
+                                    :label="'messages.model'" :placeholder="'messages.model_placeholder'" />
 
                                 <x-inputs.input_info :class="'col-md-4'" :idFor="'car_type'" :name="'car_type'"
                                     :label="'messages.car_type'" :placeholder="'messages.car_type_placeholder'" />
@@ -54,8 +54,8 @@
                                 <x-inputs.input_info :class="'col-md-4'" :idFor="'car_owner'" :name="'car_owner'"
                                     :label="'messages.car_owner'" :placeholder="'messages.car_owner_placeholder'" />
 
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'model'" :name="'model'"
-                                    :label="'messages.model'" :placeholder="'messages.model_placeholder'" />
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'engine_number'" :name="'engine_number'"
+                                    :label="'messages.engine_number'" :placeholder="'messages.engine_number_placeholder'" />
 
                             </div>
                         </div>
@@ -94,6 +94,7 @@
                                     :label="'messages.owner_middle_name'" :placeholder="'messages.owner_middle_name_placeholder'" />
 
                             </div>
+
                             <!-- Hidden fields for storing data -->
                             <input type="hidden" id="pinfl-hidden" name="pinfl_hidden">
                             <input type="hidden" id="applicant-passport-data" name="applicant_passport_data">
@@ -294,10 +295,10 @@
                     if (!response.ok) {
                         throw new Error(result.message || 'Failed to fetch vehicle info');
                     }
-                    
+
                     if (result.data) {
                         // Get all input elements
-                        const brand = document.getElementById('brand');
+                        const engineNumber = document.getElementById('engine_number');
                         let carType = document.getElementById('car_type');
                         const carYear = document.getElementById('car_year');
                         const registrationRegion = document.getElementById('registration_region');
@@ -305,7 +306,7 @@
                         const model = document.getElementById('model');
 
                         // Populate the fields
-                        brand.value = result.data.result.modelName || '';
+                        engineNumber.value = result.data.result.engineNumber || '';
                         carType.value = result.data.result.car_type || '';
                         carYear.value = result.data.result.issueYear || '';
                         registrationRegion.value = result.data.result.division || '';
