@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/form.css') }}">
 
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.css') }}">
+    
 
 
 </head>
@@ -434,6 +435,7 @@
 
         <!-- Scripts -->
         @stack('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
         {{-- @vite(['resources/js/app.js']) --}}
 
 </body>

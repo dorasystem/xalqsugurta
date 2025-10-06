@@ -151,13 +151,13 @@ return [
     'passport_series_placeholder' => 'AC',
     'passport_number' => 'Passport Number',
     'passport_number_placeholder' => '1253321',
-    'owner_pinfl' => 'Owner PINFL',
+    'owner_pinfl' => 'PINFL',
     'owner_pinfl_placeholder' => '50806025240017',
-    'owner_last_name' => 'Owner Last Name',
+    'owner_last_name' => 'Last Name',
     'owner_last_name_placeholder' => 'Ivanov',
-    'owner_first_name' => 'Owner First Name',
+    'owner_first_name' => 'First Name',
     'owner_first_name_placeholder' => 'Ivan',
-    'owner_middle_name' => 'Owner Middle Name',
+    'owner_middle_name' => 'Middle Name',
     'owner_middle_name_placeholder' => 'Ivanovich',
 
     // Applicant Information
