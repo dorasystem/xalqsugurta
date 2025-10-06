@@ -131,20 +131,20 @@
                             <div id="applicant-info-display" class="d-none">
                                 <div class="row">
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-last-name'" :name="'applicant_last_name'"
-                                        :label="'messages.applicant_last_name'" :placeholder="'messages.applicant_last_name_placeholder'" />
+                                        :label="'messages.applicant_last_name'" :placeholder="'last_name_placeholder'" />
 
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-first-name'" :name="'applicant_first_name'"
-                                        :label="'messages.applicant_first_name'" :placeholder="'messages.applicant_first_name_placeholder'" />
+                                        :label="'messages.applicant_first_name'" :placeholder="'first_name_placeholder'" />
 
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant_middle_name'"
-                                        :label="'messages.applicant_middle_name'" :placeholder="'messages.applicant_middle_name_placeholder'" />
+                                        :label="'messages.applicant_middle_name'" :placeholder="'middle_name_placeholder'" />
                                 </div>
 
                                 <div class="row">
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-address'" :name="'applicant_address'"
-                                        :label="'messages.applicant_address'" :placeholder="'messages.applicant_address_placeholder'" />
+                                    <x-inputs.input_info :class="'col-md-6'" :idFor="'applicant-address'" :name="'applicant_address'"
+                                        :label="'messages.applicant_address'" :placeholder="'address_placeholder'" />
 
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-phone-number'" :name="'applicant_phone_number'"
+                                    <x-inputs.input_info :class="'col-md-6'" :idFor="'applicant-phone-number'" :name="'applicant_phone_number'"
                                         :label="'messages.applicant_phone_number'" :placeholder="'messages.applicant_phone_number_placeholder'" />
                                 </div>
                             </div>
@@ -257,6 +257,8 @@
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const searchBtn = document.getElementById('vehicle-search-btn');
             const ownerInfoBtn = document.getElementById('owner-information-search-btn');
+            const applicantInfoCheck = document.getElementById('is-applicant-owner');
+
 
             searchBtn.addEventListener('click', async function() {
                 const govNumber = document.getElementById('gov_number').value;
@@ -385,38 +387,35 @@
                         throw new Error(result.message || 'Failed to fetch vehicle info');
                     }
 
-                    // if (result.data != null) {
-                    //     // Get all input elements
-                    //     const engine_number = document.getElementById('engine_number');
-                    //     let carType = document.getElementById('car_type');
-                    //     const carYear = document.getElementById('car_year');
-                    //     const registrationRegion = document.getElementById('registration_region');
-                    //     const carOwner = document.getElementById('car_owner');
-                    //     const model = document.getElementById('model');
+                    if (result.data != null) {
+                        // Get all input elements
+                        const lastName = document.getElementById('insurance-last-name');
+                        const firstName = document.getElementById('insurance-first-name');
+                        const middleName = document.getElementById('insurance-middle-name');
+                        const address = document.getElementById('applicant-address');
 
-                    //     // Populate the fields
-                    //     engine_number.value = result.data.result.engineNumber || '';
-                    //     carType.value = result.data.result.car_type || '';
-                    //     carYear.value = result.data.result.issueYear || '';
-                    //     registrationRegion.value = result.data.result.division || '';
-                    //     carOwner.value = result.data.result.owner || '';
-                    //     model.value = result.data.result.modelName || '';
+                        // // Populate the fields
+                        lastName.value = result.data.result.lastNameLatin || '';
+                        firstName.value = result.data.result.firstNameLatin || '';
+                        middleName.value = result.data.result.middleNameLatin || '';
+                        address.value = result.data.result.address || '';
 
-                    //     // Show the vehicle info display (CORRECTED)
-                    //     const vehicleInfoDisplay = document.getElementById('vehicle-info-display');
-                    //     vehicleInfoDisplay.classList.remove('d-none');
+                        // Show the vehicle info display (CORRECTED)
+                        const insuranceDriverFullInformation = document.getElementById(
+                            'insurance-driver-full-information');
+                        insuranceDriverFullInformation.classList.remove('d-none');
 
-                    //     const vehicleOwnerInfo = document.getElementById('owner-info');
-                    //     vehicleOwnerInfo.classList.remove('d-none');
+                        const applicantInfo = document.getElementById('applicant-info');
+                        applicantInfo.classList.remove('d-none');
 
-                    //     // Optional: Scroll to the displayed info
-                    //     vehicleInfoDisplay.scrollIntoView({
-                    //         behavior: 'smooth',
-                    //         block: 'nearest'
-                    //     });
-                    // } else {
-                    //     alert(result.message.error.error_message);
-                    // }
+                        // Optional: Scroll to the displayed info
+                        insuranceDriverFullInformation.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'nearest'
+                        });
+                    } else {
+                        alert(result.message.error.error_message);
+                    }
 
                     console.log('Person Info:', result);
 
@@ -430,6 +429,36 @@
                         '<svg width="20" height="20"><use xlink:href="#icon-search"></use></svg>';
                 }
             });
+
+            applicantInfoCheck.addEventListener('change', function() {
+
+                if (applicantInfoCheck.checked) {
+                    const applicantInfoSearch = document.getElementById('applicant-info-search');
+                    applicantInfoSearch.classList.toggle('d-none');
+
+                    const applicantInfoDisplay = document.getElementById('applicant-info-display');
+                    applicantInfoDisplay.classList.remove('d-none');
+
+                    const applicantLastName = document.getElementById('applicant-last-name');
+                    const applicantFirstName = document.getElementById('applicant-first-name');
+                    const applicantMiddleName = document.getElementById('applicant-middle-name');
+                    const lastName = document.getElementById('insurance-last-name');
+                    const firstName = document.getElementById('insurance-first-name');
+                    const middleName = document.getElementById('insurance-middle-name');
+
+                    applicantLastName.value = lastName.value || '';
+                    applicantFirstName.value = firstName.value || '';
+                    applicantMiddleName.value = middleName.value || '';
+
+                } else {
+                    const applicantInfoSearch = document.getElementById('applicant-info-search');
+                    applicantInfoSearch.classList.remove('d-none');
+
+                    const applicantInfoDisplay = document.getElementById('applicant-info-display');
+                    applicantInfoDisplay.classList.toggle('d-none');
+                }
+            })
+
         });
     </script>
 

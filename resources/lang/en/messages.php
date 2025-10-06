@@ -169,11 +169,14 @@ return [
     'applicant_passport_number_placeholder' => '1234567',
     'applicant_pinfl' => 'Applicant PINFL',
     'applicant_pinfl_placeholder' => '12345678901234',
+
     'applicant_last_name' => 'Applicant Last Name',
     'applicant_first_name' => 'Applicant First Name',
     'applicant_middle_name' => 'Applicant Middle Name',
     'applicant_address' => 'Applicant Address',
+    'applicant_address' => 'Applicant Address',
     'applicant_phone_number' => 'Applicant Phone Number',
+    'applicant_phone_number_placeholder' => '+998 99 999 99 99',
 
     // Policy Calculation
     'policy_calculation' => 'Policy Calculation',

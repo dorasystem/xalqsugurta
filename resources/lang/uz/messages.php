@@ -174,6 +174,7 @@ return [
     'applicant_middle_name' => 'Ariza beruvchi otasining ismi',
     'applicant_address' => 'Ariza beruvchi manzili',
     'applicant_phone_number' => 'Ariza beruvchi telefon raqami',
+    'applicant_phone_number_placeholder' => '+998 99 999 99 99',
 
     // Policy Calculation
     'policy_calculation' => 'Polis hisobi',
