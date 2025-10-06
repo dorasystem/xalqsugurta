@@ -174,6 +174,7 @@ return [
     'applicant_middle_name' => 'Отчество заявителя',
     'applicant_address' => 'Адрес заявителя',
     'applicant_phone_number' => 'Номер телефона заявителя',
+    'applicant_phone_number_placeholder' => '+998 99 999 99 99',
 
     // Policy Calculation
     'policy_calculation' => 'Расчет полиса',
