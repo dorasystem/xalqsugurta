@@ -8,7 +8,7 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
-                'resources/js/pages/insurence/main.js'
+                // 'resources/js/pages/insurence/main.js'
             ],
             refresh: true,
         }),
@@ -19,7 +19,7 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 manualChunks: {
-                    'insurence-main': ['resources/js/pages/insurence/main.js']
+                    // 'insurence-main': ['resources/js/pages/insurence/main.js']
                 }
             }
         }
