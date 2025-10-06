@@ -12,9 +12,9 @@ class VehicleInfoController extends Controller
     public function getVehicleInfo(Request $request)
     {
         $request->validate([
-            'gov_number' => 'required',
-            'tech_passport_series' => 'required',
-            'tech_passport_number' => 'required'
+            'gov_number' => 'required|alpha_num|min:8|max:8',
+            'tech_passport_series' => 'required|alpha|min:3|max:3',
+            'tech_passport_number' => 'required|min:7|max:7'
         ]);
 
         $data = [
@@ -30,7 +30,8 @@ class VehicleInfoController extends Controller
             return response()->json([
                 'success' => false,
                 'data' => null,
-                'message' => $response->json()
+                'message' => $response->json(),
+                'inputs' => $request->all()
             ]);
         }
 

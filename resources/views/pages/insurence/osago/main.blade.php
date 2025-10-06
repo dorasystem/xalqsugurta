@@ -18,14 +18,14 @@
                         <div class="card-body">
                             <div class="row gap-1">
 
-                                <x-inputs.input_form :class="'col-md-3'" :idFor="'gov_number'" :name="'gov_number'" :placeholder="'messages.gov_number_placeholder'"
-                                    :label="'messages.gov_number'" />
+                                <x-inputs.input_form :type="'text'" :class="'col-md-3'" :idFor="'gov_number'" :name="'gov_number'"
+                                    :placeholder="'messages.gov_number_placeholder'" :label="'messages.gov_number'" />
 
-                                <x-inputs.input_form :class="'col-md-2'" :idFor="'tech_passport_series'" :name="'tech_passport_series'" :placeholder="'messages.tech_passport_series_placeholder'"
-                                    :label="'messages.tech_passport_series'" />
+                                <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'tech_passport_series'" :name="'tech_passport_series'"
+                                    :placeholder="'messages.tech_passport_series_placeholder'" :label="'messages.tech_passport_series'" />
 
-                                <x-inputs.input_form :class="'col-md-3'" :idFor="'tech_passport_number'" :name="'tech_passport_number'"
-                                    :placeholder="'messages.tech_passport_number_placeholder'" :label="'messages.tech_passport_number'" />
+                                <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'tech_passport_number'"
+                                    :name="'tech_passport_number'" :placeholder="'messages.tech_passport_number_placeholder'" :label="'messages.tech_passport_number'" />
 
                                 <x-inputs.button :class="'col-md-3'" :button="'vehicle-search-btn'" />
 
@@ -69,14 +69,14 @@
                         <div class="card-body">
                             <div class="row">
 
-                                <x-inputs.input_form :class="'col-md-2'" :idFor="'insurance-passport-series'" :name="'passport_series'"
-                                    :placeholder="'messages.passport_series_placeholder'" :label="'messages.passport_series'" />
+                                <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'insurance-passport-series'"
+                                    :name="'passport_series'" :placeholder="'messages.passport_series_placeholder'" :label="'messages.passport_series'" />
 
-                                <x-inputs.input_form :class="'col-md-3'" :idFor="'insurance-passport-number'" :name="'passport_number'"
-                                    :placeholder="'messages.passport_number_placeholder'" :label="'messages.passport_number'" />
+                                <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'insurance-passport-number'"
+                                    :name="'passport_number'" :placeholder="'messages.passport_number_placeholder'" :label="'messages.passport_number'" />
 
-                                <x-inputs.input_form :class="'col-md-4'" :idFor="'insurance-pinfl'" :name="'pinfl'"
-                                    :placeholder="'messages.owner_pinfl_placeholder'" :label="'messages.owner_pinfl'" :disabled="true" />
+                                <x-inputs.input_form :type="'number'" :class="'col-md-4'" :idFor="'insurance-pinfl'"
+                                    :name="'pinfl'" :placeholder="'messages.owner_pinfl_placeholder'" :label="'messages.owner_pinfl'" :disabled="true" />
 
                                 <x-inputs.button :class="'col-md-2'" :button="'owner-information-search-btn'" />
 
@@ -115,14 +115,14 @@
 
                             <div id="applicant-info-search">
                                 <div class="row">
-                                    <x-inputs.input_form :class="'col-md-2'" :idFor="'applicant-passport-series'" :name="'applicant_passport_series'"
-                                        :placeholder="'messages.applicant_passport_series_placeholder'" :label="'messages.applicant_passport_series'" />
+                                    <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'applicant-passport-series'"
+                                        :name="'applicant_passport_series'" :placeholder="'messages.applicant_passport_series_placeholder'" :label="'messages.applicant_passport_series'" />
 
-                                    <x-inputs.input_form :class="'col-md-3'" :idFor="'applicant-passport-number'" :name="'applicant_passport_number'"
-                                        :placeholder="'messages.applicant_passport_number_placeholder'" :label="'messages.applicant_passport_number'" />
+                                    <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'applicant-passport-number'"
+                                        :name="'applicant_passport_number'" :placeholder="'messages.applicant_passport_number_placeholder'" :label="'messages.applicant_passport_number'" />
 
-                                    <x-inputs.input_form :class="'col-md-4'" :idFor="'applicant-pinfl'" :name="'applicant_pinfl'"
-                                        :placeholder="'messages.applicant_pinfl_placeholder'" :label="'messages.applicant_pinfl'" />
+                                    <x-inputs.input_form :type="'number'" :class="'col-md-4'" :idFor="'applicant-pinfl'"
+                                        :name="'applicant_pinfl'" :placeholder="'messages.applicant_pinfl_placeholder'" :label="'messages.applicant_pinfl'" />
 
                                     <x-inputs.button :class="'col-md-2'" :button="'applicant-information-search-btn'" />
                                 </div>
@@ -256,6 +256,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const searchBtn = document.getElementById('vehicle-search-btn');
+            const ownerInfoBtn = document.getElementById('owner-information-search-btn');
 
             searchBtn.addEventListener('click', async function() {
                 const govNumber = document.getElementById('gov_number').value;
@@ -304,6 +305,7 @@
                         const registrationRegion = document.getElementById('registration_region');
                         const carOwner = document.getElementById('car_owner');
                         const model = document.getElementById('model');
+                        const insurantPinfl = document.getElementById('insurance-pinfl');
 
                         // Populate the fields
                         engine_number.value = result.data.result.engineNumber || '';
@@ -312,6 +314,7 @@
                         registrationRegion.value = result.data.result.division || '';
                         carOwner.value = result.data.result.owner || '';
                         model.value = result.data.result.modelName || '';
+                        insurantPinfl.value = result.data.result.pinfl || '';
 
                         // Show the vehicle info display (CORRECTED)
                         const vehicleInfoDisplay = document.getElementById('vehicle-info-display');
@@ -325,7 +328,7 @@
                             behavior: 'smooth',
                             block: 'nearest'
                         });
-                    }else{
+                    } else {
                         alert(result.message.error.error_message);
                     }
 
@@ -338,6 +341,92 @@
                     // Re-enable button
                     searchBtn.disabled = false;
                     searchBtn.innerHTML =
+                        '<svg width="20" height="20"><use xlink:href="#icon-search"></use></svg>';
+                }
+            });
+
+            ownerInfoBtn.addEventListener('click', async function() {
+                const insurantPassportSeries = document.getElementById('insurance-passport-series')
+                    .value;
+                const insurantPassportNumber = document.getElementById('insurance-passport-number')
+                    .value;
+                const insurantPinfl = document.getElementById('insurance-pinfl').value;
+
+                // Validate required fields
+                if (!insurantPassportSeries || !insurantPassportNumber || !insurantPinfl) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+
+                ownerInfoBtn.disabled = true;
+                ownerInfoBtn.innerHTML = '<span>Loading...</span>';
+
+                const data = {
+                    senderPinfl: insurantPinfl,
+                    passport_series: insurantPassportSeries,
+                    passport_number: insurantPassportNumber,
+                    pinfl: insurantPinfl,
+                    isConsent: "Y"
+                };
+                try {
+                    const response = await fetch('/get-person-info', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.message || 'Failed to fetch vehicle info');
+                    }
+
+                    // if (result.data != null) {
+                    //     // Get all input elements
+                    //     const engine_number = document.getElementById('engine_number');
+                    //     let carType = document.getElementById('car_type');
+                    //     const carYear = document.getElementById('car_year');
+                    //     const registrationRegion = document.getElementById('registration_region');
+                    //     const carOwner = document.getElementById('car_owner');
+                    //     const model = document.getElementById('model');
+
+                    //     // Populate the fields
+                    //     engine_number.value = result.data.result.engineNumber || '';
+                    //     carType.value = result.data.result.car_type || '';
+                    //     carYear.value = result.data.result.issueYear || '';
+                    //     registrationRegion.value = result.data.result.division || '';
+                    //     carOwner.value = result.data.result.owner || '';
+                    //     model.value = result.data.result.modelName || '';
+
+                    //     // Show the vehicle info display (CORRECTED)
+                    //     const vehicleInfoDisplay = document.getElementById('vehicle-info-display');
+                    //     vehicleInfoDisplay.classList.remove('d-none');
+
+                    //     const vehicleOwnerInfo = document.getElementById('owner-info');
+                    //     vehicleOwnerInfo.classList.remove('d-none');
+
+                    //     // Optional: Scroll to the displayed info
+                    //     vehicleInfoDisplay.scrollIntoView({
+                    //         behavior: 'smooth',
+                    //         block: 'nearest'
+                    //     });
+                    // } else {
+                    //     alert(result.message.error.error_message);
+                    // }
+
+                    console.log('Person Info:', result);
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error: ' + error.message);
+                } finally {
+                    // Re-enable button
+                    ownerInfoBtn.disabled = false;
+                    ownerInfoBtn.innerHTML =
                         '<svg width="20" height="20"><use xlink:href="#icon-search"></use></svg>';
                 }
             });

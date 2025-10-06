@@ -762,7 +762,7 @@ body.has-opportunities {
     justify-content: center;
     gap: calc(.5 * var(--offset));
     border-radius: calc(.15 * var(--offset));
-    border: 1px solid var(--violet) !important  ;
+    border: 1px solid var(--violet) !important;
     padding: calc(.75 * var(--offset)) calc(1 * var(--offset));
     min-width: calc(10.5 * var(--offset));
     transition: all .3s ease
@@ -5800,4 +5800,11 @@ body .template-bar {
 
 .tab-inner.active {
     display: flex
+}
+
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
