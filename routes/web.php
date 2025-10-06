@@ -25,3 +25,6 @@ Route::get('/', function () {
 Route::get('/fallback', function () {
     return view('welcome');
 })->name('fallback');
+
+
+Route::post('/fetch-vehicle-info', [ApiController::class, 'fetchVehicleInfo']);
