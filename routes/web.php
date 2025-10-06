@@ -1,8 +1,9 @@
 <?php
 
+use Faker\Provider\ar_EG\Person;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Insurence\ApiController;
+use App\Http\Controllers\ApiControllers\PersonInfoController;
 use App\Http\Controllers\ApiControllers\VehicleInfoController;
 
 // Language routes
@@ -16,6 +17,7 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
 });
 
 Route::post('/get-vehicle-info', [VehicleInfoController::class, 'getVehicleInfo']);
+Route::post('/get-person-info', [PersonInfoController::class, 'getPersonInfo']);
 
 // Default route (redirects to Russian)
 Route::get('/', function () {
@@ -28,4 +30,3 @@ Route::get('/fallback', function () {
 })->name('fallback');
 
 
-Route::post('/fetch-vehicle-info', [ApiController::class, 'fetchVehicleInfo']);
