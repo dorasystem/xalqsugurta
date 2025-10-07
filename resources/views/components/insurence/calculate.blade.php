@@ -8,7 +8,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="form-label fs-6 text-body-secondary">{{ __('messages.insurance_premium') }}:</div>
                     <div class="summary-total-value fs-4 fw-bold">
-                        <span id="premium" class="summary-total-value-number">0</span> {{ __('messages.sum') }}
+                        <span id="premium" class="summary-total-value-number">40 000 000</span> {{ __('messages.sum') }}
                     </div>
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
