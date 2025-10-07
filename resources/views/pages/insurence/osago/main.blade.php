@@ -262,54 +262,36 @@
             const endInput = document.getElementById('policy_end_date');
             const periodSelect = document.getElementById('insurance_period');
 
-            // add months preserving "day" where possible; if day doesn't exist in target month,
-            // use last day of that month.
-            function addMonthsPreserveDay(date, months) {
-                const y = date.getFullYear();
-                const m = date.getMonth() + months;
-                const d = date.getDate();
-
-                const year = y + Math.floor(m / 12);
-                const month = ((m % 12) + 12) % 12; // normalize
-                // try the same day in target month
-                let candidate = new Date(year, month, d);
-                // if JS rolled to next month because day overflowed, set to last day of target month
-                if (candidate.getMonth() !== month) {
-                    candidate = new Date(year, month + 1, 0); // last day of month
-                }
-                return candidate;
-            }
-
             function updateEndDate() {
-                const startVal = startInput.value;
-                if (!startVal) {
+                // If no start date, clear end date
+                if (!startInput.value) {
                     endInput.value = '';
                     return;
                 }
 
-                // parse YYYY-MM-DD manually to avoid timezone issues
-                const [yy, mm, dd] = startVal.split('-').map(Number);
-                const startDate = new Date(yy, mm - 1, dd);
+                // Get the start date
+                const startDate = new Date(startInput.value);
 
-                let monthsToAdd = 0;
-                if (periodSelect.value === '1_year') monthsToAdd = 12;
-                else if (periodSelect.value === '6_months') monthsToAdd = 6;
-                else if (periodSelect.value === '3_months') monthsToAdd = 3;
+                // Determine how many months to add based on selected period
+                const monthsMap = {
+                    '1_year': 12,
+                    '6_months': 6,
+                    '3_months': 3
+                };
+                const monthsToAdd = monthsMap[periodSelect.value] || 0;
 
-                // compute end = start + monthsToAdd, then subtract 1 day
-                let endDate = addMonthsPreserveDay(startDate, monthsToAdd);
+                // Calculate end date: add months, then subtract 1 day
+                const endDate = new Date(startDate);
+                endDate.setMonth(endDate.getMonth() + monthsToAdd);
                 endDate.setDate(endDate.getDate() - 1);
 
-                // format YYYY-MM-DD for <input type="date">
-                const yyyy = endDate.getFullYear();
-                const m2 = String(endDate.getMonth() + 1).padStart(2, '0');
-                const d2 = String(endDate.getDate()).padStart(2, '0');
-                endInput.value = `${yyyy}-${m2}-${d2}`;
+                // Format as YYYY-MM-DD for the input field
+                endInput.value = endDate.toISOString().split('T')[0];
             }
 
+            // Update end date when start date or period changes
             startInput.addEventListener('change', updateEndDate);
             periodSelect.addEventListener('change', updateEndDate);
-
 
             searchBtn.addEventListener('click', async function() {
                 const govNumber = document.getElementById('gov_number').value;
@@ -349,12 +331,32 @@
 
                         // Populate the fields
                         engine_number.value = result.data.result.engineNumber || '';
-                        carType.value = result.data.result.car_type || '';
                         carYear.value = result.data.result.issueYear || '';
                         registrationRegion.value = result.data.result.division || '';
                         carOwner.value = result.data.result.owner || '';
                         model.value = result.data.result.modelName || '';
                         insurantPinfl.value = result.data.result.pinfl || '';
+                        switch (result.data.result.vehicleTypeId) {
+                            case 2:
+                                vehicleTypeC = 0.1;
+                                carType.value = '@lang('insurance.car_type_2')';
+                                break;
+                            case 6:
+                                vehicleTypeC = 0.12;
+                                carType.value = '@lang('insurance.car_type_6')';
+                                break;
+                            case 9:
+                                vehicleTypeC = 0.12;
+                                carType.value = '@lang('insurance.car_type_9')';
+                                break;
+                            case 15:
+                                vehicleTypeC = 0.04;
+                                carType.value = '@lang('insurance.car_type_15')';
+                                break;
+                            default:
+                                carType.value = '@lang('insurance.car_not_found')';
+                                break;
+                        }
 
                         // Show the vehicle info display (CORRECTED)
                         const vehicleInfoDisplay = document.getElementById('vehicle-info-display');
