@@ -84,7 +84,7 @@
 
                             <div class="row d-none" id="insurance-driver-full-information">
 
-                                <x-inputs.input_info :class="'col-md-2'" :idFor="'insurance-last-name'" :name="'last_name'"
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-last-name'" :name="'last_name'"
                                     :label="'messages.owner_last_name'" :placeholder="'messages.owner_last_name_placeholder'" />
 
                                 <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-first-name'" :name="'first_name'"
@@ -93,6 +93,7 @@
                                 <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-middle-name'" :name="'middle_name'"
                                     :label="'messages.owner_middle_name'" :placeholder="'messages.owner_middle_name_placeholder'" />
 
+                                <input type="hidden" id="owner-address" name="owner_address">
                             </div>
 
                             <!-- Hidden fields for storing data -->
@@ -238,9 +239,7 @@
                                 <!-- Submit button -->
                                 <div class="d-flex justify-content-end">
                                     <button type="submit" class="btn btn-primary-custom" id="calculate-policy-btn">
-                                        <svg width="20" height="20">
-                                            <use xlink:href="#icon-calculate"></use>
-                                        </svg>
+                                        <i class="bi bi-calculator"></i>
                                     </button>
                                 </div>
                             </form>
@@ -258,6 +257,58 @@
             const ownerInfoBtn = document.getElementById('owner-information-search-btn');
             const applicantInfoCheck = document.getElementById('is-applicant-owner');
             const applicantInfoBtn = document.getElementById('applicant-information-search-btn');
+
+            const startInput = document.getElementById('policy_start_date');
+            const endInput = document.getElementById('policy_end_date');
+            const periodSelect = document.getElementById('insurance_period');
+
+            // add months preserving "day" where possible; if day doesn't exist in target month,
+            // use last day of that month.
+            function addMonthsPreserveDay(date, months) {
+                const y = date.getFullYear();
+                const m = date.getMonth() + months;
+                const d = date.getDate();
+
+                const year = y + Math.floor(m / 12);
+                const month = ((m % 12) + 12) % 12; // normalize
+                // try the same day in target month
+                let candidate = new Date(year, month, d);
+                // if JS rolled to next month because day overflowed, set to last day of target month
+                if (candidate.getMonth() !== month) {
+                    candidate = new Date(year, month + 1, 0); // last day of month
+                }
+                return candidate;
+            }
+
+            function updateEndDate() {
+                const startVal = startInput.value;
+                if (!startVal) {
+                    endInput.value = '';
+                    return;
+                }
+
+                // parse YYYY-MM-DD manually to avoid timezone issues
+                const [yy, mm, dd] = startVal.split('-').map(Number);
+                const startDate = new Date(yy, mm - 1, dd);
+
+                let monthsToAdd = 0;
+                if (periodSelect.value === '1_year') monthsToAdd = 12;
+                else if (periodSelect.value === '6_months') monthsToAdd = 6;
+                else if (periodSelect.value === '3_months') monthsToAdd = 3;
+
+                // compute end = start + monthsToAdd, then subtract 1 day
+                let endDate = addMonthsPreserveDay(startDate, monthsToAdd);
+                endDate.setDate(endDate.getDate() - 1);
+
+                // format YYYY-MM-DD for <input type="date">
+                const yyyy = endDate.getFullYear();
+                const m2 = String(endDate.getMonth() + 1).padStart(2, '0');
+                const d2 = String(endDate.getDate()).padStart(2, '0');
+                endInput.value = `${yyyy}-${m2}-${d2}`;
+            }
+
+            startInput.addEventListener('change', updateEndDate);
+            periodSelect.addEventListener('change', updateEndDate);
 
 
             searchBtn.addEventListener('click', async function() {
@@ -365,7 +416,7 @@
                         const lastName = document.getElementById('insurance-last-name');
                         const firstName = document.getElementById('insurance-first-name');
                         const middleName = document.getElementById('insurance-middle-name');
-                        const address = document.getElementById('applicant-address');
+                        const address = document.getElementById('owner-address');
 
                         // // Populate the fields
                         lastName.value = result.data.result.lastNameLatin || '';
@@ -408,9 +459,11 @@
                 const applicantLastName = document.getElementById('applicant-last-name');
                 const applicantFirstName = document.getElementById('applicant-first-name');
                 const applicantMiddleName = document.getElementById('applicant-middle-name');
+                const applicantAddress = document.getElementById('applicant-address');
                 const lastName = document.getElementById('insurance-last-name');
                 const firstName = document.getElementById('insurance-first-name');
                 const middleName = document.getElementById('insurance-middle-name');
+                const ownerAddress = document.getElementById('owner-address');
 
                 if (applicantInfoCheck.checked) {
                     const applicantInfoSearch = document.getElementById('applicant-info-search');
@@ -422,6 +475,7 @@
                     applicantLastName.value = lastName.value || '';
                     applicantFirstName.value = firstName.value || '';
                     applicantMiddleName.value = middleName.value || '';
+                    applicantAddress.value = ownerAddress.value || '';
 
                 } else {
                     const applicantInfoSearch = document.getElementById('applicant-info-search');
@@ -429,6 +483,14 @@
 
                     const applicantInfoDisplay = document.getElementById('applicant-info-display');
                     applicantInfoDisplay.classList.toggle('d-none');
+
+                    const insurantPassportSeries = document.getElementById('applicant-passport-series');
+                    const insurantPassportNumber = document.getElementById('applicant-passport-number');
+                    const insurantPinfl = document.getElementById('applicant-pinfl');
+
+                    insurantPassportSeries.value = '';
+                    insurantPassportNumber.value = '';
+                    insurantPinfl.value = '';
                 }
             })
 
@@ -483,8 +545,8 @@
                     alert('Error: ' + error.message);
                 } finally {
                     // Re-enable button
-                    ownerInfoBtn.disabled = false;
-                    ownerInfoBtn.innerHTML =
+                    applicantInfoBtn.disabled = false;
+                    applicantInfoBtn.innerHTML =
                         '<svg width="20" height="20"><use xlink:href="#icon-search"></use></svg>';
                 }
 
