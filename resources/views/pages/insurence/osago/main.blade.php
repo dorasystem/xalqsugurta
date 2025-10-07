@@ -183,9 +183,9 @@
                                         <label for="insurance_period"
                                             class="form-label">{{ __('messages.insurance_period') }}</label>
                                         <select class="form-select" id="insurance_period" name="insurance_period" required>
-                                            <option value="1_year">{{ __('messages.1_year') }}</option>
-                                            <option value="6_months">{{ __('messages.6_months') }}</option>
-                                            <option value="3_months">{{ __('messages.3_months') }}</option>
+                                            <option value="1">{{ __('messages.1_year') }}</option>
+                                            <option value="0.7">{{ __('messages.6_months') }}</option>
+                                            <option value="0.4">{{ __('messages.3_months') }}</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6">
@@ -257,11 +257,52 @@
 
             let regionIdC;
 
+            let periodC;
+            let vehicleTypeC;
+            let limitedC;
+
             const searchBtn = document.getElementById('vehicle-search-btn');
             const ownerInfoBtn = document.getElementById('owner-information-search-btn');
             const applicantInfoCheck = document.getElementById('is-applicant-owner');
             const applicantInfoBtn = document.getElementById('applicant-information-search-btn');
 
+            const startInput = document.getElementById('policy_start_date');
+            const endInput = document.getElementById('policy_end_date');
+            const periodSelect = document.getElementById('insurance_period');
+
+            function updateEndDate() {
+                // If no start date, clear end date
+                if (!startInput.value) {
+                    endInput.value = '';
+                    return;
+                }
+
+                // Get the start date
+                const startDate = new Date(startInput.value);
+
+                // Determine how many months to add based on selected period
+                const monthsMap = {
+                    '1': 12,
+                    '0.7': 6,
+                    '0.4': 3
+                };
+                const monthsToAdd = monthsMap[periodSelect.value] || 12;
+                periodC = monthsToAdd;
+
+                // Calculate end date: add months, then subtract 1 day
+                const endDate = new Date(startDate);
+                endDate.setMonth(endDate.getMonth() + monthsToAdd);
+                endDate.setDate(endDate.getDate() - 1);
+
+                // Format as YYYY-MM-DD for the input field
+                endInput.value = endDate.toISOString().split('T')[0];
+
+                calculatePolicy();
+            }
+
+            // Update end date when start date or period changes
+            startInput.addEventListener('change', updateEndDate);
+            periodSelect.addEventListener('change', updateEndDate);
 
             searchBtn.addEventListener('click', async function() {
                 const govNumber = document.getElementById('gov_number').value;
@@ -508,6 +549,7 @@
                 }
 
             });
+
             async function sendPostRequest(url, data) {
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')
                     .getAttribute('content');
@@ -539,12 +581,29 @@
 
                 var govNumber = document.getElementById('gov_number').value.trim();
                 govNumber = govNumber.substring(0, 2);
+                const periodSelect = document.getElementById('insurance_period');
+                periodC = periodSelect.value;
+                let limitedC = typeof window.limitedC !== 'undefined' ? limitedC : 1;
 
                 if (govNumber == '01' || govNumber == '10') {
                     regionIdC = 1.4;
                 } else {
                     regionIdC = 1.2;
                 }
+
+                let insuranceAmount = 40000000;
+                let calcDiscount = vehicleTypeC * regionIdC * periodC * limitedC;
+
+                let amount = (calcDiscount * insuranceAmount) / 100;
+
+                console.log('amount', amount);
+                if (isNaN(amount) || amount === 0) {
+                    amount = 168000;
+                }
+
+                document.getElementById('amount').innerHTML = amount.toLocaleString('en-US', {
+                    minimumFractionDigits: 2
+                })
 
             }
 
