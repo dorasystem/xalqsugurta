@@ -153,7 +153,7 @@
                         </div>
                     </div>
 
-                    <div id="policy-calculation" class="card">
+                    <div id="policy-calculation" class="card d-none">
                         <div class="card-header">
                             <h4>{{ __('messages.policy_calculation') }}</h4>
                         </div>
@@ -253,6 +253,9 @@
     </section>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
+            let regionIdC;
+            
             const searchBtn = document.getElementById('vehicle-search-btn');
             const ownerInfoBtn = document.getElementById('owner-information-search-btn');
             const applicantInfoCheck = document.getElementById('is-applicant-owner');
@@ -474,6 +477,9 @@
                     const applicantInfoDisplay = document.getElementById('applicant-info-display');
                     applicantInfoDisplay.classList.remove('d-none');
 
+                    const policyCalculation = document.getElementById('policy-calculation');
+                    policyCalculation.classList.remove('d-none');
+
                     applicantLastName.value = lastName.value || '';
                     applicantFirstName.value = firstName.value || '';
                     applicantMiddleName.value = middleName.value || '';
@@ -485,6 +491,9 @@
 
                     const applicantInfoDisplay = document.getElementById('applicant-info-display');
                     applicantInfoDisplay.classList.toggle('d-none');
+
+                    const policyCalculation = document.getElementById('policy-calculation');
+                    policyCalculation.classList.toggle('d-none');
 
                     const insurantPassportSeries = document.getElementById('applicant-passport-series');
                     const insurantPassportNumber = document.getElementById('applicant-passport-number');
@@ -523,6 +532,8 @@
                     const result = await sendPostRequest('/get-person-info', data);
 
                     if (result.data != null) {
+                        const policyCalculation = document.getElementById('policy-calculation');
+                        policyCalculation.classList.remove('d-none');
                         // Get all input elements
                         const lastName = document.getElementById('applicant-last-name');
                         const firstName = document.getElementById('applicant-first-name');
@@ -579,6 +590,20 @@
                     throw error; // let the caller handle it
                 }
             }
+
+            function calculatePolicy() {
+
+                var govNumber = document.getElementById('gov_number').value.trim();
+                govNumber = govNumber.substring(0, 2);
+
+                if (govNumber == '01' || govNumber == '10') {
+                    regionIdC = 1.4;
+                } else {
+                    regionIdC = 1.2;
+                }
+
+            }
+
         });
     </script>
 
