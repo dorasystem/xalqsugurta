@@ -5809,11 +5809,15 @@ input[type=number]::-webkit-outer-spin-button {
     margin: 0;
 }
 
+/* default state */
+#driver-add-button i,
 #calculate-policy-btn i {
     color: white;
     transition: color 0.3s ease;
 }
 
+/* when the button is hovered */
+#driver-add-button:hover i,
 #calculate-policy-btn:hover i {
     color: #393185;
 }

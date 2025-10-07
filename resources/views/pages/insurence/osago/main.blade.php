@@ -153,7 +153,7 @@
                         </div>
                     </div>
 
-                    <div id="policy-calculation" class="card d-none">
+                    <div id="policy-calculation" class="card">
                         <div class="card-header">
                             <h4>{{ __('messages.policy_calculation') }}</h4>
                         </div>
@@ -184,7 +184,7 @@
                                         <label for="insurance_period"
                                             class="form-label">{{ __('messages.insurance_period') }}</label>
                                         <select class="form-select" id="insurance_period" name="insurance_period" required>
-                                            <option value="1">{{ __('messages.1_year') }}</option>
+                                            <option value="1" selected>{{ __('messages.1_year') }}</option>
                                             <option value="0.7">{{ __('messages.6_months') }}</option>
                                             <option value="0.4">{{ __('messages.3_months') }}</option>
                                         </select>
@@ -221,14 +221,14 @@
                                         <label class="form-label">{{ __('messages.driver_limit') }}</label>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="driver_limit"
-                                                id="driver_limited" value="limited" checked>
+                                                id="driver_limited" value="limited">
                                             <label class="form-check-label" for="driver_limited">
                                                 {{ __('messages.limited_drivers') }}
                                             </label>
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="driver_limit"
-                                                id="driver_unlimited" value="unlimited">
+                                                id="driver_unlimited" value="unlimited" checked>
                                             <label class="form-check-label" for="driver_unlimited">
                                                 {{ __('messages.unlimited_drivers') }}
                                             </label>
@@ -237,7 +237,10 @@
                                 </div>
 
                                 <!-- Submit button -->
-                                <div class="d-flex justify-content-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button type="submit" class="btn btn-primary-custom d-none" id="driver-add-button">
+                                        <i class="bi bi-plus-square"></i>
+                                    </button>
                                     <button type="submit" class="btn btn-primary-custom" id="calculate-policy-btn">
                                         <i class="bi bi-calculator"></i>
                                     </button>
@@ -267,36 +270,6 @@
             const startInput = document.getElementById('policy_start_date');
             const endInput = document.getElementById('policy_end_date');
             const periodSelect = document.getElementById('insurance_period');
-
-            function updateEndDate() {
-                // If no start date, clear end date
-                if (!startInput.value) {
-                    endInput.value = '';
-                    return;
-                }
-
-                // Get the start date
-                const startDate = new Date(startInput.value);
-
-                // Determine how many months to add based on selected period
-                const monthsMap = {
-                    '1': 12,
-                    '0.7': 6,
-                    '0.4': 3
-                };
-                const monthsToAdd = monthsMap[periodSelect.value] || 12;
-                periodC = monthsToAdd;
-
-                // Calculate end date: add months, then subtract 1 day
-                const endDate = new Date(startDate);
-                endDate.setMonth(endDate.getMonth() + monthsToAdd);
-                endDate.setDate(endDate.getDate() - 1);
-
-                // Format as YYYY-MM-DD for the input field
-                endInput.value = endDate.toISOString().split('T')[0];
-
-                calculatePolicy();
-            }
 
             // Update end date when start date or period changes
             startInput.addEventListener('change', updateEndDate);
@@ -602,7 +575,7 @@
 
                 var govNumber = document.getElementById('gov_number').value.trim();
                 govNumber = govNumber.substring(0, 2);
-                const periodSelect = document.getElementById('insurance_period');
+                let periodSelect = document.getElementById('insurance_period');
                 periodC = periodSelect.value;
                 let limitedC = typeof window.limitedC !== 'undefined' ? limitedC : 1;
 
@@ -617,7 +590,7 @@
 
                 let amount = (calcDiscount * insuranceAmount) / 100;
 
-                console.log('amount', amount);
+                console.log('amount', amount, periodC, limitedC, regionIdC, vehicleTypeC);
                 if (isNaN(amount) || amount === 0) {
                     amount = 168000;
                 }
@@ -626,6 +599,62 @@
                     minimumFractionDigits: 2
                 })
 
+            }
+
+            function updateEndDate() {
+                // If no start date, clear end date
+                if (!startInput.value) {
+                    endInput.value = '';
+                    return;
+                }
+
+                // Get the start date
+                const startDate = new Date(startInput.value);
+
+                // Determine how many months to add based on selected period
+                const monthsMap = {
+                    '1': 12,
+                    '0.7': 6,
+                    '0.4': 3
+                };
+                const monthsToAdd = monthsMap[periodSelect.value] || 12;
+                periodC = monthsToAdd;
+
+                // Calculate end date: add months, then subtract 1 day
+                const endDate = new Date(startDate);
+                endDate.setMonth(endDate.getMonth() + monthsToAdd);
+                endDate.setDate(endDate.getDate() - 1);
+
+                // Format as YYYY-MM-DD for the input field
+                endInput.value = endDate.toISOString().split('T')[0];
+
+                calculatePolicy();
+            }
+
+            const unlimitedRadio = document.getElementById('driver_unlimited');
+            const limitedDriver = document.getElementById('driver_limited');
+
+            unlimitedRadio.addEventListener('change', () => showDriverAddButton('unlimited'));
+            limitedDriver.addEventListener('change', () => showDriverAddButton('limited'));
+
+            showDriverAddButton('unlimited');
+            calculatePolicy();
+
+            function showDriverAddButton(radio) {
+                const addButton = document.getElementById('driver-add-button');
+
+                if (radio === 'limited') {
+                    addButton.classList.remove('d-none'); // show the button
+                    limitedC = 1;
+                    console.log('limitedC', limitedC);
+                    calculatePolicy();
+                } else if (radio === 'unlimited') {
+                    addButton.classList.add('d-none'); // hide the button
+                    limitedC = 0;
+                    console.log('limitedC', limitedC);
+                    calculatePolicy();
+
+                }
             }
 
         });
