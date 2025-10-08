@@ -16,12 +16,12 @@
                             <h4 class="card-title">{{ __('messages.vehicle_info_title') }}</h4>
                         </div>
                         <div class="card-body">
-                            <div class="row gap-1">
+                            <div class="row">
 
                                 <x-inputs.input_form :type="'text'" :class="'col-md-3'" :idFor="'gov_number'" :name="'gov_number'"
                                     :placeholder="'messages.gov_number_placeholder'" :label="'messages.gov_number'" />
 
-                                <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'tech_passport_series'" :name="'tech_passport_series'"
+                                <x-inputs.input_form :type="'text'" :class="'col-md-3'" :idFor="'tech_passport_series'" :name="'tech_passport_series'"
                                     :placeholder="'messages.tech_passport_series_placeholder'" :label="'messages.tech_passport_series'" />
 
                                 <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'tech_passport_number'"
@@ -78,7 +78,7 @@
                                 <x-inputs.input_form :type="'number'" :class="'col-md-4'" :idFor="'insurance-pinfl'"
                                     :name="'pinfl'" :placeholder="'messages.owner_pinfl_placeholder'" :label="'messages.owner_pinfl'" :disabled="true" />
 
-                                <x-inputs.button :class="'col-md-2'" :button="'owner-information-search-btn'" />
+                                <x-inputs.button :class="'col-md-3'" :button="'owner-information-search-btn'" />
 
                             </div>
 
@@ -124,7 +124,7 @@
                                     <x-inputs.input_form :type="'number'" :class="'col-md-4'" :idFor="'applicant-pinfl'"
                                         :name="'applicant_pinfl'" :placeholder="'messages.applicant_pinfl_placeholder'" :label="'messages.applicant_pinfl'" />
 
-                                    <x-inputs.button :class="'col-md-2'" :button="'applicant-information-search-btn'" />
+                                    <x-inputs.button :class="'col-md-3'" :button="'applicant-information-search-btn'" />
                                 </div>
                             </div>
 
@@ -255,13 +255,6 @@
                             <h4 class="card-title">{{ __('messages.applicant_info_title') }}</h4>
                         </div>
                         <div class="card-body">
-                            <div class="form-check ">
-                                <input class="form-check-input" type="checkbox" id="is-applicant-owner">
-                                <label class="form-check-label" for="is-applicant-owner">
-                                    {{ __('messages.is_applicant_owner') }}
-                                </label>
-                            </div>
-
                             <!--Driver info if chooses limited drivers-->
                             <div id="driver-info-search">
                                 <div class="row">
@@ -274,23 +267,44 @@
                                     <x-inputs.input_form :type="'number'" :class="'col-md-4'" :idFor="'driver-pinfl'"
                                         :name="'driver_pinfl'" :placeholder="'messages.driver_pinfl_placeholder'" :label="'messages.driver_pinfl'" />
 
-                                    <x-inputs.button :class="'col-md-2'" :button="'driver-information-search-btn'" />
+                                    <x-inputs.button :class="'col-md-3'" :button="'driver-information-search-btn'" />
                                 </div>
                             </div>
 
-                            <div id="driver-info-display" class="d-none">
+                            <div id="driver-info-display" class="">
                                 <div class="row">
-                                    <x-inputs.input_info :class="'col-md-12'" :idFor="'driver-full-name'" :name="'driver_full_name'"
+                                    <x-inputs.input_info :class="'col-md-6'" :idFor="'driver-full-name'" :name="'driver_full_name'"
                                         :label="'messages.driver_full_name'" :placeholder="'full_name_placeholder'" />
-
-                                </div>
-
-                                <div class="row">
-                                    <x-inputs.input_info :class="'col-md-6'" :idFor="'driver-license'" :name="'driver_license'"
+                                    <x-inputs.input_info :class="'col-md-3'" :idFor="'driver-license'" :name="'driver_license'"
                                         :label="'messages.driver_license'" :placeholder="'license_placeholder'" />
-                                    <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'driver-phone-number'"
-                                        :name="'driver_phone_number'" :label="'messages.driver_phone_number'" :placeholder="'messages.driver_phone_number_placeholder'" />
+                                    <x-inputs.input_info :class="'col-md-3'" :idFor="'driver-license-valid'" :name="'driver_license_valid'"
+                                        :label="'messages.driver_license_valid'" :placeholder="'license_valid_placeholder'" />
+                                </div>
+                                <div class="row align-items-end">
+                                    <div class="col-md-6">
+                                        <label for="insurance_period" class="form-label">
+                                            {{ __('messages.insurance_period') }}
+                                        </label>
+                                        <select class="form-select" id="insurance_period" name="insurance_period"
+                                            required>
+                                            <option value="0" selected>Vehicle owner</option>
+                                            <option value="0">Not a relative</option>
+                                            <option value="1">Father</option>
+                                            <option value="2">Mother</option>
+                                            <option value="3">Husband</option>
+                                            <option value="4">Wife</option>
+                                            <option value="5">Son</option>
+                                            <option value="6">Daughter</option>
+                                            <option value="7">Older Brother</option>
+                                            <option value="8">Younger brother</option>
+                                            <option value="9">Elder sister</option>
+                                            <option value="10">Younger sister</option>
+                                        </select>
+                                    </div>
 
+                                    <div class="col-md-6 d-flex justify-content-end">
+                                        <x-inputs.button :class="''" :button="'driver-information-search-btn'" />
+                                    </div>
                                 </div>
                             </div>
 
@@ -661,6 +675,7 @@
 
                 const driverFullName = document.getElementById('driver-full-name');
                 const driverLicense = document.getElementById('driver-license');
+                const driverLicenseValid = document.getElementById('driver-license-valid');
                 const driverInfo = document.getElementById('driver-info-display');
 
                 if (!driverPassportSeries || !driverPassportNumber || !driverPinfl) {
@@ -684,8 +699,9 @@
                     if (result.success) {
                         driverFullName.value = result.data.result.DriverInfo.pOwner || '';
                         driverLicense.value = result.data.result.DriverInfo.licenseSeria + ' ' + result
-                            .data.result.
-                        DriverInfo.licenseNumber || '';
+                            .data.result.DriverInfo.licenseNumber || '';
+                        driverLicenseValid.value = result.data.result.DriverInfo.issueDate.split('T')[
+                            0];
                         driverInfo.classList.remove('d-none');
                     } else {
                         alert(result?.message?.error?.error_message || 'Driver not found');
