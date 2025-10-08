@@ -84,7 +84,7 @@
 
                             <div class="row d-none" id="insurance-driver-full-information">
 
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-last-name'" :name="'last_name'"
+                                <x-inputs.input_info :class="'col-md-2'" :idFor="'insurance-last-name'" :name="'last_name'"
                                     :label="'messages.owner_last_name'" :placeholder="'messages.owner_last_name_placeholder'" />
 
                                 <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-first-name'" :name="'first_name'"
@@ -93,7 +93,6 @@
                                 <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-middle-name'" :name="'middle_name'"
                                     :label="'messages.owner_middle_name'" :placeholder="'messages.owner_middle_name_placeholder'" />
 
-                                <input type="hidden" id="owner-address" name="owner_address">
                             </div>
 
                             <!-- Hidden fields for storing data -->
@@ -240,7 +239,9 @@
                                 <!-- Submit button -->
                                 <div class="d-flex justify-content-end gap-2">
                                     <button type="submit" class="btn btn-primary-custom" id="calculate-policy-btn">
-                                        <i class="bi bi-calculator"></i>
+                                        <svg width="20" height="20">
+                                            <use xlink:href="#icon-calculate"></use>
+                                        </svg>
                                     </button>
                                 </div>
                             </form>
@@ -304,6 +305,7 @@
         document.addEventListener('DOMContentLoaded', function() {
 
             let regionIdC;
+
             let periodC;
             let vehicleTypeC;
             let limitedC = 0;
@@ -360,32 +362,12 @@
 
                         // Populate the fields
                         engine_number.value = result.data.result.engineNumber || '';
+                        carType.value = result.data.result.car_type || '';
                         carYear.value = result.data.result.issueYear || '';
                         registrationRegion.value = result.data.result.division || '';
                         carOwner.value = result.data.result.owner || '';
                         model.value = result.data.result.modelName || '';
                         insurantPinfl.value = result.data.result.pinfl || '';
-                        switch (result.data.result.vehicleTypeId) {
-                            case 2:
-                                vehicleTypeC = 0.1;
-                                carType.value = '@lang('insurance.car_type_2')';
-                                break;
-                            case 6:
-                                vehicleTypeC = 0.12;
-                                carType.value = '@lang('insurance.car_type_6')';
-                                break;
-                            case 9:
-                                vehicleTypeC = 0.12;
-                                carType.value = '@lang('insurance.car_type_9')';
-                                break;
-                            case 15:
-                                vehicleTypeC = 0.04;
-                                carType.value = '@lang('insurance.car_type_15')';
-                                break;
-                            default:
-                                carType.value = '@lang('insurance.car_not_found')';
-                                break;
-                        }
 
                         // Show the vehicle info display (CORRECTED)
                         const vehicleInfoDisplay = document.getElementById('vehicle-info-display');
@@ -447,7 +429,7 @@
                         const lastName = document.getElementById('insurance-last-name');
                         const firstName = document.getElementById('insurance-first-name');
                         const middleName = document.getElementById('insurance-middle-name');
-                        const address = document.getElementById('owner-address');
+                        const address = document.getElementById('applicant-address');
 
                         // // Populate the fields
                         lastName.value = result.data.result.lastNameLatin || '';
@@ -490,11 +472,9 @@
                 const applicantLastName = document.getElementById('applicant-last-name');
                 const applicantFirstName = document.getElementById('applicant-first-name');
                 const applicantMiddleName = document.getElementById('applicant-middle-name');
-                const applicantAddress = document.getElementById('applicant-address');
                 const lastName = document.getElementById('insurance-last-name');
                 const firstName = document.getElementById('insurance-first-name');
                 const middleName = document.getElementById('insurance-middle-name');
-                const ownerAddress = document.getElementById('owner-address');
 
                 if (applicantInfoCheck.checked) {
                     const applicantInfoSearch = document.getElementById('applicant-info-search');
@@ -509,7 +489,6 @@
                     applicantLastName.value = lastName.value || '';
                     applicantFirstName.value = firstName.value || '';
                     applicantMiddleName.value = middleName.value || '';
-                    applicantAddress.value = ownerAddress.value || '';
 
                 } else {
                     const applicantInfoSearch = document.getElementById('applicant-info-search');
@@ -584,8 +563,8 @@
                     alert('Error: ' + error.message);
                 } finally {
                     // Re-enable button
-                    applicantInfoBtn.disabled = false;
-                    applicantInfoBtn.innerHTML =
+                    ownerInfoBtn.disabled = false;
+                    ownerInfoBtn.innerHTML =
                         '<svg width="20" height="20"><use xlink:href="#icon-search"></use></svg>';
                 }
 
