@@ -153,7 +153,7 @@
                         </div>
                     </div>
 
-                    <div id="policy-calculation" class="card">
+                    <div id="policy-calculation" class="card d-none">
                         <div class="card-header">
                             <h4>{{ __('messages.policy_calculation') }}</h4>
                         </div>
@@ -183,7 +183,8 @@
                                     <div class="col-md-6">
                                         <label for="insurance_period"
                                             class="form-label">{{ __('messages.insurance_period') }}</label>
-                                        <select class="form-select" id="insurance_period" name="insurance_period" required>
+                                        <select class="form-select" id="insurance_period" name="insurance_period" required
+                                            disabled>
                                             <option value="1" selected>{{ __('messages.1_year') }}</option>
                                             <option value="0.7">{{ __('messages.6_months') }}</option>
                                             <option value="0.4">{{ __('messages.3_months') }}</option>
@@ -249,6 +250,58 @@
 
                         </div>
                     </div>
+
+
+                    <div id="limited-drivers-info" class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">{{ __('messages.applicant_info_title') }}</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check ">
+                                <input class="form-check-input" type="checkbox" id="is-applicant-owner">
+                                <label class="form-check-label" for="is-applicant-owner">
+                                    {{ __('messages.is_applicant_owner') }}
+                                </label>
+                            </div>
+
+                            <div id="applicant-info-search">
+                                <div class="row">
+                                    <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'applicant-passport-series'"
+                                        :name="'applicant_passport_series'" :placeholder="'messages.applicant_passport_series_placeholder'" :label="'messages.applicant_passport_series'" />
+
+                                    <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'applicant-passport-number'"
+                                        :name="'applicant_passport_number'" :placeholder="'messages.applicant_passport_number_placeholder'" :label="'messages.applicant_passport_number'" />
+
+                                    <x-inputs.input_form :type="'number'" :class="'col-md-4'" :idFor="'applicant-pinfl'"
+                                        :name="'applicant_pinfl'" :placeholder="'messages.applicant_pinfl_placeholder'" :label="'messages.applicant_pinfl'" />
+
+                                    <x-inputs.button :class="'col-md-2'" :button="'applicant-information-search-btn'" />
+                                </div>
+                            </div>
+
+                            <div id="applicant-info-display" class="d-none">
+                                <div class="row">
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-last-name'" :name="'applicant_last_name'"
+                                        :label="'messages.applicant_last_name'" :placeholder="'last_name_placeholder'" />
+
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-first-name'" :name="'applicant_first_name'"
+                                        :label="'messages.applicant_first_name'" :placeholder="'first_name_placeholder'" />
+
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant_middle_name'"
+                                        :label="'messages.applicant_middle_name'" :placeholder="'middle_name_placeholder'" />
+                                </div>
+
+                                <div class="row">
+                                    <x-inputs.input_info :class="'col-md-6'" :idFor="'applicant-address'" :name="'applicant_address'"
+                                        :label="'messages.applicant_address'" :placeholder="'address_placeholder'" />
+
+                                    <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'applicant-phone-number'"
+                                        :name="'applicant_phone_number'" :label="'messages.applicant_phone_number'" :placeholder="'messages.applicant_phone_number_placeholder'" />
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
                 <x-insurence.calculate />
             </div>
@@ -260,7 +313,7 @@
             let regionIdC;
             let periodC;
             let vehicleTypeC;
-            let limitedC;
+            let limitedC = 0;
 
             const searchBtn = document.getElementById('vehicle-search-btn');
             const ownerInfoBtn = document.getElementById('owner-information-search-btn');
@@ -577,7 +630,6 @@
                 govNumber = govNumber.substring(0, 2);
                 let periodSelect = document.getElementById('insurance_period');
                 periodC = periodSelect.value;
-                let limitedC = typeof window.limitedC !== 'undefined' ? limitedC : 1;
 
                 if (govNumber == '01' || govNumber == '10') {
                     regionIdC = 1.4;
@@ -590,12 +642,15 @@
 
                 let amount = (calcDiscount * insuranceAmount) / 100;
 
-                console.log('amount', amount, periodC, limitedC, regionIdC, vehicleTypeC);
+                // console.log('amount', amount,'period', periodC,'limitedC', limitedC,'regionId', regionIdC,'vehicleType', vehicleTypeC);
                 if (isNaN(amount) || amount === 0) {
                     amount = 168000;
                 }
 
                 document.getElementById('amount').innerHTML = amount.toLocaleString('en-US', {
+                    minimumFractionDigits: 2
+                })
+                document.getElementById('premium').innerHTML = insuranceAmount.toLocaleString('en-US', {
                     minimumFractionDigits: 2
                 })
 
@@ -637,24 +692,20 @@
             unlimitedRadio.addEventListener('change', () => showDriverAddButton('unlimited'));
             limitedDriver.addEventListener('change', () => showDriverAddButton('limited'));
 
-            showDriverAddButton('unlimited');
-            calculatePolicy();
-
             function showDriverAddButton(radio) {
                 const addButton = document.getElementById('driver-add-button');
 
                 if (radio === 'limited') {
                     addButton.classList.remove('d-none'); // show the button
+                    periodSelect.removeAttribute('disabled');
                     limitedC = 1;
-                    console.log('limitedC', limitedC);
-                    calculatePolicy();
                 } else if (radio === 'unlimited') {
                     addButton.classList.add('d-none'); // hide the button
+                    periodSelect.value = 1;
+                    periodSelect.toggleAttribute('disabled');
                     limitedC = 0;
-                    console.log('limitedC', limitedC);
-                    calculatePolicy();
-
                 }
+                calculatePolicy();
             }
 
         });
