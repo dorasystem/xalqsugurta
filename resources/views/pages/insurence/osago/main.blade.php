@@ -239,9 +239,6 @@
 
                                 <!-- Submit button -->
                                 <div class="d-flex justify-content-end gap-2">
-                                    <button type="submit" class="btn btn-primary-custom d-none" id="driver-add-button">
-                                        <i class="bi bi-plus-square"></i>
-                                    </button>
                                     <button type="submit" class="btn btn-primary-custom" id="calculate-policy-btn">
                                         <i class="bi bi-calculator"></i>
                                     </button>
@@ -264,39 +261,35 @@
                                 </label>
                             </div>
 
-                            <div id="applicant-info-search">
+                            <!--Driver info if chooses limited drivers-->
+                            <div id="driver-info-search">
                                 <div class="row">
-                                    <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'applicant-passport-series'"
-                                        :name="'applicant_passport_series'" :placeholder="'messages.applicant_passport_series_placeholder'" :label="'messages.applicant_passport_series'" />
+                                    <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'driver-passport-series'"
+                                        :name="'driver_passport_series'" :placeholder="'messages.driver_passport_series_placeholder'" :label="'messages.driver_passport_series'" />
 
-                                    <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'applicant-passport-number'"
-                                        :name="'applicant_passport_number'" :placeholder="'messages.applicant_passport_number_placeholder'" :label="'messages.applicant_passport_number'" />
+                                    <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'driver-passport-number'"
+                                        :name="'driver_passport_number'" :placeholder="'messages.driver_passport_number_placeholder'" :label="'messages.driver_passport_number'" />
 
-                                    <x-inputs.input_form :type="'number'" :class="'col-md-4'" :idFor="'applicant-pinfl'"
-                                        :name="'applicant_pinfl'" :placeholder="'messages.applicant_pinfl_placeholder'" :label="'messages.applicant_pinfl'" />
+                                    <x-inputs.input_form :type="'number'" :class="'col-md-4'" :idFor="'driver-pinfl'"
+                                        :name="'driver_pinfl'" :placeholder="'messages.driver_pinfl_placeholder'" :label="'messages.driver_pinfl'" />
 
-                                    <x-inputs.button :class="'col-md-2'" :button="'applicant-information-search-btn'" />
+                                    <x-inputs.button :class="'col-md-2'" :button="'driver-information-search-btn'" />
                                 </div>
                             </div>
 
-                            <div id="applicant-info-display" class="d-none">
+                            <div id="driver-info-display" class="d-none">
                                 <div class="row">
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-last-name'" :name="'applicant_last_name'"
-                                        :label="'messages.applicant_last_name'" :placeholder="'last_name_placeholder'" />
+                                    <x-inputs.input_info :class="'col-md-12'" :idFor="'driver-full-name'" :name="'driver_full_name'"
+                                        :label="'messages.driver_full_name'" :placeholder="'full_name_placeholder'" />
 
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-first-name'" :name="'applicant_first_name'"
-                                        :label="'messages.applicant_first_name'" :placeholder="'first_name_placeholder'" />
-
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant_middle_name'"
-                                        :label="'messages.applicant_middle_name'" :placeholder="'middle_name_placeholder'" />
                                 </div>
 
                                 <div class="row">
-                                    <x-inputs.input_info :class="'col-md-6'" :idFor="'applicant-address'" :name="'applicant_address'"
-                                        :label="'messages.applicant_address'" :placeholder="'address_placeholder'" />
+                                    <x-inputs.input_info :class="'col-md-6'" :idFor="'driver-license'" :name="'driver_license'"
+                                        :label="'messages.driver_license'" :placeholder="'license_placeholder'" />
+                                    <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'driver-phone-number'"
+                                        :name="'driver_phone_number'" :label="'messages.driver_phone_number'" :placeholder="'messages.driver_phone_number_placeholder'" />
 
-                                    <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'applicant-phone-number'"
-                                        :name="'applicant_phone_number'" :label="'messages.applicant_phone_number'" :placeholder="'messages.applicant_phone_number_placeholder'" />
                                 </div>
                             </div>
 
@@ -323,6 +316,7 @@
             const startInput = document.getElementById('policy_start_date');
             const endInput = document.getElementById('policy_end_date');
             const periodSelect = document.getElementById('insurance_period');
+            const driverSearchBtn = document.getElementById('driver-information-search-btn');
 
             // Update end date when start date or period changes
             startInput.addEventListener('change', updateEndDate);
@@ -597,33 +591,6 @@
 
             });
 
-            async function sendPostRequest(url, data) {
-                const csrfToken = document.querySelector('meta[name="csrf-token"]')
-                    .getAttribute('content');
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken, // make sure csrfToken is globally available
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(data)
-                    });
-
-                    const result = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(result.message || 'Request failed');
-                    }
-
-                    return result; // return the successful result
-                } catch (error) {
-                    console.error('Fetch error:', error);
-                    throw error; // let the caller handle it
-                }
-            }
-
             function calculatePolicy() {
 
                 var govNumber = document.getElementById('gov_number').value.trim();
@@ -708,6 +675,78 @@
                 calculatePolicy();
             }
 
+            driverSearchBtn.addEventListener('click', async function() {
+                const driverPassportSeries = document.getElementById('driver-passport-series').value;
+                const driverPassportNumber = document.getElementById('driver-passport-number').value;
+                const driverPinfl = document.getElementById('driver-pinfl').value;
+
+                const driverFullName = document.getElementById('driver-full-name');
+                const driverLicense = document.getElementById('driver-license');
+                const driverInfo = document.getElementById('driver-info-display');
+
+                if (!driverPassportSeries || !driverPassportNumber || !driverPinfl) {
+                    alert('Заполните данные водителя');
+                    return;
+                }
+
+                const driverData = {
+                    passport_series: driverPassportSeries,
+                    passport_number: driverPassportNumber,
+                    pinfl: driverPinfl,
+                };
+
+                driverSearchBtn.disabled = true;
+                driverSearchBtn.innerHTML = '<span>Loading...</span>';
+
+                try {
+                    const result = await sendPostRequest('/get-driver-info', driverData);
+                    console.log('Driver Info:', result);
+
+                    if (result.success) {
+                        driverFullName.value = result.data.result.DriverInfo.pOwner || '';
+                        driverLicense.value = result.data.result.DriverInfo.licenseSeria + ' ' + result
+                            .data.result.
+                        DriverInfo.licenseNumber || '';
+                        driverInfo.classList.remove('d-none');
+                    } else {
+                        alert(result?.message?.error?.error_message || 'Driver not found');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error: ' + (error.message || 'Something went wrong'));
+                } finally {
+                    driverSearchBtn.disabled = false;
+                    driverSearchBtn.innerHTML =
+                        '<svg width="20" height="20"><use xlink:href="#icon-search"></use></svg>';
+                }
+            });
+
+            async function sendPostRequest(url, data) {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')
+                    .getAttribute('content');
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken, // make sure csrfToken is globally available
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.message || 'Request failed');
+                    }
+
+                    return result; // return the successful result
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    throw error; // let the caller handle it
+                }
+            }
         });
     </script>
 
