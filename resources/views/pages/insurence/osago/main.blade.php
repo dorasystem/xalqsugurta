@@ -248,7 +248,8 @@
                         </div>
 
 
-                        <div id="limited-drivers-info" class="card"><!--d-none qo'shish kerak!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+                        <div id="limited-drivers-info" class="card">
+                            <!--d-none qo'shish kerak!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
                             <div class="card-header">
                                 <h4 class="card-title">{{ __('messages.applicant_info_title') }}</h4>
                             </div>
@@ -272,7 +273,7 @@
 
                             <div id="driver-info-display" class="">
                                 <div class="card-footer">
-                                    <h4 class="card-title">{{ __('messages.applicant_info_title') }}</h4>
+                                    <h4 class="card-title">{{ __('messages.driver_info_title') }}</h4>
                                     <div class="row mb-1">
                                         <x-inputs.input_info :class="'col-md-6'" :idFor="'driver-full-name'" :name="'driver_full_name'"
                                             :label="'messages.driver_full_name'" :placeholder="'messages.driver_full_name_placeholder'" />
@@ -281,13 +282,12 @@
                                         <x-inputs.input_info :class="'col-md-3'" :idFor="'driver-license-valid'" :name="'driver_license_valid'"
                                             :label="'messages.driver_license_valid'" :placeholder="'messages.driver_license_valid_placeholder'" />
                                     </div>
-                                    <div class="row align-items-end">
+                                    <div class="row">
                                         <div class="col-md-6">
                                             <label for="{{ __('messages.kinship') }}" class="form-label">
                                                 {{ __('messages.kinship') }}
                                             </label>
-                                            <select class="form-select" id="kinship" name="kinship"
-                                                required>
+                                            <select class="form-select" id="kinship" name="kinship" required>
                                                 <option value="0" selected>@lang('messages.vehicle_owner')</option>
                                                 <option value="0">@lang('messages.not_a_relative')</option>
                                                 <option value="1">@lang('messages.father')</option>
@@ -323,6 +323,7 @@
             let periodC;
             let vehicleTypeC;
             let limitedC = 0;
+            let startCount;
 
             const searchBtn = document.getElementById('vehicle-search-btn');
             const ownerInfoBtn = document.getElementById('owner-information-search-btn');
@@ -714,38 +715,76 @@
                 try {
                     const result = await sendPostRequest('/get-driver-info', driverData);
                     console.log('Driver Info:', result);
-
+                    const shortResult = result.data.result;
                     if (result.success) {
 
-                        const driverHtml =
-                            `
-                            <h4 class="card-title">Информация о водителе</h4>
+                        const driverInfoDisplay = document.getElementById('driver-info-display');
 
-                            <div class="row mb-2">
-                              <div class="col-md-6">
-                                <label for="${uid}-full-name" class="form-label">@lang('messages.driver_full_name')</label>
-                                <input type="text" class="form-control" id="${uid}-full-name" name="driver_full_name[]" value="${fullName}" />
-                              </div>
+                        const existing = driverInfoDisplay.querySelectorAll('.card-footer').length;
+                        if (existing <= 5) {
+                            if (existing == 0) {
+                                startCount = 1;
+                            } else {
+                                startCount = existing + 1;
+                            }
+                            console.log('existing', existing, 'startCount', startCount);
+                            const driverHtml = `
+                <div class="card-footer mb-3" data-id="${startCount}">
+                    <h4 class="card-title">Информация о водителе</h4>
 
-                              <div class="col-md-3">
-                                <label for="${uid}-license" class="form-label">@lang('messages.driver_license')</label>
-                                <input type="text" class="form-control" id="${uid}-license" name="driver_license[]" value="${license}" />
-                              </div>
+                    <div class="row mb-2">
+                      <div class="col-md-6">
+                        <label for="${startCount}-full-name" class="form-label">@lang('messages.driver_full_name')</label>
+                        <input type="text" class="form-control" id="${startCount}-full-name" name="driver_full_name[${startCount}]" value="${shortResult.DriverInfo.pOwner}" disabled />
+                      </div>
 
-                              <div class="col-md-3">
-                                <label for="${uid}-license-valid" class="form-label">@lang('messages.driver-license-valid')</label>
-                                <input type="date" class="form-control" id="${uid}-license-valid" name="driver_license_valid[]" value="${issueDate}" />
-                              </div>
-                            </div>
+                      <div class="col-md-3">
+                        <label for="${startCount}-license" class="form-label">@lang('messages.driver_license')</label>
+                        <input type="text" class="form-control" id="${startCount}-license" name="driver_license[${startCount}]" value="${shortResult.DriverInfo.licenseSeria + shortResult.DriverInfo.licenseNumber}" disabled />
+                      </div>
 
-                            <div class="row">
-                              <div class="col-12 d-flex justify-content-end">
-                                <button type="button" class="btn btn-outline-danger btn-sm remove-driver-card" data-target="${uid}">
-                                  Удалить
-                                </button>
-                              </div>
-                            </div>`
-                        ;
+                      <div class="col-md-3">
+                        <label for="${startCount}-license-valid" class="form-label">@lang('messages.driver_license_valid')</label>
+                        <input type="text" class="form-control" id="${startCount}-license-valid" name="driver_license_valid[${startCount}]" value="${shortResult.DriverInfo.issueDate.split("T")[0]}" disabled />
+                      </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="${startCount}-kinship" class="form-label">
+                                @lang('messages.kinship')
+                            </label>
+                            <select class="form-select" id="${startCount}-kinship" name="kinship[]"
+                                required>
+                                <option value="0" selected>@lang('messages.vehicle_owner')</option>
+                                <option value="0">@lang('messages.not_a_relative')</option>
+                                <option value="1">@lang('messages.father')</option>
+                                <option value="2">@lang('messages.mother')</option>
+                                <option value="3">@lang('messages.husband')</option>
+                                <option value="4">@lang('messages.wife')</option>
+                                <option value="5">@lang('messages.son')</option>
+                                <option value="6">@lang('messages.daughter')</option>
+                                <option value="7">@lang('messages.older_brother')</option>
+                                <option value="8">@lang('messages.younger_brother')</option>
+                                <option value="9">@lang('messages.elder_sister')</option>
+                                <option value="10">@lang('messages.younger_sister')</option>
+                            </select>
+                        </div>
+                      <div class="col-md-6 d-flex justify-content-end">
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-driver-card" data-target="${startCount}">
+                          Удалить
+                        </button>
+                      </div>
+                    </div>
+                </div>
+            `;
+
+                            driverInfoDisplay.innerHTML += driverHtml;
+                        } else {
+
+                        }
+
+
 
 
                         driverInfo.classList.remove('d-none');

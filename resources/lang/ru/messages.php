@@ -265,6 +265,7 @@ return [
 
 
     //drivers
+    'driver_info_title' => 'Полное имя водителя и информация ВУ',
     'driver_full_name' => 'Информация о водителе',
     'driver_license' => 'Данные ВУ',
     'driver_license_valid' => 'Дата выдачи',

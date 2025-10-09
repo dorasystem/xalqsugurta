@@ -264,6 +264,7 @@ return [
 
 
     //drivers
+    'driver_info_title' => 'Haydovchi to\'liq ismi va guvohnoma ma\'lumotlari',
     'driver_full_name' => 'Haydovchi to\'liq ismi',
     'driver_license' => 'HG ma\'lumoti',
     'driver_license_valid' => 'Berilgan sana',

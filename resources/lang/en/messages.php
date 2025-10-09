@@ -267,6 +267,7 @@ return [
 
 
     //drivers
+    'driver_info_title' => 'Driver\'s full name and license information',
     'driver_full_name' => 'Driver full name',
     'driver_license' => 'Info DL',
     'driver_license_valid' => 'Given date',
