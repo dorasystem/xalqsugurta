@@ -16,12 +16,12 @@
                             <h4 class="card-title">{{ __('messages.vehicle_info_title') }}</h4>
                         </div>
                         <div class="card-body">
-                            <div class="row gap-1">
+                            <div class="row">
 
                                 <x-inputs.input_form :type="'text'" :class="'col-md-3'" :idFor="'gov_number'" :name="'gov_number'"
                                     :placeholder="'messages.gov_number_placeholder'" :label="'messages.gov_number'" />
 
-                                <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'tech_passport_series'" :name="'tech_passport_series'"
+                                <x-inputs.input_form :type="'text'" :class="'col-md-3'" :idFor="'tech_passport_series'" :name="'tech_passport_series'"
                                     :placeholder="'messages.tech_passport_series_placeholder'" :label="'messages.tech_passport_series'" />
 
                                 <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'tech_passport_number'"
@@ -78,11 +78,13 @@
                                 <x-inputs.input_form :type="'number'" :class="'col-md-4'" :idFor="'insurance-pinfl'"
                                     :name="'pinfl'" :placeholder="'messages.owner_pinfl_placeholder'" :label="'messages.owner_pinfl'" :disabled="true" />
 
-                                <x-inputs.button :class="'col-md-2'" :button="'owner-information-search-btn'" />
+                                <x-inputs.button :class="'col-md-3'" :button="'owner-information-search-btn'" />
 
                             </div>
+                        </div>
 
-                            <div class="row d-none" id="insurance-driver-full-information">
+                        <div id="insurance-driver-full-information" class="card-footer d-none">
+                            <div class="row">
 
                                 <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-last-name'" :name="'last_name'"
                                     :label="'messages.owner_last_name'" :placeholder="'messages.owner_last_name_placeholder'" />
@@ -95,11 +97,11 @@
 
                                 <input type="hidden" id="owner-address" name="owner_address">
                             </div>
-
-                            <!-- Hidden fields for storing data -->
-                            <input type="hidden" id="pinfl-hidden" name="pinfl_hidden">
-                            <input type="hidden" id="applicant-passport-data" name="applicant_passport_data">
                         </div>
+
+                        <!-- Hidden fields for storing data -->
+                        <input type="hidden" id="pinfl-hidden" name="pinfl_hidden">
+                        <input type="hidden" id="applicant-passport-data" name="applicant_passport_data">
                     </div>
 
                     <div id="applicant-info" class="card d-none">
@@ -125,35 +127,35 @@
                                     <x-inputs.input_form :type="'number'" :class="'col-md-4'" :idFor="'applicant-pinfl'"
                                         :name="'applicant_pinfl'" :placeholder="'messages.applicant_pinfl_placeholder'" :label="'messages.applicant_pinfl'" />
 
-                                    <x-inputs.button :class="'col-md-2'" :button="'applicant-information-search-btn'" />
-                                </div>
-                            </div>
-
-                            <div id="applicant-info-display" class="d-none">
-                                <div class="row">
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-last-name'" :name="'applicant_last_name'"
-                                        :label="'messages.applicant_last_name'" :placeholder="'last_name_placeholder'" />
-
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-first-name'" :name="'applicant_first_name'"
-                                        :label="'messages.applicant_first_name'" :placeholder="'first_name_placeholder'" />
-
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant_middle_name'"
-                                        :label="'messages.applicant_middle_name'" :placeholder="'middle_name_placeholder'" />
-                                </div>
-
-                                <div class="row">
-                                    <x-inputs.input_info :class="'col-md-6'" :idFor="'applicant-address'" :name="'applicant_address'"
-                                        :label="'messages.applicant_address'" :placeholder="'address_placeholder'" />
-
-                                    <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'applicant-phone-number'"
-                                        :name="'applicant_phone_number'" :label="'messages.applicant_phone_number'" :placeholder="'messages.applicant_phone_number_placeholder'" />
+                                    <x-inputs.button :class="'col-md-3'" :button="'applicant-information-search-btn'" />
                                 </div>
                             </div>
 
                         </div>
+                        <div id="applicant-info-display" class="card-footer d-none">
+                            <div class="row">
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-last-name'" :name="'applicant_last_name'"
+                                    :label="'messages.applicant_last_name'" :placeholder="'last_name_placeholder'" />
+
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-first-name'" :name="'applicant_first_name'"
+                                    :label="'messages.applicant_first_name'" :placeholder="'first_name_placeholder'" />
+
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant_middle_name'"
+                                    :label="'messages.applicant_middle_name'" :placeholder="'middle_name_placeholder'" />
+                            </div>
+
+                            <div class="row">
+                                <x-inputs.input_info :class="'col-md-6'" :idFor="'applicant-address'" :name="'applicant_address'"
+                                    :label="'messages.applicant_address'" :placeholder="'address_placeholder'" />
+
+                                <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'applicant-phone-number'"
+                                    :name="'applicant_phone_number'" :label="'messages.applicant_phone_number'" :placeholder="'messages.applicant_phone_number_placeholder'" />
+                            </div>
+                        </div>
+
                     </div>
 
-                    <div id="policy-calculation" class="card">
+                    <div id="policy-calculation" class="card d-none">
                         <div class="card-header">
                             <h4>{{ __('messages.policy_calculation') }}</h4>
                         </div>
@@ -183,10 +185,11 @@
                                     <div class="col-md-6">
                                         <label for="insurance_period"
                                             class="form-label">{{ __('messages.insurance_period') }}</label>
-                                        <select class="form-select" id="insurance_period" name="insurance_period" required>
-                                            <option value="1_year">{{ __('messages.1_year') }}</option>
-                                            <option value="6_months">{{ __('messages.6_months') }}</option>
-                                            <option value="3_months">{{ __('messages.3_months') }}</option>
+                                        <select class="form-select" id="insurance_period" name="insurance_period" required
+                                            disabled>
+                                            <option value="1" selected>{{ __('messages.1_year') }}</option>
+                                            <option value="0.7">{{ __('messages.6_months') }}</option>
+                                            <option value="0.4">{{ __('messages.3_months') }}</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6">
@@ -221,14 +224,14 @@
                                         <label class="form-label">{{ __('messages.driver_limit') }}</label>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="driver_limit"
-                                                id="driver_limited" value="limited" checked>
+                                                id="driver_limited" value="limited">
                                             <label class="form-check-label" for="driver_limited">
                                                 {{ __('messages.limited_drivers') }}
                                             </label>
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" name="driver_limit"
-                                                id="driver_unlimited" value="unlimited">
+                                                id="driver_unlimited" value="unlimited" checked>
                                             <label class="form-check-label" for="driver_unlimited">
                                                 {{ __('messages.unlimited_drivers') }}
                                             </label>
@@ -237,12 +240,74 @@
                                 </div>
 
                                 <!-- Submit button -->
-                                <div class="d-flex justify-content-end">
+                                <div class="d-flex justify-content-end gap-2">
                                     <button type="submit" class="btn btn-primary-custom" id="calculate-policy-btn">
                                         <i class="bi bi-calculator"></i>
                                     </button>
                                 </div>
                             </form>
+
+                        </div>
+                    </div>
+
+
+                    <div id="limited-drivers-info" class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">{{ __('messages.applicant_info_title') }}</h4>
+                        </div>
+                        <div class="card-body">
+                            <!--Driver info if chooses limited drivers-->
+                            <div id="driver-info-search">
+                                <div class="row">
+                                    <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'driver-passport-series'"
+                                        :name="'driver_passport_series'" :placeholder="'messages.driver_passport_series_placeholder'" :label="'messages.driver_passport_series'" />
+
+                                    <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'driver-passport-number'"
+                                        :name="'driver_passport_number'" :placeholder="'messages.driver_passport_number_placeholder'" :label="'messages.driver_passport_number'" />
+
+                                    <x-inputs.input_form :type="'number'" :class="'col-md-4'" :idFor="'driver-pinfl'"
+                                        :name="'driver_pinfl'" :placeholder="'messages.driver_pinfl_placeholder'" :label="'messages.driver_pinfl'" />
+
+                                    <x-inputs.button :class="'col-md-3'" :button="'driver-information-search-btn'" />
+                                </div>
+                            </div>
+
+                            <div id="driver-info-display" class="">
+                                <div class="row">
+                                    <x-inputs.input_info :class="'col-md-6'" :idFor="'driver-full-name'" :name="'driver_full_name'"
+                                        :label="'messages.driver_full_name'" :placeholder="'full_name_placeholder'" />
+                                    <x-inputs.input_info :class="'col-md-3'" :idFor="'driver-license'" :name="'driver_license'"
+                                        :label="'messages.driver_license'" :placeholder="'license_placeholder'" />
+                                    <x-inputs.input_info :class="'col-md-3'" :idFor="'driver-license-valid'" :name="'driver_license_valid'"
+                                        :label="'messages.driver_license_valid'" :placeholder="'license_valid_placeholder'" />
+                                </div>
+                                <div class="row align-items-end">
+                                    <div class="col-md-6">
+                                        <label for="insurance_period" class="form-label">
+                                            {{ __('messages.insurance_period') }}
+                                        </label>
+                                        <select class="form-select" id="insurance_period" name="insurance_period"
+                                            required>
+                                            <option value="0" selected>Vehicle owner</option>
+                                            <option value="0">Not a relative</option>
+                                            <option value="1">Father</option>
+                                            <option value="2">Mother</option>
+                                            <option value="3">Husband</option>
+                                            <option value="4">Wife</option>
+                                            <option value="5">Son</option>
+                                            <option value="6">Daughter</option>
+                                            <option value="7">Older Brother</option>
+                                            <option value="8">Younger brother</option>
+                                            <option value="9">Elder sister</option>
+                                            <option value="10">Younger sister</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6 d-flex justify-content-end">
+                                        <x-inputs.button :class="''" :button="'driver-information-search-btn'" />
+                                    </div>
+                                </div>
+                            </div>
 
                         </div>
                     </div>
@@ -253,6 +318,12 @@
     </section>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
+            let regionIdC;
+            let periodC;
+            let vehicleTypeC;
+            let limitedC = 0;
+
             const searchBtn = document.getElementById('vehicle-search-btn');
             const ownerInfoBtn = document.getElementById('owner-information-search-btn');
             const applicantInfoCheck = document.getElementById('is-applicant-owner');
@@ -261,55 +332,11 @@
             const startInput = document.getElementById('policy_start_date');
             const endInput = document.getElementById('policy_end_date');
             const periodSelect = document.getElementById('insurance_period');
+            const driverSearchBtn = document.getElementById('driver-information-search-btn');
 
-            // add months preserving "day" where possible; if day doesn't exist in target month,
-            // use last day of that month.
-            function addMonthsPreserveDay(date, months) {
-                const y = date.getFullYear();
-                const m = date.getMonth() + months;
-                const d = date.getDate();
-
-                const year = y + Math.floor(m / 12);
-                const month = ((m % 12) + 12) % 12; // normalize
-                // try the same day in target month
-                let candidate = new Date(year, month, d);
-                // if JS rolled to next month because day overflowed, set to last day of target month
-                if (candidate.getMonth() !== month) {
-                    candidate = new Date(year, month + 1, 0); // last day of month
-                }
-                return candidate;
-            }
-
-            function updateEndDate() {
-                const startVal = startInput.value;
-                if (!startVal) {
-                    endInput.value = '';
-                    return;
-                }
-
-                // parse YYYY-MM-DD manually to avoid timezone issues
-                const [yy, mm, dd] = startVal.split('-').map(Number);
-                const startDate = new Date(yy, mm - 1, dd);
-
-                let monthsToAdd = 0;
-                if (periodSelect.value === '1_year') monthsToAdd = 12;
-                else if (periodSelect.value === '6_months') monthsToAdd = 6;
-                else if (periodSelect.value === '3_months') monthsToAdd = 3;
-
-                // compute end = start + monthsToAdd, then subtract 1 day
-                let endDate = addMonthsPreserveDay(startDate, monthsToAdd);
-                endDate.setDate(endDate.getDate() - 1);
-
-                // format YYYY-MM-DD for <input type="date">
-                const yyyy = endDate.getFullYear();
-                const m2 = String(endDate.getMonth() + 1).padStart(2, '0');
-                const d2 = String(endDate.getDate()).padStart(2, '0');
-                endInput.value = `${yyyy}-${m2}-${d2}`;
-            }
-
+            // Update end date when start date or period changes
             startInput.addEventListener('change', updateEndDate);
             periodSelect.addEventListener('change', updateEndDate);
-
 
             searchBtn.addEventListener('click', async function() {
                 const govNumber = document.getElementById('gov_number').value;
@@ -349,12 +376,32 @@
 
                         // Populate the fields
                         engine_number.value = result.data.result.engineNumber || '';
-                        carType.value = result.data.result.car_type || '';
                         carYear.value = result.data.result.issueYear || '';
                         registrationRegion.value = result.data.result.division || '';
                         carOwner.value = result.data.result.owner || '';
                         model.value = result.data.result.modelName || '';
                         insurantPinfl.value = result.data.result.pinfl || '';
+                        switch (result.data.result.vehicleTypeId) {
+                            case 2:
+                                vehicleTypeC = 0.1;
+                                carType.value = '@lang('insurance.car_type_2')';
+                                break;
+                            case 6:
+                                vehicleTypeC = 0.12;
+                                carType.value = '@lang('insurance.car_type_6')';
+                                break;
+                            case 9:
+                                vehicleTypeC = 0.12;
+                                carType.value = '@lang('insurance.car_type_9')';
+                                break;
+                            case 15:
+                                vehicleTypeC = 0.04;
+                                carType.value = '@lang('insurance.car_type_15')';
+                                break;
+                            default:
+                                carType.value = '@lang('insurance.car_not_found')';
+                                break;
+                        }
 
                         // Show the vehicle info display (CORRECTED)
                         const vehicleInfoDisplay = document.getElementById('vehicle-info-display');
@@ -472,6 +519,9 @@
                     const applicantInfoDisplay = document.getElementById('applicant-info-display');
                     applicantInfoDisplay.classList.remove('d-none');
 
+                    const policyCalculation = document.getElementById('policy-calculation');
+                    policyCalculation.classList.remove('d-none');
+
                     applicantLastName.value = lastName.value || '';
                     applicantFirstName.value = firstName.value || '';
                     applicantMiddleName.value = middleName.value || '';
@@ -483,6 +533,9 @@
 
                     const applicantInfoDisplay = document.getElementById('applicant-info-display');
                     applicantInfoDisplay.classList.toggle('d-none');
+
+                    const policyCalculation = document.getElementById('policy-calculation');
+                    policyCalculation.classList.toggle('d-none');
 
                     const insurantPassportSeries = document.getElementById('applicant-passport-series');
                     const insurantPassportNumber = document.getElementById('applicant-passport-number');
@@ -521,6 +574,8 @@
                     const result = await sendPostRequest('/get-person-info', data);
 
                     if (result.data != null) {
+                        const policyCalculation = document.getElementById('policy-calculation');
+                        policyCalculation.classList.remove('d-none');
                         // Get all input elements
                         const lastName = document.getElementById('applicant-last-name');
                         const firstName = document.getElementById('applicant-first-name');
@@ -551,6 +606,138 @@
                 }
 
             });
+
+            function calculatePolicy() {
+
+                var govNumber = document.getElementById('gov_number').value.trim();
+                govNumber = govNumber.substring(0, 2);
+                let periodSelect = document.getElementById('insurance_period');
+                periodC = periodSelect.value;
+
+                if (govNumber == '01' || govNumber == '10') {
+                    regionIdC = 1.4;
+                } else {
+                    regionIdC = 1.2;
+                }
+
+                let insuranceAmount = 40000000;
+                let calcDiscount = vehicleTypeC * regionIdC * periodC * limitedC;
+
+                let amount = (calcDiscount * insuranceAmount) / 100;
+
+                // console.log('amount', amount,'period', periodC,'limitedC', limitedC,'regionId', regionIdC,'vehicleType', vehicleTypeC);
+                if (isNaN(amount) || amount === 0) {
+                    amount = 168000;
+                }
+
+                document.getElementById('amount').innerHTML = amount.toLocaleString('en-US', {
+                    minimumFractionDigits: 2
+                })
+                document.getElementById('premium').innerHTML = insuranceAmount.toLocaleString('en-US', {
+                    minimumFractionDigits: 2
+                })
+
+            }
+
+            function updateEndDate() {
+                // If no start date, clear end date
+                if (!startInput.value) {
+                    endInput.value = '';
+                    return;
+                }
+
+                // Get the start date
+                const startDate = new Date(startInput.value);
+
+                // Determine how many months to add based on selected period
+                const monthsMap = {
+                    '1': 12,
+                    '0.7': 6,
+                    '0.4': 3
+                };
+                const monthsToAdd = monthsMap[periodSelect.value] || 12;
+                periodC = monthsToAdd;
+
+                // Calculate end date: add months, then subtract 1 day
+                const endDate = new Date(startDate);
+                endDate.setMonth(endDate.getMonth() + monthsToAdd);
+                endDate.setDate(endDate.getDate() - 1);
+
+                // Format as YYYY-MM-DD for the input field
+                endInput.value = endDate.toISOString().split('T')[0];
+
+                calculatePolicy();
+            }
+
+            const unlimitedRadio = document.getElementById('driver_unlimited');
+            const limitedDriver = document.getElementById('driver_limited');
+
+            unlimitedRadio.addEventListener('change', () => showDriverAddButton('unlimited'));
+            limitedDriver.addEventListener('change', () => showDriverAddButton('limited'));
+
+            function showDriverAddButton(radio) {
+                // const addButton = document.getElementById('driver-add-button');
+
+                if (radio === 'limited') {
+                    // addButton.classList.remove('d-none'); // show the button
+                    periodSelect.removeAttribute('disabled');
+                    limitedC = 1;
+                } else if (radio === 'unlimited') { // hide the button
+                    periodSelect.value = 1;
+                    periodSelect.toggleAttribute('disabled');
+                    limitedC = 0;
+                }
+                calculatePolicy();
+            }
+
+            driverSearchBtn.addEventListener('click', async function() {
+                const driverPassportSeries = document.getElementById('driver-passport-series').value;
+                const driverPassportNumber = document.getElementById('driver-passport-number').value;
+                const driverPinfl = document.getElementById('driver-pinfl').value;
+
+                const driverFullName = document.getElementById('driver-full-name');
+                const driverLicense = document.getElementById('driver-license');
+                const driverLicenseValid = document.getElementById('driver-license-valid');
+                const driverInfo = document.getElementById('driver-info-display');
+
+                if (!driverPassportSeries || !driverPassportNumber || !driverPinfl) {
+                    alert('Заполните данные водителя');
+                    return;
+                }
+
+                const driverData = {
+                    passport_series: driverPassportSeries,
+                    passport_number: driverPassportNumber,
+                    pinfl: driverPinfl,
+                };
+
+                driverSearchBtn.disabled = true;
+                driverSearchBtn.innerHTML = '<span>Loading...</span>';
+
+                try {
+                    const result = await sendPostRequest('/get-driver-info', driverData);
+                    console.log('Driver Info:', result);
+
+                    if (result.success) {
+                        driverFullName.value = result.data.result.DriverInfo.pOwner || '';
+                        driverLicense.value = result.data.result.DriverInfo.licenseSeria + ' ' + result
+                            .data.result.DriverInfo.licenseNumber || '';
+                        driverLicenseValid.value = result.data.result.DriverInfo.issueDate.split('T')[
+                            0];
+                        driverInfo.classList.remove('d-none');
+                    } else {
+                        alert(result?.message?.error?.error_message || 'Driver not found');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error: ' + (error.message || 'Something went wrong'));
+                } finally {
+                    driverSearchBtn.disabled = false;
+                    driverSearchBtn.innerHTML =
+                        '<svg width="20" height="20"><use xlink:href="#icon-search"></use></svg>';
+                }
+            });
+
             async function sendPostRequest(url, data) {
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')
                     .getAttribute('content');

@@ -24,13 +24,13 @@
 }
 
 .product-page .form-input {
-    color: rgba(128, 128, 128, 1) !important;
+    color: rgb(70, 63, 63) !important;
     font-size: 18px !important;
     font-style: semibold !important;
 }
 
 .product-page .form-input::placeholder {
-    color: rgba(128, 128, 128, 1) !important;
+    color: rgba(70, 63, 63) !important;
     font-size: 18px !important;
     font-style: semibold !important;
 }

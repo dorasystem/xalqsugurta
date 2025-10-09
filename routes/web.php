@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApiControllers\DriverInfoController;
 use Faker\Provider\ar_EG\Person;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,7 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
 
 Route::post('/get-vehicle-info', [VehicleInfoController::class, 'getVehicleInfo']);
 Route::post('/get-person-info', [PersonInfoController::class, 'getPersonInfo']);
+Route::post('/get-driver-info', [DriverInfoController::class, 'getDriverInfo']);
 
 // Default route (redirects to Russian)
 Route::get('/', function () {
