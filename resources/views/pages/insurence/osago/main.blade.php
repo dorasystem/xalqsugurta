@@ -81,8 +81,10 @@
                                 <x-inputs.button :class="'col-md-3'" :button="'owner-information-search-btn'" />
 
                             </div>
+                        </div>
 
-                            <div class="row d-none" id="insurance-driver-full-information">
+                        <div id="insurance-driver-full-information" class="card-footer d-none">
+                            <div class="row">
 
                                 <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-last-name'" :name="'last_name'"
                                     :label="'messages.owner_last_name'" :placeholder="'messages.owner_last_name_placeholder'" />
@@ -95,11 +97,11 @@
 
                                 <input type="hidden" id="owner-address" name="owner_address">
                             </div>
-
-                            <!-- Hidden fields for storing data -->
-                            <input type="hidden" id="pinfl-hidden" name="pinfl_hidden">
-                            <input type="hidden" id="applicant-passport-data" name="applicant_passport_data">
                         </div>
+
+                        <!-- Hidden fields for storing data -->
+                        <input type="hidden" id="pinfl-hidden" name="pinfl_hidden">
+                        <input type="hidden" id="applicant-passport-data" name="applicant_passport_data">
                     </div>
 
                     <div id="applicant-info" class="card d-none">
@@ -129,28 +131,28 @@
                                 </div>
                             </div>
 
-                            <div id="applicant-info-display" class="d-none">
-                                <div class="row">
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-last-name'" :name="'applicant_last_name'"
-                                        :label="'messages.applicant_last_name'" :placeholder="'last_name_placeholder'" />
+                        </div>
+                        <div id="applicant-info-display" class="card-footer d-none">
+                            <div class="row">
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-last-name'" :name="'applicant_last_name'"
+                                    :label="'messages.applicant_last_name'" :placeholder="'last_name_placeholder'" />
 
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-first-name'" :name="'applicant_first_name'"
-                                        :label="'messages.applicant_first_name'" :placeholder="'first_name_placeholder'" />
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-first-name'" :name="'applicant_first_name'"
+                                    :label="'messages.applicant_first_name'" :placeholder="'first_name_placeholder'" />
 
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant_middle_name'"
-                                        :label="'messages.applicant_middle_name'" :placeholder="'middle_name_placeholder'" />
-                                </div>
-
-                                <div class="row">
-                                    <x-inputs.input_info :class="'col-md-6'" :idFor="'applicant-address'" :name="'applicant_address'"
-                                        :label="'messages.applicant_address'" :placeholder="'address_placeholder'" />
-
-                                    <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'applicant-phone-number'"
-                                        :name="'applicant_phone_number'" :label="'messages.applicant_phone_number'" :placeholder="'messages.applicant_phone_number_placeholder'" />
-                                </div>
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant_middle_name'"
+                                    :label="'messages.applicant_middle_name'" :placeholder="'middle_name_placeholder'" />
                             </div>
 
+                            <div class="row">
+                                <x-inputs.input_info :class="'col-md-6'" :idFor="'applicant-address'" :name="'applicant_address'"
+                                    :label="'messages.applicant_address'" :placeholder="'address_placeholder'" />
+
+                                <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'applicant-phone-number'"
+                                    :name="'applicant_phone_number'" :label="'messages.applicant_phone_number'" :placeholder="'messages.applicant_phone_number_placeholder'" />
+                            </div>
                         </div>
+
                     </div>
 
                     <div id="policy-calculation" class="card d-none">
@@ -674,14 +676,13 @@
             limitedDriver.addEventListener('change', () => showDriverAddButton('limited'));
 
             function showDriverAddButton(radio) {
-                const addButton = document.getElementById('driver-add-button');
+                // const addButton = document.getElementById('driver-add-button');
 
                 if (radio === 'limited') {
-                    addButton.classList.remove('d-none'); // show the button
+                    // addButton.classList.remove('d-none'); // show the button
                     periodSelect.removeAttribute('disabled');
                     limitedC = 1;
-                } else if (radio === 'unlimited') {
-                    addButton.classList.add('d-none'); // hide the button
+                } else if (radio === 'unlimited') { // hide the button
                     periodSelect.value = 1;
                     periodSelect.toggleAttribute('disabled');
                     limitedC = 0;
