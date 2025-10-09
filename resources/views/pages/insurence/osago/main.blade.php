@@ -9,162 +9,159 @@
     <x-insurence.steps />
     <section class="container-fluid product-page py-4" id="osago-main" style="">
         <div class="container">
-            <div class="row g-4">
-                <div class="col-md-8">
-                    <div id="vehicle-info" class="card">
-                        <div class="card-header">
-                            <h4 class="card-title">{{ __('messages.vehicle_info_title') }}</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-
-                                <x-inputs.input_form :type="'text'" :class="'col-md-3'" :idFor="'gov_number'" :name="'gov_number'"
-                                    :placeholder="'messages.gov_number_placeholder'" :label="'messages.gov_number'" />
-
-                                <x-inputs.input_form :type="'text'" :class="'col-md-3'" :idFor="'tech_passport_series'" :name="'tech_passport_series'"
-                                    :placeholder="'messages.tech_passport_series_placeholder'" :label="'messages.tech_passport_series'" />
-
-                                <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'tech_passport_number'"
-                                    :name="'tech_passport_number'" :placeholder="'messages.tech_passport_number_placeholder'" :label="'messages.tech_passport_number'" />
-
-                                <x-inputs.button :class="'col-md-3'" :button="'vehicle-search-btn'" />
-
+            <form id="policy-calculation-form" method="POST" action="{{ route('osago.calculation', app()->getLocale()) }}">
+                @csrf
+                <div class="row g-4">
+                    <div class="col-md-8">
+                        <div id="vehicle-info" class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">{{ __('messages.vehicle_info_title') }}</h4>
                             </div>
-                        </div>
-
-                        <div id="vehicle-info-display" class="card-footer d-none">
-                            <div class="row">
-
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'model'" :name="'model'"
-                                    :label="'messages.model'" :placeholder="'messages.model_placeholder'" />
-
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'car_type'" :name="'car_type'"
-                                    :label="'messages.car_type'" :placeholder="'messages.car_type_placeholder'" />
-
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'car_year'" :name="'car_year'"
-                                    :label="'messages.car_year'" :placeholder="'messages.car_year_placeholder'" />
-
-                            </div>
-
-                            <div class="row">
-
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'registration_region'" :name="'registration_region'"
-                                    :label="'messages.registration_region'" :placeholder="'messages.registration_region_placeholder'" />
-
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'car_owner'" :name="'car_owner'"
-                                    :label="'messages.car_owner'" :placeholder="'messages.car_owner_placeholder'" />
-
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'engine_number'" :name="'engine_number'"
-                                    :label="'messages.engine_number'" :placeholder="'messages.engine_number_placeholder'" />
-
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div id="owner-info" class="card d-none">
-                        <div class="card-header">
-                            <h4 class="card-title">{{ __('messages.owner_info_title') }}</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-
-                                <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'insurance-passport-series'"
-                                    :name="'passport_series'" :placeholder="'messages.passport_series_placeholder'" :label="'messages.passport_series'" />
-
-                                <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'insurance-passport-number'"
-                                    :name="'passport_number'" :placeholder="'messages.passport_number_placeholder'" :label="'messages.passport_number'" />
-
-                                <x-inputs.input_form :type="'number'" :class="'col-md-4'" :idFor="'insurance-pinfl'"
-                                    :name="'pinfl'" :placeholder="'messages.owner_pinfl_placeholder'" :label="'messages.owner_pinfl'" :disabled="true" />
-
-                                <x-inputs.button :class="'col-md-3'" :button="'owner-information-search-btn'" />
-
-                            </div>
-                        </div>
-
-                        <div id="insurance-driver-full-information" class="card-footer d-none">
-                            <div class="row">
-
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-last-name'" :name="'last_name'"
-                                    :label="'messages.owner_last_name'" :placeholder="'messages.owner_last_name_placeholder'" />
-
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-first-name'" :name="'first_name'"
-                                    :label="'messages.owner_first_name'" :placeholder="'messages.owner_first_name_placeholder'" />
-
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-middle-name'" :name="'middle_name'"
-                                    :label="'messages.owner_middle_name'" :placeholder="'messages.owner_middle_name_placeholder'" />
-
-                                <input type="hidden" id="owner-address" name="owner_address">
-                            </div>
-                        </div>
-
-                        <!-- Hidden fields for storing data -->
-                        <input type="hidden" id="pinfl-hidden" name="pinfl_hidden">
-                        <input type="hidden" id="applicant-passport-data" name="applicant_passport_data">
-                    </div>
-
-                    <div id="applicant-info" class="card d-none">
-                        <div class="card-header">
-                            <h4 class="card-title">{{ __('messages.applicant_info_title') }}</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-check ">
-                                <input class="form-check-input" type="checkbox" id="is-applicant-owner">
-                                <label class="form-check-label" for="is-applicant-owner">
-                                    {{ __('messages.is_applicant_owner') }}
-                                </label>
-                            </div>
-
-                            <div id="applicant-info-search">
+                            <div class="card-body">
                                 <div class="row">
-                                    <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'applicant-passport-series'"
-                                        :name="'applicant_passport_series'" :placeholder="'messages.applicant_passport_series_placeholder'" :label="'messages.applicant_passport_series'" />
 
-                                    <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'applicant-passport-number'"
-                                        :name="'applicant_passport_number'" :placeholder="'messages.applicant_passport_number_placeholder'" :label="'messages.applicant_passport_number'" />
+                                    <x-inputs.input_form :type="'text'" :class="'col-md-3'" :idFor="'gov_number'"
+                                        :name="'gov_number'" :placeholder="'messages.gov_number_placeholder'" :label="'messages.gov_number'" />
 
-                                    <x-inputs.input_form :type="'number'" :class="'col-md-4'" :idFor="'applicant-pinfl'"
-                                        :name="'applicant_pinfl'" :placeholder="'messages.applicant_pinfl_placeholder'" :label="'messages.applicant_pinfl'" />
+                                    <x-inputs.input_form :type="'text'" :class="'col-md-3'" :idFor="'tech_passport_series'"
+                                        :name="'tech_passport_series'" :placeholder="'messages.tech_passport_series_placeholder'" :label="'messages.tech_passport_series'" />
 
-                                    <x-inputs.button :class="'col-md-3'" :button="'applicant-information-search-btn'" />
+                                    <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'tech_passport_number'"
+                                        :name="'tech_passport_number'" :placeholder="'messages.tech_passport_number_placeholder'" :label="'messages.tech_passport_number'" />
+
+                                    <x-inputs.button :class="'col-md-3'" :button="'vehicle-search-btn'" />
+
+                                </div>
+                            </div>
+
+                            <div id="vehicle-info-display" class="card-footer d-none">
+                                <div class="row">
+
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'model'" :name="'model'"
+                                        :label="'messages.model'" :placeholder="'messages.model_placeholder'" />
+
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'car_type'" :name="'car_type'"
+                                        :label="'messages.car_type'" :placeholder="'messages.car_type_placeholder'" />
+
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'car_year'" :name="'car_year'"
+                                        :label="'messages.car_year'" :placeholder="'messages.car_year_placeholder'" />
+
+                                </div>
+
+                                <div class="row">
+
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'registration_region'" :name="'registration_region'"
+                                        :label="'messages.registration_region'" :placeholder="'messages.registration_region_placeholder'" />
+
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'car_owner'" :name="'car_owner'"
+                                        :label="'messages.car_owner'" :placeholder="'messages.car_owner_placeholder'" />
+
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'engine_number'" :name="'engine_number'"
+                                        :label="'messages.engine_number'" :placeholder="'messages.engine_number_placeholder'" />
+
                                 </div>
                             </div>
 
                         </div>
-                        <div id="applicant-info-display" class="card-footer d-none">
-                            <div class="row">
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-last-name'" :name="'applicant_last_name'"
-                                    :label="'messages.applicant_last_name'" :placeholder="'last_name_placeholder'" />
 
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-first-name'" :name="'applicant_first_name'"
-                                    :label="'messages.applicant_first_name'" :placeholder="'first_name_placeholder'" />
+                        <div id="owner-info" class="card d-none">
+                            <div class="card-header">
+                                <h4 class="card-title">{{ __('messages.owner_info_title') }}</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
 
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant_middle_name'"
-                                    :label="'messages.applicant_middle_name'" :placeholder="'middle_name_placeholder'" />
+                                    <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'insurance-passport-series'"
+                                        :name="'passport_series'" :placeholder="'messages.passport_series_placeholder'" :label="'messages.passport_series'" />
+
+                                    <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'insurance-passport-number'"
+                                        :name="'passport_number'" :placeholder="'messages.passport_number_placeholder'" :label="'messages.passport_number'" />
+
+                                    <x-inputs.input_form :type="'number'" :class="'col-md-4'" :idFor="'insurance-pinfl'"
+                                        :name="'pinfl'" :placeholder="'messages.owner_pinfl_placeholder'" :label="'messages.owner_pinfl'" :disabled="true" />
+
+                                    <x-inputs.button :class="'col-md-3'" :button="'owner-information-search-btn'" />
+
+                                </div>
                             </div>
 
-                            <div class="row">
-                                <x-inputs.input_info :class="'col-md-6'" :idFor="'applicant-address'" :name="'applicant_address'"
-                                    :label="'messages.applicant_address'" :placeholder="'address_placeholder'" />
+                            <div id="insurance-driver-full-information" class="card-footer d-none">
+                                <div class="row">
 
-                                <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'applicant-phone-number'"
-                                    :name="'applicant_phone_number'" :label="'messages.applicant_phone_number'" :placeholder="'messages.applicant_phone_number_placeholder'" />
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-last-name'" :name="'last_name'"
+                                        :label="'messages.owner_last_name'" :placeholder="'messages.owner_last_name_placeholder'" />
+
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-first-name'" :name="'first_name'"
+                                        :label="'messages.owner_first_name'" :placeholder="'messages.owner_first_name_placeholder'" />
+
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-middle-name'" :name="'middle_name'"
+                                        :label="'messages.owner_middle_name'" :placeholder="'messages.owner_middle_name_placeholder'" />
+
+                                    <input type="hidden" id="owner-address" name="owner_address">
+                                </div>
                             </div>
+
+                            <!-- Hidden fields for storing data -->
+                            <input type="hidden" id="pinfl-hidden" name="pinfl_hidden">
+                            <input type="hidden" id="applicant-passport-data" name="applicant_passport_data">
                         </div>
 
-                    </div>
+                        <div id="applicant-info" class="card d-none">
+                            <div class="card-header">
+                                <h4 class="card-title">{{ __('messages.applicant_info_title') }}</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-check ">
+                                    <input class="form-check-input" type="checkbox" id="is-applicant-owner">
+                                    <label class="form-check-label" for="is-applicant-owner">
+                                        {{ __('messages.is_applicant_owner') }}
+                                    </label>
+                                </div>
 
-                    <div id="policy-calculation" class="card d-none">
-                        <div class="card-header">
-                            <h4>{{ __('messages.policy_calculation') }}</h4>
+                                <div id="applicant-info-search">
+                                    <div class="row">
+                                        <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'applicant-passport-series'"
+                                            :name="'applicant_passport_series'" :placeholder="'messages.applicant_passport_series_placeholder'" :label="'messages.applicant_passport_series'" />
+
+                                        <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'applicant-passport-number'"
+                                            :name="'applicant_passport_number'" :placeholder="'messages.applicant_passport_number_placeholder'" :label="'messages.applicant_passport_number'" />
+
+                                        <x-inputs.input_form :type="'number'" :class="'col-md-4'" :idFor="'applicant-pinfl'"
+                                            :name="'applicant_pinfl'" :placeholder="'messages.applicant_pinfl_placeholder'" :label="'messages.applicant_pinfl'" />
+
+                                        <x-inputs.button :class="'col-md-3'" :button="'applicant-information-search-btn'" />
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div id="applicant-info-display" class="card-footer d-none">
+                                <div class="row">
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-last-name'" :name="'applicant_last_name'"
+                                        :label="'messages.applicant_last_name'" :placeholder="'last_name_placeholder'" />
+
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-first-name'" :name="'applicant_first_name'"
+                                        :label="'messages.applicant_first_name'" :placeholder="'first_name_placeholder'" />
+
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant_middle_name'"
+                                        :label="'messages.applicant_middle_name'" :placeholder="'middle_name_placeholder'" />
+                                </div>
+
+                                <div class="row">
+                                    <x-inputs.input_info :class="'col-md-6'" :idFor="'applicant-address'" :name="'applicant_address'"
+                                        :label="'messages.applicant_address'" :placeholder="'address_placeholder'" />
+
+                                    <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'applicant-phone-number'"
+                                        :name="'applicant_phone_number'" :label="'messages.applicant_phone_number'" :placeholder="'messages.applicant_phone_number_placeholder'" />
+                                </div>
+                            </div>
+
                         </div>
-                        <div class="card-body">
-                            <!-- Policy calculation form -->
-                            <form id="policy-calculation-form" method="POST"
-                                action="{{ route('osago.calculation', app()->getLocale()) }}">
-                                @csrf
 
+                        <div id="policy-calculation" class="card d-none">
+                            <div class="card-header">
+                                <h4>{{ __('messages.policy_calculation') }}</h4>
+                            </div>
+                            <div class="card-body">
                                 <!-- Policy details -->
                                 <div class="row mb-3">
                                     <div class="col-md-6">
@@ -241,79 +238,82 @@
 
                                 <!-- Submit button -->
                                 <div class="d-flex justify-content-end gap-2">
-                                    <button type="submit" class="btn btn-primary-custom" id="calculate-policy-btn">
+                                    <button class="btn btn-primary-custom" id="calculate-policy-btn">
                                         <i class="bi bi-calculator"></i>
                                     </button>
                                 </div>
-                            </form>
 
+
+                            </div>
                         </div>
-                    </div>
 
 
-                    <div id="limited-drivers-info" class="card">
-                        <div class="card-header">
-                            <h4 class="card-title">{{ __('messages.applicant_info_title') }}</h4>
-                        </div>
-                        <div class="card-body">
-                            <!--Driver info if chooses limited drivers-->
-                            <div id="driver-info-search">
-                                <div class="row">
-                                    <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'driver-passport-series'"
-                                        :name="'driver_passport_series'" :placeholder="'messages.driver_passport_series_placeholder'" :label="'messages.driver_passport_series'" />
+                        <div id="limited-drivers-info" class="card"><!--d-none qo'shish kerak!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+                            <div class="card-header">
+                                <h4 class="card-title">{{ __('messages.applicant_info_title') }}</h4>
+                            </div>
+                            <div class="card-body">
+                                <!--Driver info if chooses limited drivers-->
+                                <div id="driver-info-search">
+                                    <div class="row">
+                                        <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'driver-passport-series'"
+                                            :name="'driver_passport_series'" :placeholder="'messages.passport_series_placeholder'" :label="'messages.passport_series'" />
 
-                                    <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'driver-passport-number'"
-                                        :name="'driver_passport_number'" :placeholder="'messages.driver_passport_number_placeholder'" :label="'messages.driver_passport_number'" />
+                                        <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'driver-passport-number'"
+                                            :name="'driver_passport_number'" :placeholder="'messages.passport_number_placeholder'" :label="'messages.passport_number'" />
 
-                                    <x-inputs.input_form :type="'number'" :class="'col-md-4'" :idFor="'driver-pinfl'"
-                                        :name="'driver_pinfl'" :placeholder="'messages.driver_pinfl_placeholder'" :label="'messages.driver_pinfl'" />
+                                        <x-inputs.input_form :type="'number'" :class="'col-md-4'" :idFor="'driver-pinfl'"
+                                            :name="'driver_pinfl'" :placeholder="'messages.owner_pinfl_placeholder'" :label="'messages.owner_pinfl'" />
 
-                                    <x-inputs.button :class="'col-md-3'" :button="'driver-information-search-btn'" />
+                                        <x-inputs.button :class="'col-md-3'" :button="'driver-information-search-btn'" />
+                                    </div>
                                 </div>
                             </div>
 
                             <div id="driver-info-display" class="">
-                                <div class="row">
-                                    <x-inputs.input_info :class="'col-md-6'" :idFor="'driver-full-name'" :name="'driver_full_name'"
-                                        :label="'messages.driver_full_name'" :placeholder="'full_name_placeholder'" />
-                                    <x-inputs.input_info :class="'col-md-3'" :idFor="'driver-license'" :name="'driver_license'"
-                                        :label="'messages.driver_license'" :placeholder="'license_placeholder'" />
-                                    <x-inputs.input_info :class="'col-md-3'" :idFor="'driver-license-valid'" :name="'driver_license_valid'"
-                                        :label="'messages.driver_license_valid'" :placeholder="'license_valid_placeholder'" />
-                                </div>
-                                <div class="row align-items-end">
-                                    <div class="col-md-6">
-                                        <label for="insurance_period" class="form-label">
-                                            {{ __('messages.insurance_period') }}
-                                        </label>
-                                        <select class="form-select" id="insurance_period" name="insurance_period"
-                                            required>
-                                            <option value="0" selected>Vehicle owner</option>
-                                            <option value="0">Not a relative</option>
-                                            <option value="1">Father</option>
-                                            <option value="2">Mother</option>
-                                            <option value="3">Husband</option>
-                                            <option value="4">Wife</option>
-                                            <option value="5">Son</option>
-                                            <option value="6">Daughter</option>
-                                            <option value="7">Older Brother</option>
-                                            <option value="8">Younger brother</option>
-                                            <option value="9">Elder sister</option>
-                                            <option value="10">Younger sister</option>
-                                        </select>
+                                <div class="card-footer">
+                                    <h4 class="card-title">{{ __('messages.applicant_info_title') }}</h4>
+                                    <div class="row mb-1">
+                                        <x-inputs.input_info :class="'col-md-6'" :idFor="'driver-full-name'" :name="'driver_full_name'"
+                                            :label="'messages.driver_full_name'" :placeholder="'messages.driver_full_name_placeholder'" />
+                                        <x-inputs.input_info :class="'col-md-3'" :idFor="'driver-license'" :name="'driver_license'"
+                                            :label="'messages.driver_license'" :placeholder="'messages.driver_license_placeholder'" />
+                                        <x-inputs.input_info :class="'col-md-3'" :idFor="'driver-license-valid'" :name="'driver_license_valid'"
+                                            :label="'messages.driver_license_valid'" :placeholder="'messages.driver_license_valid_placeholder'" />
                                     </div>
+                                    <div class="row align-items-end">
+                                        <div class="col-md-6">
+                                            <label for="{{ __('messages.kinship') }}" class="form-label">
+                                                {{ __('messages.kinship') }}
+                                            </label>
+                                            <select class="form-select" id="kinship" name="kinship"
+                                                required>
+                                                <option value="0" selected>@lang('messages.vehicle_owner')</option>
+                                                <option value="0">@lang('messages.not_a_relative')</option>
+                                                <option value="1">@lang('messages.father')</option>
+                                                <option value="2">@lang('messages.mother')</option>
+                                                <option value="3">@lang('messages.husband')</option>
+                                                <option value="4">@lang('messages.wife')</option>
+                                                <option value="5">@lang('messages.son')</option>
+                                                <option value="6">@lang('messages.daughter')</option>
+                                                <option value="7">@lang('messages.older_brother')</option>
+                                                <option value="8">@lang('messages.younger_brother')</option>
+                                                <option value="9">@lang('messages.elder_sister')</option>
+                                                <option value="10">@lang('messages.younger_sister')</option>
+                                            </select>
+                                        </div>
 
-                                    <div class="col-md-6 d-flex justify-content-end">
-                                        <x-inputs.button :class="''" :button="'driver-information-search-btn'" />
+                                        <div class="col-md-6 d-flex justify-content-end">
+                                            <x-inputs.button :class="''" :button="'driver-information-search-btn'" />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
+                    <x-insurence.calculate />
                 </div>
-                <x-insurence.calculate />
-            </div>
+            </form>
         </div>
     </section>
     <script>
@@ -695,9 +695,6 @@
                 const driverPassportNumber = document.getElementById('driver-passport-number').value;
                 const driverPinfl = document.getElementById('driver-pinfl').value;
 
-                const driverFullName = document.getElementById('driver-full-name');
-                const driverLicense = document.getElementById('driver-license');
-                const driverLicenseValid = document.getElementById('driver-license-valid');
                 const driverInfo = document.getElementById('driver-info-display');
 
                 if (!driverPassportSeries || !driverPassportNumber || !driverPinfl) {
@@ -719,12 +716,41 @@
                     console.log('Driver Info:', result);
 
                     if (result.success) {
-                        driverFullName.value = result.data.result.DriverInfo.pOwner || '';
-                        driverLicense.value = result.data.result.DriverInfo.licenseSeria + ' ' + result
-                            .data.result.DriverInfo.licenseNumber || '';
-                        driverLicenseValid.value = result.data.result.DriverInfo.issueDate.split('T')[
-                            0];
+
+                        const driverHtml =
+                            `
+                            <h4 class="card-title">Информация о водителе</h4>
+
+                            <div class="row mb-2">
+                              <div class="col-md-6">
+                                <label for="${uid}-full-name" class="form-label">@lang('messages.driver_full_name')</label>
+                                <input type="text" class="form-control" id="${uid}-full-name" name="driver_full_name[]" value="${fullName}" />
+                              </div>
+
+                              <div class="col-md-3">
+                                <label for="${uid}-license" class="form-label">@lang('messages.driver_license')</label>
+                                <input type="text" class="form-control" id="${uid}-license" name="driver_license[]" value="${license}" />
+                              </div>
+
+                              <div class="col-md-3">
+                                <label for="${uid}-license-valid" class="form-label">@lang('messages.driver-license-valid')</label>
+                                <input type="date" class="form-control" id="${uid}-license-valid" name="driver_license_valid[]" value="${issueDate}" />
+                              </div>
+                            </div>
+
+                            <div class="row">
+                              <div class="col-12 d-flex justify-content-end">
+                                <button type="button" class="btn btn-outline-danger btn-sm remove-driver-card" data-target="${uid}">
+                                  Удалить
+                                </button>
+                              </div>
+                            </div>`
+                        ;
+
+
                         driverInfo.classList.remove('d-none');
+
+
                     } else {
                         alert(result?.message?.error?.error_message || 'Driver not found');
                     }

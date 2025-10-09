@@ -122,7 +122,7 @@ return [
     'header_euro_protocol' => 'Europrotocol',
     'header_personal_account' => 'Shaxsiy hisob',
     'support_service' => 'Xizmatni qo\'llab-quvvatlash',
-    
+
 
     // OSAGO Form
     'vehicle_info_title' => 'Avtomobil haqida ma\'lumot',
@@ -262,4 +262,25 @@ return [
     'validation_7_digits' => '7 ta raqam',
     'validation_year_range' => '1900 dan 2099 gacha yil',
 
+
+    //drivers
+    'driver_full_name' => 'Haydovchi to\'liq ismi',
+    'driver_license' => 'HG ma\'lumoti',
+    'driver_license_valid' => 'Berilgan sana',
+    'driver_full_name_placeholder' => 'Sardorov Ruslon Toxirjon o\'g\'li',
+    'driver_license_placeholder' => 'AF 1234567',
+    'driver_license_valid_placeholder' => '2020-10-10',
+    'kinship' => 'Qarindoshlik',
+    'vehicle_owner' => 'Avtomashina egasi',
+    'not_a_relative' => 'Qarindosh emas',
+    'father' => 'Otasi',
+    'mother' => 'Onasi',
+    'husband' => 'Eri',
+    'wife' => 'Xotini',
+    'son' => 'O\'g\'li',
+    'daughter' => 'Qizi',
+    'older_brother' => 'Akasi',
+    'younger_brother' => 'Ukasi',
+    'elder_sister' => 'Opasi',
+    'younger_sister' => 'Singlisi',
 ];

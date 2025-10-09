@@ -122,7 +122,7 @@ return [
     'header_euro_protocol' => 'Europrotocol',
     'header_personal_account' => 'Personal account',
     'support_service' => 'Service support',
-    
+
 
     // OSAGO Form
     'vehicle_info_title' => 'Vehicle Information',
@@ -154,11 +154,11 @@ return [
     'owner_pinfl' => 'PINFL',
     'owner_pinfl_placeholder' => '50806025240017',
     'owner_last_name' => 'Last Name',
-    'owner_last_name_placeholder' => 'Ivanov',
+    'owner_last_name_placeholder' => 'Sardorov',
     'owner_first_name' => 'First Name',
-    'owner_first_name_placeholder' => 'Ivan',
+    'owner_first_name_placeholder' => 'Ruslon',
     'owner_middle_name' => 'Middle Name',
-    'owner_middle_name_placeholder' => 'Ivanovich',
+    'owner_middle_name_placeholder' => 'Toxirjon o\'g\'li',
 
     // Applicant Information
     'applicant_info_title' => 'Applicant Information',
@@ -265,4 +265,25 @@ return [
     'validation_7_digits' => '7 digits',
     'validation_year_range' => 'Year from 1900 to 2099',
 
+
+    //drivers
+    'driver_full_name' => 'Driver full name',
+    'driver_license' => 'Info DL',
+    'driver_license_valid' => 'Given date',
+    'driver_full_name_placeholder' => 'Sardorov Ruslon Toxirjon o\'g\'li',
+    'driver_license_placeholder' => 'AF 1234567',
+    'driver_license_valid_placeholder' => '2020-10-10',
+    'kinship' => 'Kinship',
+    'vehicle_owner' => 'Vehicle owner',
+    'not_a_relative' => 'Not a relative',
+    'father' => 'Father',
+    'mother' => 'Mother',
+    'husband' => 'Husband',
+    'wife' => 'Wife',
+    'son' => 'Son',
+    'daughter' => 'Daughter',
+    'older_brother' => 'Older Brother',
+    'younger_brother' => 'Younger brother',
+    'elder_sister' => 'Elder sister',
+    'younger_sister' => 'Younger sister',
 ];

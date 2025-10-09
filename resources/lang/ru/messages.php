@@ -122,7 +122,7 @@ return [
     'header_euro_protocol' => 'Европротокол',
     'header_personal_account' => 'Личный кабинет',
     'support_service' => 'Служба поддержки',
-    
+
 
     // OSAGO Form
     'vehicle_info_title' => 'Информация об автомобиле',
@@ -147,11 +147,11 @@ return [
 
     // Owner Information
     'owner_info_title' => 'Данные владельца автомобиля',
-    'passport_series' => 'Серия паспорта',
+    'passport_series' => 'Серия пасс.',
     'passport_series_placeholder' => 'AC',
-    'passport_number' => 'Номер паспорта',
+    'passport_number' => 'Номер пасс.',
     'passport_number_placeholder' => '1253321',
-    'owner_pinfl' => 'ПИНФЛ владельца',
+    'owner_pinfl' => 'ПИНФЛ',
     'owner_pinfl_placeholder' => '50806025240017',
     'owner_last_name' => 'Фамилия владельца',
     'owner_last_name_placeholder' => 'Иванов',
@@ -263,4 +263,25 @@ return [
     'validation_7_digits' => '7 цифр',
     'validation_year_range' => 'Год от 1900 до 2099',
 
+
+    //drivers
+    'driver_full_name' => 'Информация о водителе',
+    'driver_license' => 'Данные ВУ',
+    'driver_license_valid' => 'Дата выдачи',
+    'driver_full_name_placeholder' => 'Sardorov Ruslon Toxirjon o\'g\'li',
+    'driver_license_placeholder' => 'AF 1234567',
+    'driver_license_valid_placeholder' => '2020-10-10',
+    'kinship' => 'Отношение',
+    'vehicle_owner' => 'Владелец автомобиля',
+    'not_a_relative' => 'Не родственник',
+    'father' => 'Отца',
+    'mother' => 'Мать',
+    'husband' => 'Муж',
+    'wife' => 'Жена',
+    'son' => 'Сын',
+    'daughter' => 'Дочь',
+    'older_brother' => 'Старший брат',
+    'younger_brother' => 'Младший брат',
+    'elder_sister' => 'Старшая сестра',
+    'younger_sister' => 'Младшая сестра',
 ];
