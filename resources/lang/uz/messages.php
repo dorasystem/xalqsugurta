@@ -122,7 +122,7 @@ return [
     'header_euro_protocol' => 'Europrotocol',
     'header_personal_account' => 'Shaxsiy hisob',
     'support_service' => 'Xizmatni qo\'llab-quvvatlash',
-    
+
 
     // OSAGO Form
     'vehicle_info_title' => 'Avtomobil haqida ma\'lumot',
@@ -261,5 +261,19 @@ return [
     'validation_3_letters' => '3 ta bosh harf',
     'validation_7_digits' => '7 ta raqam',
     'validation_year_range' => '1900 dan 2099 gacha yil',
+
+    // Accident Insurance
+    'accident_info_title' => 'Hodisa ma\'lumotlari',
+    'accident_number' => 'Hodisa raqami',
+    'accident_number_placeholder' => 'Hodisa raqamini kiriting',
+    'accident_date' => 'Hodisa sanasi',
+    'accident_date_placeholder' => 'Hodisa sanasini tanlang',
+    'accident_location' => 'Hodisa joyi',
+    'accident_location_placeholder' => 'Hodisa joyi',
+    'accident_type' => 'Hodisa turi',
+    'accident_type_placeholder' => 'Hodisa turi',
+    'summary' => 'Xulosa',
+    'total' => 'Jami',
+    'currency' => 'so\'m',
 
 ];

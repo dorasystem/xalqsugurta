@@ -122,7 +122,7 @@ return [
     'header_euro_protocol' => 'Европротокол',
     'header_personal_account' => 'Личный кабинет',
     'support_service' => 'Служба поддержки',
-    
+
 
     // OSAGO Form
     'vehicle_info_title' => 'Информация об автомобиле',
@@ -262,5 +262,19 @@ return [
     'validation_3_letters' => '3 заглавные буквы',
     'validation_7_digits' => '7 цифр',
     'validation_year_range' => 'Год от 1900 до 2099',
+
+    // Accident Insurance
+    'accident_info_title' => 'Информация о происшествии',
+    'accident_number' => 'Номер происшествия',
+    'accident_number_placeholder' => 'Введите номер происшествия',
+    'accident_date' => 'Дата происшествия',
+    'accident_date_placeholder' => 'Выберите дату происшествия',
+    'accident_location' => 'Место происшествия',
+    'accident_location_placeholder' => 'Место происшествия',
+    'accident_type' => 'Тип происшествия',
+    'accident_type_placeholder' => 'Тип происшествия',
+    'summary' => 'Итого',
+    'total' => 'Всего',
+    'currency' => 'сум',
 
 ];

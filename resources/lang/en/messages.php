@@ -122,7 +122,7 @@ return [
     'header_euro_protocol' => 'Europrotocol',
     'header_personal_account' => 'Personal account',
     'support_service' => 'Service support',
-    
+
 
     // OSAGO Form
     'vehicle_info_title' => 'Vehicle Information',
@@ -159,6 +159,9 @@ return [
     'owner_first_name_placeholder' => 'Ivan',
     'owner_middle_name' => 'Middle Name',
     'owner_middle_name_placeholder' => 'Ivanovich',
+    'applicant_birthDate' => 'Applicant Birth Date',
+    'applicant_birthDate_placeholder' => '2000-01-01',
+
 
     // Applicant Information
     'applicant_info_title' => 'Applicant Information',
@@ -264,5 +267,19 @@ return [
     'validation_3_letters' => '3 capital letters',
     'validation_7_digits' => '7 digits',
     'validation_year_range' => 'Year from 1900 to 2099',
+
+    // Accident Insurance
+    'accident_info_title' => 'Accident Information',
+    'accident_number' => 'Accident Number',
+    'accident_number_placeholder' => 'Enter accident number',
+    'accident_date' => 'Accident Date',
+    'accident_date_placeholder' => 'Select accident date',
+    'accident_location' => 'Accident Location',
+    'accident_location_placeholder' => 'Accident location',
+    'accident_type' => 'Accident Type',
+    'accident_type_placeholder' => 'Accident type',
+    'summary' => 'Summary',
+    'total' => 'Total',
+    'currency' => 'UZS',
 
 ];

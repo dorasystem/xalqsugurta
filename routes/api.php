@@ -1,11 +1,9 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\ApiControllers\PersonInfoController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ApiControllers\VehicleInfoController;
 
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum');
+// API routes are loaded here
+// Module-specific routes are loaded via their ServiceProviders
 
-Route::post('/get-vehicle-info', [VehicleInfoController::class, 'getVehicleInfo']);
+Route::get('/get-person-info', [PersonInfoController::class, 'getPersonInfo']);

@@ -1,0 +1,11 @@
+{
+    "name": "ApiPolic",
+    "alias": "apipolic",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        
+    ],
+    "files": []
+}

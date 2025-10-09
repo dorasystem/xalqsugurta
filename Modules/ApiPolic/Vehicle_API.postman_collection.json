@@ -1,0 +1,242 @@
+{
+    "info": {
+        "name": "Vehicle API",
+        "_postman_id": "vehicle-api-collection",
+        "description": "Complete Vehicle Management API with CRUD operations",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "List Vehicles",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/v1/vehicles?per_page=20&page=1",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "v1",
+                        "vehicles"
+                    ],
+                    "query": [
+                        {
+                            "key": "per_page",
+                            "value": "20",
+                            "description": "Items per page (max 100)"
+                        },
+                        {
+                            "key": "page",
+                            "value": "1",
+                            "description": "Page number"
+                        },
+                        {
+                            "key": "search",
+                            "value": "Toyota",
+                            "disabled": true,
+                            "description": "Search in brand, model, license_plate, vin"
+                        },
+                        {
+                            "key": "brand",
+                            "value": "Toyota",
+                            "disabled": true,
+                            "description": "Filter by brand"
+                        },
+                        {
+                            "key": "year_from",
+                            "value": "2020",
+                            "disabled": true,
+                            "description": "Minimum year"
+                        },
+                        {
+                            "key": "year_to",
+                            "value": "2024",
+                            "disabled": true,
+                            "description": "Maximum year"
+                        },
+                        {
+                            "key": "status",
+                            "value": "active",
+                            "disabled": true,
+                            "description": "Filter by status (active, inactive, sold)"
+                        }
+                    ]
+                },
+                "description": "Get paginated list of vehicles with optional filtering"
+            },
+            "response": []
+        },
+        {
+            "name": "Create Vehicle",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"brand\": \"Toyota\",\n  \"model\": \"Camry\",\n  \"year\": 2023,\n  \"vin\": \"1HGBH41JXMN109186\",\n  \"license_plate\": \"ABC123\",\n  \"color\": \"White\",\n  \"engine_type\": \"2.5L 4-Cylinder\",\n  \"fuel_type\": \"gasoline\",\n  \"transmission\": \"automatic\",\n  \"mileage\": 15000,\n  \"owner_id\": 1,\n  \"status\": \"active\",\n  \"insurance_expires_at\": \"2025-12-31\"\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/v1/vehicles",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "v1",
+                        "vehicles"
+                    ]
+                },
+                "description": "Create a new vehicle"
+            },
+            "response": []
+        },
+        {
+            "name": "Get Vehicle",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/v1/vehicles/1",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "v1",
+                        "vehicles",
+                        "1"
+                    ]
+                },
+                "description": "Get a single vehicle by ID"
+            },
+            "response": []
+        },
+        {
+            "name": "Update Vehicle",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    },
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"mileage\": 16500,\n  \"status\": \"active\",\n  \"insurance_expires_at\": \"2026-01-01\"\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/v1/vehicles/1",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "v1",
+                        "vehicles",
+                        "1"
+                    ]
+                },
+                "description": "Update a vehicle (all fields optional)"
+            },
+            "response": []
+        },
+        {
+            "name": "Delete Vehicle",
+            "request": {
+                "method": "DELETE",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/v1/vehicles/1",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "v1",
+                        "vehicles",
+                        "1"
+                    ]
+                },
+                "description": "Delete a vehicle"
+            },
+            "response": []
+        },
+        {
+            "name": "Search Vehicles",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Accept",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {
+                    "raw": "{{base_url}}/api/v1/vehicles?search=Toyota&year_from=2020&status=active",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "v1",
+                        "vehicles"
+                    ],
+                    "query": [
+                        {
+                            "key": "search",
+                            "value": "Toyota"
+                        },
+                        {
+                            "key": "year_from",
+                            "value": "2020"
+                        },
+                        {
+                            "key": "status",
+                            "value": "active"
+                        }
+                    ]
+                },
+                "description": "Search and filter vehicles"
+            },
+            "response": []
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:8000",
+            "type": "string"
+        }
+    ]
+}

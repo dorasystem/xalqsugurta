@@ -14,6 +14,7 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
     })->name('home');
 
     require_once 'insurence/osago.php';
+    require_once 'insurence/accident.php';
 });
 
 Route::post('/get-vehicle-info', [VehicleInfoController::class, 'getVehicleInfo']);
@@ -28,5 +29,3 @@ Route::get('/', function () {
 Route::get('/fallback', function () {
     return view('welcome');
 })->name('fallback');
-
-
