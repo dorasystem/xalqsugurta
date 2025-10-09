@@ -272,7 +272,7 @@
                             </div>
 
                             <div id="driver-info-display" class="">
-                                <div class="card-footer">
+                                {{-- <div class="card-footer">
                                     <h4 class="card-title">{{ __('messages.driver_info_title') }}</h4>
                                     <div class="row mb-1">
                                         <x-inputs.input_info :class="'col-md-6'" :idFor="'driver-full-name'" :name="'driver_full_name'"
@@ -307,7 +307,7 @@
                                             <x-inputs.button :class="''" :button="'driver-information-search-btn'" />
                                         </div>
                                     </div>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
                     </div>
@@ -323,7 +323,7 @@
             let periodC;
             let vehicleTypeC;
             let limitedC = 0;
-            let startCount;
+            let driverIdCounter = 0;
 
             const searchBtn = document.getElementById('vehicle-search-btn');
             const ownerInfoBtn = document.getElementById('owner-information-search-btn');
@@ -715,83 +715,79 @@
                 try {
                     const result = await sendPostRequest('/get-driver-info', driverData);
                     console.log('Driver Info:', result);
-                    const shortResult = result.data.result;
-                    if (result.success) {
 
-                        const driverInfoDisplay = document.getElementById('driver-info-display');
+                    const shortResult = result.data.result;
+
+                    const driverInfoDisplay = document.getElementById('driver-info-display');
+
+                    const existing = driverInfoDisplay.querySelectorAll('.card-footer').length;
+                    if (result.success && existing < 5) {
+
+                        driverPassportSeries.value = '';
+                        driverPassportNumber.value = '';
+                        driverPinfl.value = '';
 
                         const existing = driverInfoDisplay.querySelectorAll('.card-footer').length;
-                        if (existing <= 5) {
-                            if (existing == 0) {
-                                startCount = 1;
-                            } else {
-                                startCount = existing + 1;
-                            }
-                            console.log('existing', existing, 'startCount', startCount);
+                        console.log('existing', existing);
+
+                        if (existing < 5) {
+                            // Increment the counter to get a unique ID
+                            driverIdCounter++;
+                            const uniqueId = driverIdCounter;
+
+                            // Calculate display number (1-5 based on current count)
+
+
+                            console.log('existing', existing, 'uniqueId', );
+
                             const driverHtml = `
-                <div class="card-footer mb-3" data-id="${startCount}">
-                    <h4 class="card-title">Информация о водителе</h4>
-
-                    <div class="row mb-2">
-                      <div class="col-md-6">
-                        <label for="${startCount}-full-name" class="form-label">@lang('messages.driver_full_name')</label>
-                        <input type="text" class="form-control" id="${startCount}-full-name" name="driver_full_name[${startCount}]" value="${shortResult.DriverInfo.pOwner}" disabled />
-                      </div>
-
-                      <div class="col-md-3">
-                        <label for="${startCount}-license" class="form-label">@lang('messages.driver_license')</label>
-                        <input type="text" class="form-control" id="${startCount}-license" name="driver_license[${startCount}]" value="${shortResult.DriverInfo.licenseSeria + shortResult.DriverInfo.licenseNumber}" disabled />
-                      </div>
-
-                      <div class="col-md-3">
-                        <label for="${startCount}-license-valid" class="form-label">@lang('messages.driver_license_valid')</label>
-                        <input type="text" class="form-control" id="${startCount}-license-valid" name="driver_license_valid[${startCount}]" value="${shortResult.DriverInfo.issueDate.split("T")[0]}" disabled />
-                      </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <label for="${startCount}-kinship" class="form-label">
-                                @lang('messages.kinship')
-                            </label>
-                            <select class="form-select" id="${startCount}-kinship" name="kinship[]"
-                                required>
-                                <option value="0" selected>@lang('messages.vehicle_owner')</option>
-                                <option value="0">@lang('messages.not_a_relative')</option>
-                                <option value="1">@lang('messages.father')</option>
-                                <option value="2">@lang('messages.mother')</option>
-                                <option value="3">@lang('messages.husband')</option>
-                                <option value="4">@lang('messages.wife')</option>
-                                <option value="5">@lang('messages.son')</option>
-                                <option value="6">@lang('messages.daughter')</option>
-                                <option value="7">@lang('messages.older_brother')</option>
-                                <option value="8">@lang('messages.younger_brother')</option>
-                                <option value="9">@lang('messages.elder_sister')</option>
-                                <option value="10">@lang('messages.younger_sister')</option>
-                            </select>
-                        </div>
-                      <div class="col-md-6 d-flex justify-content-end">
-                        <button type="button" class="btn btn-outline-danger btn-sm remove-driver-card" data-target="${startCount}">
-                          Удалить
-                        </button>
-                      </div>
-                    </div>
-                </div>
-            `;
+                                <div class="card-footer mb-3" data-id="${uniqueId}">
+                                    <h4 class="card-title">@lang('messages.driver_info_title')</h4>
+                                
+                                    <div class="row mb-2">
+                                        <div class="col-md-5">
+                                            <label for="driver-${uniqueId}-full-name" class="form-label">@lang('messages.driver_full_name')</label>
+                                            <input type="text" class="form-input" id="driver-${uniqueId}-full-name" name="driver_full_name[${uniqueId}]" value="${shortResult.DriverInfo.pOwner.split(' ')[0] + ' ' + shortResult.DriverInfo.pOwner.split(' ')[1]}" disabled />
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="driver-${uniqueId}-kinship" class="form-label">
+                                                @lang('messages.kinship')
+                                            </label>
+                                            <select class="form-select" id="driver-${uniqueId}-kinship" name="kinship[${uniqueId}]"
+                                                required>
+                                                <option value="0" selected>@lang('messages.vehicle_owner')</option>
+                                                <option value="0">@lang('messages.not_a_relative')</option>
+                                                <option value="1">@lang('messages.father')</option>
+                                                <option value="2">@lang('messages.mother')</option>
+                                                <option value="3">@lang('messages.husband')</option>
+                                                <option value="4">@lang('messages.wife')</option>
+                                                <option value="5">@lang('messages.son')</option>
+                                                <option value="6">@lang('messages.daughter')</option>
+                                                <option value="7">@lang('messages.older_brother')</option>
+                                                <option value="8">@lang('messages.younger_brother')</option>
+                                                <option value="9">@lang('messages.elder_sister')</option>
+                                                <option value="10">@lang('messages.younger_sister')</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 d-flex flex-column align-items-end justify-content-end">
+                                            <button type="button" id="delete-${uniqueId}" class="btn btn-icon btn-danger btn-sm" data-target="${uniqueId}">
+                                            <span class="text-danger">Delete</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
 
                             driverInfoDisplay.innerHTML += driverHtml;
                         } else {
-
+                            alert('You can add only 5 drivers');
                         }
-
-
-
-
-                        driverInfo.classList.remove('d-none');
-
-
                     } else {
-                        alert(result?.message?.error?.error_message || 'Driver not found');
+                        if (result?.message?.error?.error_code) {
+                            alert(result?.message?.error?.error_message || 'Driver not found');
+                        } else {
+                            alert('You can add only 5 person')
+                        }
                     }
                 } catch (error) {
                     console.error('Error:', error);
@@ -829,6 +825,28 @@
                     throw error; // let the caller handle it
                 }
             }
+
+            function escapeHtml(str = '') {
+                return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            document.addEventListener('click', function(e) {
+                const button = e.target.closest('.btn-danger[data-target]');
+                if (button) {
+                    const targetId = button.getAttribute('data-target');
+                    if (confirm('Haydovchini o\'chirmoqchimisiz?')) {
+                        const card = document.querySelector('.card-footer[data-id="' + targetId + '"]');
+                        if (card) {
+                            card.remove();
+                        }
+                    }
+                }
+            });
         });
     </script>
 
