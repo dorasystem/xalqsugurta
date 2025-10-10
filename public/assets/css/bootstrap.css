@@ -19,7 +19,7 @@
 }
 
 .product-page label {
-    color: rgba(174, 167, 236, 1) !important;
+    /* color: rgb(174, 167, 236) !important; */
     font-size: 14px !important;
 }
 

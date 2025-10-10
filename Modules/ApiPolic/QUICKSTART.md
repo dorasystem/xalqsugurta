@@ -112,3 +112,7 @@ Your Vehicle API is ready! 🎉
 tail -f storage/logs/laravel.log
 ```
 
+
+
+
+

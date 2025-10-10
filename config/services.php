@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'napp' => [
+        'api_url' => env('NAPP_API_URL', 'https://erspapi.e-osgo.uz/api/v3'),
+        'api_token' => env('NAPP_API_TOKEN'),
+    ],
+
 ];
