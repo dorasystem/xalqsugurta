@@ -34,66 +34,57 @@ class OsagoController extends Controller
                 'applicant' => [
                     'person' => [
                         'passportData' => [
-                            'pinfl' =>  '12345678901234',
-                            'seria' => 'AA',
-                            'number' => '1234567',
+                            'pinfl' =>  $data->is_applicant_owner == "on" ? $data->pinfl : $data->applicant_pinfl,
+                            'seria' => $data->is_applicant_owner == "on" ? $data->passport_series : $data->applicant_passport_series,
+                            'number' => $data->is_applicant_owner == "on" ? $data->passport_number : $data->applicant_passport_number,
                             'issuedBy' => 'УВД Яккасарайского района',
-                            'issueDate' => '2015-10-30'
+                            'issueDate' => $data->passport_date ?? '2015-10-30' //bom garak
                         ],
                         'fullName' => [
-                            'firstname' => 'Иван',
-                            'lastname' => 'Иванов',
-                            'middlename' => 'Иванович'
+                            'firstname' => $data->is_applicant_owner == "on" ? $data->first_name : $data->applicant_first_name,
+                            'lastname' => $data->is_applicant_owner == "on" ? $data->last_name : $data->applicant_last_name,
+                            'middlename' => $data->is_applicant_owner == "on" ? $data->middle_name : $data->applicant_middle_name
                         ],
-                        'phoneNumber' => '998901234578',
-                        'gender' => 'm',
-                        'birthDate' => '1990-10-30',
-                        'regionId' => '1',
-                        'districtId' => '1'
+                        'phoneNumber' => $data->applicant_phone_number ?? '998901234578',
+                        'gender' => 'm', //b garak, 
+                        'birthDate' => '1990-10-30', //bom garak
+                        'regionId' => '1', //bom garak
+                        'districtId' => '1' //bom garak
                     ],
-                    'organization' => [
-                        'inn' => '123456789',
-                        'name' => 'ООО Фирма',
-                        'phoneNumber' => 'string'
-                    ],
-                    'address' => 'ул. такая-то, дом такой-то',
-                    'email' => 'example@example.com',
+                    'address' => 'ул. такая-то, дом такой-то', //
+                    'email' => 'example@example.com', //yo'q b
                     'residentOfUzb' => 1,
-                    'citizenshipId' => 1
+                    'citizenshipId' => 1 //210
                 ],
                 'owner' => [
                     'person' => [
                         'passportData' => [
-                            'pinfl' => '12345678901234',
-                            'seria' => 'AA',
-                            'number' => '1234567',
+                            'pinfl' => $data->pinfl ?? '12345678901234',
+                            'seria' => $data->passport_series ?? 'AA',
+                            'number' => $data->passport_number ?? '1234567',
                             'issuedBy' => 'УВД Яккасарайского района',
-                            'issueDate' => '2015-10-30'
+                            'issueDate' => '2015-10-30' //bom garak
                         ],
                         'fullName' => [
-                            'firstname' => 'Иван',
-                            'lastname' => 'Иванов',
-                            'middlename' => 'Иванович'
+                            'firstname' => $data->first_name ?? 'Иван',
+                            'lastname' => $data->last_name ?? 'Иванов',
+                            'middlename' => $data->middle_name ?? 'Иванович'
                         ]
                     ],
-                    'organization' => [
-                        'inn' => '123456789',
-                        'name' => 'ООО Фирма'
-                    ],
-                    'applicantIsOwner' => false
+                    'applicantIsOwner' => $data->is_applicant_owner == "on" ? true : false
                 ],
                 'details' => [
-                    'issueDate' => '2021-01-30',
-                    'startDate' => '2021-01-30',
-                    'endDate' => '2021-01-30',
-                    'driverNumberRestriction' => true,
+                    'issueDate' => '2021-01-30',//tex passport sanasi
+                    'startDate' => $data->policy_start_date ?? '2021-01-30',
+                    'endDate' => $data->policy_start_date ?? '2021-01-30',
+                    'driverNumberRestriction' => $data->is_applicant_owner == "on" ? true : false,
                     'specialNote' => 'Перевыпуск',
                     'insuredActivityType' => 'Вид деятельности'
                 ],
                 'cost' => [
-                    'discountId' => '1',
-                    'discountSum' => '28000',
-                    'insurancePremium' => '56000',
+                    'discountId' => '1',//aldinnan yozip qo'yiladi
+                    'discountSum' => '0',//aldinnan 0
+                    'insurancePremium' => $data->pinfl ?? '56000',
                     'sumInsured' => '40000000',
                     'contractTermConclusionId' => '1',
                     'useTerritoryId' => '1',
@@ -104,20 +95,20 @@ class OsagoController extends Controller
                 ],
                 'vehicle' => [
                     'techPassport' => [
-                        'number' => '01223456',
-                        'seria' => 'AAC',
-                        'issueDate' => '2015-10-30'
+                        'number' => $data->tech_passport_number ?? '01223456',
+                        'seria' => $data->tech_passport_series ?? 'AAC',
+                        'issueDate' => '2015-10-30'//b garak
                     ],
-                    'modelCustomName' => 'Nexia 3',
-                    'engineNumber' => 'df32rfafh98sa',
-                    'typeId' => '1',
-                    'issueYear' => '2015',
-                    'govNumber' => '01K384SO',
-                    'bodyNumber' => 'jk543kj453k4',
-                    'regionId' => '1',
-                    'terrainId' => '1'
+                    'modelCustomName' => $data->model ?? 'Nexia 3',
+                    'engineNumber' => $data->engine_number ?? 'df32rfafh98sa',
+                    'typeId' => '1',//b garak
+                    'issueYear' => '2015',//b garak
+                    'govNumber' => $data->gov_number ?? '01K384SO',
+                    'bodyNumber' => 'jk543kj453k4',//b garak
+                    'regionId' => '1',//b garak
+                    'terrainId' => '1'//b garak
                 ],
-                'drivers' => [
+                'drivers' => [//bilaram qo'shiladi ayar garak bo'sa
                     [
                         'passportData' => [
                             'pinfl' => '12345678901234',
