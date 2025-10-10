@@ -15,10 +15,12 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
     })->name('home');
 
     require_once 'insurence/osago.php';
+    require_once 'insurence/accident.php';
 });
 
 Route::post('/get-vehicle-info', [VehicleInfoController::class, 'getVehicleInfo']);
 Route::post('/get-person-info', [PersonInfoController::class, 'getPersonInfo']);
+Route::post('/get-person-info-by-birthdate', [PersonInfoController::class, 'getPersonInfoByBirthdate']);
 Route::post('/get-driver-info', [DriverInfoController::class, 'getDriverInfo']);
 
 // Default route (redirects to Russian)
@@ -32,3 +34,6 @@ Route::get('/fallback', function () {
 })->name('fallback');
 
 
+Route::get('/icons', function () {
+    return view('icons');
+})->name('icons');

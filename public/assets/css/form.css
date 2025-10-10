@@ -176,3 +176,17 @@
         grid-template-columns: 1fr;
     }
 }
+
+
+.invalid-feedback {
+    color: #ff0000;
+    font-size: 0.8rem;
+}
+
+.hidden {
+    opacity: 0;
+}
+
+.form-check-input {
+    color: var(--violet);
+}

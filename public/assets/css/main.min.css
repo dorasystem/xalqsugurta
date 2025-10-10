@@ -5821,3 +5821,7 @@ input[type=number]::-webkit-outer-spin-button {
 #calculate-policy-btn:hover i {
     color: #393185;
 }
+
+label {
+    color: #393185 !important;
+}
