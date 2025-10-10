@@ -1,0 +1,101 @@
+{
+  "applicant": {
+    "person": {
+      "passportData": {
+        "pinfl": "12345678901234",//sug'urta atyotirg'an odanmniki bila - bo
+        "seria": "AA",//passport seriyasi - bo
+        "number": "1234567", // bo
+        "issuedBy": "УВД Яккасарайского района",//bo
+        "issueDate": "2015-10-30"//bo
+      },
+      "fullName": {
+        "firstname": "Иван",//bo
+        "lastname": "Иванов",//bo
+        "middlename": "Иванович"//bo
+      },
+      "phoneNumber": "998901234578",//bo
+      "gender": "m",//bo
+      "birthDate": "1990-10-30",//bo
+      "regionId": "1",//bo
+      "districtId": "1"//bo
+    },
+    "address": "ул. такая-то, дом такой-то",//bo
+    "email": "example@example.com",//aldinnan yozib qo'yamiz
+    "residentOfUzb": 1,//ova 
+    "citizenshipId": 210//bo
+  },
+  "owner": {
+    "person": {
+      "passportData": {
+        "pinfl": "12345678901234",//bo
+        "seria": "AA",//bo
+        "number": "1234567",//bo
+        "issuedBy": "УВД Яккасарайского района",//bo
+        "issueDate": "2015-10-30"//bo
+      },
+      "fullName": {//bo
+        "firstname": "Иван",
+        "lastname": "Иванов",
+        "middlename": "Иванович"
+      }
+    },
+    "applicantIsOwner": false//checkboxdan galadik
+  },
+  "details": {
+    "issueDate": "2021-01-30",//tex passportni vahti
+    "startDate": "2021-01-30",//bom tex passportni vahti
+    "endDate": "2021-01-30",//bom tex passportni vahti
+    "driverNumberRestriction": true,//5cha yo cheksiz
+    "specialNote": "Перевыпуск",//statik
+    "insuredActivityType": "Вид деятельности"//statik
+  },
+  "cost": {
+    "discountId": "1",//statik
+    "discountSum": "28000",//aldinnan 0
+    "insurancePremium": "56000",//to'lido'n puli
+    "sumInsured": "40000000",//barado'n puli
+    "contractTermConclusionId": "1",//tanlayan vahti
+    "useTerritoryId": "1",//01 yo 10 bo'sa 1 boshqasina 2
+    "commission": "10000",//0 duradi
+    "insurancePremiumPaidToInsurer": "28000",// to'lido'n puli
+    "seasonalInsuranceId": "1",//7 akan impexda
+    "foreignVehicleId": "1"//null
+  },
+  "vehicle": {
+    "techPassport": {
+      "number": "01223456",//bo
+      "seria": "AAC",//bo
+      "issueDate": "2015-10-30"//bo
+    },
+    "modelCustomName": "Nexia 3",//bo
+    "engineNumber": "df32rfafh98sa",//bo
+    "typeId": "1",//bo
+    "issueYear": "2015",//bo
+    "govNumber": "01K384SO",//bo
+    "bodyNumber": "jk543kj453k4",//bo
+    "regionId": "1",//bo eyasiniiki yoziladi
+    "terrainId": "1"//shu qoladi
+  },
+  "drivers": [
+    {
+      "passportData": {
+        "pinfl": "12345678901234",//bo
+        "seria": "AA",//bo
+        "number": "1234567",//bo
+        "issuedBy": "УВД Яккасарайского района",//statik qoladi
+        "issueDate": "2015-10-30"//bo
+      },
+      "fullName": {//hammasi bo
+        "firstname": "Иван",
+        "lastname": "Иванов",
+        "middlename": "Иванович"
+      },
+      "licenseNumber": "1546546",//bo
+      "licenseSeria": "AA",//bo
+      "relative": 0,//bom bo
+      "birthDate": "1989-05-30",//bo
+      "licenseIssueDate": "2015-05-30",//bo
+      "residentOfUzb": 1//statik
+    }
+  ]
+}

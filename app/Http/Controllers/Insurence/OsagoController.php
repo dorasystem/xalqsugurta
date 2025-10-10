@@ -26,7 +26,121 @@ class OsagoController extends Controller
 
     public function calculation(Request $request)
     {
+        dd($request->all());
+        $data = $request->all();
         try {
+
+            $infoShablon = [
+                'applicant' => [
+                    'person' => [
+                        'passportData' => [
+                            'pinfl' =>  '12345678901234',
+                            'seria' => 'AA',
+                            'number' => '1234567',
+                            'issuedBy' => 'УВД Яккасарайского района',
+                            'issueDate' => '2015-10-30'
+                        ],
+                        'fullName' => [
+                            'firstname' => 'Иван',
+                            'lastname' => 'Иванов',
+                            'middlename' => 'Иванович'
+                        ],
+                        'phoneNumber' => '998901234578',
+                        'gender' => 'm',
+                        'birthDate' => '1990-10-30',
+                        'regionId' => '1',
+                        'districtId' => '1'
+                    ],
+                    'organization' => [
+                        'inn' => '123456789',
+                        'name' => 'ООО Фирма',
+                        'phoneNumber' => 'string'
+                    ],
+                    'address' => 'ул. такая-то, дом такой-то',
+                    'email' => 'example@example.com',
+                    'residentOfUzb' => 1,
+                    'citizenshipId' => 1
+                ],
+                'owner' => [
+                    'person' => [
+                        'passportData' => [
+                            'pinfl' => '12345678901234',
+                            'seria' => 'AA',
+                            'number' => '1234567',
+                            'issuedBy' => 'УВД Яккасарайского района',
+                            'issueDate' => '2015-10-30'
+                        ],
+                        'fullName' => [
+                            'firstname' => 'Иван',
+                            'lastname' => 'Иванов',
+                            'middlename' => 'Иванович'
+                        ]
+                    ],
+                    'organization' => [
+                        'inn' => '123456789',
+                        'name' => 'ООО Фирма'
+                    ],
+                    'applicantIsOwner' => false
+                ],
+                'details' => [
+                    'issueDate' => '2021-01-30',
+                    'startDate' => '2021-01-30',
+                    'endDate' => '2021-01-30',
+                    'driverNumberRestriction' => true,
+                    'specialNote' => 'Перевыпуск',
+                    'insuredActivityType' => 'Вид деятельности'
+                ],
+                'cost' => [
+                    'discountId' => '1',
+                    'discountSum' => '28000',
+                    'insurancePremium' => '56000',
+                    'sumInsured' => '40000000',
+                    'contractTermConclusionId' => '1',
+                    'useTerritoryId' => '1',
+                    'commission' => '10000',
+                    'insurancePremiumPaidToInsurer' => '28000',
+                    'seasonalInsuranceId' => '1',
+                    'foreignVehicleId' => '1'
+                ],
+                'vehicle' => [
+                    'techPassport' => [
+                        'number' => '01223456',
+                        'seria' => 'AAC',
+                        'issueDate' => '2015-10-30'
+                    ],
+                    'modelCustomName' => 'Nexia 3',
+                    'engineNumber' => 'df32rfafh98sa',
+                    'typeId' => '1',
+                    'issueYear' => '2015',
+                    'govNumber' => '01K384SO',
+                    'bodyNumber' => 'jk543kj453k4',
+                    'regionId' => '1',
+                    'terrainId' => '1'
+                ],
+                'drivers' => [
+                    [
+                        'passportData' => [
+                            'pinfl' => '12345678901234',
+                            'seria' => 'AA',
+                            'number' => '1234567',
+                            'issuedBy' => 'УВД Яккасарайского района',
+                            'issueDate' => '2015-10-30'
+                        ],
+                        'fullName' => [
+                            'firstname' => 'Иван',
+                            'lastname' => 'Иванов',
+                            'middlename' => 'Иванович'
+                        ],
+                        'licenseNumber' => '1546546',
+                        'licenseSeria' => 'AA',
+                        'relative' => 0,
+                        'birthDate' => '1989-05-30',
+                        'licenseIssueDate' => '2015-05-30',
+                        'residentOfUzb' => 1
+                    ]
+                ]
+            ];
+
             // Validate request
             $request->validate([
                 'policy_start_date' => 'required|date',

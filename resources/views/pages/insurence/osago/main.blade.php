@@ -100,10 +100,6 @@
                                     <input type="hidden" id="owner-address" name="owner_address">
                                 </div>
                             </div>
-
-                            <!-- Hidden fields for storing data -->
-                            <input type="hidden" id="pinfl-hidden" name="pinfl_hidden">
-                            <input type="hidden" id="applicant-passport-data" name="applicant_passport_data">
                         </div>
 
                         <div id="applicant-info" class="card d-none">
@@ -112,7 +108,7 @@
                             </div>
                             <div class="card-body">
                                 <div class="form-check ">
-                                    <input class="form-check-input" type="checkbox" id="is-applicant-owner">
+                                    <input class="form-check-input" type="checkbox" id="is-applicant-owner" name="is_applicant_owner">
                                     <label class="form-check-label" for="is-applicant-owner">
                                         {{ __('messages.is_applicant_owner') }}
                                     </label>
@@ -237,13 +233,11 @@
                                 </div>
 
                                 <!-- Submit button -->
-                                <div class="d-flex justify-content-end gap-2">
+                                <div class="d-flex justify-content-end gap-2 d-none">
                                     <button class="btn btn-primary-custom" id="calculate-policy-btn">
                                         <i class="bi bi-calculator"></i>
                                     </button>
                                 </div>
-
-
                             </div>
                         </div>
 
@@ -322,7 +316,7 @@
             let regionIdC;
             let periodC;
             let vehicleTypeC;
-            let limitedC = 0;
+            let limitedC = 3;
             let driverIdCounter = 0;
 
             const searchBtn = document.getElementById('vehicle-search-btn');
@@ -686,15 +680,15 @@
                 } else if (radio === 'unlimited') { // hide the button
                     periodSelect.value = 1;
                     periodSelect.toggleAttribute('disabled');
-                    limitedC = 0;
+                    limitedC = 3;
                 }
                 calculatePolicy();
             }
 
             driverSearchBtn.addEventListener('click', async function() {
-                const driverPassportSeries = document.getElementById('driver-passport-series').value;
-                const driverPassportNumber = document.getElementById('driver-passport-number').value;
-                const driverPinfl = document.getElementById('driver-pinfl').value;
+                let driverPassportSeries = document.getElementById('driver-passport-series').value;
+                let driverPassportNumber = document.getElementById('driver-passport-number').value;
+                let driverPinfl = document.getElementById('driver-pinfl').value;
 
                 const driverInfo = document.getElementById('driver-info-display');
 
@@ -723,9 +717,9 @@
                     const existing = driverInfoDisplay.querySelectorAll('.card-footer').length;
                     if (result.success && existing < 5) {
 
-                        driverPassportSeries.value = '';
-                        driverPassportNumber.value = '';
-                        driverPinfl.value = '';
+                        document.getElementById('driver-passport-series').value = '';
+                        document.getElementById('driver-passport-number').value = '';
+                        document.getElementById('driver-pinfl').value = '';
 
                         const existing = driverInfoDisplay.querySelectorAll('.card-footer').length;
                         console.log('existing', existing);
@@ -747,7 +741,7 @@
                                     <div class="row mb-2">
                                         <div class="col-md-5">
                                             <label for="driver-${uniqueId}-full-name" class="form-label">@lang('messages.driver_full_name')</label>
-                                            <input type="text" class="form-input" id="driver-${uniqueId}-full-name" name="driver_full_name[${uniqueId}]" value="${shortResult.DriverInfo.pOwner.split(' ')[0] + ' ' + shortResult.DriverInfo.pOwner.split(' ')[1]}" disabled />
+                                            <input type="text" class="form-input" id="driver-${uniqueId}-full-name" name="driver_full_name[${uniqueId}]" value="${shortResult.DriverInfo.pOwner.split(' ')[0] + ' ' + shortResult.DriverInfo.pOwner.split(' ')[1]}" readonly />
                                         </div>
                                         <div class="col-md-4">
                                             <label for="driver-${uniqueId}-kinship" class="form-label">
