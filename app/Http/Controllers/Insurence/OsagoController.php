@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Insurence;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
@@ -26,11 +27,12 @@ class OsagoController extends Controller
 
     public function calculation(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
         $data = $request->all();
         $region = substr($data['gov_number'], 0, 2);
         $vehicleOtherInfo = json_decode($data['other_info'], true);
         $ownerInfo = json_decode($data['owner_infos'], true);
+        $applicantInfo = json_decode($data['applicant_infos'], true);
 
         if ($data['is_applicant_owner'] == "on" && $ownerInfo['address']) {
             $address = $ownerInfo['address'];
@@ -66,8 +68,8 @@ class OsagoController extends Controller
                             'pinfl' =>  $data['is_applicant_owner'] == "on" ? $data['pinfl'] : $data['applicant_pinfl'],
                             'seria' => $data['is_applicant_owner'] == "on" ? $data['passport_series'] : $data['applicant_passport_series'],
                             'number' => $data['is_applicant_owner'] == "on" ? $data['passport_number'] : $data['applicant_passport_number'],
-                            'issuedBy' => 'УВД Яккасарайского района',
-                            'issueDate' => $data['passport_date'] ?? '2015-10-30' //b garak
+                            'issuedBy' => $data['is_applicant_owner'] == "on" ? $ownerInfo['issuedBy'] : $applicantInfo['issuedBy'],
+                            'issueDate' => $data['is_applicant_owner'] == "on" ? $ownerInfo['issueDate'] : $applicantInfo['issueDate']
                         ],
                         'fullName' => [
                             'firstname' => $data['is_applicant_owner'] == "on" ? $data['first_name'] : $data['applicant_first_name'],
@@ -75,15 +77,15 @@ class OsagoController extends Controller
                             'middlename' => $data['is_applicant_owner'] == "on" ? $data['middle_name'] : $data['applicant_middle_name']
                         ],
                         'phoneNumber' => $data['applicant_phone_number'] ?? '998901234578',
-                        'gender' => 'm', //b garak, 
-                        'birthDate' => '1990-10-30', //bom garak
-                        'regionId' => '1', //bom garak
-                        'districtId' => '1' //bom garak
+                        'gender' => $data['is_applicant_owner'] == "on" ? ($ownerInfo['gender'] == "1" ? "m" : "f") : ($applicantInfo['gender'] == "1" ? "m" : "f"),
+                        'birthDate' => $data['is_applicant_owner'] == "on" ? $ownerInfo['birthDate'] : $applicantInfo['birthDate'],
+                        'regionId' => $data['is_applicant_owner'] == "on" ? $ownerInfo['regionId'] : $applicantInfo['regionId'],
+                        'districtId' => $data['is_applicant_owner'] == "on" ? $ownerInfo['districtId'] : $applicantInfo['districtId']
                     ],
-                    'address' => $address, //
-                    'email' => 'example@example.com', //yo'q b
+                    'address' => $address,
+                    'email' => 'example@example.com',
                     'residentOfUzb' => 1,
-                    'citizenshipId' => 210 //210
+                    'citizenshipId' => 210 
                 ],
                 'owner' => [
                     'person' => [
@@ -103,16 +105,16 @@ class OsagoController extends Controller
                     'applicantIsOwner' => $data['is_applicant_owner'] == "on" ? true : false
                 ],
                 'details' => [
-                    'issueDate' => '2021-01-30', //tex passport sanasi
-                    'startDate' => $data['policy_start_date'] ?? '2021-01-30',
-                    'endDate' => $data['policy_start_date'] ?? '2021-01-30',
+                    'issueDate' => Carbon::parse($vehicleOtherInfo['techPassportIssueDate'])->format('Y-m-d'), //tex passport sanasi
+                    'startDate' => $data['policy_start_date'] ?? Carbon::now()->format('Y-m-d'),
+                    'endDate' => $data['policy_end_date'] ?? Carbon::now()->addYear()->format('Y-m-d'),
                     'driverNumberRestriction' => $data['is_applicant_owner'] == "on" ? true : false,
                     'specialNote' => 'Перевыпуск',
                     'insuredActivityType' => 'Вид деятельности'
                 ],
                 'cost' => [
-                    'discountId' => '1', //aldinnan yozip qo'yiladi
-                    'discountSum' => '0', //aldinnan 0
+                    'discountId' => '1', 
+                    'discountSum' => 0,
                     'insurancePremium' => $data['pinfl'] ?? '56000',
                     'sumInsured' => '40000000',
                     'contractTermConclusionId' => '1',
@@ -126,7 +128,7 @@ class OsagoController extends Controller
                     'techPassport' => [
                         'number' => $data['tech_passport_number'] ?? '01223456',
                         'seria' => $data['tech_passport_series'] ?? 'AAC',
-                        'issueDate' => $vehicleOtherInfo['techPassportIssueDate'] ??  '2015-10-30'
+                        'issueDate' => Carbon::parse($vehicleOtherInfo['techPassportIssueDate'])->format('Y-m-d') ??  '2015-10-30'
                     ],
                     'modelCustomName' => $data['model'] ?? 'Nexia 3',
                     'engineNumber' => $data['engine_number'] ?? 'df32rfafh98sa',

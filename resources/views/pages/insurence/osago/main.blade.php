@@ -608,8 +608,8 @@
                         middleName.value = result.data.result.middleNameLatin || '';
                         address.value = result.data.result.address || '';
 
-                        applicantInfo = getNececcaryInfo(result);
-                        applicantInfos.value = JSON.stringify(applicantInfo);
+                        let applicantInfoResult = getNececcaryInfo(result);
+                        applicantInfos.value = JSON.stringify(applicantInfoResult);
 
                         // Show the vehicle info display (CORRECTED)
                         const applicantInfo = document.getElementById('applicant-info-display');
@@ -870,7 +870,7 @@
                 }
             });
 
-            function getNececcaryInfo(data) {
+            function getNececcaryInfo(result) {
                 return {
                     'regionId': result.data.result.regionId,
                     'districtId': result.data.result.districtId,
