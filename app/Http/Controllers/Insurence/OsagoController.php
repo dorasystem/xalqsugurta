@@ -28,63 +28,90 @@ class OsagoController extends Controller
     {
         dd($request->all());
         $data = $request->all();
+        $region = substr($data['gov_number'], 0, 2);
+        $vehicleOtherInfo = json_decode($data['other_info'], true);
+        $ownerInfo = json_decode($data['owner_infos'], true);
+        if ($data['is_applicant_owner'] == "on" && $ownerInfo['address']) {
+            $address = $ownerInfo['address'];
+        } elseif (isset($data['applicant_address']) && $data['applicant_address']) {
+            $address = $data['applicant_address'];
+        } else {
+            $regions = [
+                "01" => 'Toshkent shahri',
+                "10" => 'Toshkent viloyati',
+                "20" => 'Sirdaryo viloyati',
+                "25" => 'Jizzax viloyati',
+                "30" => 'Samarqand viloyati',
+                "40" => 'Farg\'ona viloyati',
+                "50" => 'Namangan viloyati',
+                "60" => 'Andijon viloyati',
+                "70" => 'Qashqadaryo viloyati',
+                "75" => 'Surxondaryo viloyati',
+                "80" => 'Buxoro viloyati',
+                "85" => 'Navoiy viloyati',
+                "90" => 'Xorazm viloyati',
+                "95" => 'Qoraqalpog\'iston Respublikasi'
+            ];
+            $address = $regions[$region];
+            $regionsIDForEosgouz = ["01" => 10, "10" => 11, "20" => 12, "25" => 13, "30" => 14, "40" => 15, "50" => 16, "60" => 17, "70" => 18, "75" => 19, "80" => 20, "85" => 21, "90" => 22, "95" => 23];
+        }
         try {
 
             $infoShablon = [
                 'applicant' => [
                     'person' => [
                         'passportData' => [
-                            'pinfl' =>  $data->is_applicant_owner == "on" ? $data->pinfl : $data->applicant_pinfl,
-                            'seria' => $data->is_applicant_owner == "on" ? $data->passport_series : $data->applicant_passport_series,
-                            'number' => $data->is_applicant_owner == "on" ? $data->passport_number : $data->applicant_passport_number,
+                            'pinfl' =>  $data['is_applicant_owner'] == "on" ? $data['pinfl'] : $data['applicant_pinfl'],
+                            'seria' => $data['is_applicant_owner'] == "on" ? $data['passport_series'] : $data['applicant_passport_series'],
+                            'number' => $data['is_applicant_owner'] == "on" ? $data['passport_number'] : $data['applicant_passport_number'],
                             'issuedBy' => 'УВД Яккасарайского района',
-                            'issueDate' => $data->passport_date ?? '2015-10-30' //bom garak
+                            'issueDate' => $data['passport_date'] ?? '2015-10-30' //b garak
                         ],
                         'fullName' => [
-                            'firstname' => $data->is_applicant_owner == "on" ? $data->first_name : $data->applicant_first_name,
-                            'lastname' => $data->is_applicant_owner == "on" ? $data->last_name : $data->applicant_last_name,
-                            'middlename' => $data->is_applicant_owner == "on" ? $data->middle_name : $data->applicant_middle_name
+                            'firstname' => $data['is_applicant_owner'] == "on" ? $data['first_name'] : $data['applicant_first_name'],
+                            'lastname' => $data['is_applicant_owner'] == "on" ? $data['last_name'] : $data['applicant_last_name'],
+                            'middlename' => $data['is_applicant_owner'] == "on" ? $data['middle_name'] : $data['applicant_middle_name']
                         ],
-                        'phoneNumber' => $data->applicant_phone_number ?? '998901234578',
+                        'phoneNumber' => $data['applicant_phone_number'] ?? '998901234578',
                         'gender' => 'm', //b garak, 
                         'birthDate' => '1990-10-30', //bom garak
                         'regionId' => '1', //bom garak
                         'districtId' => '1' //bom garak
                     ],
-                    'address' => 'ул. такая-то, дом такой-то', //
+                    'address' => $address, //
                     'email' => 'example@example.com', //yo'q b
                     'residentOfUzb' => 1,
-                    'citizenshipId' => 1 //210
+                    'citizenshipId' => 210 //210
                 ],
                 'owner' => [
                     'person' => [
                         'passportData' => [
-                            'pinfl' => $data->pinfl ?? '12345678901234',
-                            'seria' => $data->passport_series ?? 'AA',
-                            'number' => $data->passport_number ?? '1234567',
+                            'pinfl' => $data['pinfl'] ?? '12345678901234',
+                            'seria' => $data['passport_series'] ?? 'AA',
+                            'number' => $data['passport_number'] ?? '1234567',
                             'issuedBy' => 'УВД Яккасарайского района',
                             'issueDate' => '2015-10-30' //bom garak
                         ],
                         'fullName' => [
-                            'firstname' => $data->first_name ?? 'Иван',
-                            'lastname' => $data->last_name ?? 'Иванов',
-                            'middlename' => $data->middle_name ?? 'Иванович'
+                            'firstname' => $data['first_name'] ?? 'Иван',
+                            'lastname' => $data['last_name'] ?? 'Иванов',
+                            'middlename' => $data['middle_name'] ?? 'Иванович'
                         ]
                     ],
-                    'applicantIsOwner' => $data->is_applicant_owner == "on" ? true : false
+                    'applicantIsOwner' => $data['is_applicant_owner'] == "on" ? true : false
                 ],
                 'details' => [
-                    'issueDate' => '2021-01-30',//tex passport sanasi
-                    'startDate' => $data->policy_start_date ?? '2021-01-30',
-                    'endDate' => $data->policy_start_date ?? '2021-01-30',
-                    'driverNumberRestriction' => $data->is_applicant_owner == "on" ? true : false,
+                    'issueDate' => '2021-01-30', //tex passport sanasi
+                    'startDate' => $data['policy_start_date'] ?? '2021-01-30',
+                    'endDate' => $data['policy_start_date'] ?? '2021-01-30',
+                    'driverNumberRestriction' => $data['is_applicant_owner'] == "on" ? true : false,
                     'specialNote' => 'Перевыпуск',
                     'insuredActivityType' => 'Вид деятельности'
                 ],
                 'cost' => [
-                    'discountId' => '1',//aldinnan yozip qo'yiladi
-                    'discountSum' => '0',//aldinnan 0
-                    'insurancePremium' => $data->pinfl ?? '56000',
+                    'discountId' => '1', //aldinnan yozip qo'yiladi
+                    'discountSum' => '0', //aldinnan 0
+                    'insurancePremium' => $data['pinfl'] ?? '56000',
                     'sumInsured' => '40000000',
                     'contractTermConclusionId' => '1',
                     'useTerritoryId' => '1',
@@ -93,22 +120,22 @@ class OsagoController extends Controller
                     'seasonalInsuranceId' => '1',
                     'foreignVehicleId' => '1'
                 ],
-                'vehicle' => [
+                'vehicle' => [ //b bo'ldi isopi
                     'techPassport' => [
-                        'number' => $data->tech_passport_number ?? '01223456',
-                        'seria' => $data->tech_passport_series ?? 'AAC',
-                        'issueDate' => '2015-10-30'//b garak
+                        'number' => $data['tech_passport_number'] ?? '01223456',
+                        'seria' => $data['tech_passport_series'] ?? 'AAC',
+                        'issueDate' => $vehicleOtherInfo['techPassportIssueDate'] ??  '2015-10-30'
                     ],
-                    'modelCustomName' => $data->model ?? 'Nexia 3',
-                    'engineNumber' => $data->engine_number ?? 'df32rfafh98sa',
-                    'typeId' => '1',//b garak
-                    'issueYear' => '2015',//b garak
-                    'govNumber' => $data->gov_number ?? '01K384SO',
-                    'bodyNumber' => 'jk543kj453k4',//b garak
-                    'regionId' => '1',//b garak
-                    'terrainId' => '1'//b garak
+                    'modelCustomName' => $data['model'] ?? 'Nexia 3',
+                    'engineNumber' => $data['engine_number'] ?? 'df32rfafh98sa',
+                    'typeId' => $vehicleOtherInfo['typeId'] ?? '1',
+                    'issueYear' => $data['car_year'] ?? '2015',
+                    'govNumber' => $data['gov_number'] ?? '01K384SO',
+                    'bodyNumber' => $vehicleOtherInfo['bodyNumber'] ?? 'jk543kj453k4',
+                    'regionId' => '1', //b garak      
+                    'terrainId' => '1' //statik
                 ],
-                'drivers' => [//bilaram qo'shiladi ayar garak bo'sa
+                'drivers' => [ //bilaram qo'shiladi ayar garak bo'sa
                     [
                         'passportData' => [
                             'pinfl' => '12345678901234',
@@ -131,7 +158,7 @@ class OsagoController extends Controller
                     ]
                 ]
             ];
-
+            dd($infoShablon);
             // Validate request
             $request->validate([
                 'policy_start_date' => 'required|date',

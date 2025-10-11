@@ -59,6 +59,8 @@
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'engine_number'" :name="'engine_number'"
                                         :label="'messages.engine_number'" :placeholder="'messages.engine_number_placeholder'" />
 
+                                    <input type="hidden" name="other_info" id="other_info">
+
                                 </div>
                             </div>
 
@@ -98,6 +100,7 @@
                                         :label="'messages.owner_middle_name'" :placeholder="'messages.owner_middle_name_placeholder'" />
 
                                     <input type="hidden" id="owner-address" name="owner_address">
+                                    <input type="hidden" id="owner-infos" name="owner_infos">
                                 </div>
                             </div>
                         </div>
@@ -108,7 +111,8 @@
                             </div>
                             <div class="card-body">
                                 <div class="form-check ">
-                                    <input class="form-check-input" type="checkbox" id="is-applicant-owner" name="is_applicant_owner">
+                                    <input class="form-check-input" type="checkbox" id="is-applicant-owner"
+                                        name="is_applicant_owner">
                                     <label class="form-check-label" for="is-applicant-owner">
                                         {{ __('messages.is_applicant_owner') }}
                                     </label>
@@ -233,7 +237,7 @@
                                 </div>
 
                                 <!-- Submit button -->
-                                <div class="d-flex justify-content-end gap-2 d-none">
+                                <div class="d-flex justify-content-end gap-2">
                                     <button class="btn btn-primary-custom" id="calculate-policy-btn">
                                         <i class="bi bi-calculator"></i>
                                     </button>
@@ -319,6 +323,12 @@
             let limitedC = 3;
             let driverIdCounter = 0;
 
+            let prise = document.getElementById('premium').textContent;
+            let amount = document.getElementById('amount').textContent;
+            prise = Number(prise);
+            amount = Number(amount);
+            console.log('prise', prise, 'amount', amount);
+
             const searchBtn = document.getElementById('vehicle-search-btn');
             const ownerInfoBtn = document.getElementById('owner-information-search-btn');
             const applicantInfoCheck = document.getElementById('is-applicant-owner');
@@ -334,9 +344,10 @@
             periodSelect.addEventListener('change', updateEndDate);
 
             searchBtn.addEventListener('click', async function() {
-                const govNumber = document.getElementById('gov_number').value;
-                const techPassportSeries = document.getElementById('tech_passport_series').value;
-                const techPassportNumber = document.getElementById('tech_passport_number').value;
+                const govNumber = document.getElementById('gov_number');
+                const techPassportSeries = document.getElementById('tech_passport_series');
+                const techPassportNumber = document.getElementById('tech_passport_number');
+                let otherInfo = document.getElementById('other_info');
 
                 // Validate inputs
                 if (!govNumber || !techPassportSeries || !techPassportNumber) {
@@ -346,10 +357,13 @@
 
                 // Prepare data
                 const data = {
-                    gov_number: govNumber,
-                    tech_passport_series: techPassportSeries,
-                    tech_passport_number: techPassportNumber
+                    gov_number: govNumber.value,
+                    tech_passport_series: techPassportSeries.value,
+                    tech_passport_number: techPassportNumber.value
                 };
+                govNumber.setAttribute('readonly', true);
+                techPassportSeries.setAttribute('readonly', true);
+                techPassportNumber.setAttribute('readonly', true);
 
                 // Disable button during request
                 searchBtn.disabled = true;
@@ -397,6 +411,14 @@
                                 carType.value = '@lang('insurance.car_not_found')';
                                 break;
                         }
+                        otherInfo = {
+                            'techPassportIssueDate': result.data.result.techPassportIssueDate.split(
+                                "T")[0],
+                            'typeId': result.data.result.vehicleTypeId,
+                            'bodyNumber': result.data.result.bodyNumber,
+                        };
+
+                        document.getElementById('other_info').value = JSON.stringify(otherInfo);
 
                         // Show the vehicle info display (CORRECTED)
                         const vehicleInfoDisplay = document.getElementById('vehicle-info-display');
@@ -452,14 +474,26 @@
                 };
                 try {
                     const result = await sendPostRequest('/get-person-info', data);
-
+                    console.log('Person Info:', result);
                     if (result.data != null) {
                         // Get all input elements
                         const lastName = document.getElementById('insurance-last-name');
                         const firstName = document.getElementById('insurance-first-name');
                         const middleName = document.getElementById('insurance-middle-name');
                         const address = document.getElementById('owner-address');
-
+                        const ownerInfos = document.getElementById('owner-infos');
+                        let ownerInfo = {
+                            'pinfl': insurantPinfl,
+                            'seria': insurantPassportSeries,
+                            'number': insurantPassportNumber,
+                            'issuedBy': result.data.result.issuedBy,
+                            'issueDate': result.data.result.startDate,
+                            'gender': result.data.result.gender,
+                            'birthDate': result.data.result.birthDate,
+                            'address': result.data.result.address || '',
+                        };
+                        console.log(ownerInfo);
+                        ownerInfos.value = JSON.stringify(ownerInfo);
                         // // Populate the fields
                         lastName.value = result.data.result.lastNameLatin || '';
                         firstName.value = result.data.result.firstNameLatin || '';
@@ -482,8 +516,6 @@
                     } else {
                         alert(result.message.error.error_message);
                     }
-
-                    console.log('Person Info:', result);
 
                 } catch (error) {
                     console.error('Error:', error);
@@ -567,7 +599,7 @@
                 };
                 try {
                     const result = await sendPostRequest('/get-person-info', data);
-
+                    console.log('Person Info:', result);
                     if (result.data != null) {
                         const policyCalculation = document.getElementById('policy-calculation');
                         policyCalculation.classList.remove('d-none');
