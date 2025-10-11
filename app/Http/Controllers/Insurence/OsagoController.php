@@ -31,6 +31,7 @@ class OsagoController extends Controller
         $region = substr($data['gov_number'], 0, 2);
         $vehicleOtherInfo = json_decode($data['other_info'], true);
         $ownerInfo = json_decode($data['owner_infos'], true);
+
         if ($data['is_applicant_owner'] == "on" && $ownerInfo['address']) {
             $address = $ownerInfo['address'];
         } elseif (isset($data['applicant_address']) && $data['applicant_address']) {
@@ -52,6 +53,7 @@ class OsagoController extends Controller
                 "90" => 'Xorazm viloyati',
                 "95" => 'Qoraqalpog\'iston Respublikasi'
             ];
+
             $address = $regions[$region];
             $regionsIDForEosgouz = ["01" => 10, "10" => 11, "20" => 12, "25" => 13, "30" => 14, "40" => 15, "50" => 16, "60" => 17, "70" => 18, "75" => 19, "80" => 20, "85" => 21, "90" => 22, "95" => 23];
         }
@@ -89,8 +91,8 @@ class OsagoController extends Controller
                             'pinfl' => $data['pinfl'] ?? '12345678901234',
                             'seria' => $data['passport_series'] ?? 'AA',
                             'number' => $data['passport_number'] ?? '1234567',
-                            'issuedBy' => 'УВД Яккасарайского района',
-                            'issueDate' => '2015-10-30' //bom garak
+                            'issuedBy' => $ownerInfo['issuedBy'] ??  'УВД Яккасарайского района',
+                            'issueDate' => $ownerInfo['issueDate'] ?? '2015-10-30'
                         ],
                         'fullName' => [
                             'firstname' => $data['first_name'] ?? 'Иван',

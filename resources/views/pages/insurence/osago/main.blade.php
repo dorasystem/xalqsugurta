@@ -152,6 +152,7 @@
 
                                     <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'applicant-phone-number'"
                                         :name="'applicant_phone_number'" :label="'messages.applicant_phone_number'" :placeholder="'messages.applicant_phone_number_placeholder'" />
+                                    <input type="hidden" name="applicant_infos" id="applicant-infos">
                                 </div>
                             </div>
 
@@ -482,16 +483,7 @@
                         const middleName = document.getElementById('insurance-middle-name');
                         const address = document.getElementById('owner-address');
                         const ownerInfos = document.getElementById('owner-infos');
-                        let ownerInfo = {
-                            'pinfl': insurantPinfl,
-                            'seria': insurantPassportSeries,
-                            'number': insurantPassportNumber,
-                            'issuedBy': result.data.result.issuedBy,
-                            'issueDate': result.data.result.startDate,
-                            'gender': result.data.result.gender,
-                            'birthDate': result.data.result.birthDate,
-                            'address': result.data.result.address || '',
-                        };
+                        let ownerInfo = getNececcaryInfo(result);
                         console.log(ownerInfo);
                         ownerInfos.value = JSON.stringify(ownerInfo);
                         // // Populate the fields
@@ -608,12 +600,16 @@
                         const firstName = document.getElementById('applicant-first-name');
                         const middleName = document.getElementById('applicant-middle-name');
                         const address = document.getElementById('applicant-address');
+                        let applicantInfos = document.getElementById('applicant-infos');
 
                         // // Populate the fields
                         lastName.value = result.data.result.lastNameLatin || '';
                         firstName.value = result.data.result.firstNameLatin || '';
                         middleName.value = result.data.result.middleNameLatin || '';
                         address.value = result.data.result.address || '';
+
+                        applicantInfo = getNececcaryInfo(result);
+                        applicantInfos.value = JSON.stringify(applicantInfo);
 
                         // Show the vehicle info display (CORRECTED)
                         const applicantInfo = document.getElementById('applicant-info-display');
@@ -873,6 +869,18 @@
                     }
                 }
             });
+
+            function getNececcaryInfo(data) {
+                return {
+                    'regionId': result.data.result.regionId,
+                    'districtId': result.data.result.districtId,
+                    'issuedBy': result.data.result.issuedBy,
+                    'issueDate': result.data.result.startDate,
+                    'gender': result.data.result.gender,
+                    'birthDate': result.data.result.birthDate,
+                    'address': result.data.result.address || ''
+                };
+            }
         });
     </script>
 
