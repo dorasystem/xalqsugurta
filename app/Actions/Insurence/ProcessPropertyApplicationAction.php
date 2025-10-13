@@ -18,19 +18,23 @@ final class ProcessPropertyApplicationAction
             // Convert DTO to API format
             $apiData = $applicationData->toApiFormat();
 
-            // Send data to external API
-            $response = $this->propertyService->sendPropertyInsuranceRequest($apiData);
+            // For testing - return mock success response
+            // TODO: Uncomment when API is ready
+            // $response = $this->propertyService->sendPropertyInsuranceRequest($apiData);
 
-            if (!$response['success']) {
-                return [
-                    'success' => false,
-                    'error' => $response['error'] ?? 'API xatosi',
-                ];
-            }
+            // Mock response for testing
+            $mockResponse = [
+                'success' => true,
+                'data' => [
+                    'id' => 'PROP_' . uniqid(),
+                    'status' => 'pending',
+                    'application_number' => 'PROP' . rand(100000, 999999),
+                ]
+            ];
 
             return [
                 'success' => true,
-                'data' => $response['data'],
+                'data' => $mockResponse['data'],
                 'message' => 'Property insurance application processed successfully',
             ];
         } catch (\Exception $e) {

@@ -28,19 +28,19 @@
                         {{-- Applicant Information --}}
                         <div id="applicant-info" class="card">
                             <div class="card-header">
-                                <h4 class="card-title">Ariza beruvchi ma'lumotlari</h4>
+                                <h4 class="card-title">{{ __('messages.applicant_info_title') }}</h4>
                             </div>
                             <div class="card-body">
                                 <div id="applicant-info-search">
                                     <div class="row align-items-start">
                                         <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'applicant-passport-series'"
-                                            :name="'applicant[passportSeries]'" :placeholder="'messages.applicant_passport_series_placeholder'" :label="'messages.applicant_passport_series'" />
+                                            :name="'applicant[passportSeries]'" :placeholder="'messages.passport_series_placeholder'" :label="'messages.passport_series'" />
 
                                         <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'applicant-passport-number'"
-                                            :name="'applicant[passportNumber]'" :placeholder="'messages.applicant_passport_number_placeholder'" :label="'messages.applicant_passport_number'" />
+                                            :name="'applicant[passportNumber]'" :placeholder="'messages.passport_number_placeholder'" :label="'messages.passport_number'" />
 
                                         <x-inputs.input_form :type="'date'" :class="'col-md-4'" :idFor="'applicant-birth-date'"
-                                            :name="'applicant[birthDate]'" :placeholder="'messages.applicant_birth_date_placeholder'" :label="'insurance.passport.birth_date'" />
+                                            :name="'applicant[birthDate]'" :placeholder="'messages.birth_date_placeholder'" :label="'messages.birth_date'" />
 
                                         <x-inputs.button :class="'col-md-3'" :button="'applicant-information-search-btn'" />
                                     </div>
@@ -50,21 +50,21 @@
                                 class="card-footer {{ old('applicant.lastName') ? '' : 'd-none' }}">
                                 <div class="row">
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-last-name'" :name="'applicant[lastName]'"
-                                        :label="'messages.applicant_last_name'" :placeholder="'messages.last_name_placeholder'" />
+                                        :label="'messages.last_name'" :placeholder="'messages.last_name_placeholder'" />
 
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-first-name'" :name="'applicant[firstName]'"
-                                        :label="'messages.applicant_first_name'" :placeholder="'messages.first_name_placeholder'" />
+                                        :label="'messages.first_name'" :placeholder="'messages.first_name_placeholder'" />
 
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant[middleName]'"
-                                        :label="'messages.applicant_middle_name'" :placeholder="'messages.middle_name_placeholder'" />
+                                        :label="'messages.middle_name'" :placeholder="'messages.middle_name_placeholder'" />
                                 </div>
 
                                 <div class="row">
                                     <x-inputs.input_info :class="'col-md-6'" :idFor="'applicant-address'" :name="'applicant[address]'"
-                                        :label="'messages.applicant_address'" :placeholder="'messages.address_placeholder'" />
+                                        :label="'messages.address'" :placeholder="'messages.address_placeholder'" />
 
                                     <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'applicant-phone-number'"
-                                        :name="'applicant[phoneNumber]'" :label="'messages.applicant_phone_number'" :placeholder="'messages.applicant_phone_number_placeholder'" />
+                                        :name="'applicant[phoneNumber]'" :label="'messages.phone_number'" :placeholder="'messages.phone_number_placeholder'" />
                                 </div>
 
                                 {{-- Hidden fields --}}
@@ -80,19 +80,19 @@
                         {{-- Owner Information --}}
                         <div id="owner-info" class="card {{ old('owner.lastName') ? '' : 'd-none' }}">
                             <div class="card-header">
-                                <h4 class="card-title">Mulk egasi ma'lumotlari</h4>
+                                <h4 class="card-title">{{ __('messages.owner_info_title') }}</h4>
                             </div>
                             <div class="card-body">
                                 <div id="owner-info-search">
                                     <div class="row align-items-start">
                                         <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'owner-passport-series'"
-                                            :name="'owner[passportSeries]'" :placeholder="'messages.owner_passport_series_placeholder'" :label="'messages.owner_passport_series'" />
+                                            :name="'owner[passportSeries]'" :placeholder="'messages.passport_series_placeholder'" :label="'messages.passport_series'" />
 
                                         <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'owner-passport-number'"
-                                            :name="'owner[passportNumber]'" :placeholder="'messages.owner_passport_number_placeholder'" :label="'messages.owner_passport_number'" />
+                                            :name="'owner[passportNumber]'" :placeholder="'messages.passport_number_placeholder'" :label="'messages.passport_number'" />
 
                                         <x-inputs.input_form :type="'date'" :class="'col-md-4'" :idFor="'owner-birth-date'"
-                                            :name="'owner[birthDate]'" :placeholder="'messages.owner_birth_date_placeholder'" :label="'insurance.passport.birth_date'" />
+                                            :name="'owner[birthDate]'" :placeholder="'messages.birth_date_placeholder'" :label="'messages.birth_date'" />
 
                                         <x-inputs.button :class="'col-md-3'" :button="'owner-information-search-btn'" />
                                     </div>
@@ -101,21 +101,21 @@
                             <div id="owner-info-display" class="card-footer {{ old('owner.lastName') ? '' : 'd-none' }}">
                                 <div class="row">
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'owner-last-name'" :name="'owner[lastName]'"
-                                        :label="'messages.owner_last_name'" :placeholder="'messages.last_name_placeholder'" />
+                                        :label="'messages.last_name'" :placeholder="'messages.last_name_placeholder'" />
 
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'owner-first-name'" :name="'owner[firstName]'"
-                                        :label="'messages.owner_first_name'" :placeholder="'messages.first_name_placeholder'" />
+                                        :label="'messages.first_name'" :placeholder="'messages.first_name_placeholder'" />
 
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'owner-middle-name'" :name="'owner[middleName]'"
-                                        :label="'messages.owner_middle_name'" :placeholder="'messages.middle_name_placeholder'" />
+                                        :label="'messages.middle_name'" :placeholder="'messages.middle_name_placeholder'" />
                                 </div>
 
                                 <div class="row">
                                     <x-inputs.input_info :class="'col-md-6'" :idFor="'owner-address'" :name="'owner[address]'"
-                                        :label="'messages.owner_address'" :placeholder="'messages.address_placeholder'" />
+                                        :label="'messages.address'" :placeholder="'messages.address_placeholder'" />
 
                                     <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'owner-phone-number'"
-                                        :name="'owner[phoneNumber]'" :label="'messages.owner_phone_number'" :placeholder="'messages.owner_phone_number_placeholder'" />
+                                        :name="'owner[phoneNumber]'" :label="'messages.phone_number'" :placeholder="'messages.phone_number_placeholder'" />
                                 </div>
 
                                 <div class="form-check mt-3">
@@ -235,18 +235,18 @@
                                         <label class="form-label" for="insurance-range">Sug'urta summasi</label>
                                         <div class="d-flex align-items-center justify-content-between">
                                             <span class="d-block">
-                                                <span id="value_amount">UZS 10,000,000.00</span>
+                                                <span id="value_amount">UZS 50,000,000.00</span>
                                             </span>
                                             <span class="d-block">
-                                                UZS 100,000,000.00
+                                                UZS 500,000,000.00
                                             </span>
                                         </div>
                                         <input class="w-100 range-after--input active" type="range"
-                                            id="insurance-range" name="insurance_amount" min="5000000" max="100000000"
-                                            step="1000000" value="{{ old('insurance_amount', 10000000) }}"
-                                            style="--premium-amount: 'UZS&nbsp;10,000,000.00';">
+                                            id="insurance-range" name="insurance_amount" min="50000000" max="500000000"
+                                            step="10000000" value="{{ old('insurance_amount', 10000000) }}"
+                                            style="--premium-amount: 'UZS&nbsp;100,000,000.00';">
                                         <input type="hidden" id="insuranceAmount" class="form-control"
-                                            value="{{ old('insurance_amount', 10000000) }}">
+                                            value="{{ old('insurance_amount', 100000000) }}">
                                     </div>
                                     <x-inputs.input_form :type="'date'" :class="'col-md-6'" :idFor="'payment-start-date'"
                                         :name="'payment_start_date'" :label="'messages.start_date'" :placeholder="'messages.start_date_placeholder'" />

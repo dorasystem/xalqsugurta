@@ -41,7 +41,7 @@ final class PropertyApplicationData
             'kvartiraNum' => $property['kvartiraNum'] ?? '',
             'neighborhood' => $property['neighborhood'] ?? '',
             'neighborhoodId' => $property['neighborhoodId'] ?? '',
-            'cost' => $property['cost'],
+            'cost' => $data['insurance_amount'],
         ];
 
         $ownerData = [
@@ -90,12 +90,17 @@ final class PropertyApplicationData
 
     public function toArray(): array
     {
+        // Calculate insurance premium (0.2% rate)
+        $insuranceRate = 0.2;
+        $insurancePremium = ($this->insuranceAmount * $insuranceRate) / 100;
+
         return [
             'cadasterNumber' => $this->cadasterNumber,
             'propertyData' => $this->propertyData,
             'ownerData' => $this->ownerData,
             'applicantData' => $this->applicantData,
             'insuranceAmount' => $this->insuranceAmount,
+            'insurancePremium' => $insurancePremium,
             'paymentStartDate' => $this->paymentStartDate,
             'paymentEndDate' => $this->paymentEndDate,
             'agreement' => $this->agreement,

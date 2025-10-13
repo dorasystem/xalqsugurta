@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'OSAGO - Ariza ma\'lumotlari')
+@section('title', __('insurance.accident.page_title'))
 
 @push('styles')
     <link href="{{ asset('assets/css/form.css') }}" rel="stylesheet">
@@ -12,7 +12,7 @@
             @if (session('error'))
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <i class="fas fa-exclamation-circle me-2"></i>
-                    <strong>Xatolik!</strong> {{ session('error') }}
+                    <strong>{{ __('insurance.accident.errors.error') }}</strong> {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
@@ -20,7 +20,7 @@
             @if ($errors->any())
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <i class="fas fa-exclamation-circle me-2"></i>
-                    <strong>Xatoliklar:</strong>
+                    <strong>{{ __('insurance.accident.errors.errors_title') }}</strong>
                     <ul class="mb-0 mt-2">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -38,9 +38,9 @@
                                 <div>
                                     <h3 class="card-title mb-0">
                                         <i class="fas fa-file-alt me-2"></i>
-                                        OSAGO Sug'urta Ariza Ma'lumotlari
+                                        {{ __('insurance.accident.title') }}
                                     </h3>
-                                    <p class="text-muted mb-0">Ariza ma'lumotlarini tekshirib, tasdiqlang</p>
+                                    <p class="text-muted mb-0">{{ __('insurance.accident.subtitle') }}</p>
                                 </div>
                                 {{-- Language Switcher --}}
                                 <div class="dropdown">
@@ -81,30 +81,34 @@
                                 <div class="col-12">
                                     <h5 class="border-bottom pb-2 mb-3">
                                         <i class="fas fa-user me-2 text-primary"></i>
-                                        Ariza Beruvchi Ma'lumotlari
+                                        {{ __('insurance.accident.applicant_info') }}
                                     </h5>
                                 </div>
                                 <div class="col-md-6">
                                     <table class="table table-bordered table-sm">
                                         <tbody>
                                             <tr>
-                                                <td class="fw-bold bg-light" style="width: 40%;">Familiya:</td>
-                                                <td>{{ $applicationData['applicantData']['lastName'] ?? 'Ko\'rsatilmagan' }}
+                                                <td class="fw-bold bg-light" style="width: 40%;">
+                                                    {{ __('insurance.accident.fields.last_name') }}</td>
+                                                <td>{{ $applicationData['applicantData']['lastName'] ?? __('insurance.accident.not_specified') }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">Ism:</td>
-                                                <td>{{ $applicationData['applicantData']['firstName'] ?? 'Ko\'rsatilmagan' }}
+                                                <td class="fw-bold bg-light">
+                                                    {{ __('insurance.accident.fields.first_name') }}</td>
+                                                <td>{{ $applicationData['applicantData']['firstName'] ?? __('insurance.accident.not_specified') }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">Otasining ismi:</td>
-                                                <td>{{ $applicationData['applicantData']['middleName'] ?? 'Ko\'rsatilmagan' }}
+                                                <td class="fw-bold bg-light">
+                                                    {{ __('insurance.accident.fields.middle_name') }}</td>
+                                                <td>{{ $applicationData['applicantData']['middleName'] ?? __('insurance.accident.not_specified') }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">Passport seriyasi:</td>
-                                                <td>{{ $applicationData['applicantData']['seria'] ?? 'Ko\'rsatilmagan' }}
+                                                <td class="fw-bold bg-light">
+                                                    {{ __('insurance.accident.fields.passport_series') }}</td>
+                                                <td>{{ $applicationData['applicantData']['seria'] ?? __('insurance.accident.not_specified') }}
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -114,23 +118,28 @@
                                     <table class="table table-bordered table-sm">
                                         <tbody>
                                             <tr>
-                                                <td class="fw-bold bg-light" style="width: 40%;">Passport raqami:</td>
-                                                <td>{{ $applicationData['applicantData']['number'] ?? 'Ko\'rsatilmagan' }}
+                                                <td class="fw-bold bg-light" style="width: 40%;">
+                                                    {{ __('insurance.accident.fields.passport_number') }}</td>
+                                                <td>{{ $applicationData['applicantData']['number'] ?? __('insurance.accident.not_specified') }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">Tug'ilgan sana:</td>
-                                                <td>{{ $applicationData['applicantData']['birthDate'] ?? 'Ko\'rsatilmagan' }}
+                                                <td class="fw-bold bg-light">
+                                                    {{ __('insurance.accident.fields.birth_date') }}</td>
+                                                <td>{{ $applicationData['applicantData']['birthDate'] ?? __('insurance.accident.not_specified') }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">Manzil:</td>
-                                                <td>{{ $applicationData['applicantData']['address'] ?? 'Ko\'rsatilmagan' }}
+                                                <td class="fw-bold bg-light">{{ __('insurance.accident.fields.address') }}
+                                                </td>
+                                                <td>{{ $applicationData['applicantData']['address'] ?? __('insurance.accident.not_specified') }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">Telefon:</td>
-                                                <td>{{ $applicationData['phone'] ?? 'Ko\'rsatilmagan' }}</td>
+                                                <td class="fw-bold bg-light">{{ __('insurance.accident.fields.phone') }}
+                                                </td>
+                                                <td>{{ $applicationData['phone'] ?? __('insurance.accident.not_specified') }}
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -142,30 +151,34 @@
                                 <div class="col-12">
                                     <h5 class="border-bottom pb-2 mb-3">
                                         <i class="fas fa-user-shield me-2 text-success"></i>
-                                        Sug'urta Qilinuvchi Shaxs Ma'lumotlari
+                                        {{ __('insurance.accident.insured_info') }}
                                     </h5>
                                 </div>
                                 <div class="col-md-6">
                                     <table class="table table-bordered table-sm">
                                         <tbody>
                                             <tr>
-                                                <td class="fw-bold bg-light" style="width: 40%;">Familiya:</td>
-                                                <td>{{ $applicationData['insuredInfo']['lastName'] ?? 'Ko\'rsatilmagan' }}
+                                                <td class="fw-bold bg-light" style="width: 40%;">
+                                                    {{ __('insurance.accident.fields.last_name') }}</td>
+                                                <td>{{ $applicationData['insuredInfo']['lastName'] ?? __('insurance.accident.not_specified') }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">Ism:</td>
-                                                <td>{{ $applicationData['insuredInfo']['firstName'] ?? 'Ko\'rsatilmagan' }}
+                                                <td class="fw-bold bg-light">
+                                                    {{ __('insurance.accident.fields.first_name') }}</td>
+                                                <td>{{ $applicationData['insuredInfo']['firstName'] ?? __('insurance.accident.not_specified') }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">Otasining ismi:</td>
-                                                <td>{{ $applicationData['insuredInfo']['middleName'] ?? 'Ko\'rsatilmagan' }}
+                                                <td class="fw-bold bg-light">
+                                                    {{ __('insurance.accident.fields.middle_name') }}</td>
+                                                <td>{{ $applicationData['insuredInfo']['middleName'] ?? __('insurance.accident.not_specified') }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">Passport seriyasi:</td>
-                                                <td>{{ $applicationData['insuredInfo']['seria'] ?? 'Ko\'rsatilmagan' }}
+                                                <td class="fw-bold bg-light">
+                                                    {{ __('insurance.accident.fields.passport_series') }}</td>
+                                                <td>{{ $applicationData['insuredInfo']['seria'] ?? __('insurance.accident.not_specified') }}
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -175,23 +188,28 @@
                                     <table class="table table-bordered table-sm">
                                         <tbody>
                                             <tr>
-                                                <td class="fw-bold bg-light" style="width: 40%;">Passport raqami:</td>
-                                                <td>{{ $applicationData['insuredInfo']['number'] ?? 'Ko\'rsatilmagan' }}
+                                                <td class="fw-bold bg-light" style="width: 40%;">
+                                                    {{ __('insurance.accident.fields.passport_number') }}</td>
+                                                <td>{{ $applicationData['insuredInfo']['number'] ?? __('insurance.accident.not_specified') }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">Tug'ilgan sana:</td>
-                                                <td>{{ $applicationData['insuredInfo']['birthDate'] ?? 'Ko\'rsatilmagan' }}
+                                                <td class="fw-bold bg-light">
+                                                    {{ __('insurance.accident.fields.birth_date') }}</td>
+                                                <td>{{ $applicationData['insuredInfo']['birthDate'] ?? __('insurance.accident.not_specified') }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">Manzil:</td>
-                                                <td>{{ $applicationData['insuredInfo']['address'] ?? 'Ko\'rsatilmagan' }}
+                                                <td class="fw-bold bg-light">{{ __('insurance.accident.fields.address') }}
+                                                </td>
+                                                <td>{{ $applicationData['insuredInfo']['address'] ?? __('insurance.accident.not_specified') }}
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">Telefon:</td>
-                                                <td>{{ $applicationData['phone'] ?? 'Ko\'rsatilmagan' }}</td>
+                                                <td class="fw-bold bg-light">{{ __('insurance.accident.fields.phone') }}
+                                                </td>
+                                                <td>{{ $applicationData['phone'] ?? __('insurance.accident.not_specified') }}
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -203,20 +221,23 @@
                                 <div class="col-12">
                                     <h5 class="border-bottom pb-2 mb-3">
                                         <i class="fas fa-shield-alt me-2 text-warning"></i>
-                                        Sug'urta Ma'lumotlari
+                                        {{ __('insurance.accident.insurance_info') }}
                                     </h5>
                                 </div>
                                 <div class="col-md-6">
                                     <table class="table table-bordered table-sm">
                                         <tbody>
                                             <tr>
-                                                <td class="fw-bold bg-light" style="width: 40%;">Sug'urta summasi:</td>
+                                                <td class="fw-bold bg-light" style="width: 40%;">
+                                                    {{ __('insurance.accident.fields.insurance_amount') }}</td>
                                                 <td class="text-success fw-bold">
                                                     {{ number_format($applicationData['insuranceAmount'] ?? 0) }} UZS</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">Boshlanish sanasi:</td>
-                                                <td>{{ $applicationData['paymentStartDate'] ?? 'Ko\'rsatilmagan' }}</td>
+                                                <td class="fw-bold bg-light">
+                                                    {{ __('insurance.accident.fields.start_date') }}</td>
+                                                <td>{{ $applicationData['paymentStartDate'] ?? __('insurance.accident.not_specified') }}
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -225,11 +246,14 @@
                                     <table class="table table-bordered table-sm">
                                         <tbody>
                                             <tr>
-                                                <td class="fw-bold bg-light" style="width: 40%;">Tugash sanasi:</td>
-                                                <td>{{ $applicationData['paymentEndDate'] ?? 'Ko\'rsatilmagan' }}</td>
+                                                <td class="fw-bold bg-light" style="width: 40%;">
+                                                    {{ __('insurance.accident.fields.end_date') }}</td>
+                                                <td>{{ $applicationData['paymentEndDate'] ?? __('insurance.accident.not_specified') }}
+                                                </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">Premium (0.3%):</td>
+                                                <td class="fw-bold bg-light">{{ __('insurance.accident.fields.premium') }}
+                                                </td>
                                                 <td class="text-success fw-bold">
                                                     {{ number_format((($applicationData['insuranceAmount'] ?? 0) * 0.3) / 100) }}
                                                     UZS</td>
@@ -244,75 +268,77 @@
                                 <div class="col-12">
                                     <h5 class="border-bottom pb-2 mb-3">
                                         <i class="fas fa-file-contract me-2 text-info"></i>
-                                        Ommaviy Oferta (Public Offer)
+                                        {{ __('insurance.accident.public_offer.title') }}
                                     </h5>
                                     <div class="card border-info">
                                         <div class="card-body">
                                             <h6 class="card-title text-info">
                                                 <i class="fas fa-gavel me-2"></i>
-                                                OSAGO Sug'urta Shartlari
+                                                {{ __('insurance.accident.public_offer.heading') }}
                                             </h6>
                                             <div class="text-justify"
                                                 style="max-height: 300px; overflow-y: auto; font-size: 0.9rem;">
-                                                <p><strong>1. Umumiy qoidalar:</strong></p>
+                                                <p><strong>1.
+                                                        {{ __('insurance.accident.public_offer.section_1') }}</strong></p>
                                                 <ul>
-                                                    <li>Ushbu sug'urta polisi O'zbekiston Respublikasi qonunchiligiga
-                                                        muvofiq tuzilgan.</li>
-                                                    <li>Sug'urta qiluvchi va sug'urta qilinuvchi o'rtasidagi munosabatlar
-                                                        shu shartnoma bilan tartibga solinadi.</li>
-                                                    <li>Barcha to'lovlar O'zbekiston so'mida amalga oshiriladi.</li>
+                                                    @foreach (__('insurance.accident.public_offer.section_1_items') as $item)
+                                                        <li>{{ $item }}</li>
+                                                    @endforeach
                                                 </ul>
 
-                                                <p><strong>2. Sug'urta qamrovi:</strong></p>
+                                                <p><strong>2.
+                                                        {{ __('insurance.accident.public_offer.section_2') }}</strong></p>
                                                 <ul>
-                                                    <li>Avtoulov egalarining uchinchi shaxslarga qarshi javobgarlik majburiy
-                                                        sug'urtasi (OSAGO)</li>
-                                                    <li>Sug'urta hodisasi sodir bo'lganda, sug'urta qilinuvchiga qo'shgan
-                                                        zarari uchun to'lov</li>
-                                                    <li>Maksimal sug'urta summasi:
+                                                    @foreach (__('insurance.accident.public_offer.section_2_items') as $item)
+                                                        <li>{{ $item }}</li>
+                                                    @endforeach
+                                                    <li>{{ __('insurance.accident.public_offer.section_2_max_amount') }}
                                                         {{ number_format($applicationData['insuranceAmount'] ?? 0) }} UZS
                                                     </li>
                                                 </ul>
 
-                                                <p><strong>3. Sug'urta hodisasi:</strong></p>
+                                                <p><strong>3.
+                                                        {{ __('insurance.accident.public_offer.section_3') }}</strong></p>
                                                 <ul>
-                                                    <li>Avtoulov harakati natijasida uchinchi shaxslarga jismoniy yoki
-                                                        moliyaviy zarar yetkazilganda</li>
-                                                    <li>Zarar miqdori sug'urta summasi doirasida qoplash</li>
-                                                    <li>24 soat ichida sug'urta qiluvchiga xabar berish majburiy</li>
+                                                    @foreach (__('insurance.accident.public_offer.section_3_items') as $item)
+                                                        <li>{{ $item }}</li>
+                                                    @endforeach
                                                 </ul>
 
-                                                <p><strong>4. To'lov shartlari:</strong></p>
+                                                <p><strong>4.
+                                                        {{ __('insurance.accident.public_offer.section_4') }}</strong></p>
                                                 <ul>
-                                                    <li>Sug'urta mukofoti:
+                                                    <li>{{ __('insurance.accident.public_offer.section_4_premium') }}
                                                         {{ number_format((($applicationData['insuranceAmount'] ?? 0) * 0.3) / 100) }}
                                                         UZS</li>
-                                                    <li>Sug'urta muddati: {{ $applicationData['paymentStartDate'] ?? '' }}
-                                                        dan {{ $applicationData['paymentEndDate'] ?? '' }} gacha</li>
-                                                    <li>To'lov shartnoma imzolangandan keyin darhol amalga oshiriladi</li>
+                                                    <li>{{ __('insurance.accident.public_offer.section_4_period') }}
+                                                        {{ $applicationData['paymentStartDate'] ?? '' }}
+                                                        {{ __('insurance.accident.public_offer.section_4_from_to') }}
+                                                        {{ $applicationData['paymentEndDate'] ?? '' }}
+                                                        {{ __('insurance.accident.public_offer.section_4_to') }}</li>
+                                                    <li>{{ __('insurance.accident.public_offer.section_4_payment') }}</li>
                                                 </ul>
 
-                                                <p><strong>5. Shartnomani bekor qilish:</strong></p>
+                                                <p><strong>5.
+                                                        {{ __('insurance.accident.public_offer.section_5') }}</strong></p>
                                                 <ul>
-                                                    <li>Sug'urta qilinuvchi tomonidan 14 kun ichida bekor qilish huquqi</li>
-                                                    <li>Sug'urta hodisasi sodir bo'lmagan taqdirda, sug'urta mukofotining
-                                                        90% qaytariladi</li>
-                                                    <li>Bekor qilish uchun yozma ariza taqdim etish kerak</li>
+                                                    @foreach (__('insurance.accident.public_offer.section_5_items') as $item)
+                                                        <li>{{ $item }}</li>
+                                                    @endforeach
                                                 </ul>
 
-                                                <p><strong>6. Boshqa shartlar:</strong></p>
+                                                <p><strong>6.
+                                                        {{ __('insurance.accident.public_offer.section_6') }}</strong></p>
                                                 <ul>
-                                                    <li>Ushbu shartnoma O'zbekiston Respublikasi qonunchiligiga muvofiq</li>
-                                                    <li>Nizolar hal qilinishida O'zbekiston Respublikasi sudlari vakolatli
-                                                    </li>
-                                                    <li>Shartnoma o'zbek tilida tuzilgan va unga amal qilinadi</li>
+                                                    @foreach (__('insurance.accident.public_offer.section_6_items') as $item)
+                                                        <li>{{ $item }}</li>
+                                                    @endforeach
                                                 </ul>
 
                                                 <div class="alert alert-info mt-3">
                                                     <i class="fas fa-info-circle me-2"></i>
-                                                    <strong>Diqqat:</strong> Ushbu shartlar to'liq o'qib chiqilgan va qabul
-                                                    qilingan deb hisoblanadi.
-                                                    Shartnoma imzolash orqali siz barcha shartlarga rozilik bildirasiz.
+                                                    <strong>{{ __('insurance.accident.public_offer.attention') }}</strong>
+                                                    {{ __('insurance.accident.public_offer.attention_text') }}
                                                 </div>
                                             </div>
                                         </div>
@@ -329,15 +355,14 @@
                                                 <input class="form-check-input" type="checkbox" id="confirm-data"
                                                     required>
                                                 <label class="form-check-label" for="confirm-data">
-                                                    <strong>Barcha ma'lumotlar to'g'ri ekanligini tasdiqlayman</strong>
+                                                    <strong>{{ __('insurance.accident.confirmation.confirm_data') }}</strong>
                                                 </label>
                                             </div>
                                             <div class="form-check mb-3">
                                                 <input class="form-check-input" type="checkbox" id="confirm-offer"
                                                     required>
                                                 <label class="form-check-label" for="confirm-offer">
-                                                    <strong>Ommaviy ofertani o'qib chiqdim va barcha shartlarga
-                                                        roziman</strong>
+                                                    <strong>{{ __('insurance.accident.confirmation.confirm_offer') }}</strong>
                                                 </label>
                                             </div>
                                             <form
@@ -348,12 +373,12 @@
                                                     <button type="submit" class="btn btn-success"
                                                         id="confirm-application" disabled>
                                                         <i class="fas fa-check me-2"></i>
-                                                        To'lovga O'tish
+                                                        {{ __('insurance.accident.confirmation.proceed_to_payment') }}
                                                     </button>
                                                     <a href="{{ route('accident.main', ['locale' => getCurrentLocale()]) }}"
                                                         class="btn btn-secondary">
                                                         <i class="fas fa-arrow-left me-2"></i>
-                                                        Orqaga Qaytish
+                                                        {{ __('insurance.accident.confirmation.back') }}
                                                     </a>
                                                 </div>
                                             </form>
@@ -396,7 +421,7 @@
                 storageForm.addEventListener('submit', function(e) {
                     // Show loading state
                     confirmBtn.innerHTML =
-                        '<span class="spinner-border spinner-border-sm me-2"></span>Buyurtma yaratilmoqda...';
+                        '<span class="spinner-border spinner-border-sm me-2"></span>{{ __('insurance.accident.confirmation.creating_order') }}';
                     confirmBtn.disabled = true;
                 });
 

@@ -82,24 +82,25 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label fw-bold">Kadastr raqami</label>
                                     <p class="form-control-plaintext">
-                                        {{ $applicationData['property']['cadasterNumber'] ?? 'N/A' }}</p>
+                                        {{ $applicationData['propertyData']['cadasterNumber'] ?? 'N/A' }}</p>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label fw-bold">Manzil</label>
                                     <p class="form-control-plaintext">
-                                        {{ $applicationData['property']['address'] ?? 'N/A' }}
+                                        {{ $applicationData['propertyData']['address'] ?? 'N/A' }}
                                     </p>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label fw-bold">Maydoni</label>
-                                    <p class="form-control-plaintext">{{ $applicationData['property']['area'] ?? 'N/A' }}
+                                    <p class="form-control-plaintext">
+                                        {{ $applicationData['propertyData']['objectArea'] ?? 'N/A' }}
                                         m²
                                     </p>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label fw-bold">Narxi</label>
                                     <p class="form-control-plaintext">
-                                        {{ number_format($applicationData['property']['price'] ?? 0) }} UZS</p>
+                                        {{ number_format($applicationData['propertyData']['cost'] ?? 0) }} UZS</p>
                                 </div>
                             </div>
 
@@ -113,23 +114,25 @@
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label fw-bold">Familiyasi</label>
-                                    <p class="form-control-plaintext">{{ $applicationData['owner']['lastName'] ?? 'N/A' }}
+                                    <p class="form-control-plaintext">
+                                        {{ $applicationData['ownerData']['lastName'] ?? 'N/A' }}
                                     </p>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label fw-bold">Ismi</label>
-                                    <p class="form-control-plaintext">{{ $applicationData['owner']['firstName'] ?? 'N/A' }}
+                                    <p class="form-control-plaintext">
+                                        {{ $applicationData['ownerData']['firstName'] ?? 'N/A' }}
                                     </p>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label fw-bold">Otasining ismi</label>
                                     <p class="form-control-plaintext">
-                                        {{ $applicationData['owner']['middleName'] ?? 'N/A' }}</p>
+                                        {{ $applicationData['ownerData']['middleName'] ?? 'N/A' }}</p>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label fw-bold">Telefon raqami</label>
                                     <p class="form-control-plaintext">
-                                        {{ $applicationData['owner']['phoneNumber'] ?? 'N/A' }}</p>
+                                        {{ $applicationData['ownerData']['phoneNumber'] ?? 'N/A' }}</p>
                                 </div>
                             </div>
 
@@ -144,22 +147,22 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label fw-bold">Familiyasi</label>
                                     <p class="form-control-plaintext">
-                                        {{ $applicationData['applicant']['lastName'] ?? 'N/A' }}</p>
+                                        {{ $applicationData['applicantData']['lastName'] ?? 'N/A' }}</p>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label fw-bold">Ismi</label>
                                     <p class="form-control-plaintext">
-                                        {{ $applicationData['applicant']['firstName'] ?? 'N/A' }}</p>
+                                        {{ $applicationData['applicantData']['firstName'] ?? 'N/A' }}</p>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label fw-bold">Otasining ismi</label>
                                     <p class="form-control-plaintext">
-                                        {{ $applicationData['applicant']['middleName'] ?? 'N/A' }}</p>
+                                        {{ $applicationData['applicantData']['middleName'] ?? 'N/A' }}</p>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label fw-bold">Telefon raqami</label>
                                     <p class="form-control-plaintext">
-                                        {{ $applicationData['applicant']['phoneNumber'] ?? 'N/A' }}</p>
+                                        {{ $applicationData['applicantData']['phoneNumber'] ?? 'N/A' }}</p>
                                 </div>
                             </div>
 

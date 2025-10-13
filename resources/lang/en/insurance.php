@@ -35,4 +35,92 @@ return [
         'telephone_number_placeholder' => '+998xxxxxxxxx',
         'placeholder' => 'Enter information',
     ],
+
+    'accident' => [
+        'page_title' => 'MTPL - Application Details',
+        'title' => 'MTPL Insurance Application Details',
+        'subtitle' => 'Review and confirm application details',
+        'applicant_info' => 'Applicant Information',
+        'insured_info' => 'Insured Person Information',
+        'insurance_info' => 'Insurance Information',
+        'not_specified' => 'Not specified',
+
+        'fields' => [
+            'last_name' => 'Last Name:',
+            'first_name' => 'First Name:',
+            'middle_name' => 'Middle Name:',
+            'passport_series' => 'Passport Series:',
+            'passport_number' => 'Passport Number:',
+            'birth_date' => 'Date of Birth:',
+            'address' => 'Address:',
+            'phone' => 'Phone:',
+            'insurance_amount' => 'Insurance Amount:',
+            'start_date' => 'Start Date:',
+            'end_date' => 'End Date:',
+            'premium' => 'Premium (0.3%):',
+        ],
+
+        'public_offer' => [
+            'title' => 'Public Offer',
+            'heading' => 'MTPL Insurance Terms',
+
+            'section_1' => 'General Provisions:',
+            'section_1_items' => [
+                'This insurance policy is drawn up in accordance with the legislation of the Republic of Uzbekistan.',
+                'Relations between the insurer and the insured are regulated by this contract.',
+                'All payments are made in Uzbek sums.',
+            ],
+
+            'section_2' => 'Insurance Coverage:',
+            'section_2_items' => [
+                'Mandatory third party liability insurance for vehicle owners (MTPL)',
+                'Payment for damage caused to the insured person in the event of an insured event',
+            ],
+            'section_2_max_amount' => 'Maximum insurance amount:',
+
+            'section_3' => 'Insurance Event:',
+            'section_3_items' => [
+                'When physical or material damage is caused to third parties as a result of vehicle movement',
+                'Damage coverage within the insurance amount',
+                'It is mandatory to notify the insurer within 24 hours',
+            ],
+
+            'section_4' => 'Payment Terms:',
+            'section_4_premium' => 'Insurance premium:',
+            'section_4_period' => 'Insurance period:',
+            'section_4_from_to' => 'from',
+            'section_4_to' => 'to',
+            'section_4_payment' => 'Payment is made immediately after signing the contract',
+
+            'section_5' => 'Contract Termination:',
+            'section_5_items' => [
+                'The right of the insured to terminate within 14 days',
+                'If no insured event has occurred, 90% of the insurance premium is refunded',
+                'A written application must be submitted for termination',
+            ],
+
+            'section_6' => 'Other Terms:',
+            'section_6_items' => [
+                'This contract is drawn up in accordance with the legislation of the Republic of Uzbekistan',
+                'Courts of the Republic of Uzbekistan are competent in resolving disputes',
+                'The contract is drawn up in Uzbek and is subject to execution',
+            ],
+
+            'attention' => 'Attention:',
+            'attention_text' => 'These terms are considered to have been fully read and accepted. By signing the contract, you agree to all the terms.',
+        ],
+
+        'confirmation' => [
+            'confirm_data' => 'I confirm that all information is correct',
+            'confirm_offer' => 'I have read the public offer and agree to all terms',
+            'proceed_to_payment' => 'Proceed to Payment',
+            'back' => 'Go Back',
+            'creating_order' => 'Creating order...',
+        ],
+
+        'errors' => [
+            'error' => 'Error!',
+            'errors_title' => 'Errors:',
+        ],
+    ],
 ];

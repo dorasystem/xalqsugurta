@@ -40,7 +40,6 @@ final class PropertyApplicationRequest extends FormRequest
             'property.kvartiraNum' => ['nullable', 'string', 'max:50'],
             'property.neighborhood' => ['nullable', 'string', 'max:255'],
             'property.neighborhoodId' => ['nullable', 'string'],
-            'property.cost' => ['required', 'numeric', 'min:1000000'],
 
             // Owner passport info
             'owner.passportSeries' => ['required', 'string', 'size:2'],
@@ -52,7 +51,7 @@ final class PropertyApplicationRequest extends FormRequest
             'owner.firstName' => ['required', 'string', 'max:255'],
             'owner.middleName' => ['nullable', 'string', 'max:255'],
             'owner.address' => ['required', 'string', 'max:500'],
-            'owner.phoneNumber' => ['required', 'string', 'regex:/^\+998\s?\d{2}\s?\d{3}\s?\d{2}\s?\d{2}$/'],
+            'owner.phoneNumber' => ['required', 'string'],
             'owner.pinfl' => ['nullable', 'string', 'size:14'],
             'owner.inn' => ['nullable', 'string', 'max:50'],
             'owner.type' => ['nullable', 'string'],
@@ -69,13 +68,13 @@ final class PropertyApplicationRequest extends FormRequest
             'applicant.firstName' => ['required', 'string', 'max:255'],
             'applicant.middleName' => ['nullable', 'string', 'max:255'],
             'applicant.address' => ['required', 'string', 'max:500'],
-            'applicant.phoneNumber' => ['required', 'string', 'regex:/^\+998\s?\d{2}\s?\d{3}\s?\d{2}\s?\d{2}$/'],
+            'applicant.phoneNumber' => ['required', 'string'],
             'applicant.pinfl' => ['nullable', 'string', 'size:14'],
             'applicant.inn' => ['nullable', 'string', 'max:50'],
             'applicant.gender' => ['nullable', 'string', 'in:1,2'],
 
             // Insurance calculation
-            'insurance_amount' => ['required', 'numeric', 'min:5000000', 'max:100000000'],
+            'insurance_amount' => ['required', 'numeric', 'min:50000000', 'max:500000000'],
             'payment_start_date' => ['required', 'date', 'after_or_equal:today'],
             'payment_end_date' => ['required', 'date', 'after:payment_start_date'],
 
@@ -93,7 +92,6 @@ final class PropertyApplicationRequest extends FormRequest
         return [
             'property.cadasterNumber' => 'Kadastr raqami',
             'property.address' => 'Mulk manzili',
-            'property.cost' => 'Mulk qiymati',
 
             'owner.passportSeries' => __('messages.owner_passport_series'),
             'owner.passportNumber' => __('messages.owner_passport_number'),

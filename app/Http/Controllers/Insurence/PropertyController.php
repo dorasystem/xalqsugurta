@@ -12,6 +12,7 @@ use App\Services\PropertyService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 final class PropertyController extends Controller
@@ -48,6 +49,8 @@ final class PropertyController extends Controller
             // Create DTO from validated request data
             $applicationData = PropertyApplicationData::fromRequest($request->validated());
 
+
+
             // Execute the action to send data to API
             $result = $action->execute($applicationData);
 
@@ -66,11 +69,10 @@ final class PropertyController extends Controller
             // Pass the structured data to the view
             return view('pages.insurence.property.application', [
                 'applicationData' => $applicationData->toArray(),
-                'apiResponse' => $result['data'],
             ]);
         } catch (\Exception $e) {
             return back()
-                ->withErrors(['error' => 'Xatolik yuz berdi: ' . $e->getMessage()])
+                ->withErrors(['error' => 'Xatolik yimage.pnguz berdi: ' . $e->getMessage()])
                 ->withInput();
         }
     }
@@ -80,7 +82,7 @@ final class PropertyController extends Controller
         try {
             // Get application data from session
             if (!session()->has('property_application_data')) {
-                \Log::warning('Property storage: Session data not found');
+                Log::warning('Property storage: Session data not found');
                 return redirect()->route('property.main', ['locale' => getCurrentLocale()])
                     ->with('error', 'Ariza ma\'lumotlari topilmadi. Iltimos, qaytadan ariza to\'ldiring.');
             }
@@ -88,7 +90,7 @@ final class PropertyController extends Controller
             $applicationData = session('property_application_data');
             $apiResponse = session('property_api_response');
 
-            \Log::info('Property storage: Creating order', [
+            Log::info('Property storage: Creating order', [
                 'has_application_data' => !empty($applicationData),
                 'has_api_response' => !empty($apiResponse),
             ]);
@@ -107,7 +109,7 @@ final class PropertyController extends Controller
 
             $order = $this->orderService->createOrder($orderData);
 
-            \Log::info('Property storage: Order created successfully', ['order_id' => $order->id]);
+            Log::info('Property storage: Order created successfully', ['order_id' => $order->id]);
 
             // Redirect to payment page with orderId
             return redirect()->route('property.payment', [
@@ -115,7 +117,7 @@ final class PropertyController extends Controller
                 'orderId' => $order->id,
             ]);
         } catch (\Exception $e) {
-            \Log::error('Property storage: Failed to create order', [
+            Log::error('Property storage: Failed to create order', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);

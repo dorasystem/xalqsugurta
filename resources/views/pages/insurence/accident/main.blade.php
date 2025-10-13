@@ -32,14 +32,14 @@
                             <div class="card-body">
                                 <div id="applicant-info-search">
                                     <div class="row align-items-start">
-                                        <x-inputs.input_form :type="'text'" :class="'col-md-2 ?>'" :idFor="'applicant-passport-series'"
-                                            :name="'applicant[passportSeries]'" :placeholder="'messages.applicant_passport_series_placeholder'" :label="'messages.applicant_passport_series'" />
+                                        <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'applicant-passport-series'"
+                                            :name="'applicant[passportSeries]'" :placeholder="'messages.passport_series_placeholder'" :label="'messages.passport_series'" />
 
                                         <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'applicant-passport-number'"
-                                            :name="'applicant[passportNumber]'" :placeholder="'messages.applicant_passport_number_placeholder'" :label="'messages.applicant_passport_number'" />
+                                            :name="'applicant[passportNumber]'" :placeholder="'messages.passport_number_placeholder'" :label="'messages.passport_number'" />
 
                                         <x-inputs.input_form :type="'date'" :class="'col-md-4'" :idFor="'applicant-birth-date'"
-                                            :name="'applicant[birthDate]'" :placeholder="'messages.applicant_birth_date_placeholder'" :label="'insurance.passport.birth_date'" />
+                                            :name="'applicant[birthDate]'" :placeholder="'messages.birth_date_placeholder'" :label="'messages.birth_date'" />
 
                                         <x-inputs.button :class="'col-md-3'" :button="'applicant-information-search-btn'" />
                                     </div>
@@ -50,21 +50,21 @@
                                 class="card-footer {{ old('applicant.lastName') ? '' : 'd-none' }}">
                                 <div class="row">
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-last-name'" :name="'applicant[lastName]'"
-                                        :label="'messages.applicant_last_name'" :placeholder="'messages.last_name_placeholder'" />
+                                        :label="'messages.last_name'" :placeholder="'messages.last_name_placeholder'" />
 
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-first-name'" :name="'applicant[firstName]'"
-                                        :label="'messages.applicant_first_name'" :placeholder="'messages.first_name_placeholder'" />
+                                        :label="'messages.first_name'" :placeholder="'messages.first_name_placeholder'" />
 
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant[middleName]'"
-                                        :label="'messages.applicant_middle_name'" :placeholder="'messages.middle_name_placeholder'" />
+                                        :label="'messages.middle_name'" :placeholder="'messages.middle_name_placeholder'" />
                                 </div>
 
                                 <div class="row">
                                     <x-inputs.input_info :class="'col-md-6'" :idFor="'applicant-address'" :name="'applicant[address]'"
-                                        :label="'messages.applicant_address'" :placeholder="'messages.address_placeholder'" />
+                                        :label="'messages.address'" :placeholder="'messages.address_placeholder'" />
 
                                     <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'applicant-phone-number'"
-                                        :name="'applicant[phoneNumber]'" :label="'messages.applicant_phone_number'" :placeholder="'messages.applicant_phone_number_placeholder'" />
+                                        :name="'applicant[phoneNumber]'" :label="'messages.phone_number'" :placeholder="'messages.phone_number_placeholder'" />
                                 </div>
 
                                 {{-- Hidden fields for additional applicant data --}}
@@ -99,13 +99,13 @@
                                 <div id="client-info-search">
                                     <div class="row align-items-start">
                                         <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'client-passport-series'"
-                                            :name="'client[passportSeries]'" :placeholder="'insurance.passport.placeholder'" :label="'insurance.passport.series'" />
+                                            :name="'client[passportSeries]'" :placeholder="'messages.passport_series_placeholder'" :label="'messages.passport_series'" />
 
                                         <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'client-passport-number'"
-                                            :name="'client[passportNumber]'" :placeholder="'insurance.passport.placeholder'" :label="'insurance.passport.number'" />
+                                            :name="'client[passportNumber]'" :placeholder="'messages.passport_number_placeholder'" :label="'messages.passport_number'" />
 
                                         <x-inputs.input_form :type="'date'" :class="'col-md-4'" :idFor="'client-birth-date'"
-                                            :name="'client[birthDate]'" :placeholder="'insurance.passport.placeholder'" :label="'insurance.passport.birth_date'" />
+                                            :name="'client[birthDate]'" :placeholder="'messages.birth_date_placeholder'" :label="'messages.birth_date'" />
 
                                         <x-inputs.button :class="'col-md-3'" :button="'client-information-search-btn'" />
                                     </div>
@@ -115,21 +115,21 @@
                             <div id="client-info-display" class="card-footer {{ old('client.lastName') ? '' : 'd-none' }}">
                                 <div class="row">
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'client-last-name'" :name="'client[lastName]'"
-                                        :label="'insurance.person.last_name'" :placeholder="'messages.last_name_placeholder'" />
+                                        :label="'messages.last_name'" :placeholder="'messages.last_name_placeholder'" />
 
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'client-first-name'" :name="'client[firstName]'"
-                                        :label="'insurance.person.first_name'" :placeholder="'messages.first_name_placeholder'" />
+                                        :label="'messages.first_name'" :placeholder="'messages.first_name_placeholder'" />
 
                                     <x-inputs.input_info :class="'col-md-4'" :idFor="'client-middle-name'" :name="'client[middleName]'"
-                                        :label="'insurance.person.middle_name'" :placeholder="'messages.middle_name_placeholder'" />
+                                        :label="'messages.middle_name'" :placeholder="'messages.middle_name_placeholder'" />
                                 </div>
 
                                 <div class="row">
                                     <x-inputs.input_info :class="'col-md-6'" :idFor="'client-address'" :name="'client[address]'"
-                                        :label="'insurance.person.address'" :placeholder="'messages.address_placeholder'" />
+                                        :label="'messages.address'" :placeholder="'messages.address_placeholder'" />
 
                                     <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'client-phone-number'"
-                                        :name="'client[phoneNumber]'" :label="'insurance.person.telephone_number'" :placeholder="'insurance.person.telephone_number_placeholder'" />
+                                        :name="'client[phoneNumber]'" :label="'messages.phone_number'" :placeholder="'messages.phone_number_placeholder'" />
                                 </div>
 
                                 {{-- Hidden fields for additional client data --}}
