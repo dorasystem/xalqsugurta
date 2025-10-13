@@ -33,50 +33,57 @@
                                 <div id="applicant-info-search">
                                     <div class="row align-items-start">
                                         <x-inputs.input_form :type="'text'" :class="'col-md-2 ?>'" :idFor="'applicant-passport-series'"
-                                            :name="'applicant_passport_series'" :placeholder="'messages.applicant_passport_series_placeholder'" :label="'messages.applicant_passport_series'" />
+                                            :name="'applicant[passportSeries]'" :placeholder="'messages.applicant_passport_series_placeholder'" :label="'messages.applicant_passport_series'" />
 
                                         <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'applicant-passport-number'"
-                                            :name="'applicant_passport_number'" :placeholder="'messages.applicant_passport_number_placeholder'" :label="'messages.applicant_passport_number'" />
+                                            :name="'applicant[passportNumber]'" :placeholder="'messages.applicant_passport_number_placeholder'" :label="'messages.applicant_passport_number'" />
 
                                         <x-inputs.input_form :type="'date'" :class="'col-md-4'" :idFor="'applicant-birth-date'"
-                                            :name="'applicant_birthDate'" :placeholder="'messages.applicant_birth_date_placeholder'" :label="'insurance.passport.birth_date'" />
+                                            :name="'applicant[birthDate]'" :placeholder="'messages.applicant_birth_date_placeholder'" :label="'insurance.passport.birth_date'" />
 
                                         <x-inputs.button :class="'col-md-3'" :button="'applicant-information-search-btn'" />
                                     </div>
                                 </div>
 
                             </div>
-                            <div id="applicant-info-display" class="card-footer d-none">
+                            <div id="applicant-info-display"
+                                class="card-footer {{ old('applicant.lastName') ? '' : 'd-none' }}">
                                 <div class="row">
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-last-name'" :name="'applicant_last_name'"
-                                        :label="'messages.applicant_last_name'" :placeholder="'last_name_placeholder'" />
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-last-name'" :name="'applicant[lastName]'"
+                                        :label="'messages.applicant_last_name'" :placeholder="'messages.last_name_placeholder'" />
 
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-first-name'" :name="'applicant_first_name'"
-                                        :label="'messages.applicant_first_name'" :placeholder="'first_name_placeholder'" />
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-first-name'" :name="'applicant[firstName]'"
+                                        :label="'messages.applicant_first_name'" :placeholder="'messages.first_name_placeholder'" />
 
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant_middle_name'"
-                                        :label="'messages.applicant_middle_name'" :placeholder="'middle_name_placeholder'" />
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant[middleName]'"
+                                        :label="'messages.applicant_middle_name'" :placeholder="'messages.middle_name_placeholder'" />
                                 </div>
 
                                 <div class="row">
-                                    <x-inputs.input_info :class="'col-md-6'" :idFor="'applicant-address'" :name="'applicant_address'"
-                                        :label="'messages.applicant_address'" :placeholder="'address_placeholder'" />
+                                    <x-inputs.input_info :class="'col-md-6'" :idFor="'applicant-address'" :name="'applicant[address]'"
+                                        :label="'messages.applicant_address'" :placeholder="'messages.address_placeholder'" />
 
                                     <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'applicant-phone-number'"
-                                        :name="'applicant_phone_number'" :label="'messages.applicant_phone_number'" :placeholder="'messages.applicant_phone_number_placeholder'" />
+                                        :name="'applicant[phoneNumber]'" :label="'messages.applicant_phone_number'" :placeholder="'messages.applicant_phone_number_placeholder'" />
                                 </div>
 
                                 {{-- Hidden fields for additional applicant data --}}
-                                <input type="hidden" id="applicant-pinfl" name="applicant_pinfl">
-                                <input type="hidden" id="applicant-birth-place" name="applicant_birth_place">
-                                <input type="hidden" id="applicant-birth-country" name="applicant_birth_country">
-                                <input type="hidden" id="applicant-gender" name="applicant_gender">
-                                <input type="hidden" id="applicant-region-id" name="applicant_region_id">
-                                <input type="hidden" id="applicant-district-id" name="applicant_district_id">
+                                <input type="hidden" id="applicant-pinfl" name="applicant[pinfl]"
+                                    value="{{ old('applicant.pinfl') }}">
+                                <input type="hidden" id="applicant-birth-place" name="applicant[birthPlace]"
+                                    value="{{ old('applicant.birthPlace') }}">
+                                <input type="hidden" id="applicant-birth-country" name="applicant[birthCountry]"
+                                    value="{{ old('applicant.birthCountry', 'УЗБЕКИСТАН') }}">
+                                <input type="hidden" id="applicant-gender" name="applicant[gender]"
+                                    value="{{ old('applicant.gender', '1') }}">
+                                <input type="hidden" id="applicant-region-id" name="applicant[regionId]"
+                                    value="{{ old('applicant.regionId') }}">
+                                <input type="hidden" id="applicant-district-id" name="applicant[districtId]"
+                                    value="{{ old('applicant.districtId') }}">
 
                                 <div class="form-check ">
                                     <input class="form-check-input" value="1" type="checkbox" id="is-applicant-owner"
-                                        name="is_applicant_owner">
+                                        name="is_applicant_owner" {{ old('is_applicant_owner') ? 'checked' : '' }}>
                                     <label class="form-check-label" for="is-applicant-owner">
                                         {{ __('messages.is_applicant_owner') }}
                                     </label>
@@ -84,7 +91,7 @@
                             </div>
 
                         </div>
-                        <div id="client-info" class="card">
+                        <div id="client-info" class="card d-none">
                             <div class="card-header">
                                 <h4 class="card-title">{{ __('insurance.client.title') }}</h4>
                             </div>
@@ -92,50 +99,56 @@
                                 <div id="client-info-search">
                                     <div class="row align-items-start">
                                         <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'client-passport-series'"
-                                            :name="'client_passport_series'" :placeholder="'insurance.passport.placeholder'" :label="'insurance.passport.series'" />
+                                            :name="'client[passportSeries]'" :placeholder="'insurance.passport.placeholder'" :label="'insurance.passport.series'" />
 
                                         <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'client-passport-number'"
-                                            :name="'client_passport_number'" :placeholder="'insurance.passport.placeholder'" :label="'insurance.passport.number'" />
+                                            :name="'client[passportNumber]'" :placeholder="'insurance.passport.placeholder'" :label="'insurance.passport.number'" />
 
                                         <x-inputs.input_form :type="'date'" :class="'col-md-4'" :idFor="'client-birth-date'"
-                                            :name="'client_birthDate'" :placeholder="'insurance.passport.placeholder'" :label="'insurance.passport.birth_date'" />
+                                            :name="'client[birthDate]'" :placeholder="'insurance.passport.placeholder'" :label="'insurance.passport.birth_date'" />
 
                                         <x-inputs.button :class="'col-md-3'" :button="'client-information-search-btn'" />
                                     </div>
                                 </div>
 
                             </div>
-                            <div id="client-info-display" class="card-footer d-none">
+                            <div id="client-info-display" class="card-footer {{ old('client.lastName') ? '' : 'd-none' }}">
                                 <div class="row">
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'client-last-name'" :name="'client_last_name'"
-                                        :label="'insurance.person.last_name'" :placeholder="'insurance.person.placeholder'" />
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'client-last-name'" :name="'client[lastName]'"
+                                        :label="'insurance.person.last_name'" :placeholder="'messages.last_name_placeholder'" />
 
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'client-first-name'" :name="'client_first_name'"
-                                        :label="'insurance.person.first_name'" :placeholder="'insurance.person.placeholder'" />
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'client-first-name'" :name="'client[firstName]'"
+                                        :label="'insurance.person.first_name'" :placeholder="'messages.first_name_placeholder'" />
 
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'client-middle-name'" :name="'client_middle_name'"
-                                        :label="'insurance.person.middle_name'" :placeholder="'insurance.person.placeholder'" />
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'client-middle-name'" :name="'client[middleName]'"
+                                        :label="'insurance.person.middle_name'" :placeholder="'messages.middle_name_placeholder'" />
                                 </div>
 
                                 <div class="row">
-                                    <x-inputs.input_info :class="'col-md-6'" :idFor="'client-address'" :name="'client_address'"
-                                        :label="'insurance.person.address'" :placeholder="'insurance.person.placeholder'" />
+                                    <x-inputs.input_info :class="'col-md-6'" :idFor="'client-address'" :name="'client[address]'"
+                                        :label="'insurance.person.address'" :placeholder="'messages.address_placeholder'" />
 
                                     <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'client-phone-number'"
-                                        :name="'client_phone_number'" :label="'insurance.person.telephone_number'" :placeholder="'insurance.person.telephone_number_placeholder'" />
+                                        :name="'client[phoneNumber]'" :label="'insurance.person.telephone_number'" :placeholder="'insurance.person.telephone_number_placeholder'" />
                                 </div>
 
                                 {{-- Hidden fields for additional client data --}}
-                                <input type="hidden" id="client-pinfl" name="client_pinfl">
-                                <input type="hidden" id="client-birth-place" name="client_birth_place">
-                                <input type="hidden" id="client-birth-country" name="client_birth_country">
-                                <input type="hidden" id="client-gender" name="client_gender">
-                                <input type="hidden" id="client-region-id" name="client_region_id">
-                                <input type="hidden" id="client-district-id" name="client_district_id">
+                                <input type="hidden" id="client-pinfl" name="client[pinfl]"
+                                    value="{{ old('client.pinfl') }}">
+                                <input type="hidden" id="client-birth-place" name="client[birthPlace]"
+                                    value="{{ old('client.birthPlace') }}">
+                                <input type="hidden" id="client-birth-country" name="client[birthCountry]"
+                                    value="{{ old('client.birthCountry', 'УЗБЕКИСТАН') }}">
+                                <input type="hidden" id="client-gender" name="client[gender]"
+                                    value="{{ old('client.gender', '1') }}">
+                                <input type="hidden" id="client-region-id" name="client[regionId]"
+                                    value="{{ old('client.regionId') }}">
+                                <input type="hidden" id="client-district-id" name="client[districtId]"
+                                    value="{{ old('client.districtId') }}">
                             </div>
                         </div>
 
-                        <div class="card" id="calculation">
+                        <div class="card d-none" id="calculation">
                             <div class="card-header">
                                 <h4 class="card-title">{{ __('messages.calculation_title') }}</h4>
                             </div>
@@ -154,30 +167,21 @@
                                         </div>
                                         <input class="w-100 range-after--input active" type="range" id="price-range"
                                             name="insurance_amount" min="5000000" max="50000000" step="1000000"
-                                            value="12000000" style="--premium-amount: 'UZS&nbsp;12,000,000.00';">
+                                            value="{{ old('insurance_amount', 12000000) }}"
+                                            style="--premium-amount: 'UZS&nbsp;12,000,000.00';">
                                         </span>
-                                        <input type="hidden" id="premiumAmount" class="form-control" value="12000000"
-                                            disabled="">
+                                        <input type="hidden" id="premiumAmount" class="form-control"
+                                            value="{{ old('insurance_amount', 12000000) }}" disabled="">
                                     </div>
                                     <x-inputs.input_form :type="'date'" :class="'col-md-4'" :idFor="'payment-start-date'"
                                         :name="'payment_start_date'" :label="'messages.start_date'" :placeholder="'messages.start_date_placeholder'" />
                                     <x-inputs.input_form :type="'date'" :class="'col-md-4'" :idFor="'payment-end-date'"
-                                        :disabled="true" :name="'payment_end_date'" :label="'messages.start_date'" :placeholder="'messages.start_date_placeholder'" />
+                                        :readonly="true" :name="'payment_end_date'" :label="'messages.start_date'" :placeholder="'messages.start_date_placeholder'" />
+                                    <x-inputs.button :type="'submit'" :class="'col-md-3'" :button="'payment-btn'" />
+
                                 </div>
-                                <div class="row mt-3">
-                                    <div class="col-md-12">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="agreement"
-                                                name="agreement" required>
-                                            <label class="form-check-label" for="agreement">
-                                                {{ __('messages.agreement_text', ['default' => 'Men shartlar va qoidalar bilan tanishib chiqdim va roziman']) }}
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row mt-3">
-                                    <x-inputs.button :type="'submit'" :class="'col-md-4'" :button="'payment-btn'" />
-                                </div>
+
+
                             </div>
 
                         </div>
@@ -234,6 +238,7 @@
                                 'applicant-district-id').value;
 
                             document.getElementById('client-info-display').classList.remove('d-none');
+                            document.getElementById('calculation').classList.remove('d-none');
                         } else {
                             // Clear visible fields
                             document.getElementById('client-passport-series').value = '';
@@ -253,6 +258,7 @@
                             document.getElementById('client-district-id').value = '';
 
                             document.getElementById('client-info-display').classList.add('d-none');
+                            document.getElementById('calculation').classList.add('d-none');
                         }
                     }
                 };
@@ -262,6 +268,17 @@
 
                 // Initialize on page load
                 toggleClientApplication();
+
+                // If old values exist, show the display sections
+                @if (old('applicant.lastName'))
+                    document.getElementById('applicant-info-display').classList.remove('d-none');
+                    document.getElementById('client-info').classList.remove('d-none');
+                @endif
+
+                @if (old('client.lastName'))
+                    document.getElementById('client-info-display').classList.remove('d-none');
+                    document.getElementById('calculation').classList.remove('d-none');
+                @endif
 
                 // Clear previous errors
                 const clearErrors = () => {
@@ -288,7 +305,7 @@
                     // Show loading state
                     applicantInfoBtn.disabled = true;
                     applicantInfoBtn.innerHTML =
-                        '<span class="spinner-border spinner-border-sm me-2"></span>{{ __('messages.loading') ?? 'Yuklanmoqda...' }}';
+                        '<span class="spinner-border spinner-border-sm me-2"></span>';
 
                     try {
                         const response = await fetch('/get-person-info-by-birthdate', {
@@ -351,6 +368,7 @@
 
                             // Show the applicant info display section
                             document.getElementById('applicant-info-display').classList.remove('d-none');
+                            document.getElementById('client-info').classList.remove('d-none');
                         } else {
                             alert(data.message || 'Ma\'lumot topilmadi');
                         }
@@ -360,7 +378,9 @@
                     } finally {
                         // Restore button state
                         applicantInfoBtn.disabled = false;
-                        applicantInfoBtn.innerHTML = '{{ __('messages.search') ?? 'Qidirish' }}';
+                        applicantInfoBtn.innerHTML =
+                            "<svg width='20' height='20' > <use xlink: href = '#icon-search' > < /use> < /svg> ";
+
                     }
                 });
 
@@ -377,7 +397,7 @@
                         // Show loading state
                         clientInfoBtn.disabled = true;
                         clientInfoBtn.innerHTML =
-                            '<span class="spinner-border spinner-border-sm me-2"></span>{{ __('messages.loading') ?? 'Yuklanmoqda...' }}';
+                            '<span class="spinner-border spinner-border-sm me-2"></span>';
 
                         try {
                             const response = await fetch('/get-person-info-by-birthdate', {
@@ -440,6 +460,7 @@
 
                                 // Show the client info display section
                                 document.getElementById('client-info-display').classList.remove('d-none');
+                                document.getElementById('calculation').classList.remove('d-none');
                             } else {
                                 alert(data.message || 'Ma\'lumot topilmadi');
                             }
@@ -449,13 +470,14 @@
                         } finally {
                             // Restore button state
                             clientInfoBtn.disabled = false;
-                            clientInfoBtn.innerHTML = '{{ __('messages.search') ?? 'Qidirish' }}';
+                            clientInfoBtn.innerHTML =
+                                "<svg width='20' height='20' > <use xlink: href = '#icon-search' > < /use> < /svg> ";
                         }
                     });
                 }
 
                 // Insurance calculation variables
-                let insuredAmountCalc = 12000000;
+                let insuredAmountCalc = {{ old('insurance_amount', 12000000) }};
                 let premiumAmountCalc = 0;
                 const formatter = new Intl.NumberFormat("uz-UZ", {
                     style: "currency",
@@ -493,10 +515,12 @@
                 const paymentStartDate = document.getElementById('payment-start-date');
                 const paymentEndDate = document.getElementById('payment-end-date');
 
-                // Set start date to today
-                const today = new Date();
-                const todayStr = today.toISOString().split('T')[0];
-                paymentStartDate.value = todayStr;
+                // Set start date to today (if no old value)
+                @if (!old('payment_start_date'))
+                    const today = new Date();
+                    const todayStr = today.toISOString().split('T')[0];
+                    paymentStartDate.value = todayStr;
+                @endif
 
                 // Calculate end date (1 year from start date)
                 function updateEndDate() {
@@ -520,7 +544,7 @@
                         showVal(e.target.value);
                     });
 
-                    // Initialize calculation on page load
+                    // Initialize calculation on page load with old value or default
                     showVal(priceRange.value);
                 }
 

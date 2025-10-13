@@ -40,4 +40,8 @@ return [
         'api_token' => env('NAPP_API_TOKEN'),
     ],
 
+    'impex' => [
+        'cadaster_api_url' => env('IMPEX_CADASTER_API_URL', 'https://impex-insurance.uz/api/fetch-cadaster'),
+    ],
+
 ];
