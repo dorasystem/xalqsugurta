@@ -1,6 +1,12 @@
 <?php
 
 return [
+    //Osago validations
+    'gov_number_required' => 'Требуется государственный номер автомобиля.',
+    'tech_passport_series_required' => 'Требуется серия техпаспорта.',
+    'tech_passport_number_required' => 'Требуется номер техпаспорта.',
+    'invalid_driver_json' => 'Неверный формат данных о водителе.',
+    
     'birth_date_required' => 'Дата рождения обязательна',
     'passport_seria_required' => 'Серия паспорта обязательна',
     'passport_number_required' => 'Номер паспорта обязательен',

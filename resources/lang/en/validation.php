@@ -1,6 +1,12 @@
 <?php
 
 return [
+    //Osago validations
+    'gov_number_required' => 'The vehicle state number is required.',
+    'tech_passport_series_required' => 'The technical passport series is required.',
+    'tech_passport_number_required' => 'The technical passport number is required.',
+    'invalid_driver_json' => 'Driver information data format is invalid.',
+    
     'birth_date_required' => 'Birth date is required',
     'passport_seria_required' => 'Passport series is required',
     'passport_number_required' => 'Passport number is required',

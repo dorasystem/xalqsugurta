@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Insurence;
 
-use App\Http\Controllers\Controller;
 use Carbon\Carbon;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Contracts\View\View;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Insurance\Osago\InsurantInfoRequest;
 
 class OsagoController extends Controller
 {
@@ -25,41 +26,75 @@ class OsagoController extends Controller
         return view('pages.insurence.payment');
     }
 
+    // public function calculation(InsurantInfoRequest $request)
     public function calculation(Request $request)
     {
-        // dd($request->all());
-        $data = $request->all();
-        $region = substr($data['gov_number'], 0, 2);
-        $vehicleOtherInfo = json_decode($data['other_info'], true);
-        $ownerInfo = json_decode($data['owner_infos'], true);
-        $applicantInfo = json_decode($data['applicant_infos'], true);
 
-        if ($data['is_applicant_owner'] == "on" && $ownerInfo['address']) {
-            $address = $ownerInfo['address'];
-        } elseif (isset($data['applicant_address']) && $data['applicant_address']) {
-            $address = $data['applicant_address'];
-        } else {
-            $regions = [
-                "01" => 'Toshkent shahri',
-                "10" => 'Toshkent viloyati',
-                "20" => 'Sirdaryo viloyati',
-                "25" => 'Jizzax viloyati',
-                "30" => 'Samarqand viloyati',
-                "40" => 'Farg\'ona viloyati',
-                "50" => 'Namangan viloyati',
-                "60" => 'Andijon viloyati',
-                "70" => 'Qashqadaryo viloyati',
-                "75" => 'Surxondaryo viloyati',
-                "80" => 'Buxoro viloyati',
-                "85" => 'Navoiy viloyati',
-                "90" => 'Xorazm viloyati',
-                "95" => 'Qoraqalpog\'iston Respublikasi'
-            ];
-
-            $address = $regions[$region];
-            $regionsIDForEosgouz = ["01" => 10, "10" => 11, "20" => 12, "25" => 13, "30" => 14, "40" => 15, "50" => 16, "60" => 17, "70" => 18, "75" => 19, "80" => 20, "85" => 21, "90" => 22, "95" => 23];
-        }
         try {
+            // dd($request->all());
+            $data = $request->all();
+            $region = substr($data['gov_number'], 0, 2);
+            $vehicleOtherInfo = json_decode($data['other_info'], true);
+            $ownerInfo = json_decode($data['owner_infos'], true);
+            $applicantInfo = json_decode($data['applicant_infos'], true);
+            $insuranceInfos = json_decode($data['insurance_infos'], true);
+            $useTerritoryId = in_array($region, ['01', '10']) ? 1 : 2;
+
+            if ($data['is_applicant_owner'] == "on" && $ownerInfo['address']) {
+                $address = $ownerInfo['address'];
+            } elseif (isset($data['applicant_address']) && $data['applicant_address']) {
+                $address = $data['applicant_address'];
+            } else {
+                $regions = [
+                    "01" => 'Toshkent shahri',
+                    "10" => 'Toshkent viloyati',
+                    "20" => 'Sirdaryo viloyati',
+                    "25" => 'Jizzax viloyati',
+                    "30" => 'Samarqand viloyati',
+                    "40" => 'Farg\'ona viloyati',
+                    "50" => 'Namangan viloyati',
+                    "60" => 'Andijon viloyati',
+                    "70" => 'Qashqadaryo viloyati',
+                    "75" => 'Surxondaryo viloyati',
+                    "80" => 'Buxoro viloyati',
+                    "85" => 'Navoiy viloyati',
+                    "90" => 'Xorazm viloyati',
+                    "95" => 'Qoraqalpog\'iston Respublikasi'
+                ];
+
+                $address = $regions[$region];
+                $regionsIDForEosgouz = ["01" => 10, "10" => 11, "20" => 12, "25" => 13, "30" => 14, "40" => 15, "50" => 16, "60" => 17, "70" => 18, "75" => 19, "80" => 20, "85" => 21, "90" => 22, "95" => 23];
+            }
+
+            if ($data['driver_limit'] == "unlimited") {
+                $driver_limit = [];
+            } else {
+                $driver_limit = [];
+                foreach ($data['driver_full_name'] as $key => $value) {
+                    $fullInfoOfDriver = json_decode($data['driver_full_info'][$key], true);
+                    $driver_limit[] =
+                        [
+                            'passportData' => [
+                                'pinfl' => $fullInfoOfDriver['pinfl'] ?? '12345678901234',
+                                'seria' => $fullInfoOfDriver['seria'] ?? 'AA',
+                                'number' => $fullInfoOfDriver['number'] ?? '1234567',
+                                'issuedBy' => $fullInfoOfDriver['issuedBy'] ?? 'УВД Яккасарайского района',
+                                'issueDate' => $fullInfoOfDriver['issueDate'] ?? '2015-10-30'
+                            ],
+                            'fullName' => [
+                                'firstname' => $fullInfoOfDriver['firstname'] ?? 'Иван',
+                                'lastname' => $fullInfoOfDriver['lastname'] ?? 'Иванов',
+                                'middlename' => $fullInfoOfDriver['middlename'] ?? 'Иванович'
+                            ],
+                            'licenseNumber' => $fullInfoOfDriver['licenseNumber'] ?? '1546546',
+                            'licenseSeria' => $fullInfoOfDriver['licenseSeria'] ?? 'AA',
+                            'relative' => $fullInfoOfDriver['kinship'] ?? 0,
+                            'birthDate' => $fullInfoOfDriver['birthDate'] ?? '1989-05-30',
+                            'licenseIssueDate' => $fullInfoOfDriver['licenseIssueDate'] ?? '2015-05-30',
+                            'residentOfUzb' => 1
+                        ];
+                }
+            }
 
             $infoShablon = [
                 'applicant' => [
@@ -85,7 +120,7 @@ class OsagoController extends Controller
                     'address' => $address,
                     'email' => 'example@example.com',
                     'residentOfUzb' => 1,
-                    'citizenshipId' => 210 
+                    'citizenshipId' => 210
                 ],
                 'owner' => [
                     'person' => [
@@ -113,18 +148,18 @@ class OsagoController extends Controller
                     'insuredActivityType' => 'Вид деятельности'
                 ],
                 'cost' => [
-                    'discountId' => '1', 
+                    'discountId' => '1',
                     'discountSum' => 0,
-                    'insurancePremium' => $data['pinfl'] ?? '56000',
-                    'sumInsured' => '40000000',
-                    'contractTermConclusionId' => '1',
-                    'useTerritoryId' => '1',
-                    'commission' => '10000',
-                    'insurancePremiumPaidToInsurer' => '28000',
-                    'seasonalInsuranceId' => '1',
-                    'foreignVehicleId' => '1'
+                    'insurancePremium' => (int)(str_replace(',', '', $insuranceInfos['amount'])) ?? '56000', //b garak
+                    'sumInsured' => $insuranceInfos['insuranceAmount'] ?? '40000000', //b garak
+                    'contractTermConclusionId' => $insuranceInfos['period'] ?? 1, //bom garak
+                    'useTerritoryId' => $useTerritoryId ?? 1,
+                    'commission' => 0,
+                    'insurancePremiumPaidToInsurer' => $insuranceInfos['amount'] ?? '56000', //bom garak
+                    'seasonalInsuranceId' => 7,
+                    'foreignVehicleId' => null
                 ],
-                'vehicle' => [ //b bo'ldi isopi
+                'vehicle' => [
                     'techPassport' => [
                         'number' => $data['tech_passport_number'] ?? '01223456',
                         'seria' => $data['tech_passport_series'] ?? 'AAC',
@@ -132,101 +167,16 @@ class OsagoController extends Controller
                     ],
                     'modelCustomName' => $data['model'] ?? 'Nexia 3',
                     'engineNumber' => $data['engine_number'] ?? 'df32rfafh98sa',
-                    'typeId' => $vehicleOtherInfo['typeId'] ?? '1',
+                    'typeId' => $vehicleOtherInfo['typeId'] == 2 ? 1 : $vehicleOtherInfo['typeId'],
                     'issueYear' => $data['car_year'] ?? '2015',
                     'govNumber' => $data['gov_number'] ?? '01K384SO',
                     'bodyNumber' => $vehicleOtherInfo['bodyNumber'] ?? 'jk543kj453k4',
-                    'regionId' => '1', //b garak      
-                    'terrainId' => '1' //statik
+                    'regionId' => '1',
+                    'terrainId' => '1'
                 ],
-                'drivers' => [ //bilaram qo'shiladi ayar garak bo'sa
-                    [
-                        'passportData' => [
-                            'pinfl' => '12345678901234',
-                            'seria' => 'AA',
-                            'number' => '1234567',
-                            'issuedBy' => 'УВД Яккасарайского района',
-                            'issueDate' => '2015-10-30'
-                        ],
-                        'fullName' => [
-                            'firstname' => 'Иван',
-                            'lastname' => 'Иванов',
-                            'middlename' => 'Иванович'
-                        ],
-                        'licenseNumber' => '1546546',
-                        'licenseSeria' => 'AA',
-                        'relative' => 0,
-                        'birthDate' => '1989-05-30',
-                        'licenseIssueDate' => '2015-05-30',
-                        'residentOfUzb' => 1
-                    ]
-                ]
+                'drivers' => $driver_limit
             ];
             dd($infoShablon);
-            // Validate request
-            $request->validate([
-                'policy_start_date' => 'required|date',
-                'insurance_period' => 'required|string',
-                'discount_option' => 'required|string',
-                'cases' => 'required|string',
-                'driver_limit' => 'required|string',
-                '_vehicleTypeC' => 'required|numeric|min:0',
-                'regionIdC' => 'required|numeric|min:0',
-            ]);
-
-            // Get coefficients from request
-            $vehicleTypeC = (float) $request->input('_vehicleTypeC', 0.1);
-            $regionIdC = (float) $request->input('regionIdC', 1.0);
-
-            // Period multipliers
-            $periodMultipliers = [
-                '1_year' => 1.0,
-                '6_months' => 0.6,
-                '3_months' => 0.3,
-            ];
-
-            // Driver limit coefficient
-            $limitedC = $request->driver_limit === 'limited' ? 1.0 : 1.5;
-
-            // Apply period multiplier
-            $periodC = $periodMultipliers[$request->insurance_period] ?? 1.0;
-
-            // Calculate discount coefficient (optimized calculation from provided code)
-            $calcDiscount = $vehicleTypeC * $regionIdC * $periodC * $limitedC;
-
-            // Insurance amount (40 million sum)
-            $insuranceAmount = 40000000;
-
-            // Calculate base amount (this gives us the premium amount)
-            $baseAmount = ($calcDiscount * $insuranceAmount) / 100;
-
-            // Ensure minimum amount
-            if ($baseAmount <= 0 || is_nan($baseAmount)) {
-                $baseAmount = 168000; // Minimum amount
-            }
-
-            // The baseAmount is already the premium, no additional discount needed
-            // The discount_option field is not used in this calculation
-            $totalPrice = $baseAmount;
-            $discountAmount = 0; // No discount applied in this calculation
-
-            // Calculate end date
-            $startDate = \Carbon\Carbon::parse($request->policy_start_date);
-            $endDate = $startDate->copy();
-
-            switch ($request->insurance_period) {
-                case '1_year':
-                    $endDate->addYear();
-                    break;
-                case '6_months':
-                    $endDate->addMonths(6);
-                    break;
-                case '3_months':
-                    $endDate->addMonths(3);
-                    break;
-            }
-            $endDate->subDay(); // Subtract one day
-
             return response()->json([
                 'success' => true,
                 'data' => [

@@ -104,7 +104,15 @@
                                 </div>
                             </div>
                         </div>
-
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                         <div id="applicant-info" class="card d-none">
                             <div class="card-header">
                                 <h4 class="card-title">{{ __('messages.applicant_info_title') }}</h4>
@@ -184,11 +192,12 @@
                                         <label for="insurance_period"
                                             class="form-label">{{ __('messages.insurance_period') }}</label>
                                         <select class="form-select" id="insurance_period" name="insurance_period" required
-                                            disabled>
+                                            readonly>
                                             <option value="1" selected>{{ __('messages.1_year') }}</option>
                                             <option value="0.7">{{ __('messages.6_months') }}</option>
                                             <option value="0.4">{{ __('messages.3_months') }}</option>
                                         </select>
+                                        <input type="hidden" id="insurance-infos" name="insurance_infos">
                                     </div>
                                     <div class="col-md-6">
                                         <label for="discount_option"
@@ -323,12 +332,6 @@
             let vehicleTypeC;
             let limitedC = 3;
             let driverIdCounter = 0;
-
-            let prise = document.getElementById('premium').textContent;
-            let amount = document.getElementById('amount').textContent;
-            prise = Number(prise);
-            amount = Number(amount);
-            console.log('prise', prise, 'amount', amount);
 
             const searchBtn = document.getElementById('vehicle-search-btn');
             const ownerInfoBtn = document.getElementById('owner-information-search-btn');
@@ -652,6 +655,13 @@
                 if (isNaN(amount) || amount === 0) {
                     amount = 168000;
                 }
+                document.getElementById('insurance-infos').value = JSON.stringify({
+                    "amount": amount.toLocaleString('en-US', {
+                        minimumFractionDigits: 2
+                    }),
+                    "period": periodC,
+                    "insuranceAmount": insuranceAmount
+                })
 
                 document.getElementById('amount').innerHTML = amount.toLocaleString('en-US', {
                     minimumFractionDigits: 2
@@ -695,8 +705,10 @@
             const unlimitedRadio = document.getElementById('driver_unlimited');
             const limitedDriver = document.getElementById('driver_limited');
 
-            unlimitedRadio.addEventListener('change', () => showDriverAddButton('unlimited'));
-            limitedDriver.addEventListener('change', () => showDriverAddButton('limited'));
+            unlimitedRadio.addEventListener('change', () => showDriverAddButton(
+                'unlimited'));
+            limitedDriver.addEventListener('change', () => showDriverAddButton(
+                'limited'));
 
             function showDriverAddButton(radio) {
                 // const addButton = document.getElementById('driver-add-button');
@@ -714,8 +726,10 @@
             }
 
             driverSearchBtn.addEventListener('click', async function() {
-                let driverPassportSeries = document.getElementById('driver-passport-series').value;
-                let driverPassportNumber = document.getElementById('driver-passport-number').value;
+                let driverPassportSeries = document.getElementById('driver-passport-series')
+                    .value;
+                let driverPassportNumber = document.getElementById('driver-passport-number')
+                    .value;
                 let driverPinfl = document.getElementById('driver-pinfl').value;
 
                 const driverInfo = document.getElementById('driver-info-display');
@@ -729,6 +743,13 @@
                     passport_series: driverPassportSeries,
                     passport_number: driverPassportNumber,
                     pinfl: driverPinfl,
+                };
+                const data = {
+                    senderPinfl: driverPinfl,
+                    passport_series: driverPassportSeries,
+                    passport_number: driverPassportNumber,
+                    pinfl: driverPinfl,
+                    isConsent: "Y"
                 };
 
                 driverSearchBtn.disabled = true;
@@ -749,18 +770,35 @@
                         document.getElementById('driver-passport-number').value = '';
                         document.getElementById('driver-pinfl').value = '';
 
-                        const existing = driverInfoDisplay.querySelectorAll('.card-footer').length;
+                        const existing = driverInfoDisplay.querySelectorAll('.card-footer')
+                            .length;
                         console.log('existing', existing);
+
 
                         if (existing < 5) {
                             // Increment the counter to get a unique ID
                             driverIdCounter++;
                             const uniqueId = driverIdCounter;
 
+                            const result1 = await sendPostRequest('/get-person-info', data);
+                            let driverSelfInfo = {
+                                'pinfl': driverData.pinfl,
+                                'seria': driverData.passport_series,
+                                'number': driverData.passport_number,
+                                'issuedBy': result1.data.result.issuedBy,
+                                'issueDate': result1.data.result.startDate,
+                                'firstname': result1.data.result.firstNameLatin,
+                                'lastname': result1.data.result.lastNameLatin,
+                                'middlename': result1.data.result.middleNameLatin,
+                                'licenseNumber': result.data.result.DriverInfo.licenseNumber,
+                                'licenseSeria': result.data.result.DriverInfo.licenseSeria,
+                                'birthDate': result.data.result.DriverInfo.pOwnerDate,
+                                'licenseIssueDate': result.data.result.DriverInfo.issueDate.split(
+                                    "T")[0],
+                            }
+                            let string = JSON.stringify(driverSelfInfo).replace(/"/g, '&quot;').replace(
+                                /'/g, '&#39;');
                             // Calculate display number (1-5 based on current count)
-
-
-                            console.log('existing', existing, 'uniqueId', );
 
                             const driverHtml = `
                                 <div class="card-footer mb-3" data-id="${uniqueId}">
@@ -770,6 +808,7 @@
                                         <div class="col-md-5">
                                             <label for="driver-${uniqueId}-full-name" class="form-label">@lang('messages.driver_full_name')</label>
                                             <input type="text" class="form-input" id="driver-${uniqueId}-full-name" name="driver_full_name[${uniqueId}]" value="${shortResult.DriverInfo.pOwner.split(' ')[0] + ' ' + shortResult.DriverInfo.pOwner.split(' ')[1]}" readonly />
+                                            <input type="hidden" name="driver_full_info[${uniqueId}]" value="${string}">    
                                         </div>
                                         <div class="col-md-4">
                                             <label for="driver-${uniqueId}-kinship" class="form-label">
@@ -862,7 +901,8 @@
                 if (button) {
                     const targetId = button.getAttribute('data-target');
                     if (confirm('Haydovchini o\'chirmoqchimisiz?')) {
-                        const card = document.querySelector('.card-footer[data-id="' + targetId + '"]');
+                        const card = document.querySelector('.card-footer[data-id="' + targetId +
+                            '"]');
                         if (card) {
                             card.remove();
                         }

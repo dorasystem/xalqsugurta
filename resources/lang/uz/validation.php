@@ -1,6 +1,12 @@
 <?php
 
 return [
+    //Osago validations
+     'gov_number_required' => 'Avtomobil davlat raqami majburiy.',
+    'tech_passport_series_required' => 'Tex pasport seriyasi majburiy.',
+    'tech_passport_number_required' => 'Tex pasport raqami majburiy.',
+    'invalid_driver_json' => 'Haydovchi maʼlumotlari formati notoʻgʻri.',
+    
     'birth_date_required' => 'Tug\'ilgan sana majburiy',
     'passport_seria_required' => 'Passport seriyasi majburiy',
     'passport_number_required' => 'Passport raqami majburiy',
