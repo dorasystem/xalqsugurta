@@ -152,6 +152,7 @@
 
                                 <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant_middle_name'"
                                     :label="'messages.middle_name'" :placeholder="'messages.middle_name_placeholder'" />
+                                <input type="hidden" name="applicant_infos" id="applicant-infos">
                             </div>
 
                             <div class="row">

@@ -148,6 +148,8 @@ return [
     'car_owner_placeholder' => 'Ivan Ivanov',
     'model' => 'Avtomobil modeli',
     'model_placeholder' => 'Camry',
+    'owner_pinfl_placeholder' => '12345678910111',
+    'owner_pinfl' => 'JShShIR',
 
     // Common Fields (Used by all sections)
     'passport_series' => 'Passport seriyasi',
