@@ -123,4 +123,35 @@ return [
             'errors_title' => 'Errors:',
         ],
     ],
+
+    'osago' => [
+        'owner_info' => 'Vehicle Owner Information',
+        'vehicle_info' => 'Vehicle Information',
+        'applicantIsOwner' => 'Applicant is owner',
+        'yes_applicantIsOwner' => 'Yes',
+        'no_applicantIsOwner' => 'No',
+        'vehicle_model' => 'Model',
+        'vehicle_year' => 'Year',
+        'vehicle_number' => 'Gov Number',
+        'vehicle_bodyNumber' => 'Body Number',
+        'vehicle_engineNumber' => 'Engine Number',
+        'vehicle_registrationInfo' => 'Registration certificate',
+
+        'insurance_amount' => 'Insurance Amount',
+        'driver_limit' => 'Driver Limit',
+        'limited_drivers' => 'Limited Drivers',
+        'unlimited_drivers' => 'Unlimited Drivers',
+        'insurance_period' => 'Insurance Period',
+        '1_year' => '1 year',
+        '6_month' => '6 months',
+        '3_month' => '3 months',
+        
+        'driver_info' => 'driver information',
+        'full_name' => 'Full Name',
+        'birth_date' => 'Birth Date',
+        'license_info' => 'License Information',
+        'license_issueDate' => 'Issue Date',
+        'kinship' => 'Kinship',
+        'issuedBy' => 'Issued By',
+    ]
 ];

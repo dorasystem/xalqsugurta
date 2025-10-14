@@ -122,4 +122,35 @@ return [
             'errors_title' => 'Ошибки:',
         ],
     ],
+
+    'osago' => [
+        'owner_info' => 'Информация о владельце транспортного средства',
+        'vehicle_info' => 'Информация о транспортном средстве',
+        'applicantIsOwner' => 'Заявитель владелец',
+        'yes_applicantIsOwner' => 'Да',
+        'no_applicantIsOwner' => 'Нет',
+        'vehicle_model' => 'Модель',
+        'vehicle_year' => 'Год выпуска',
+        'vehicle_number' => 'Гос номер',
+        'vehicle_bodyNumber' => 'Номер кузова',
+        'vehicle_engineNumber' => 'Номер двигателя',
+        'vehicle_registrationInfo' => 'Свидетельство о регистрации ТС',
+
+        'insurance_amount' => 'Страховая сумма',
+        'driver_limit' => 'Лимит водителей',
+        'limited_drivers' => 'Ограниченное количество водителей',
+        'unlimited_drivers' => 'Неограниченное количество водителей',
+        'insurance_period' => 'Срок страхования',
+        '1_year' => '1 год',
+        '6_month' => '6 месяцев',
+        '3_month' => '3 месяца',
+
+        'driver_info' => 'информация о водителе',
+        'full_name' => 'ФИО',
+        'birth_date' => 'Дата рождения',
+        'license_info' => 'Информация о водительском удостоверении',
+        'license_issueDate' => 'Дата выдачи',
+        'kinship' => 'Родство',
+        'issuedBy' => '',
+    ]
 ];

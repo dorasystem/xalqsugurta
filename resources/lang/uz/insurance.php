@@ -124,4 +124,35 @@ return [
             'errors_title' => 'Xatoliklar:',
         ],
     ],
+
+    'osago' => [
+        'owner_info' => 'Avtomobil egasi ma\'lumotlari',
+        'vehicle_info' => 'Avtomobil ma\'lumotlari',
+        'applicantIsOwner' => 'Ariza beruvchi egasi',
+        'yes_applicantIsOwner' => 'Ha',
+        'no_applicantIsOwner' => 'Yo\'q',
+        'vehicle_model' => 'Modeli',
+        'vehicle_year' => 'Ishlab chiqarilgan yili',
+        'vehicle_number' => 'Avtomobil raqami',
+        'vehicle_bodyNumber' => 'Kuzov raqami',
+        'vehicle_engineNumber' => 'Motor raqami',
+        'vehicle_registrationInfo' => 'Registratsiya ma\'lumotlari',
+
+        'insurance_amount' => 'Sug\'urta summasi',
+        'driver_limit' => 'Haydovchilar soni',
+        'limited_drivers' => 'Cheklangan haydovchilar',
+        'unlimited_drivers' => 'Cheklanmadagi haydovchilar',
+        'insurance_period' => 'Sug\'urta muddati',
+        '1_year' => '1 yil',
+        '6_month' => '6 oy',
+        '3_month' => '3 oy',
+
+        'driver_info' => 'haydovchi ma\'lumotlari',
+        'full_name' => 'To\'liq ism',
+        'birth_date' => 'Tug\'ulgan sana',
+        'license_info' => 'Haydovchilik guvohnoma ma\'lumotlari',
+        'license_issueDate' => 'Guvohnoma berilgan sana',
+        'kinship' => 'Qarindoshlik darajasi',
+        'issuedBy' => 'Guvohnoma beruvchi',
+    ]
 ];

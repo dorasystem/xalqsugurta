@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Contracts\View\View;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Insurance\Osago\InsurantInfoRequest;
+use Illuminate\Support\Facades\Session;
 
 class OsagoController extends Controller
 {
@@ -18,7 +19,8 @@ class OsagoController extends Controller
 
     public function application(): View
     {
-        return view('pages.insurence.application');
+        $data = Session::get('insurance_info');
+        return view('pages.insurence.osago.application', compact('data'));
     }
 
     public function payment(): View
@@ -74,7 +76,7 @@ class OsagoController extends Controller
                                 'pinfl' => $data['driver_full_info']['pinfl'] ?? '12345678901234',
                                 'seria' => $data['driver_full_info']['seria'] ?? 'AA',
                                 'number' => $data['driver_full_info']['number'] ?? '1234567',
-                                'issuedBy' => $data['driver_full_info']['issuedBy'] ?? 'УВД Яккасарайского района',
+                                ' ' => $data['driver_full_info']['issuedBy'] ?? 'УВД Яккасарайского района',
                                 'issueDate' => $data['driver_full_info']['issueDate'] ?? '2015-10-30'
                             ],
                             'fullName' => [
@@ -139,7 +141,7 @@ class OsagoController extends Controller
                     'issueDate' => Carbon::parse($data['other_info']['techPassportIssueDate'])->format('Y-m-d') ?? Carbon::now()->format('Y-m-d'), //tex passport sanasi
                     'startDate' => $data['policy_start_date'] ?? Carbon::now()->format('Y-m-d'),
                     'endDate' => $data['policy_end_date'] ?? Carbon::now()->addYear()->format('Y-m-d'),
-                    'driverNumberRestriction' => $data['is_applicant_owner'] == "on" ? true : false,
+                    'driverNumberRestriction' => $data['driver_limit'] == "limited" ? true : false,
                     'specialNote' => 'Перевыпуск',
                     'insuredActivityType' => 'Вид деятельности'
                 ],
@@ -172,31 +174,10 @@ class OsagoController extends Controller
                 ],
                 'drivers' => $driver_limit
             ];
-            dd($infoShablon);
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'base_price' => round($baseAmount),
-                    'adjusted_base_price' => round($baseAmount),
-                    'incident_surcharge' => 0, // No incident surcharge in optimized calculation
-                    'discount_amount' => round($discountAmount),
-                    'total_price' => round($totalPrice),
-                    'vehicle_type' => 'Легковой автомобиль',
-                    'insurance_period' => $request->insurance_period,
-                    'policy_start_date' => $request->policy_start_date,
-                    'policy_end_date' => $endDate->format('Y-m-d'),
-                    'discount_option' => $request->discount_option,
-                    'cases' => $request->cases,
-                    'driver_limit' => $request->driver_limit,
-                    'vehicle_type_coefficient' => $vehicleTypeC,
-                    'region_coefficient' => $regionIdC,
-                    'period_coefficient' => $periodC,
-                    'driver_limit_coefficient' => $limitedC,
-                    'calc_discount' => $calcDiscount,
-                    'insurance_amount' => $insuranceAmount,
-                    'calculation_date' => now()->toISOString(),
-                ]
-            ]);
+            // dd($infoShablon);
+            Session::put('insurance_info', $infoShablon);
+
+            return redirect()->route('osago.application',['locale' => getCurrentLocale()]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
