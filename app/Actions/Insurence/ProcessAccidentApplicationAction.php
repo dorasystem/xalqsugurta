@@ -13,8 +13,10 @@ final class ProcessAccidentApplicationAction
 
     public function __construct()
     {
-        $this->apiToken = config('services.napp.api_token', '');
-        $this->apiUrl = config('services.napp.api_url', 'https://erspapi.e-osgo.uz/api/v3');
+        // $this->apiToken = config('services.napp.api_token', 'https://erspapi.e-osgo.uz/api/v3');
+        // $this->apiUrl = config('services.napp.api_url', 'https://erspapi.e-osgo.uz/api/v3');
+        $this->apiToken = 'https://erspapi.e-osgo.uz/api/v3';
+        $this->apiUrl = 'https://erspapi.e-osgo.uz/api/v3';
     }
 
     public function execute(AccidentApplicationData $data): array

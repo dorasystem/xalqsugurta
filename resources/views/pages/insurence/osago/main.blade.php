@@ -90,14 +90,14 @@
                             <div id="insurance-driver-full-information" class="card-footer d-none">
                                 <div class="row">
 
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-last-name'" :name="'last_name'"
-                                        :label="'messages.owner_last_name'" :placeholder="'messages.owner_last_name_placeholder'" />
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-last-name'" :name="'last_name'"
+                                    :label="'messages.last_name'" :placeholder="'messages.last_name_placeholder'" />
 
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-first-name'" :name="'first_name'"
-                                        :label="'messages.owner_first_name'" :placeholder="'messages.owner_first_name_placeholder'" />
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-first-name'" :name="'first_name'"
+                                    :label="'messages.first_name'" :placeholder="'messages.first_name_placeholder'" />
 
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-middle-name'" :name="'middle_name'"
-                                        :label="'messages.owner_middle_name'" :placeholder="'messages.owner_middle_name_placeholder'" />
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-middle-name'" :name="'middle_name'"
+                                    :label="'messages.middle_name'" :placeholder="'messages.middle_name_placeholder'" />
 
                                     <input type="hidden" id="owner-address" name="owner_address">
                                     <input type="hidden" id="owner-infos" name="owner_infos">
@@ -126,13 +126,13 @@
                                     </label>
                                 </div>
 
-                                <div id="applicant-info-search">
-                                    <div class="row">
-                                        <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'applicant-passport-series'"
-                                            :name="'applicant_passport_series'" :placeholder="'messages.applicant_passport_series_placeholder'" :label="'messages.applicant_passport_series'" />
+                            <div id="applicant-info-search">
+                                <div class="row">
+                                    <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'applicant-passport-series'"
+                                        :name="'applicant_passport_series'" :placeholder="'messages.passport_series_placeholder'" :label="'messages.passport_series'" />
 
-                                        <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'applicant-passport-number'"
-                                            :name="'applicant_passport_number'" :placeholder="'messages.applicant_passport_number_placeholder'" :label="'messages.applicant_passport_number'" />
+                                    <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'applicant-passport-number'"
+                                        :name="'applicant_passport_number'" :placeholder="'messages.passport_number_placeholder'" :label="'messages.passport_number'" />
 
                                         <x-inputs.input_form :type="'number'" :class="'col-md-4'" :idFor="'applicant-pinfl'"
                                             :name="'applicant_pinfl'" :placeholder="'messages.applicant_pinfl_placeholder'" :label="'messages.applicant_pinfl'" />
@@ -141,28 +141,27 @@
                                     </div>
                                 </div>
 
+                        </div>
+                        <div id="applicant-info-display" class="card-footer d-none">
+                            <div class="row">
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-last-name'" :name="'applicant_last_name'"
+                                    :label="'messages.last_name'" :placeholder="'messages.last_name_placeholder'" />
+
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-first-name'" :name="'applicant_first_name'"
+                                    :label="'messages.first_name'" :placeholder="'messages.first_name_placeholder'" />
+
+                                <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant_middle_name'"
+                                    :label="'messages.middle_name'" :placeholder="'messages.middle_name_placeholder'" />
                             </div>
-                            <div id="applicant-info-display" class="card-footer d-none">
-                                <div class="row">
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-last-name'" :name="'applicant_last_name'"
-                                        :label="'messages.applicant_last_name'" :placeholder="'last_name_placeholder'" />
 
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-first-name'" :name="'applicant_first_name'"
-                                        :label="'messages.applicant_first_name'" :placeholder="'first_name_placeholder'" />
+                            <div class="row">
+                                <x-inputs.input_info :class="'col-md-6'" :idFor="'applicant-address'" :name="'applicant_address'"
+                                    :label="'messages.address'" :placeholder="'messages.address_placeholder'" />
 
-                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant_middle_name'"
-                                        :label="'messages.applicant_middle_name'" :placeholder="'middle_name_placeholder'" />
-                                </div>
-
-                                <div class="row">
-                                    <x-inputs.input_info :class="'col-md-6'" :idFor="'applicant-address'" :name="'applicant_address'"
-                                        :label="'messages.applicant_address'" :placeholder="'address_placeholder'" />
-
-                                    <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'applicant-phone-number'"
-                                        :name="'applicant_phone_number'" :label="'messages.applicant_phone_number'" :placeholder="'messages.applicant_phone_number_placeholder'" />
-                                    <input type="hidden" name="applicant_infos" id="applicant-infos">
-                                </div>
+                                <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'applicant-phone-number'"
+                                    :name="'applicant_phone_number'" :label="'messages.phone_number'" :placeholder="'messages.phone_number_placeholder'" />
                             </div>
+                        </div>
 
                         </div>
 

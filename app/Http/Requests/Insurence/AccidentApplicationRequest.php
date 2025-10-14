@@ -21,40 +21,40 @@ final class AccidentApplicationRequest extends FormRequest
     {
         return [
             // Applicant passport info
-            'applicant_passport_series' => ['required', 'string', 'size:2'],
-            'applicant_passport_number' => ['required', 'string', 'size:7'],
-            'applicant_birthDate' => ['required', 'date', 'before:today'],
+            'applicant.passportSeries' => ['required', 'string', 'size:2'],
+            'applicant.passportNumber' => ['required', 'string', 'size:7'],
+            'applicant.birthDate' => ['required', 'date', 'before:today'],
 
             // Applicant personal info
-            'applicant_last_name' => ['required', 'string', 'max:255'],
-            'applicant_first_name' => ['required', 'string', 'max:255'],
-            'applicant_middle_name' => ['nullable', 'string', 'max:255'],
-            'applicant_address' => ['required', 'string', 'max:500'],
-            'applicant_phone_number' => ['required', 'string', 'regex:/^\+998\d{9}$/'],
-            'applicant_pinfl' => ['nullable', 'string', 'size:14'],
-            'applicant_birth_place' => ['nullable', 'string', 'max:255'],
-            'applicant_birth_country' => ['nullable', 'string', 'max:255'],
-            'applicant_gender' => ['nullable', 'string', 'in:1,2'],
-            'applicant_region_id' => ['nullable', 'integer'],
-            'applicant_district_id' => ['nullable', 'integer'],
+            'applicant.lastName' => ['required', 'string', 'max:255'],
+            'applicant.firstName' => ['required', 'string', 'max:255'],
+            'applicant.middleName' => ['nullable', 'string', 'max:255'],
+            'applicant.address' => ['required', 'string', 'max:500'],
+            'applicant.phoneNumber' => ['required', 'string'],
+            'applicant.pinfl' => ['nullable', 'string', 'size:14'],
+            'applicant.birthPlace' => ['nullable', 'string', 'max:255'],
+            'applicant.birthCountry' => ['nullable', 'string', 'max:255'],
+            'applicant.gender' => ['nullable', 'string', 'in:1,2'],
+            'applicant.regionId' => ['nullable', 'integer'],
+            'applicant.districtId' => ['nullable', 'integer'],
 
             // Client/Insured passport info
-            'client_passport_series' => ['required', 'string', 'size:2'],
-            'client_passport_number' => ['required', 'string', 'size:7'],
-            'client_birthDate' => ['required', 'date', 'before:today'],
+            'client.passportSeries' => ['required', 'string', 'size:2'],
+            'client.passportNumber' => ['required', 'string', 'size:7'],
+            'client.birthDate' => ['required', 'date', 'before:today'],
 
             // Client/Insured personal info
-            'client_last_name' => ['required', 'string', 'max:255'],
-            'client_first_name' => ['required', 'string', 'max:255'],
-            'client_middle_name' => ['nullable', 'string', 'max:255'],
-            'client_address' => ['required', 'string', 'max:500'],
-            'client_phone_number' => ['required', 'string', 'regex:/^\+998\d{9}$/'],
-            'client_pinfl' => ['nullable', 'string', 'size:14'],
-            'client_birth_place' => ['nullable', 'string', 'max:255'],
-            'client_birth_country' => ['nullable', 'string', 'max:255'],
-            'client_gender' => ['nullable', 'string', 'in:1,2'],
-            'client_region_id' => ['nullable', 'integer'],
-            'client_district_id' => ['nullable', 'integer'],
+            'client.lastName' => ['required', 'string', 'max:255'],
+            'client.firstName' => ['required', 'string', 'max:255'],
+            'client.middleName' => ['nullable', 'string', 'max:255'],
+            'client.address' => ['required', 'string', 'max:500'],
+            'client.phoneNumber' => ['required', 'string'],
+            'client.pinfl' => ['nullable', 'string', 'size:14'],
+            'client.birthPlace' => ['nullable', 'string', 'max:255'],
+            'client.birthCountry' => ['nullable', 'string', 'max:255'],
+            'client.gender' => ['nullable', 'string', 'in:1,2'],
+            'client.regionId' => ['nullable', 'integer'],
+            'client.districtId' => ['nullable', 'integer'],
 
             // Insurance calculation
             'insurance_amount' => ['required', 'numeric', 'min:5000000', 'max:50000000'],
@@ -63,7 +63,6 @@ final class AccidentApplicationRequest extends FormRequest
 
             // Checkbox
             'is_applicant_owner' => ['nullable', 'boolean'],
-            'agreement' => ['required', 'accepted'],
         ];
     }
 
@@ -73,28 +72,27 @@ final class AccidentApplicationRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'applicant_passport_series' => __('messages.applicant_passport_series'),
-            'applicant_passport_number' => __('messages.applicant_passport_number'),
-            'applicant_birthDate' => __('insurance.passport.birth_date'),
-            'applicant_last_name' => __('messages.applicant_last_name'),
-            'applicant_first_name' => __('messages.applicant_first_name'),
-            'applicant_middle_name' => __('messages.applicant_middle_name'),
-            'applicant_address' => __('messages.applicant_address'),
-            'applicant_phone_number' => __('messages.applicant_phone_number'),
+            'applicant.passportSeries' => __('messages.applicant_passport_series'),
+            'applicant.passportNumber' => __('messages.applicant_passport_number'),
+            'applicant.birthDate' => __('insurance.passport.birth_date'),
+            'applicant.lastName' => __('messages.applicant_last_name'),
+            'applicant.firstName' => __('messages.applicant_first_name'),
+            'applicant.middleName' => __('messages.applicant_middle_name'),
+            'applicant.address' => __('messages.applicant_address'),
+            'applicant.phoneNumber' => __('messages.applicant_phone_number'),
 
-            'client_passport_series' => __('insurance.passport.series'),
-            'client_passport_number' => __('insurance.passport.number'),
-            'client_birthDate' => __('insurance.passport.birth_date'),
-            'client_last_name' => __('insurance.person.last_name'),
-            'client_first_name' => __('insurance.person.first_name'),
-            'client_middle_name' => __('insurance.person.middle_name'),
-            'client_address' => __('insurance.person.address'),
-            'client_phone_number' => __('insurance.person.telephone_number'),
+            'client.passportSeries' => __('insurance.passport.series'),
+            'client.passportNumber' => __('insurance.passport.number'),
+            'client.birthDate' => __('insurance.passport.birth_date'),
+            'client.lastName' => __('insurance.person.last_name'),
+            'client.firstName' => __('insurance.person.first_name'),
+            'client.middleName' => __('insurance.person.middle_name'),
+            'client.address' => __('insurance.person.address'),
+            'client.phoneNumber' => __('insurance.person.telephone_number'),
 
             'insurance_amount' => __('messages.insurance_amount'),
             'payment_start_date' => __('messages.start_date'),
             'payment_end_date' => __('messages.end_date'),
-            'agreement' => __('messages.agreement'),
         ];
     }
 }

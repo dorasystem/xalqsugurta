@@ -18,46 +18,49 @@ final class AccidentApplicationData
 
     public static function fromRequest(array $data): self
     {
+        $applicant = $data['applicant'];
+        $client = $data['client'];
+
         $applicantData = [
-            'lastName' => strtoupper($data['applicant_last_name']),
-            'firstName' => strtoupper($data['applicant_first_name']),
-            'middleName' => strtoupper($data['applicant_middle_name'] ?? ''),
-            'pinfl' => $data['applicant_pinfl'] ?? '',
-            'seria' => strtolower($data['applicant_passport_series']),
-            'number' => $data['applicant_passport_number'],
-            'birthDate' => $data['applicant_birthDate'],
-            'birthPlace' => strtoupper($data['applicant_birth_place'] ?? ''),
-            'birthCountry' => strtoupper($data['applicant_birth_country'] ?? 'УЗБЕКИСТАН'),
-            'gender' => $data['applicant_gender'] ?? '1',
-            'regionId' => $data['applicant_region_id'] ?? null,
-            'districtId' => $data['applicant_district_id'] ?? null,
-            'address' => strtoupper($data['applicant_address']),
-            'phoneNumber' => $data['applicant_phone_number'],
+            'lastName' => strtoupper($applicant['lastName']),
+            'firstName' => strtoupper($applicant['firstName']),
+            'middleName' => strtoupper($applicant['middleName'] ?? ''),
+            'pinfl' => $applicant['pinfl'] ?? '',
+            'seria' => strtolower($applicant['passportSeries']),
+            'number' => $applicant['passportNumber'],
+            'birthDate' => $applicant['birthDate'],
+            'birthPlace' => strtoupper($applicant['birthPlace'] ?? ''),
+            'birthCountry' => strtoupper($applicant['birthCountry'] ?? 'УЗБЕКИСТАН'),
+            'gender' => $applicant['gender'] ?? '1',
+            'regionId' => $applicant['regionId'] ?? null,
+            'districtId' => $applicant['districtId'] ?? null,
+            'address' => strtoupper($applicant['address']),
+            'phoneNumber' => $applicant['phoneNumber'],
         ];
 
         $insuredInfo = [
-            'lastName' => strtoupper($data['client_last_name']),
-            'firstName' => strtoupper($data['client_first_name']),
-            'middleName' => strtoupper($data['client_middle_name'] ?? ''),
-            'pinfl' => $data['client_pinfl'] ?? '',
-            'seria' => strtolower($data['client_passport_series']),
-            'number' => $data['client_passport_number'],
-            'birthDate' => $data['client_birthDate'],
-            'birthPlace' => strtoupper($data['client_birth_place'] ?? ''),
-            'birthCountry' => strtoupper($data['client_birth_country'] ?? 'УЗБЕКИСТАН'),
-            'gender' => $data['client_gender'] ?? '1',
-            'regionId' => $data['client_region_id'] ?? null,
-            'districtId' => $data['client_district_id'] ?? null,
-            'address' => strtoupper($data['client_address']),
-            'phoneNumber' => $data['client_phone_number'],
+            'lastName' => strtoupper($client['lastName']),
+            'firstName' => strtoupper($client['firstName']),
+            'middleName' => strtoupper($client['middleName'] ?? ''),
+            'pinfl' => $client['pinfl'] ?? '',
+            'seria' => strtolower($client['passportSeries']),
+            'number' => $client['passportNumber'],
+            'birthDate' => $client['birthDate'],
+            'birthPlace' => strtoupper($client['birthPlace'] ?? ''),
+            'birthCountry' => strtoupper($client['birthCountry'] ?? 'УЗБЕКИСТАН'),
+            'gender' => $client['gender'] ?? '1',
+            'regionId' => $client['regionId'] ?? null,
+            'districtId' => $client['districtId'] ?? null,
+            'address' => strtoupper($client['address']),
+            'phoneNumber' => $client['phoneNumber'],
         ];
 
         return new self(
             applicantData: $applicantData,
             insuredData: null, // Can be populated if needed
             insuredInfo: $insuredInfo,
-            phone: $data['applicant_phone_number'],
-            insuredBirthday: $data['client_birthDate'] ?? null,
+            phone: $applicant['phoneNumber'],
+            insuredBirthday: $client['birthDate'] ?? null,
             agreement: $data['agreement'] ?? 'on',
             insuranceAmount: (int) $data['insurance_amount'],
             paymentStartDate: $data['payment_start_date'],
@@ -68,20 +71,15 @@ final class AccidentApplicationData
     public function toArray(): array
     {
         return [
-            'contractData' => null,
-            'contractResponseData' => null,
-            'child_person_info' => [
-                '_token' => csrf_token(),
-                'applicantData' => $this->applicantData,
-                'insuredData' => $this->insuredData,
-                'insuredInfo' => $this->insuredInfo,
-                'phone' => $this->phone,
-                'insured_birthday' => $this->insuredBirthday,
-            ],
+            'applicantData' => $this->applicantData,
+            'insuredData' => $this->insuredData,
+            'insuredInfo' => $this->insuredInfo,
+            'phone' => $this->phone,
+            'insuredBirthday' => $this->insuredBirthday,
             'agreement' => $this->agreement,
-            'insurance_amount' => $this->insuranceAmount,
-            'payment_start_date' => $this->paymentStartDate,
-            'payment_end_date' => $this->paymentEndDate,
+            'insuranceAmount' => $this->insuranceAmount,
+            'paymentStartDate' => $this->paymentStartDate,
+            'paymentEndDate' => $this->paymentEndDate,
         ];
     }
 
