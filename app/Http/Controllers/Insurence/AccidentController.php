@@ -8,11 +8,14 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Insurence\AccidentApplicationRequest;
 use App\Models\Order;
 use App\Services\OrderService;
+use App\Traits\HandlesInsuranceErrors;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 final class AccidentController extends Controller
 {
+    use HandlesInsuranceErrors;
     public function __construct(
         private readonly OrderService $orderService
     ) {}
@@ -24,12 +27,8 @@ final class AccidentController extends Controller
 
     public function applicationView(): View|RedirectResponse
     {
-        // For GET requests, we need to handle the case where there's no data
-        // This could happen if someone directly accesses the URL
-        // We'll redirect to main page if no session data exists
         if (!session()->has('accident_application_data')) {
-            return redirect()->route('accident.main', ['locale' => getCurrentLocale()])
-                ->with('error', 'Ariza ma\'lumotlari topilmadi. Iltimos, qaytadan ariza to\'ldiring.');
+            return $this->handleSessionNotFound('accident');
         }
 
         $applicationData = session('accident_application_data');
@@ -66,26 +65,21 @@ final class AccidentController extends Controller
                 'apiResponse' => $result['data'] ?? null,
             ]);
         } catch (\Exception $e) {
-            return back()
-                ->withErrors(['error' => 'Xatolik yuz berdi: ' . $e->getMessage()])
-                ->withInput();
+            return $this->handleGeneralError('accident', $e, 'application');
         }
     }
 
     public function storage(): RedirectResponse
     {
         try {
-            // Get application data from session
             if (!session()->has('accident_application_data')) {
-                \Log::warning('Accident storage: Session data not found');
-                return redirect()->route('accident.main', ['locale' => getCurrentLocale()])
-                    ->with('error', 'Ariza ma\'lumotlari topilmadi. Iltimos, qaytadan ariza to\'ldiring.');
+                return $this->handleSessionNotFound('accident');
             }
 
             $applicationData = session('accident_application_data');
             $apiResponse = session('accident_api_response');
 
-            \Log::info('Accident storage: Creating order', [
+            Log::info('Accident storage: Creating order', [
                 'has_application_data' => !empty($applicationData),
                 'has_api_response' => !empty($apiResponse),
             ]);
@@ -104,40 +98,15 @@ final class AccidentController extends Controller
 
             $order = $this->orderService->createOrder($orderData);
 
-            \Log::info('Accident storage: Order created successfully', ['order_id' => $order->id]);
+            Log::info('Accident storage: Order created successfully', ['order_id' => $order->id]);
 
-            // Redirect to payment page with orderId
-            return redirect()->route('accident.payment', [
-                'locale' => getCurrentLocale(),
-                'orderId' => $order->id,
-            ]);
+            return $this->redirectWithSuccess(
+                'payment.show',
+                ['locale' => getCurrentLocale(), 'orderId' => $order->id],
+                __('success.insurance.order_created')
+            );
         } catch (\Exception $e) {
-            \Log::error('Accident storage: Failed to create order', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return back()
-                ->with('error', 'Buyurtma yaratishda xatolik: ' . $e->getMessage());
-        }
-    }
-
-    public function payment(int $orderId): View|RedirectResponse
-    {
-        try {
-            $order = $this->orderService->getOrderById($orderId);
-
-            if (!$order) {
-                return redirect()->route('accident.main', ['locale' => getCurrentLocale()])
-                    ->with('error', 'Buyurtma topilmadi.');
-            }
-
-            return view('pages.insurence.accident.payment', [
-                'order' => $order,
-            ]);
-        } catch (\Exception $e) {
-            return redirect()->route('accident.main', ['locale' => getCurrentLocale()])
-                ->with('error', 'Xatolik yuz berdi: ' . $e->getMessage());
+            return $this->handleOrderCreationError('accident', $e);
         }
     }
 

@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.css') }}">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    
+
 
 
 </head>
@@ -426,9 +426,49 @@
                     transform: rotate(270deg) translateY(0);
                 }
             }
-        </style><!-- main -->
+        </style> <!-- main -->
         <main class="main insurance-inner">
 
+            {{-- Flash Messages --}}
+            @if (session('success') || session('error') || session('warning') || session('info'))
+                <div class="container my-4">
+                    @if (session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            <strong>{{ __('success.success') }}</strong> {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if (session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <strong>{{ __('errors.general_error') }}</strong> {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if (session('warning'))
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-circle-fill me-2"></i>
+                            <strong>{{ __('messages.warning') }}</strong> {{ session('warning') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if (session('info'))
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            <i class="bi bi-info-circle-fill me-2"></i>
+                            <strong>{{ __('messages.info') }}</strong> {{ session('info') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                aria-label="Close"></button>
+                        </div>
+                    @endif
+                </div>
+            @endif
 
             @yield('content')
 

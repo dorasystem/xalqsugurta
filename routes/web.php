@@ -1,12 +1,14 @@
 <?php
 
 use App\Http\Controllers\ApiControllers\DriverInfoController;
+use App\Http\Controllers\Insurence\PaymentController;
 use App\Http\Controllers\Insurence\PropertyController;
 use Faker\Provider\ar_EG\Person;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiControllers\PersonInfoController;
 use App\Http\Controllers\ApiControllers\VehicleInfoController;
+use App\Models\Order;
 
 // Language routes
 Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], function () {
@@ -14,6 +16,10 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
         App::setLocale($locale);
         return view('welcome');
     })->name('home');
+
+    // Unified payment routes for all insurance products
+    Route::get('/payment/{orderId}', [PaymentController::class, 'show'])->name('payment.show');
+    Route::post('/payment/{orderId}/process', [PaymentController::class, 'process'])->name('payment.process');
 
     require_once 'insurence/osago.php';
     require_once 'insurence/accident.php';
@@ -45,3 +51,7 @@ Route::get('/icons', function () {
 Route::get('/debug-session', function () {
     return view('debug-session');
 })->name('debug.session');
+
+Route::get('/test', function () {
+    return  Order::query()->get();
+})->name('test');
