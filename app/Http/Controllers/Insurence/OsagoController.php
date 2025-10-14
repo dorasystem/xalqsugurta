@@ -150,12 +150,12 @@ class OsagoController extends Controller
                 'cost' => [
                     'discountId' => '1',
                     'discountSum' => 0,
-                    'insurancePremium' => (int)(str_replace(',', '', $insuranceInfos['amount'])) ?? '56000', //b garak
-                    'sumInsured' => $insuranceInfos['insuranceAmount'] ?? '40000000', //b garak
-                    'contractTermConclusionId' => $insuranceInfos['period'] ?? 1, //bom garak
+                    'insurancePremium' => (int)(str_replace(',', '', $insuranceInfos['amount'])) ?? '56000',
+                    'sumInsured' => $insuranceInfos['insuranceAmount'] ?? '40000000',
+                    'contractTermConclusionId' => $insuranceInfos['period'] ?? 1,
                     'useTerritoryId' => $useTerritoryId ?? 1,
                     'commission' => 0,
-                    'insurancePremiumPaidToInsurer' => $insuranceInfos['amount'] ?? '56000', //bom garak
+                    'insurancePremiumPaidToInsurer' => $insuranceInfos['amount'] ?? '56000',
                     'seasonalInsuranceId' => 7,
                     'foreignVehicleId' => null
                 ],
