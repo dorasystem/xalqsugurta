@@ -151,7 +151,20 @@ return [
         'birth_date' => 'Birth Date',
         'license_info' => 'License Information',
         'license_issueDate' => 'Issue Date',
-        'kinship' => 'Kinship',
-        'issuedBy' => 'Issued By',
+        'kinship_label' => 'Kinship',
+        'kinship' => [
+            '0' => 'Owner/Not relative',
+            '1' => 'Father', 
+            '2' => 'Mother', 
+            '3' => 'Husband', 
+            '4' => 'Wife', 
+            '5' => 'Son', 
+            '6' => 'Daughter', 
+            '7' => 'Older brother',
+            '8' => 'Younger brother',
+            '9' => 'Elder sister',
+            '10' => 'Younger sister',
+        ],
+        'address' => 'Birth place',
     ]
 ];

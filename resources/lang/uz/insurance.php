@@ -152,7 +152,20 @@ return [
         'birth_date' => 'Tug\'ulgan sana',
         'license_info' => 'Haydovchilik guvohnoma ma\'lumotlari',
         'license_issueDate' => 'Guvohnoma berilgan sana',
-        'kinship' => 'Qarindoshlik darajasi',
-        'issuedBy' => 'Guvohnoma beruvchi',
+        'kinship_label' => 'Qarindoshlik turi',
+        'kinship' => [
+            '0' => 'Egasi/Qarindosh emas',
+            '1' => 'Ota',
+            '2' => 'Ona',
+            '3' => 'Er',
+            '4' => 'Xotin',
+            '5' => 'Og\'il',
+            '6' => 'Qiz',
+            '7' => 'Aka',
+            '8' => 'Uka',
+            '9' => 'Opa',
+            '10' => 'Singil',
+        ],
+        'address' => 'Tug\'ulgan joyi',
     ]
 ];

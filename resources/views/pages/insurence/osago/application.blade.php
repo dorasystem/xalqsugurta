@@ -123,7 +123,7 @@
                                     </h5>
                                 </div>
                                 <div class="col-md-6">
-                                    <table class="table table-bordered table-sm">
+                                    <table class="table table-bordered table-sm h-100">
                                         <tbody>
                                             <tr>
                                                 <td class="fw-bold bg-light" style="width: 40%;">
@@ -141,7 +141,7 @@
                                     </table>
                                 </div>
                                 <div class="col-md-6">
-                                    <table class="table table-bordered table-sm">
+                                    <table class="table table-bordered table-sm h-100">
                                         <tbody>
                                             <tr>
                                                 <td class="fw-bold bg-light" style="width: 40%;">
@@ -171,7 +171,7 @@
                                     </h5>
                                 </div>
                                 <div class="col-md-6">
-                                    <table class="table table-bordered table-sm">
+                                    <table class="table table-bordered table-sm h-100">
                                         <tbody>
                                             <tr>
                                                 <td class="fw-bold bg-light" style="width: 40%;">
@@ -201,7 +201,7 @@
                                     </table>
                                 </div>
                                 <div class="col-md-6">
-                                    <table class="table table-bordered table-sm">
+                                    <table class="table table-bordered table-sm h-100">
                                         <tbody>
                                             <tr>
                                                 <td class="fw-bold bg-light" style="width: 40%;">
@@ -243,7 +243,7 @@
                                     </h5>
                                 </div>
                                 <div class="col-md-6">
-                                    <table class="table table-bordered table-sm">
+                                    <table class="table table-bordered table-sm h-100">
                                         <tbody>
                                             <tr>
                                                 <td class="fw-bold bg-light" style="width: 40%;">
@@ -279,12 +279,12 @@
                                         }
 
                                         if ($data['details']['driverNumberRestriction']) {
-                                        } else {
                                             $limit = __('insurance.osago.limited_drivers');
+                                        } else {
                                             $limit = __('insurance.osago.unlimited_drivers');
                                         }
                                     @endphp
-                                    <table class="table table-bordered table-sm">
+                                    <table class="table table-bordered table-sm h-100">
                                         <tbody>
                                             <tr>
                                                 <td class="fw-bold bg-light" style="width: 40%;">
@@ -318,56 +318,52 @@
                                     <div class="col-12">
                                         <h5 class="border-bottom pb-2 mb-3">
                                             <i class="fas fa-shield-alt me-2 text-warning"></i>
-                                            {{ $id }} - {{ __('insurance.osago.driver_info') }}
+                                            {{ $loop->iteration }} - {{ __('insurance.osago.driver_info') }}
                                         </h5>
                                     </div>
                                     <div class="col-md-6">
-                                        <table class="table table-bordered table-sm">
+                                        <table class="table table-bordered table-sm h-100">
                                             <tbody>
                                                 <tr>
                                                     <td class="fw-bold bg-light" style="width: 40%;">
                                                         {{ __('insurance.osago.full_name') }}</td>
                                                     <td class="text-success fw-bold">
-                                                        {{ $driver }} UZS</td>
+                                                        {{ $driver['fullName']['lastname'] }}
+                                                        {{ $driver['fullName']['firstname'] }}
+                                                        {{ $driver['fullName']['middlename'] }}
+                                                    </td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold bg-light">
                                                         {{ __('insurance.osago.birth_date') }}</td>
-                                                    <td>{{ $data['details']['startDate'] }}
+                                                    <td>{{ $driver['birthDate'] }}
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td class="fw-bold bg-light">
                                                         {{ __('insurance.osago.license_info') }}</td>
-                                                    <td>{{ $data['details']['endDate'] }}
+                                                    <td>{{ $driver['licenseSeria'] }} {{ $driver['licenseNumber'] }}
                                                     </td>
                                                 </tr>
                                             </tbody>
                                         </table>
                                     </div>
                                     <div class="col-md-6">
-                                        <table class="table table-bordered table-sm">
+                                        <table class="table table-bordered table-sm h-100">
                                             <tbody>
                                                 <tr>
                                                     <td class="fw-bold bg-light" style="width: 40%;">
                                                         {{ __('insurance.osago.license_issueDate') }}
                                                     </td>
                                                     <td class="text-success fw-bold">
-                                                        {{ number_format($data['cost']['sumInsured']) }}</td>
+                                                        {{ $driver['licenseIssueDate'] }}</td>
                                                 </tr>
                                                 <tr>
-                                                    <td class="fw-bold bg-light">{{ __('insurance.osago.kinship') }}
+                                                    <td class="fw-bold bg-light">{{ __('insurance.osago.kinship_label') }}
                                                     </td>
                                                     <td class="fw-bold bg-light">
-                                                        {{ $limit }}
+                                                        {{ __("insurance.osago.kinship.{$driver['relative']}") }}
                                                     </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="fw-bold bg-light">
-                                                        {{ __('insurance.osago.issuedBy') }}
-                                                    </td>
-                                                    <td class="fw-bold bg-light">
-                                                        {{ $period }}</td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -388,6 +384,7 @@
                                                     <strong>{{ __('insurance.accident.confirmation.confirm_data') }}</strong>
                                                 </label>
                                             </div>
+
                                             <div class="form-check mb-3">
                                                 <input class="form-check-input" type="checkbox" id="confirm-offer"
                                                     required>
@@ -395,21 +392,24 @@
                                                     <strong>{{ __('insurance.accident.confirmation.confirm_offer') }}</strong>
                                                 </label>
                                             </div>
+
                                             <form
-                                                action="{{ route('accident.storage', ['locale' => getCurrentLocale()]) }}"
+                                                action="{{ route('osago.prepare', ['locale' => getCurrentLocale()]) }}"
                                                 method="POST" id="storage-form">
                                                 @csrf
-                                                <div class="d-flex gap-2">
-                                                    <button type="submit" class="btn btn-success"
-                                                        id="confirm-application" disabled>
-                                                        <i class="fas fa-check me-2"></i>
-                                                        {{ __('insurance.accident.confirmation.proceed_to_payment') }}
-                                                    </button>
+
+                                                <div class="d-flex justify-content-between align-items-center">
                                                     <a href="{{ route('accident.main', ['locale' => getCurrentLocale()]) }}"
                                                         class="btn btn-secondary">
                                                         <i class="fas fa-arrow-left me-2"></i>
                                                         {{ __('insurance.accident.confirmation.back') }}
                                                     </a>
+
+                                                    <button type="submit" class="btn btn-success"
+                                                        id="confirm-application" disabled>
+                                                        <i class="fas fa-check me-2"></i>
+                                                        {{ __('insurance.accident.confirmation.proceed_to_payment') }}
+                                                    </button>
                                                 </div>
                                             </form>
                                         </div>

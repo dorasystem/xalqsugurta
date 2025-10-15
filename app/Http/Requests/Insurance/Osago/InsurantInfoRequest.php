@@ -107,7 +107,7 @@ class InsurantInfoRequest extends FormRequest
             'driver_limit' => ['required', 'string', 'in:limited,unlimited'],
             'driver_full_name' => ['nullable', 'array', 'min:1'],
             'driver_full_info' => ['nullable', 'array', 'min:1'],
-            'driver_full_info.*' => ['nullable', 'array', 'min:1', 'required_array_keys:pinfl,seria,number,issuedBy,issueDate,firstname,lastname,middlename,licenseNumber,licenseSeria,birthDate,licenseIssueDate'],
+            'driver_full_info.*' => ['nullable', 'array', 'min:1', 'required_array_keys:pinfl,seria,number,issuedBy,issueDate,firstname,lastname,middlename,licenseNumber,licenseSeria,birthDate,birthPlace,licenseIssueDate'],
             'kinship' => ['nullable', 'array', 'min:1'],
             'kinship.*' => ['required', 'min:1', 'in:0,1,2,3,4,5,6,7,8,9,10'],
         ];

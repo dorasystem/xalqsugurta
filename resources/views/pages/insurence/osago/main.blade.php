@@ -90,14 +90,14 @@
                             <div id="insurance-driver-full-information" class="card-footer d-none">
                                 <div class="row">
 
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-last-name'" :name="'last_name'"
-                                    :label="'messages.last_name'" :placeholder="'messages.last_name_placeholder'" />
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-last-name'" :name="'last_name'"
+                                        :label="'messages.last_name'" :placeholder="'messages.last_name_placeholder'" />
 
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-first-name'" :name="'first_name'"
-                                    :label="'messages.first_name'" :placeholder="'messages.first_name_placeholder'" />
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-first-name'" :name="'first_name'"
+                                        :label="'messages.first_name'" :placeholder="'messages.first_name_placeholder'" />
 
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-middle-name'" :name="'middle_name'"
-                                    :label="'messages.middle_name'" :placeholder="'messages.middle_name_placeholder'" />
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-middle-name'" :name="'middle_name'"
+                                        :label="'messages.middle_name'" :placeholder="'messages.middle_name_placeholder'" />
 
                                     <input type="hidden" id="owner-address" name="owner_address">
                                     <input type="hidden" id="owner-infos" name="owner_infos">
@@ -126,13 +126,13 @@
                                     </label>
                                 </div>
 
-                            <div id="applicant-info-search">
-                                <div class="row">
-                                    <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'applicant-passport-series'"
-                                        :name="'applicant_passport_series'" :placeholder="'messages.passport_series_placeholder'" :label="'messages.passport_series'" />
+                                <div id="applicant-info-search">
+                                    <div class="row">
+                                        <x-inputs.input_form :type="'text'" :class="'col-md-2'" :idFor="'applicant-passport-series'"
+                                            :name="'applicant_passport_series'" :placeholder="'messages.passport_series_placeholder'" :label="'messages.passport_series'" />
 
-                                    <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'applicant-passport-number'"
-                                        :name="'applicant_passport_number'" :placeholder="'messages.passport_number_placeholder'" :label="'messages.passport_number'" />
+                                        <x-inputs.input_form :type="'number'" :class="'col-md-3'" :idFor="'applicant-passport-number'"
+                                            :name="'applicant_passport_number'" :placeholder="'messages.passport_number_placeholder'" :label="'messages.passport_number'" />
 
                                         <x-inputs.input_form :type="'number'" :class="'col-md-4'" :idFor="'applicant-pinfl'"
                                             :name="'applicant_pinfl'" :placeholder="'messages.applicant_pinfl_placeholder'" :label="'messages.applicant_pinfl'" />
@@ -141,28 +141,28 @@
                                     </div>
                                 </div>
 
-                        </div>
-                        <div id="applicant-info-display" class="card-footer d-none">
-                            <div class="row">
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-last-name'" :name="'applicant_last_name'"
-                                    :label="'messages.last_name'" :placeholder="'messages.last_name_placeholder'" />
-
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-first-name'" :name="'applicant_first_name'"
-                                    :label="'messages.first_name'" :placeholder="'messages.first_name_placeholder'" />
-
-                                <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant_middle_name'"
-                                    :label="'messages.middle_name'" :placeholder="'messages.middle_name_placeholder'" />
-                                <input type="hidden" name="applicant_infos" id="applicant-infos">
                             </div>
+                            <div id="applicant-info-display" class="card-footer d-none">
+                                <div class="row">
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-last-name'" :name="'applicant_last_name'"
+                                        :label="'messages.last_name'" :placeholder="'messages.last_name_placeholder'" />
 
-                            <div class="row">
-                                <x-inputs.input_info :class="'col-md-6'" :idFor="'applicant-address'" :name="'applicant_address'"
-                                    :label="'messages.address'" :placeholder="'messages.address_placeholder'" />
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-first-name'" :name="'applicant_first_name'"
+                                        :label="'messages.first_name'" :placeholder="'messages.first_name_placeholder'" />
 
-                                <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'applicant-phone-number'"
-                                    :name="'applicant_phone_number'" :label="'messages.phone_number'" :placeholder="'messages.phone_number_placeholder'" />
+                                    <x-inputs.input_info :class="'col-md-4'" :idFor="'applicant-middle-name'" :name="'applicant_middle_name'"
+                                        :label="'messages.middle_name'" :placeholder="'messages.middle_name_placeholder'" />
+                                    <input type="hidden" name="applicant_infos" id="applicant-infos">
+                                </div>
+
+                                <div class="row">
+                                    <x-inputs.input_info :class="'col-md-6'" :idFor="'applicant-address'" :name="'applicant_address'"
+                                        :label="'messages.address'" :placeholder="'messages.address_placeholder'" />
+
+                                    <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'applicant-phone-number'"
+                                        :name="'applicant_phone_number'" :label="'messages.phone_number'" :placeholder="'messages.phone_number_placeholder'" />
+                                </div>
                             </div>
-                        </div>
 
                         </div>
 
@@ -766,10 +766,6 @@
                     const existing = driverInfoDisplay.querySelectorAll('.card-footer').length;
                     if (result.success && existing < 5) {
 
-                        document.getElementById('driver-passport-series').value = '';
-                        document.getElementById('driver-passport-number').value = '';
-                        document.getElementById('driver-pinfl').value = '';
-
                         const existing = driverInfoDisplay.querySelectorAll('.card-footer')
                             .length;
                         console.log('existing', existing);
@@ -781,6 +777,7 @@
                             const uniqueId = driverIdCounter;
 
                             const result1 = await sendPostRequest('/get-person-info', data);
+                            console.log('Person Info:', result1);
                             let driverSelfInfo = {
                                 'pinfl': driverData.pinfl,
                                 'seria': driverData.passport_series,
@@ -793,6 +790,7 @@
                                 'licenseNumber': result.data.result.DriverInfo.licenseNumber,
                                 'licenseSeria': result.data.result.DriverInfo.licenseSeria,
                                 'birthDate': result.data.result.DriverInfo.pOwnerDate,
+                                'birthPlace': result1.data.result.birthPlace,
                                 'licenseIssueDate': result.data.result.DriverInfo.issueDate.split(
                                     "T")[0],
                             }
@@ -840,6 +838,9 @@
                             `;
 
                             driverInfoDisplay.innerHTML += driverHtml;
+                            document.getElementById('driver-passport-series').value = '';
+                            document.getElementById('driver-passport-number').value = '';
+                            document.getElementById('driver-pinfl').value = '';
                         } else {
                             alert('You can add only 5 drivers');
                         }

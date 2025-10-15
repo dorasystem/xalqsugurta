@@ -3,29 +3,23 @@
 namespace App\Http\Controllers\Insurence;
 
 use Carbon\Carbon;
+use App\Models\Order;
 use Illuminate\Http\Request;
+use App\Services\OrderService;
 use Illuminate\Contracts\View\View;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Insurance\Osago\InsurantInfoRequest;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
+use App\Http\Requests\Insurance\Osago\InsurantInfoRequest;
 
 class OsagoController extends Controller
 {
+
+    public function __construct(private readonly OrderService $orderService) {}
+
     public function main(): View
     {
         return view('pages.insurence.osago.main');
-    }
-
-
-    public function application(): View
-    {
-        $data = Session::get('insurance_info');
-        return view('pages.insurence.osago.application', compact('data'));
-    }
-
-    public function payment(): View
-    {
-        return view('pages.insurence.payment');
     }
 
     // public function calculation(Request $request)
@@ -61,34 +55,34 @@ class OsagoController extends Controller
                 ];
 
                 $address = $regions[$region];
-                $regionsIDForEosgouz = ["01" => 10, "10" => 11, "20" => 12, "25" => 13, "30" => 14, "40" => 15, "50" => 16, "60" => 17, "70" => 18, "75" => 19, "80" => 20, "85" => 21, "90" => 22, "95" => 23];
             }
+            $regionsIDForEosgouz = ["01" => 10, "10" => 11, "20" => 12, "25" => 13, "30" => 14, "40" => 15, "50" => 16, "60" => 17, "70" => 18, "75" => 19, "80" => 20, "85" => 21, "90" => 22, "95" => 23];
 
             if ($data['driver_limit'] == "unlimited") {
                 $driver_limit = [];
             } else {
                 $driver_limit = [];
-                foreach ($data['driver_full_name'] as $key => $value) {
-                    $fullInfoOfDriver = json_decode($data['driver_full_info'][$key], true);
+
+                foreach ($data['driver_full_info'] as $key => $driver) {
                     $driver_limit[] =
                         [
                             'passportData' => [
-                                'pinfl' => $data['driver_full_info']['pinfl'] ?? '12345678901234',
-                                'seria' => $data['driver_full_info']['seria'] ?? 'AA',
-                                'number' => $data['driver_full_info']['number'] ?? '1234567',
-                                ' ' => $data['driver_full_info']['issuedBy'] ?? 'УВД Яккасарайского района',
-                                'issueDate' => $data['driver_full_info']['issueDate'] ?? '2015-10-30'
+                                'pinfl' => $driver['pinfl'] ?? '12345678901234',
+                                'seria' => $driver['seria'] ?? 'AA',
+                                'number' => $driver['number'] ?? '1234567',
+                                'issuedBy' => $driver['issuedBy'] ?? 'УВД Яккасарайского района',
+                                'issueDate' => $driver['issueDate'] ?? '2015-10-30'
                             ],
                             'fullName' => [
-                                'firstname' => $data['driver_full_info']['firstname'] ?? 'Иван',
-                                'lastname' => $data['driver_full_info']['lastname'] ?? 'Иванов',
-                                'middlename' => $data['driver_full_info']['middlename'] ?? 'Иванович'
+                                'firstname' => $driver['firstname'] ?? 'Иван',
+                                'lastname' => $driver['lastname'] ?? 'Иванов',
+                                'middlename' => $driver['middlename'] ?? 'Иванович'
                             ],
-                            'licenseNumber' => $data['driver_full_info']['licenseNumber'] ?? '1546546',
-                            'licenseSeria' => $data['driver_full_info']['licenseSeria'] ?? 'AA',
-                            'relative' => $data['driver_full_info']['kinship'] ?? 0,
-                            'birthDate' => $data['driver_full_info']['birthDate'] ?? '1989-05-30',
-                            'licenseIssueDate' => $data['driver_full_info']['licenseIssueDate'] ?? '2015-05-30',
+                            'licenseNumber' => $driver['licenseNumber'] ?? '1546546',
+                            'licenseSeria' => $driver['licenseSeria'] ?? 'AA',
+                            'relative' => $driver['kinship'] ?? 0,
+                            'birthDate' => $driver['birthDate'] ?? '1989-05-30',
+                            'licenseIssueDate' => $driver['licenseIssueDate'] ?? '2015-05-30',
                             'residentOfUzb' => 1
                         ];
                 }
@@ -153,7 +147,7 @@ class OsagoController extends Controller
                     'contractTermConclusionId' => $data['insurance_infos']['period'] ?? 1,
                     'useTerritoryId' => $useTerritoryId ?? 1,
                     'commission' => 0,
-                    'insurancePremiumPaidToInsurer' => $data['insurance_infos']['amount'] ?? '56000',
+                    'insurancePremiumPaidToInsurer' => (int)(str_replace(',', '', $data['insurance_infos']['amount'])) ?? '56000',
                     'seasonalInsuranceId' => 7,
                     'foreignVehicleId' => null
                 ],
@@ -169,7 +163,7 @@ class OsagoController extends Controller
                     'issueYear' => $data['car_year'] ?? '2015',
                     'govNumber' => $data['gov_number'] ?? '01K384SO',
                     'bodyNumber' => $data['other_info']['bodyNumber'] ?? 'jk543kj453k4',
-                    'regionId' => '1',
+                    'regionId' => $data['is_applicant_owner'] == "on" ? $data['owner_infos']['regionId'] : $data['applicant_infos']['regionId'],
                     'terrainId' => '1'
                 ],
                 'drivers' => $driver_limit
@@ -177,12 +171,59 @@ class OsagoController extends Controller
             // dd($infoShablon);
             Session::put('insurance_info', $infoShablon);
 
-            return redirect()->route('osago.application',['locale' => getCurrentLocale()]);
+            return redirect()->route('osago.application', ['locale' => getCurrentLocale()]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Ошибка расчета: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function application(): View
+    {
+        $data = Session::get('insurance_info');
+        return view('pages.insurence.osago.application', compact('data'));
+    }
+
+    public function prepare()
+    {
+        try {
+            $info = Session::get('insurance_info');
+            if (empty($info)) {
+                return redirect()->back()->with('error', 'Ariza ma\'lumotlari topilmadi. Iltimos, qaytadan ariza to\'ldiring.');
+            }
+
+            $response = Http::timeout(4)->tryTimes(3)->post('https://impex-insurance.uz/api/osago/contract/add', $info);
+
+            if ($response->failed()) {
+                return redirect()->back()->with('error', 'Xatolik yuz berdi: ' . $response->body());
+            }
+            if ($response->successfull() && $response->status == 200) {
+
+                $apiResponse = $response->json();
+                $orderData = [
+                    'product_name' => 'osago',
+                    'amount' => $info['cost']['insurancePremium'] ?? 0,
+                    'state' => 0,
+                    'insurance_id' => $apiResponse['response']['result']['uuid'] ?? uniqid('acc_'),
+                    'phone' => $info['applicant']['person']['phoneNumber'] ?? null,
+                    'insurances_data' => $info,
+                    'insurances_response_data' => $apiResponse
+                ];
+                $order = $this->orderService->createOrder($orderData)->id;
+
+                return redirect()->route('osago.payment', ['order' => $order]);
+            }
+
+            return redirect()->back()->with('error', 'Xatolik yuz berdi');
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+    }
+
+    public function payment(Order $order)
+    {
+        return view('pages.insurence.osago.payment', compact('order'));
     }
 }
