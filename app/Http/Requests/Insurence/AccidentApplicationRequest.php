@@ -72,27 +72,48 @@ final class AccidentApplicationRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'applicant.passportSeries' => __('messages.applicant_passport_series'),
-            'applicant.passportNumber' => __('messages.applicant_passport_number'),
-            'applicant.birthDate' => __('insurance.passport.birth_date'),
-            'applicant.lastName' => __('messages.applicant_last_name'),
-            'applicant.firstName' => __('messages.applicant_first_name'),
-            'applicant.middleName' => __('messages.applicant_middle_name'),
-            'applicant.address' => __('messages.applicant_address'),
-            'applicant.phoneNumber' => __('messages.applicant_phone_number'),
+            'applicant.passportSeries' => __('insurance.person.passport_series'),
+            'applicant.passportNumber' => __('insurance.person.passport_number'),
+            'applicant.birthDate' => __('insurance.person.birth_date'),
+            'applicant.lastName' => __('insurance.person.last_name'),
+            'applicant.firstName' => __('insurance.person.first_name'),
+            'applicant.middleName' => __('insurance.person.middle_name'),
+            'applicant.address' => __('insurance.person.address'),
+            'applicant.phoneNumber' => __('insurance.person.phone'),
 
-            'client.passportSeries' => __('insurance.passport.series'),
-            'client.passportNumber' => __('insurance.passport.number'),
-            'client.birthDate' => __('insurance.passport.birth_date'),
+            'client.passportSeries' => __('insurance.person.passport_series'),
+            'client.passportNumber' => __('insurance.person.passport_number'),
+            'client.birthDate' => __('insurance.person.birth_date'),
             'client.lastName' => __('insurance.person.last_name'),
             'client.firstName' => __('insurance.person.first_name'),
             'client.middleName' => __('insurance.person.middle_name'),
             'client.address' => __('insurance.person.address'),
-            'client.phoneNumber' => __('insurance.person.telephone_number'),
+            'client.phoneNumber' => __('insurance.person.phone'),
 
-            'insurance_amount' => __('messages.insurance_amount'),
+            'insurance_amount' => __('messages.insurance_sum'),
             'payment_start_date' => __('messages.start_date'),
             'payment_end_date' => __('messages.end_date'),
+        ];
+    }
+
+    /**
+     * Get custom validation messages.
+     */
+    public function messages(): array
+    {
+        return [
+            'required' => __('validation.required'),
+            'string' => __('validation.string'),
+            'size' => __('validation.size'),
+            'max' => __('validation.max.string'),
+            'min' => __('validation.min.numeric'),
+            'numeric' => __('validation.numeric'),
+            'date' => __('validation.date'),
+            'before' => __('validation.before'),
+            'after' => __('validation.after'),
+            'after_or_equal' => __('validation.after_or_equal'),
+            'boolean' => __('validation.boolean'),
+            'integer' => __('validation.integer'),
         ];
     }
 }

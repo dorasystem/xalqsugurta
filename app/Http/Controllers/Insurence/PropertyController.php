@@ -9,6 +9,7 @@ use App\Http\Requests\Insurence\PropertyApplicationRequest;
 use App\Models\Order;
 use App\Services\OrderService;
 use App\Services\PropertyService;
+use App\Traits\HandlesInsuranceErrors;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ use Illuminate\View\View;
 
 final class PropertyController extends Controller
 {
+    use HandlesInsuranceErrors;
     public function __construct(
         private readonly PropertyService $propertyService,
         private readonly OrderService $orderService
@@ -29,10 +31,8 @@ final class PropertyController extends Controller
 
     public function applicationView(): View|RedirectResponse
     {
-        // For GET requests, we need to handle the case where there's no data
         if (!session()->has('property_application_data')) {
-            return redirect()->route('property.main', ['locale' => getCurrentLocale()])
-                ->with('error', 'Ariza ma\'lumotlari topilmadi. Iltimos, qaytadan ariza to\'ldiring.');
+            return $this->handleSessionNotFound('property');
         }
 
         $applicationData = session('property_application_data');
@@ -71,20 +71,15 @@ final class PropertyController extends Controller
                 'applicationData' => $applicationData->toArray(),
             ]);
         } catch (\Exception $e) {
-            return back()
-                ->withErrors(['error' => 'Xatolik yimage.pnguz berdi: ' . $e->getMessage()])
-                ->withInput();
+            return $this->handleGeneralError('property', $e, 'application');
         }
     }
 
     public function storage(): RedirectResponse
     {
         try {
-            // Get application data from session
             if (!session()->has('property_application_data')) {
-                Log::warning('Property storage: Session data not found');
-                return redirect()->route('property.main', ['locale' => getCurrentLocale()])
-                    ->with('error', 'Ariza ma\'lumotlari topilmadi. Iltimos, qaytadan ariza to\'ldiring.');
+                return $this->handleSessionNotFound('property');
             }
 
             $applicationData = session('property_application_data');
@@ -111,38 +106,13 @@ final class PropertyController extends Controller
 
             Log::info('Property storage: Order created successfully', ['order_id' => $order->id]);
 
-            // Redirect to payment page with orderId
-            return redirect()->route('property.payment', [
-                'locale' => getCurrentLocale(),
-                'orderId' => $order->id,
-            ]);
+            return $this->redirectWithSuccess(
+                'payment.show',
+                ['locale' => getCurrentLocale(), 'orderId' => $order->id],
+                __('success.insurance.order_created')
+            );
         } catch (\Exception $e) {
-            Log::error('Property storage: Failed to create order', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
-            return back()
-                ->with('error', 'Buyurtma yaratishda xatolik: ' . $e->getMessage());
-        }
-    }
-
-    public function payment(int $orderId): View|RedirectResponse
-    {
-        try {
-            $order = $this->orderService->getOrderById($orderId);
-
-            if (!$order) {
-                return redirect()->route('property.main', ['locale' => getCurrentLocale()])
-                    ->with('error', 'Buyurtma topilmadi.');
-            }
-
-            return view('pages.insurence.property.payment', [
-                'order' => $order,
-            ]);
-        } catch (\Exception $e) {
-            return redirect()->route('property.main', ['locale' => getCurrentLocale()])
-                ->with('error', 'Xatolik yuz berdi: ' . $e->getMessage());
+            return $this->handleOrderCreationError('property', $e);
         }
     }
 
@@ -168,7 +138,7 @@ final class PropertyController extends Controller
         if (!$result['success']) {
             return response()->json([
                 'success' => false,
-                'message' => $result['error'] ?? 'Xatolik yuz berdi',
+                'message' => $result['error'] ?? __('errors.insurance.property.cadaster_not_found'),
             ], 422);
         }
 
