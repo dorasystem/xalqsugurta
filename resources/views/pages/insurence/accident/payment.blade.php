@@ -88,15 +88,17 @@
                                             <div class="d-flex align-items-center">
                                                 <input type="radio" name="payment_method" id="payment_click"
                                                     value="click" class="me-3">
-                                                <div class="flex-grow-1">
-                                                    <h5 class="mb-1">
-                                                        <img src="https://click.uz/click/images/logo.svg" alt="Click"
-                                                            style="height: 30px;" class="me-2">
-                                                        Click
-                                                    </h5>
-                                                    <p class="text-muted mb-0 small">Bank kartalari orqali to'lash (Uzcard,
-                                                        Humo)</p>
-                                                </div>
+                                                <label for="payment_click">
+                                                    <div class="flex-grow-1">
+                                                        <h5 class="mb-1">
+                                                            <img src="{{ asset('images/tolovTizimi/click.svg') }}"
+                                                                alt="Click" style="height: 50px;" class="me-2">
+                                                        </h5>
+                                                        <p class="text-muted mb-0 small">Bank kartalari orqali to'lash
+                                                            (Uzcard,
+                                                            Humo)</p>
+                                                    </div>
+                                                </label>
                                                 <i class="fas fa-chevron-right text-muted"></i>
                                             </div>
                                         </div>
@@ -108,15 +110,17 @@
                                             <div class="d-flex align-items-center">
                                                 <input type="radio" name="payment_method" id="payment_payme"
                                                     value="payme" class="me-3">
-                                                <div class="flex-grow-1">
-                                                    <h5 class="mb-1">
-                                                        <img src="https://payme.uz/assets/img/logo.svg" alt="Payme"
-                                                            style="height: 30px;" class="me-2">
-                                                        Payme
-                                                    </h5>
-                                                    <p class="text-muted mb-0 small">Bank kartalari orqali to'lash (Uzcard,
-                                                        Humo)</p>
-                                                </div>
+                                                <label for="payment_payme">
+                                                    <div class="flex-grow-1">
+                                                        <h5 class="mb-1">
+                                                            <img src="{{ asset('images/tolovTizimi/payme.svg') }}"
+                                                                alt="Payme" style="height: 50px;" class="me-2">
+                                                        </h5>
+                                                        <p class="text-muted mb-0 small">Bank kartalari orqali to'lash
+                                                            (Uzcard,
+                                                            Humo)</p>
+                                                    </div>
+                                                </label>
                                                 <i class="fas fa-chevron-right text-muted"></i>
                                             </div>
                                         </div>
@@ -232,7 +236,7 @@
             setTimeout(() => {
                 alert(
                     `${selectedPayment.toUpperCase()} to'lov tizimiga ulanilmoqda...\nBuyurtma raqami: #${orderId}`
-                    );
+                );
                 payBtn.disabled = false;
                 payBtn.innerHTML = '<i class="fas fa-credit-card me-2"></i>To\'lovni amalga oshirish';
             }, 2000);

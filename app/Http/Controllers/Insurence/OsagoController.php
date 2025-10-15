@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Insurence;
 
+use Exception;
 use Carbon\Carbon;
 use App\Models\Order;
 use Illuminate\Http\Request;
@@ -10,6 +11,8 @@ use Illuminate\Contracts\View\View;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\ConnectionException;
 use App\Http\Requests\Insurance\Osago\InsurantInfoRequest;
 
 class OsagoController extends Controller
@@ -190,18 +193,28 @@ class OsagoController extends Controller
     {
         try {
             $info = Session::get('insurance_info');
+
             if (empty($info)) {
                 return redirect()->back()->with('error', 'Ariza ma\'lumotlari topilmadi. Iltimos, qaytadan ariza to\'ldiring.');
             }
 
-            $response = Http::timeout(4)->tryTimes(3)->post('https://impex-insurance.uz/api/osago/contract/add', $info);
+            // Send the request with timeout and retry (recommended)
+            $response = Http::timeout(10)
+                ->retry(3, 1000)
+                ->post('https://impex-insurance.uz/api/osago/contract/add', $info);
 
+            // Check if request failed
             if ($response->failed()) {
                 return redirect()->back()->with('error', 'Xatolik yuz berdi: ' . $response->body());
             }
-            if ($response->successfull() && $response->status == 200) {
 
+            // Check success
+            if ($response->successful()) {
                 $apiResponse = $response->json();
+
+                // Optional: dump for testing
+                // dd($apiResponse);
+
                 $orderData = [
                     'product_name' => 'osago',
                     'amount' => $info['cost']['insurancePremium'] ?? 0,
@@ -209,21 +222,27 @@ class OsagoController extends Controller
                     'insurance_id' => $apiResponse['response']['result']['uuid'] ?? uniqid('acc_'),
                     'phone' => $info['applicant']['person']['phoneNumber'] ?? null,
                     'insurances_data' => $info,
-                    'insurances_response_data' => $apiResponse
+                    'insurances_response_data' => $apiResponse,
                 ];
+
                 $order = $this->orderService->createOrder($orderData)->id;
 
-                return redirect()->route('osago.payment', ['order' => $order]);
+                return redirect()->route('osago.payment', ['locale' => getCurrentLocale(),'order' => $order]);
             }
 
             return redirect()->back()->with('error', 'Xatolik yuz berdi');
-        } catch (\Throwable $th) {
-            //throw $th;
+        } catch (ConnectionException $e) {
+            return redirect()->back()->with('error', 'Tarmoq xatosi yoki API bilan aloqa o‘rnatilmadi.');
+        } catch (RequestException $e) {
+            return redirect()->back()->with('error', 'So‘rovni amalga oshirishda xatolik yuz berdi: ' . $e->getMessage());
+        } catch (Exception $e) {
+            return redirect()->back()->with('error', 'Kutilmagan xatolik: ' . $e->getMessage());
         }
     }
 
-    public function payment(Order $order)
+    public function payment($lang, Order $order)
     {
+        // dd($order);
         return view('pages.insurence.osago.payment', compact('order'));
     }
 }

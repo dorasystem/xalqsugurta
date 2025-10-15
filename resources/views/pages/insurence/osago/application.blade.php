@@ -399,7 +399,7 @@
                                                 @csrf
 
                                                 <div class="d-flex justify-content-between align-items-center">
-                                                    <a href="{{ route('accident.main', ['locale' => getCurrentLocale()]) }}"
+                                                    <a href="{{ route('osago.main', ['locale' => getCurrentLocale()]) }}"
                                                         class="btn btn-secondary">
                                                         <i class="fas fa-arrow-left me-2"></i>
                                                         {{ __('insurance.accident.confirmation.back') }}

@@ -10,41 +10,10 @@
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
                                     <h3 class="card-title mb-0">
-                                        <i class="fas fa-credit-card me-2"></i>
+                                        <i class="fas fa-credit-card"></i>
                                         OSAGO Sug'urta To'lovi
                                     </h3>
                                     <p class="text-muted mb-0">Sug'urta to'lovini amalga oshiring</p>
-                                </div>
-                                {{-- Language Switcher --}}
-                                <div class="dropdown">
-                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                        id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fas fa-globe me-2"></i>
-                                        {{ strtoupper(app()->getLocale()) }}
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="languageDropdown">
-                                        <li>
-                                            <a class="dropdown-item"
-                                                href="{{ route('accident.payment', ['locale' => 'uz', 'orderId' => $order->id]) }}">
-                                                <img src="{{ asset('assets/images/flags/uz.png') }}" alt="UZ"
-                                                    class="me-2" style="width: 20px;"> O'zbek
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item"
-                                                href="{{ route('accident.payment', ['locale' => 'ru', 'orderId' => $order->id]) }}">
-                                                <img src="{{ asset('assets/images/flags/ru.png') }}" alt="RU"
-                                                    class="me-2" style="width: 20px;"> Русский
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item"
-                                                href="{{ route('accident.payment', ['locale' => 'en', 'orderId' => $order->id]) }}">
-                                                <img src="{{ asset('assets/images/flags/en.png') }}" alt="EN"
-                                                    class="me-2" style="width: 20px;"> English
-                                            </a>
-                                        </li>
-                                    </ul>
                                 </div>
                             </div>
                         </div>
@@ -53,11 +22,11 @@
                             <div class="row mb-4">
                                 <div class="col-12">
                                     <div class="alert alert-info">
-                                        <h5><i class="fas fa-info-circle me-2"></i>Buyurtma ma'lumotlari</h5>
+                                        <h5><i class="fas fa-info-circle"></i>Buyurtma ma'lumotlari</h5>
                                         <div class="row mt-3">
                                             <div class="col-md-6">
                                                 <p class="mb-2"><strong>Buyurtma raqami:</strong> #{{ $order->id }}</p>
-                                                <p class="mb-2"><strong>Mahsulot:</strong> {{ $order->product_name }}</p>
+                                                <p class="mb-2"><strong>Mahsulot:</strong> {{ strtoupper($order->product_name) }}</p>
                                                 <p class="mb-2"><strong>Telefon:</strong> {{ $order->phone }}</p>
                                             </div>
                                             <div class="col-md-6">
@@ -89,15 +58,17 @@
                                             <div class="d-flex align-items-center">
                                                 <input type="radio" name="payment_method" id="payment_click"
                                                     value="click" class="me-3">
-                                                <div class="flex-grow-1">
-                                                    <h5 class="mb-1">
-                                                        <img src="https://click.uz/click/images/logo.svg" alt="Click"
-                                                            style="height: 30px;" class="me-2">
-                                                        Click
-                                                    </h5>
-                                                    <p class="text-muted mb-0 small">Bank kartalari orqali to'lash (Uzcard,
-                                                        Humo)</p>
-                                                </div>
+                                                <label for="payment_click">
+                                                    <div class="flex-grow-1">
+                                                        <h5 class="mb-1">
+                                                            <img src="{{ asset('images/tolovTizimi/click.svg') }}"
+                                                                alt="Click" style="height: 50px;" class="me-2">
+                                                        </h5>
+                                                        <p class="text-muted mb-0 small">Bank kartalari orqali to'lash
+                                                            (Uzcard,
+                                                            Humo)</p>
+                                                    </div>
+                                                </label>
                                                 <i class="fas fa-chevron-right text-muted"></i>
                                             </div>
                                         </div>
@@ -109,15 +80,17 @@
                                             <div class="d-flex align-items-center">
                                                 <input type="radio" name="payment_method" id="payment_payme"
                                                     value="payme" class="me-3">
-                                                <div class="flex-grow-1">
-                                                    <h5 class="mb-1">
-                                                        <img src="https://payme.uz/assets/img/logo.svg" alt="Payme"
-                                                            style="height: 30px;" class="me-2">
-                                                        Payme
-                                                    </h5>
-                                                    <p class="text-muted mb-0 small">Bank kartalari orqali to'lash (Uzcard,
-                                                        Humo)</p>
-                                                </div>
+                                                <label for="payment_payme">
+                                                    <div class="flex-grow-1">
+                                                        <h5 class="mb-1">
+                                                            <img src="{{ asset('images/tolovTizimi/payme.svg') }}"
+                                                                alt="Payme" style="height: 50px;" class="me-2">
+                                                        </h5>
+                                                        <p class="text-muted mb-0 small">Bank kartalari orqali to'lash
+                                                            (Uzcard,
+                                                            Humo)</p>
+                                                    </div>
+                                                </label>
                                                 <i class="fas fa-chevron-right text-muted"></i>
                                             </div>
                                         </div>
