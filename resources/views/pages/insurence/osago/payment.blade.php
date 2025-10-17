@@ -26,7 +26,8 @@
                                         <div class="row mt-3">
                                             <div class="col-md-6">
                                                 <p class="mb-2"><strong>Buyurtma raqami:</strong> #{{ $order->id }}</p>
-                                                <p class="mb-2"><strong>Mahsulot:</strong> {{ strtoupper($order->product_name) }}</p>
+                                                <p class="mb-2"><strong>Mahsulot:</strong>
+                                                    {{ strtoupper($order->product_name) }}</p>
                                                 <p class="mb-2"><strong>Telefon:</strong> {{ $order->phone }}</p>
                                             </div>
                                             <div class="col-md-6">
@@ -91,6 +92,10 @@
                                                             Humo)</p>
                                                     </div>
                                                 </label>
+                                                <form id="form-payme" method="GET" action="{{ route('payment') }}"
+                                                    class="d-none" target="_blank">
+                                                    <input type="hidden" name="id" value="{{ $order->id }}">
+                                                </form>
                                                 <i class="fas fa-chevron-right text-muted"></i>
                                             </div>
                                         </div>
@@ -160,77 +165,90 @@
         </div>
     </section>
 
-    {{-- JavaScript for Payment Selection --}}
-    <script>
-        const orderId = {
-            {
-                $order - > id
+    @push('scripts')
+        <script>
+            const orderId = {{ $order->id }};
+
+            console.log(orderId);
+            let selectedPayment = null;
+
+            function selectPayment(method) {
+                selectedPayment = method;
+
+                // Remove previous selections
+                document.querySelectorAll('.payment-card').forEach(card => {
+                    card.classList.remove('border-primary', 'bg-light');
+                });
+
+                // Uncheck all radios
+                document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+                    radio.checked = false;
+                });
+
+                // Select current payment
+                const selectedCard = document.getElementById('payment_' + method).closest('.payment-card');
+                selectedCard.classList.add('border-primary', 'bg-light');
+                document.getElementById('payment_' + method).checked = true;
+
+                // Hide warning
+                document.getElementById('payment-warning').style.display = 'none';
             }
-        };
-        let selectedPayment = null;
 
-        function selectPayment(method) {
-            selectedPayment = method;
+            function processPayment() {
+                if (!selectedPayment) {
+                    document.getElementById('payment-warning').style.display = 'block';
+                    return;
+                }
 
-            // Remove previous selections
+                const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value;
+
+                if (!paymentMethod) {
+                    alert('Iltimos, to‘lov usulini tanlang!');
+                    return;
+                }
+
+                if (paymentMethod === 'payme') {
+                    document.getElementById('form-payme').submit();
+                } else if (paymentMethod === 'click') {
+                    document.getElementById('click_form').submit();
+                } else {
+                    alert('Boshqa to‘lov usuli tanlandi');
+                }
+                // Update button state
+                const payBtn = document.getElementById('payBtn');
+                payBtn.disabled = true;
+                payBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>To\'lov amalga oshirilmoqda...';
+
+                // Here you would typically make an API call to initiate payment
+                // For now, we'll just show a message
+                console.log('Processing payment with:', selectedPayment, 'for order:', orderId);
+
+                // TODO: Implement actual payment gateway integration
+                setTimeout(() => {
+                    alert(
+                        `${selectedPayment.toUpperCase()} to'lov tizimiga ulanilmoqda...\nBuyurtma raqami: #${orderId}`
+                    );
+                    payBtn.disabled = false;
+                    payBtn.innerHTML = '<i class="fas fa-credit-card me-2"></i>To\'lovni amalga oshirish';
+                }, 2000);
+            }
+
+            // Add hover effect to payment cards
             document.querySelectorAll('.payment-card').forEach(card => {
-                card.classList.remove('border-primary', 'bg-light');
+                card.style.cursor = 'pointer';
+                card.addEventListener('mouseenter', function() {
+                    if (!this.classList.contains('border-primary')) {
+                        this.style.borderColor = '#0d6efd';
+                    }
+                });
+                card.addEventListener('mouseleave', function() {
+                    if (!this.classList.contains('border-primary')) {
+                        this.style.borderColor = '';
+                    }
+                });
             });
-
-            // Uncheck all radios
-            document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
-                radio.checked = false;
-            });
-
-            // Select current payment
-            const selectedCard = document.getElementById('payment_' + method).closest('.payment-card');
-            selectedCard.classList.add('border-primary', 'bg-light');
-            document.getElementById('payment_' + method).checked = true;
-
-            // Hide warning
-            document.getElementById('payment-warning').style.display = 'none';
-        }
-
-        function processPayment() {
-            if (!selectedPayment) {
-                document.getElementById('payment-warning').style.display = 'block';
-                return;
-            }
-
-            // Update button state
-            const payBtn = document.getElementById('payBtn');
-            payBtn.disabled = true;
-            payBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>To\'lov amalga oshirilmoqda...';
-
-            // Here you would typically make an API call to initiate payment
-            // For now, we'll just show a message
-            console.log('Processing payment with:', selectedPayment, 'for order:', orderId);
-
-            // TODO: Implement actual payment gateway integration
-            setTimeout(() => {
-                alert(
-                    `${selectedPayment.toUpperCase()} to'lov tizimiga ulanilmoqda...\nBuyurtma raqami: #${orderId}`
-                );
-                payBtn.disabled = false;
-                payBtn.innerHTML = '<i class="fas fa-credit-card me-2"></i>To\'lovni amalga oshirish';
-            }, 2000);
-        }
-
-        // Add hover effect to payment cards
-        document.querySelectorAll('.payment-card').forEach(card => {
-            card.style.cursor = 'pointer';
-            card.addEventListener('mouseenter', function() {
-                if (!this.classList.contains('border-primary')) {
-                    this.style.borderColor = '#0d6efd';
-                }
-            });
-            card.addEventListener('mouseleave', function() {
-                if (!this.classList.contains('border-primary')) {
-                    this.style.borderColor = '';
-                }
-            });
-        });
-    </script>
+        </script>
+    @endpush
 
     <style>
         .payment-card {

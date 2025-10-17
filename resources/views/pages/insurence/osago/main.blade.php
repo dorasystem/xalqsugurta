@@ -104,6 +104,7 @@
                                 </div>
                             </div>
                         </div>
+
                         @if ($errors->any())
                             <div class="alert alert-danger">
                                 <ul class="mb-0">
@@ -113,6 +114,7 @@
                                 </ul>
                             </div>
                         @endif
+
                         <div id="applicant-info" class="card d-none">
                             <div class="card-header">
                                 <h4 class="card-title">{{ __('messages.applicant_info_title') }}</h4>
@@ -135,7 +137,7 @@
                                             :name="'applicant_passport_number'" :placeholder="'messages.passport_number_placeholder'" :label="'messages.passport_number'" />
 
                                         <x-inputs.input_form :type="'number'" :class="'col-md-4'" :idFor="'applicant-pinfl'"
-                                            :name="'applicant_pinfl'" :placeholder="'messages.applicant_pinfl_placeholder'" :label="'messages.applicant_pinfl'" />
+                                            :name="'applicant_pinfl'" :placeholder="'messages.owner_pinfl_placeholder'" :label="'messages.owner_pinfl'" />
 
                                         <x-inputs.button :class="'col-md-3'" :button="'applicant-information-search-btn'" />
                                     </div>

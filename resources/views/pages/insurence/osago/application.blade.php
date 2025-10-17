@@ -106,7 +106,7 @@
                                             <tr>
                                                 <td class="fw-bold bg-light">{{ __('insurance.accident.fields.phone') }}
                                                 </td>
-                                                <td>{{ $data['applicant']['person']['phoneNumber'] ?? __('insurance.accident.not_specified') }}
+                                                <td>+{{ $data['applicant']['person']['phoneNumber'] ?? __('insurance.accident.not_specified') }}
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -375,44 +375,38 @@
                             {{-- Confirmation and Actions --}}
                             <div class="row">
                                 <div class="col-12">
-                                    <div class="card border-success">
-                                        <div class="card-body">
-                                            <div class="form-check mb-3">
-                                                <input class="form-check-input" type="checkbox" id="confirm-data"
-                                                    required>
-                                                <label class="form-check-label" for="confirm-data">
-                                                    <strong>{{ __('insurance.confirmation.confirm_data') }}</strong>
-                                                </label>
-                                            </div>
-
-                                            <div class="form-check mb-3">
-                                                <input class="form-check-input" type="checkbox" id="confirm-offer"
-                                                    required>
-                                                <label class="form-check-label" for="confirm-offer">
-                                                    <strong>{{ __('insurance.confirmation.confirm_offer') }}</strong>
-                                                </label>
-                                            </div>
-
-                                            <form action="{{ route('osago.prepare', ['locale' => getCurrentLocale()]) }}"
-                                                method="POST" id="storage-form">
-                                                @csrf
-
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <a href="{{ route('osago.main', ['locale' => getCurrentLocale()]) }}"
-                                                        class="btn btn-secondary">
-                                                        <i class="fas fa-arrow-left me-2"></i>
-                                                        {{ __('insurance.accident.confirmation.back') }}
-                                                    </a>
-
-                                                    <button type="submit" class="btn btn-success"
-                                                        id="confirm-application" disabled>
-                                                        <i class="fas fa-check me-2"></i>
-                                                        {{ __('insurance.accident.confirmation.proceed_to_payment') }}
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </div>
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="confirm-data" required>
+                                        <label class="form-check-label" for="confirm-data">
+                                            <strong>{{ __('insurance.confirmation.confirm_data') }}</strong>
+                                        </label>
                                     </div>
+
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" id="confirm-offer" required>
+                                        <label class="form-check-label" for="confirm-offer">
+                                            <strong>{{ __('insurance.confirmation.confirm_offer') }}</strong>
+                                        </label>
+                                    </div>
+
+                                    <form action="{{ route('osago.prepare', ['locale' => getCurrentLocale()]) }}"
+                                        method="POST" id="storage-form">
+                                        @csrf
+
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <a href="{{ route('osago.main', ['locale' => getCurrentLocale()]) }}"
+                                                class="btn btn-secondary">
+                                                <i class="fas fa-arrow-left me-2"></i>
+                                                {{ __('insurance.accident.confirmation.back') }}
+                                            </a>
+
+                                            <button type="submit" class="btn btn-success" id="confirm-application"
+                                                disabled>
+                                                <i class="fas fa-check me-2"></i>
+                                                {{ __('insurance.accident.confirmation.proceed_to_payment') }}
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
