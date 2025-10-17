@@ -255,8 +255,49 @@
                             </div>
                         </div>
 
+                        {{-- Confirmation and Actions --}}
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card border-success">
+                                    <div class="card-body">
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" id="confirm-data" required>
+                                            <label class="form-check-label" for="confirm-data">
+                                                <strong>{{ __('insurance.accident.confirmation.confirm_data') }}</strong>
+                                            </label>
+                                        </div>
 
-                        <div id="limited-drivers-info" class="card">
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" type="checkbox" id="confirm-offer" required>
+                                            <label class="form-check-label" for="confirm-offer">
+                                                <strong>{{ __('insurance.accident.confirmation.confirm_offer') }}</strong>
+                                            </label>
+                                        </div>
+
+                                        <form action="{{ route('osago.prepare', ['locale' => getCurrentLocale()]) }}"
+                                            method="POST" id="storage-form">
+                                            @csrf
+
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <a href="{{ route('osago.main', ['locale' => getCurrentLocale()]) }}"
+                                                    class="btn btn-secondary">
+                                                    <i class="fas fa-arrow-left me-2"></i>
+                                                    {{ __('insurance.accident.confirmation.back') }}
+                                                </a>
+
+                                                <button type="submit" class="btn btn-success" id="confirm-application"
+                                                    disabled>
+                                                    <i class="fas fa-check me-2"></i>
+                                                    {{ __('insurance.accident.confirmation.proceed_to_payment') }}
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="limited-drivers-info" class="card d-none">
                             <!--d-none qo'shish kerak!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
                             <div class="card-header">
                                 <h4 class="card-title">{{ __('messages.applicant_info_title') }}</h4>
@@ -279,44 +320,7 @@
                                 </div>
                             </div>
 
-                            <div id="driver-info-display" class="">
-                                {{-- <div class="card-footer">
-                                    <h4 class="card-title">{{ __('messages.driver_info_title') }}</h4>
-                                    <div class="row mb-1">
-                                        <x-inputs.input_info :class="'col-md-6'" :idFor="'driver-full-name'" :name="'driver_full_name'"
-                                            :label="'messages.driver_full_name'" :placeholder="'messages.driver_full_name_placeholder'" />
-                                        <x-inputs.input_info :class="'col-md-3'" :idFor="'driver-license'" :name="'driver_license'"
-                                            :label="'messages.driver_license'" :placeholder="'messages.driver_license_placeholder'" />
-                                        <x-inputs.input_info :class="'col-md-3'" :idFor="'driver-license-valid'" :name="'driver_license_valid'"
-                                            :label="'messages.driver_license_valid'" :placeholder="'messages.driver_license_valid_placeholder'" />
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <label for="{{ __('messages.kinship') }}" class="form-label">
-                                                {{ __('messages.kinship') }}
-                                            </label>
-                                            <select class="form-select" id="kinship" name="kinship" required>
-                                                <option value="0" selected>@lang('messages.vehicle_owner')</option>
-                                                <option value="0">@lang('messages.not_a_relative')</option>
-                                                <option value="1">@lang('messages.father')</option>
-                                                <option value="2">@lang('messages.mother')</option>
-                                                <option value="3">@lang('messages.husband')</option>
-                                                <option value="4">@lang('messages.wife')</option>
-                                                <option value="5">@lang('messages.son')</option>
-                                                <option value="6">@lang('messages.daughter')</option>
-                                                <option value="7">@lang('messages.older_brother')</option>
-                                                <option value="8">@lang('messages.younger_brother')</option>
-                                                <option value="9">@lang('messages.elder_sister')</option>
-                                                <option value="10">@lang('messages.younger_sister')</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="col-md-6 d-flex justify-content-end">
-                                            <x-inputs.button :class="''" :button="'driver-information-search-btn'" />
-                                        </div>
-                                    </div>
-                                </div> --}}
-                            </div>
+                            <div id="driver-info-display" class=""></div>
                         </div>
                     </div>
                     <x-insurence.calculate />
@@ -711,13 +715,14 @@
                 'limited'));
 
             function showDriverAddButton(radio) {
-                // const addButton = document.getElementById('driver-add-button');
+                const addButton = document.getElementById('limited-drivers-info');
 
                 if (radio === 'limited') {
-                    // addButton.classList.remove('d-none'); // show the button
+                    addButton.classList.remove('d-none'); // show the button
                     periodSelect.removeAttribute('disabled');
                     limitedC = 1;
                 } else if (radio === 'unlimited') { // hide the button
+                    addButton.classList.add('d-none'); // show the button
                     periodSelect.value = 1;
                     periodSelect.toggleAttribute('disabled');
                     limitedC = 3;
