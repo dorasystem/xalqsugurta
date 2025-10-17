@@ -124,6 +124,15 @@ return [
         ],
     ],
 
+    'confirmation' => [
+        'confirm_data' => 'I confirm that all information is correct',
+        'confirm_offer' => 'I have read the public offer and agree to all terms',
+        'proceed_to_payment' => 'Proceed to Payment',
+        'confirm' => 'Confirm',
+        'back' => 'Go Back',
+        'creating_order' => 'Creating order...',
+    ],
+
     'osago' => [
         'owner_info' => 'Vehicle Owner Information',
         'vehicle_info' => 'Vehicle Information',
@@ -145,7 +154,7 @@ return [
         '1_year' => '1 year',
         '6_month' => '6 months',
         '3_month' => '3 months',
-        
+
         'driver_info' => 'driver information',
         'full_name' => 'Full Name',
         'birth_date' => 'Birth Date',
@@ -154,17 +163,19 @@ return [
         'kinship_label' => 'Kinship',
         'kinship' => [
             '0' => 'Owner/Not relative',
-            '1' => 'Father', 
-            '2' => 'Mother', 
-            '3' => 'Husband', 
-            '4' => 'Wife', 
-            '5' => 'Son', 
-            '6' => 'Daughter', 
+            '1' => 'Father',
+            '2' => 'Mother',
+            '3' => 'Husband',
+            '4' => 'Wife',
+            '5' => 'Son',
+            '6' => 'Daughter',
             '7' => 'Older brother',
             '8' => 'Younger brother',
             '9' => 'Elder sister',
             '10' => 'Younger sister',
         ],
         'address' => 'Birth place',
+        'note' => 'NOTE!',
+        'note_text' => 'If the right to drive a motor vehicle is provided by power of attorney, the data of the person to whom the right is granted by power of attorney must also be entered as the driver.',  
     ]
 ];

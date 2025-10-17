@@ -49,7 +49,7 @@
                             {{-- Applicant Information --}}
                             <div class="row mb-4">
                                 <h5 class="border-bottom pb-2 mb-3">
-                                    <i class="fas fa-user me-2 text-primary"></i>
+                                    <i class="fas fa-user text-primary"></i>
                                     {{ __('insurance.accident.applicant_info') }}
                                 </h5>
                                 <div class="col-md-6">
@@ -118,7 +118,7 @@
                             <div class="row mb-4">
                                 <div class="col-12">
                                     <h5 class="border-bottom pb-2 mb-3">
-                                        <i class="fas fa-shield-alt me-2 text-warning"></i>
+                                        <i class="fas fa-shield-alt text-warning"></i>
                                         {{ __('insurance.osago.owner_info') }}
                                     </h5>
                                 </div>
@@ -166,7 +166,7 @@
                             <div class="row mb-4">
                                 <div class="col-12">
                                     <h5 class="border-bottom pb-2 mb-3">
-                                        <i class="fas fa-user-shield me-2 text-success"></i>
+                                        <i class="fas fa-user-shield text-success"></i>
                                         {{ __('insurance.osago.vehicle_info') }}
                                     </h5>
                                 </div>
@@ -238,7 +238,7 @@
                             <div class="row mb-4">
                                 <div class="col-12">
                                     <h5 class="border-bottom pb-2 mb-3">
-                                        <i class="fas fa-shield-alt me-2 text-warning"></i>
+                                        <i class="fas fa-shield-alt text-warning"></i>
                                         {{ __('insurance.accident.insurance_info') }}
                                     </h5>
                                 </div>
@@ -317,7 +317,7 @@
                                 <div class="row mb-4">
                                     <div class="col-12">
                                         <h5 class="border-bottom pb-2 mb-3">
-                                            <i class="fas fa-shield-alt me-2 text-warning"></i>
+                                            <i class="fas fa-shield-alt text-warning"></i>
                                             {{ $loop->iteration }} - {{ __('insurance.osago.driver_info') }}
                                         </h5>
                                     </div>
@@ -381,7 +381,7 @@
                                                 <input class="form-check-input" type="checkbox" id="confirm-data"
                                                     required>
                                                 <label class="form-check-label" for="confirm-data">
-                                                    <strong>{{ __('insurance.accident.confirmation.confirm_data') }}</strong>
+                                                    <strong>{{ __('insurance.confirmation.confirm_data') }}</strong>
                                                 </label>
                                             </div>
 
@@ -389,12 +389,11 @@
                                                 <input class="form-check-input" type="checkbox" id="confirm-offer"
                                                     required>
                                                 <label class="form-check-label" for="confirm-offer">
-                                                    <strong>{{ __('insurance.accident.confirmation.confirm_offer') }}</strong>
+                                                    <strong>{{ __('insurance.confirmation.confirm_offer') }}</strong>
                                                 </label>
                                             </div>
 
-                                            <form
-                                                action="{{ route('osago.prepare', ['locale' => getCurrentLocale()]) }}"
+                                            <form action="{{ route('osago.prepare', ['locale' => getCurrentLocale()]) }}"
                                                 method="POST" id="storage-form">
                                                 @csrf
 

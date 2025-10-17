@@ -125,6 +125,15 @@ return [
         ],
     ],
 
+    'confirmation' => [
+        'confirm_data' => 'Barcha ma\'lumotlar to\'g\'ri ekanligini tasdiqlayman',
+        'confirm_offer' => 'Ommaviy ofertani o\'qib chiqdim va barcha shartlarga roziman',
+        'proceed_to_payment' => 'To\'lovga O\'tish',
+        'confirm' => 'Tasdiqlash',
+        'back' => 'Orqaga Qaytish',
+        'creating_order' => 'Buyurtma yaratilmoqda...',
+    ],
+
     'osago' => [
         'owner_info' => 'Avtomobil egasi ma\'lumotlari',
         'vehicle_info' => 'Avtomobil ma\'lumotlari',
@@ -167,5 +176,7 @@ return [
             '10' => 'Singil',
         ],
         'address' => 'Tug\'ulgan joyi',
+        'note' => 'ESLATMA!',
+        'note_text' => 'Avtotransport vositasini boshqarish huquqi ishonchnoma bilan ta\'minlangan bo\'lsa, haydovchi sifatida ishonchnoma bo\'yicha huquq berilgan shaxsning ma\'lumotlari ham kiritilishi kerak.'
     ]
 ];

@@ -144,7 +144,7 @@
                         </div>
                         <div class="card-footer">
                             <div class="d-flex justify-content-between">
-                                <a href="{{ route('accident.application.view', ['locale' => app()->getLocale()]) }}"
+                                <a href="{{ route('osago.application', ['locale' => app()->getLocale()]) }}"
                                     class="btn btn-secondary">
                                     <i class="fas fa-arrow-left me-2"></i>Orqaga
                                 </a>

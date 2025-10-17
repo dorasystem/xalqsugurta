@@ -84,7 +84,7 @@ class OsagoController extends Controller
                             'licenseNumber' => $driver['licenseNumber'] ?? '1546546',
                             'licenseSeria' => $driver['licenseSeria'] ?? 'AA',
                             'relative' => $driver['kinship'] ?? 0,
-                            'birthDate' => $driver['birthDate'] ?? '1989-05-30',
+                            'birthDate' => Carbon::parse($driver['birthDate'])->format('Y-m-d') ?? '1989-05-30',
                             'licenseIssueDate' => $driver['licenseIssueDate'] ?? '2015-05-30',
                             'residentOfUzb' => 1
                         ];
