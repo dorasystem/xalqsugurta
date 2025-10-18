@@ -214,7 +214,7 @@
                 if (paymentMethod === 'payme') {
                     document.getElementById('form-payme').submit();
                 } else if (paymentMethod === 'click') {
-                    document.getElementById('click_form').submit();
+                    document.getElementById('form-click').submit();
                 } else {
                     alert('Boshqa to‘lov usuli tanlandi');
                 }
