@@ -106,13 +106,11 @@
                         </div>
 
                         @if ($errors->any())
-                            <div class="alert alert-danger">
-                                <ul class="mb-0">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
+                            @foreach ($errors->all() as $error)
+                                <script>
+                                    showSimpleToast('error', 'XATOLIK', '{{ $error }}');
+                                </script>
+                            @endforeach
                         @endif
 
                         <div id="applicant-info" class="card d-none">
@@ -722,6 +720,7 @@
                         limitedC = 1;
                     } else if (radio === 'unlimited') { // hide the button
                         addButton.classList.add('d-none'); // show the button
+                        note.classList.add('d-none'); // show the button
                         periodSelect.value = 1;
                         periodSelect.toggleAttribute('disabled');
                         limitedC = 3;

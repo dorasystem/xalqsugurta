@@ -11,6 +11,29 @@ use Illuminate\Support\Facades\Http;
 
 class ClickController extends Controller
 {
+
+    public function payment(Request $request)
+    {
+        $order = Order::findOrFail($request->id);
+        $amount = $order->amount;
+        $transactionId = $order->id;
+        // $backUrl = route('show.insurance.pdf', ['id' => $order->id]);
+
+        $merchantId = '67287714e51de1c6a3a79636';
+        $tiyinAmount = intval($amount * 100);
+        $payload = "m={$merchantId};ac.order_id={$transactionId};a={$tiyinAmount};";
+        $encoded = base64_encode($payload);
+        $redirectUrl = "https://my.click.uz/services/pay/{$encoded}";
+    // <input type="hidden" name="amount" value="{{ $order->amount ?? 0 }}"/>
+    // <input type="hidden" name="merchant_id" value="14484"/>
+    // <input type="hidden" name="merchant_user_id" value="27753"/>
+    // <input type="hidden" name="service_id" value="27753"/>
+    // <input type="hidden" name="transaction_param" value="{{ $order->id ?? 0 }}"/> <!-- Order ID qo‘shildi -->
+    // <input type="hidden" name="return_url" value="#"/>
+    // <input type="hidden" name="card_type" value="humo"/>
+        return redirect($redirectUrl);
+    }
+
     public function prepare(Request $request)
     {
 

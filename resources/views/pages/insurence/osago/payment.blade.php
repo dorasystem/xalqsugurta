@@ -92,7 +92,11 @@
                                                             Humo)</p>
                                                     </div>
                                                 </label>
-                                                <form id="form-payme" method="GET" action="{{ route('payment') }}"
+                                                <form id="form-payme" method="GET" action="{{ route('payment.payme') }}"
+                                                    class="d-none" target="_blank">
+                                                    <input type="hidden" name="id" value="{{ $order->id }}">
+                                                </form>
+                                                <form id="form-click" method="GET" action="{{ route('payment.click') }}"
                                                     class="d-none" target="_blank">
                                                     <input type="hidden" name="id" value="{{ $order->id }}">
                                                 </form>

@@ -15,10 +15,10 @@ Route::get('/get-person-info', [PersonInfoController::class, 'getPersonInfo']);
 //Payments
 
 //Payme
-Route::get('payment', [PaymeController::class, 'payment'])->name('payment');
+Route::get('payment', [PaymeController::class, 'payment'])->name('payment.payme');
 
 
 //Click
-//click
+Route::get('payment/click', [ClickController::class, 'payment'])->name('payment.click');
 Route::post('/prepare', [ClickController::class, 'prepare']);
 Route::post('/complete', [ClickController::class, 'complete']);
