@@ -333,8 +333,11 @@
                     let otherInfo = document.getElementById('other_info');
 
                     // Validate inputs
-                    if (!govNumber || !techPassportSeries || !techPassportNumber) {
-                        alert('Please fill in all fields');
+                    if (!govNumber.value || !techPassportSeries.value || !techPassportNumber.value ||
+                        govNumber.value.trim() === '' || techPassportSeries.value.trim() === '' ||
+                        techPassportNumber.value.trim() === '') {
+                        showSimpleToast('error', 'KAFIL SUG\'URTA',
+                            '{{ __('errors.all_fields') }}');
                         return;
                     }
 
@@ -344,9 +347,7 @@
                         tech_passport_series: techPassportSeries.value,
                         tech_passport_number: techPassportNumber.value
                     };
-                    govNumber.setAttribute('readonly', true);
-                    techPassportSeries.setAttribute('readonly', true);
-                    techPassportNumber.setAttribute('readonly', true);
+
 
                     // Disable button during request
                     searchBtn.disabled = true;
@@ -357,6 +358,9 @@
                         const result = await sendPostRequest('/get-vehicle-info', data);
 
                         if (result.data != null) {
+                            govNumber.setAttribute('readonly', true);
+                            techPassportSeries.setAttribute('readonly', true);
+                            techPassportNumber.setAttribute('readonly', true);
                             // Get all input elements
                             const engine_number = document.getElementById('engine_number');
                             let carType = document.getElementById('car_type');
@@ -416,14 +420,14 @@
                                 block: 'nearest'
                             });
                         } else {
-                            alert(result.message.error.error_message);
+                            showSimpleToast('error', 'XALQ SUG\'URTA',
+                                '{{ __('errors.connection_with_api') }}');
                         }
 
-                        console.log('Vehicle Info:', result);
-
                     } catch (error) {
-                        console.error('Error:', error);
-                        alert('Error: ' + error.message);
+                        showSimpleToast('error', 'XALQ SUG\'URTA',
+                            '{{ __('errors.unexpected_issue') }}: ' + error.message
+                        );
                     } finally {
                         // Re-enable button
                         searchBtn.disabled = false;
@@ -441,7 +445,8 @@
 
                     // Validate required fields
                     if (!insurantPassportSeries || !insurantPassportNumber || !insurantPinfl) {
-                        alert('Please fill in all fields');
+                        showSimpleToast('error', 'KAFIL SUG\'URTA',
+                            '{{ __('errors.all_fields') }}');
                         return;
                     }
 
@@ -466,7 +471,7 @@
                             const address = document.getElementById('owner-address');
                             const ownerInfos = document.getElementById('owner-infos');
                             let ownerInfo = getNececcaryInfo(result);
-                            console.log(ownerInfo);
+
                             ownerInfos.value = JSON.stringify(ownerInfo);
                             // // Populate the fields
                             lastName.value = result.data.result.lastNameLatin || '';
@@ -488,12 +493,14 @@
                                 block: 'nearest'
                             });
                         } else {
-                            alert(result.message.error.error_message);
+                            showSimpleToast('error', 'XALQ SUG\'URTA',
+                                '{{ __('errors.connection_with_api') }}');
                         }
 
                     } catch (error) {
-                        console.error('Error:', error);
-                        alert('Error: ' + error.message);
+                        showSimpleToast('error', 'XALQ SUG\'URTA',
+                            '{{ __('errors.unexpected_issue') }}: ' + error.message
+                        );
                     } finally {
                         // Re-enable button
                         ownerInfoBtn.disabled = false;
@@ -564,7 +571,8 @@
 
                     // Validate required fields
                     if (!insurantPassportSeries || !insurantPassportNumber || !insurantPinfl) {
-                        alert('Please fill in all fields');
+                        showSimpleToast('error', 'KAFIL SUG\'URTA',
+                            '{{ __('errors.all_fields') }}');
                         return;
                     }
 
@@ -580,7 +588,6 @@
                     };
                     try {
                         const result = await sendPostRequest('/get-person-info', data);
-                        console.log('Person Info:', result);
                         if (result.data != null) {
 
                             // Get all input elements
@@ -610,12 +617,14 @@
                             policyCalculation.classList.remove('d-none');
                             console.log(policyCalculation, confirmation);
                         } else {
-                            alert(result.message.error.error_message);
+                            showSimpleToast('error', 'XALQ SUG\'URTA',
+                                '{{ __('errors.connection_with_api') }}');
                         }
 
                     } catch (error) {
-                        console.error('Error:', error);
-                        alert('Error: ' + error.message);
+                        showSimpleToast('error', 'XALQ SUG\'URTA',
+                            '{{ __('errors.unexpected_issue') }}: ' + error.message
+                        );
                     } finally {
                         // Re-enable button
                         applicantInfoBtn.disabled = false;
@@ -730,7 +739,8 @@
                     const driverInfo = document.getElementById('driver-info-display');
 
                     if (!driverPassportSeries || !driverPassportNumber || !driverPinfl) {
-                        alert('Заполните данные водителя');
+                        showSimpleToast('error', 'KAFIL SUG\'URTA',
+                            '{{ __('errors.all_fields') }}');
                         return;
                     }
 
@@ -752,7 +762,6 @@
 
                     try {
                         const result = await sendPostRequest('/get-driver-info', driverData);
-                        console.log('Driver Info:', result);
 
                         const shortResult = result.data.result;
 
@@ -830,25 +839,29 @@
                                         </div>
                                     </div>
                                 </div>
-                            `;
+                                `;
 
                                 driverInfoDisplay.innerHTML += driverHtml;
                                 document.getElementById('driver-passport-series').value = '';
                                 document.getElementById('driver-passport-number').value = '';
                                 document.getElementById('driver-pinfl').value = '';
                             } else {
-                                alert('You can add only 5 drivers');
+                                showSimpleToast('error', 'KAFIL SUG\'URTA',
+                                    '{{ __('errors.drivers_limited') }}');
                             }
                         } else {
-                            if (result?.message?.error?.error_code) {
-                                alert(result?.message?.error?.error_message || 'Driver not found');
+                            if (result.error) {
+                                showSimpleToast('error', 'XALQ SUG\'URTA',
+                                    '{{ __('errors.connection_with_api') }}: ' + error.message);
                             } else {
-                                alert('You can add only 5 person')
+                                showSimpleToast('error', 'XALQ SUG\'URTA',
+                                    '{{ __('errors.drivers_limited') }}');
                             }
                         }
                     } catch (error) {
-                        console.error('Error:', error);
-                        alert('Error: ' + (error.message || 'Something went wrong'));
+                        showSimpleToast('error', 'XALQ SUG\'URTA',
+                            '{{ __('errors.unexpected_issue') }}: ' + error.message
+                        );
                     } finally {
                         driverSearchBtn.disabled = false;
                         driverSearchBtn.innerHTML =
@@ -878,7 +891,9 @@
 
                         return result; // return the successful result
                     } catch (error) {
-                        console.error('Fetch error:', error);
+                        showSimpleToast('error', 'XALQ SUG\'URTA',
+                            '{{ __('errors.unexpected_issue') }}: ' + error.message
+                        );
                         throw error; // let the caller handle it
                     }
                 }

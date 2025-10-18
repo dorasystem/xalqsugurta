@@ -363,6 +363,8 @@
 
         @include('components.pageComponents.header')
 
+        @include('components.toasts.all')
+        
         <ul class="social social--fixed">
             <li class="social__item">
                 <a href="#" class="social__link" target="_blank" aria-label="Instagram">
@@ -478,6 +480,7 @@
         <!-- Scripts -->
         @stack('scripts')
         <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+        <script src="{{ asset('assets/js/forToast/toast.min.js') }}"></script>
         {{-- @vite(['resources/js/app.js']) --}}
 
 </body>

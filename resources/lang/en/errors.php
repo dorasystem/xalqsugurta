@@ -52,4 +52,8 @@ return [
             'method_not_selected' => 'Please select a payment method',
         ],
     ],
+    'all_fields' => 'Please make sure to fill in all required fields.',
+    'connection_with_api' => 'The Eosgouz service returned an error: No data was found for the provided parameters. Please try again.',
+    'unexpected_issue' => 'An unexpected issue occurred. Please try again.',
+    'drivers_limited' => 'You can add up to 5 drivers!',
 ];
