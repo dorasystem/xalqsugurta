@@ -52,4 +52,8 @@ return [
             'method_not_selected' => 'To\'lov usulini tanlang',
         ],
     ],
+    'all_fields' => 'Iltimos, barcha majburiy maydonlarni to\'ldiring.',
+    'connection_with_api' => 'Eosgouz xizmati xatolik yuz berdi: Taqdim etilgan parametrlar uchun maʼlumotlar topilmadi. Iltimos, qaytadan urinib ko\'ring.',
+    'unexpected_issue' => 'Noma\'lum xatolik yuz berdi. Iltimos, qaytadan urinib ko\'ring.',
+    'drivers_limited' => 'Faqar 5 ta haydochi qo\'sha olasiz!.',
 ];

@@ -15,7 +15,7 @@
         <input type="{{ $type }}" id="{{ $idFor }}" placeholder="{{ __($placeholder) }}"
             name="{{ $name }}" class="form-input @error($name) is-invalid @enderror"
             value="{{ old(str_replace(['[', ']'], ['.', ''], $name)) }}"
-            @if ($disabled === true) disabled @endif @if ($readonly === true) readonly @endif>
+            @if ($disabled === true) readonly @endif>
         @error(str_replace(['[', ']'], ['.', ''], $name))
             <div class="position-absolute top-50 end-0 translate-middle-y me-2">
                 <i class="fas fa-exclamation-circle text-danger" data-bs-toggle="tooltip" data-bs-placement="top"

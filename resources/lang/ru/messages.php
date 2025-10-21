@@ -148,6 +148,8 @@ return [
     'car_owner_placeholder' => 'Иван Иванов',
     'model' => 'Модель автомобиля',
     'model_placeholder' => 'Camry',
+    'owner_pinfl_placeholder' => '12345678910111',
+    'owner_pinfl' => 'ПИНФЛ',
 
     // Common Fields (Used by all sections)
     'passport_series' => 'Серия паспорта',
@@ -268,6 +270,28 @@ return [
     'validation_7_digits' => '7 цифр',
     'validation_year_range' => 'Год от 1900 до 2099',
 
+
+    //drivers
+    'driver_info_title' => 'Полное имя водителя и информация ВУ',
+    'driver_full_name' => 'Информация о водителе',
+    'driver_license' => 'Данные ВУ',
+    'driver_license_valid' => 'Дата выдачи',
+    'driver_full_name_placeholder' => 'Sardorov Ruslon Toxirjon o\'g\'li',
+    'driver_license_placeholder' => 'AF 1234567',
+    'driver_license_valid_placeholder' => '2020-10-10',
+    'kinship' => 'Отношение',
+    'vehicle_owner' => 'Владелец автомобиля',
+    'not_a_relative' => 'Не родственник',
+    'father' => 'Отца',
+    'mother' => 'Мать',
+    'husband' => 'Муж',
+    'wife' => 'Жена',
+    'son' => 'Сын',
+    'daughter' => 'Дочь',
+    'older_brother' => 'Старший брат',
+    'younger_brother' => 'Младший брат',
+    'elder_sister' => 'Старшая сестра',
+    'younger_sister' => 'Младшая сестра',
     // Accident Insurance
     'accident_info_title' => 'Информация о происшествии',
     'accident_number' => 'Номер происшествия',

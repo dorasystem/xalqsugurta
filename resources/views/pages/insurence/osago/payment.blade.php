@@ -10,41 +10,10 @@
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>
                                     <h3 class="card-title mb-0">
-                                        <i class="fas fa-credit-card me-2"></i>
-                                        MOL-MULK Sug'urta To'lovi
+                                        <i class="fas fa-credit-card"></i>
+                                        OSAGO Sug'urta To'lovi
                                     </h3>
                                     <p class="text-muted mb-0">Sug'urta to'lovini amalga oshiring</p>
-                                </div>
-                                {{-- Language Switcher --}}
-                                <div class="dropdown">
-                                    <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                        id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fas fa-globe me-2"></i>
-                                        {{ strtoupper(app()->getLocale()) }}
-                                    </button>
-                                    <ul class="dropdown-menu" aria-labelledby="languageDropdown">
-                                        <li>
-                                            <a class="dropdown-item"
-                                                href="{{ route('property.payment', ['locale' => 'uz']) }}">
-                                                <img src="{{ asset('assets/images/flags/uz.png') }}" alt="UZ"
-                                                    class="me-2" style="width: 20px;"> O'zbek
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item"
-                                                href="{{ route('property.payment', ['locale' => 'ru']) }}">
-                                                <img src="{{ asset('assets/images/flags/ru.png') }}" alt="RU"
-                                                    class="me-2" style="width: 20px;"> Русский
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item"
-                                                href="{{ route('property.payment', ['locale' => 'en']) }}">
-                                                <img src="{{ asset('assets/images/flags/en.png') }}" alt="EN"
-                                                    class="me-2" style="width: 20px;"> English
-                                            </a>
-                                        </li>
-                                    </ul>
                                 </div>
                             </div>
                         </div>
@@ -53,11 +22,12 @@
                             <div class="row mb-4">
                                 <div class="col-12">
                                     <div class="alert alert-info">
-                                        <h5><i class="fas fa-info-circle me-2"></i>Buyurtma ma'lumotlari</h5>
+                                        <h5><i class="fas fa-info-circle"></i>Buyurtma ma'lumotlari</h5>
                                         <div class="row mt-3">
                                             <div class="col-md-6">
                                                 <p class="mb-2"><strong>Buyurtma raqami:</strong> #{{ $order->id }}</p>
-                                                <p class="mb-2"><strong>Mahsulot:</strong> {{ $order->product_name }}</p>
+                                                <p class="mb-2"><strong>Mahsulot:</strong>
+                                                    {{ strtoupper($order->product_name) }}</p>
                                                 <p class="mb-2"><strong>Telefon:</strong> {{ $order->phone }}</p>
                                             </div>
                                             <div class="col-md-6">
@@ -67,7 +37,8 @@
                                                     <span class="badge bg-warning">{{ strtoupper($order->status) }}</span>
                                                 </p>
                                                 <p class="mb-2"><strong>Sana:</strong>
-                                                    {{ $order->created_at->format('d.m.Y H:i') }}</p>
+                                                    {{ $order->created_at->format('d.m.Y H:i') }}
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
@@ -121,6 +92,14 @@
                                                             Humo)</p>
                                                     </div>
                                                 </label>
+                                                <form id="form-payme" method="GET" action="{{ route('payment.payme') }}"
+                                                    class="d-none" target="_blank">
+                                                    <input type="hidden" name="id" value="{{ $order->id }}">
+                                                </form>
+                                                <form id="form-click" method="GET" action="{{ route('payment.click') }}"
+                                                    class="d-none" target="_blank">
+                                                    <input type="hidden" name="id" value="{{ $order->id }}">
+                                                </form>
                                                 <i class="fas fa-chevron-right text-muted"></i>
                                             </div>
                                         </div>
@@ -174,7 +153,7 @@
                         </div>
                         <div class="card-footer">
                             <div class="d-flex justify-content-between">
-                                <a href="{{ route('property.application.view', ['locale' => app()->getLocale()]) }}"
+                                <a href="{{ route('osago.application', ['locale' => app()->getLocale()]) }}"
                                     class="btn btn-secondary">
                                     <i class="fas fa-arrow-left me-2"></i>Orqaga
                                 </a>
@@ -190,73 +169,90 @@
         </div>
     </section>
 
-    {{-- JavaScript for Payment Selection --}}
-    <script>
-        const orderId = {{ $order->id }};
-        let selectedPayment = null;
+    @push('scripts')
+        <script>
+            const orderId = {{ $order->id }};
 
-        function selectPayment(method) {
-            selectedPayment = method;
+            console.log(orderId);
+            let selectedPayment = null;
 
-            // Remove previous selections
-            document.querySelectorAll('.payment-card').forEach(card => {
-                card.classList.remove('border-primary', 'bg-light');
-            });
+            function selectPayment(method) {
+                selectedPayment = method;
 
-            // Uncheck all radios
-            document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
-                radio.checked = false;
-            });
+                // Remove previous selections
+                document.querySelectorAll('.payment-card').forEach(card => {
+                    card.classList.remove('border-primary', 'bg-light');
+                });
 
-            // Select current payment
-            const selectedCard = document.getElementById('payment_' + method).closest('.payment-card');
-            selectedCard.classList.add('border-primary', 'bg-light');
-            document.getElementById('payment_' + method).checked = true;
+                // Uncheck all radios
+                document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
+                    radio.checked = false;
+                });
 
-            // Hide warning
-            document.getElementById('payment-warning').style.display = 'none';
-        }
+                // Select current payment
+                const selectedCard = document.getElementById('payment_' + method).closest('.payment-card');
+                selectedCard.classList.add('border-primary', 'bg-light');
+                document.getElementById('payment_' + method).checked = true;
 
-        function processPayment() {
-            if (!selectedPayment) {
-                document.getElementById('payment-warning').style.display = 'block';
-                return;
+                // Hide warning
+                document.getElementById('payment-warning').style.display = 'none';
             }
 
-            // Update button state
-            const payBtn = document.getElementById('payBtn');
-            payBtn.disabled = true;
-            payBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>To\'lov amalga oshirilmoqda...';
-
-            // Here you would typically make an API call to initiate payment
-            // For now, we'll just show a message
-            console.log('Processing payment with:', selectedPayment, 'for order:', orderId);
-
-            // TODO: Implement actual payment gateway integration
-            setTimeout(() => {
-                alert(
-                    `${selectedPayment.toUpperCase()} to'lov tizimiga ulanilmoqda...\nBuyurtma raqami: #${orderId}`
-                );
-                payBtn.disabled = false;
-                payBtn.innerHTML = '<i class="fas fa-credit-card me-2"></i>To\'lovni amalga oshirish';
-            }, 2000);
-        }
-
-        // Add hover effect to payment cards
-        document.querySelectorAll('.payment-card').forEach(card => {
-            card.style.cursor = 'pointer';
-            card.addEventListener('mouseenter', function() {
-                if (!this.classList.contains('border-primary')) {
-                    this.style.borderColor = '#0d6efd';
+            function processPayment() {
+                if (!selectedPayment) {
+                    document.getElementById('payment-warning').style.display = 'block';
+                    return;
                 }
-            });
-            card.addEventListener('mouseleave', function() {
-                if (!this.classList.contains('border-primary')) {
-                    this.style.borderColor = '';
+
+                const paymentMethod = document.querySelector('input[name="payment_method"]:checked')?.value;
+
+                if (!paymentMethod) {
+                    alert('Iltimos, to‘lov usulini tanlang!');
+                    return;
                 }
+
+                if (paymentMethod === 'payme') {
+                    document.getElementById('form-payme').submit();
+                } else if (paymentMethod === 'click') {
+                    document.getElementById('form-click').submit();
+                } else {
+                    alert('Boshqa to‘lov usuli tanlandi');
+                }
+                // Update button state
+                const payBtn = document.getElementById('payBtn');
+                payBtn.disabled = true;
+                payBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>To\'lov amalga oshirilmoqda...';
+
+                // Here you would typically make an API call to initiate payment
+                // For now, we'll just show a message
+                console.log('Processing payment with:', selectedPayment, 'for order:', orderId);
+
+                // TODO: Implement actual payment gateway integration
+                setTimeout(() => {
+                    alert(
+                        `${selectedPayment.toUpperCase()} to'lov tizimiga ulanilmoqda...\nBuyurtma raqami: #${orderId}`
+                    );
+                    payBtn.disabled = false;
+                    payBtn.innerHTML = '<i class="fas fa-credit-card me-2"></i>To\'lovni amalga oshirish';
+                }, 2000);
+            }
+
+            // Add hover effect to payment cards
+            document.querySelectorAll('.payment-card').forEach(card => {
+                card.style.cursor = 'pointer';
+                card.addEventListener('mouseenter', function() {
+                    if (!this.classList.contains('border-primary')) {
+                        this.style.borderColor = '#0d6efd';
+                    }
+                });
+                card.addEventListener('mouseleave', function() {
+                    if (!this.classList.contains('border-primary')) {
+                        this.style.borderColor = '';
+                    }
+                });
             });
-        });
-    </script>
+        </script>
+    @endpush
 
     <style>
         .payment-card {
