@@ -4,10 +4,10 @@
     @php
         // Determine product title based on insurance type
         $productTitles = [
-            'osago' => 'OSAGO Sug\'urta To\'lovi',
-            'accident' => 'BAXTSIZ HODISA Sug\'urta To\'lovi',
-            'property' => 'MOL-MULK Sug\'urta To\'lovi',
-            'unknown' => 'Sug\'urta To\'lovi',
+            'osago' => __('messages.osago') . ' ' . __('messages.insurance') . ' ' . __('messages.payment'),
+            'accident' => __('messages.accident_insurance_payment'),
+            'property' => __('messages.property_insurance_payment'),
+            'unknown' => __('messages.insurance') . ' ' . __('messages.payment'),
         ];
 
         $backRoutes = [
@@ -33,7 +33,7 @@
                                         <i class="fas fa-credit-card me-2"></i>
                                         {{ $productTitle }}
                                     </h3>
-                                    <p class="text-muted mb-0">Sug'urta to'lovini amalga oshiring</p>
+                                    <p class="text-muted mb-0">{{ __('messages.complete_insurance_payment') }}</p>
                                 </div>
                                 {{-- Language Switcher --}}
                                 <div class="dropdown">
@@ -73,20 +73,25 @@
                             <div class="row mb-4">
                                 <div class="col-12">
                                     <div class="alert alert-info">
-                                        <h5><i class="fas fa-info-circle me-2"></i>Buyurtma ma'lumotlari</h5>
+                                        <h5><i class="fas fa-info-circle me-2"></i>{{ __('messages.order_information') }}
+                                        </h5>
                                         <div class="row mt-3">
                                             <div class="col-md-6">
-                                                <p class="mb-2"><strong>Buyurtma raqami:</strong> #{{ $order->id }}</p>
-                                                <p class="mb-2"><strong>Mahsulot:</strong> {{ $order->product_name }}</p>
-                                                <p class="mb-2"><strong>Telefon:</strong> {{ $order->phone }}</p>
+                                                <p class="mb-2"><strong>{{ __('messages.order_number') }}:</strong>
+                                                    #{{ $order->id }}</p>
+                                                <p class="mb-2"><strong>{{ __('messages.product') }}:</strong>
+                                                    {{ $order->product_name }}</p>
+                                                <p class="mb-2"><strong>{{ __('messages.phone') }}:</strong>
+                                                    {{ $order->phone }}</p>
                                             </div>
                                             <div class="col-md-6">
-                                                <p class="mb-2"><strong>Sug'urta ID:</strong> {{ $order->insurance_id }}
+                                                <p class="mb-2"><strong>{{ __('messages.insurance_id') }}:</strong>
+                                                    {{ $order->insurance_id }}
                                                 </p>
-                                                <p class="mb-2"><strong>Holat:</strong>
+                                                <p class="mb-2"><strong>{{ __('messages.status') }}:</strong>
                                                     <span class="badge bg-warning">{{ strtoupper($order->status) }}</span>
                                                 </p>
-                                                <p class="mb-2"><strong>Sana:</strong>
+                                                <p class="mb-2"><strong>{{ __('messages.date') }}:</strong>
                                                     {{ $order->created_at->format('d.m.Y H:i') }}</p>
                                             </div>
                                         </div>
@@ -99,7 +104,7 @@
                                 <div class="col-md-8">
                                     <h5 class="mb-3">
                                         <i class="fas fa-credit-card me-2"></i>
-                                        To'lov usulini tanlang
+                                        {{ __('messages.select_payment_method') }}
                                     </h5>
 
                                     {{-- Click Payment Card --}}
@@ -114,8 +119,8 @@
                                                             style="height: 30px;" class="me-2">
                                                         Click
                                                     </h5>
-                                                    <p class="text-muted mb-0 small">Bank kartalari orqali to'lash (Uzcard,
-                                                        Humo)</p>
+                                                    <p class="text-muted mb-0 small">{{ __('messages.pay_with_cards') }}
+                                                    </p>
                                                 </div>
                                                 <i class="fas fa-chevron-right text-muted"></i>
                                             </div>
@@ -134,8 +139,8 @@
                                                             style="height: 30px;" class="me-2">
                                                         Payme
                                                     </h5>
-                                                    <p class="text-muted mb-0 small">Bank kartalari orqali to'lash (Uzcard,
-                                                        Humo)</p>
+                                                    <p class="text-muted mb-0 small">{{ __('messages.pay_with_cards') }}
+                                                    </p>
                                                 </div>
                                                 <i class="fas fa-chevron-right text-muted"></i>
                                             </div>
@@ -144,7 +149,7 @@
 
                                     <div class="alert alert-warning mt-3" id="payment-warning" style="display: none;">
                                         <i class="fas fa-exclamation-triangle me-2"></i>
-                                        Iltimos, to'lov usulini tanlang
+                                        {{ __('messages.please_select_payment_method') }}
                                     </div>
                                 </div>
 
@@ -152,25 +157,26 @@
                                 <div class="col-md-4">
                                     <div class="card bg-light border-0 shadow-sm">
                                         <div class="card-body">
-                                            <h6 class="card-title text-muted mb-3">To'lov summasi</h6>
+                                            <h6 class="card-title text-muted mb-3">{{ __('messages.payment_amount') }}</h6>
                                             <h2 class="text-primary mb-3">{{ number_format($order->amount, 0, '.', ' ') }}
                                                 UZS</h2>
                                             <hr>
                                             <div class="d-flex justify-content-between mb-2">
-                                                <span class="text-muted small">Sug'urta mukofoti:</span>
+                                                <span
+                                                    class="text-muted small">{{ __('messages.insurance_premium') }}:</span>
                                                 <span class="small">{{ number_format($order->amount, 0, '.', ' ') }}
-                                                    UZS</span>
+                                                    {{ __('messages.currency') }}</span>
                                             </div>
                                             <div class="d-flex justify-content-between mb-2">
-                                                <span class="text-muted small">Komissiya:</span>
-                                                <span class="small text-success">0 UZS</span>
+                                                <span class="text-muted small">{{ __('messages.commission') }}:</span>
+                                                <span class="small text-success">0 {{ __('messages.currency') }}</span>
                                             </div>
                                             <hr>
                                             <div class="d-flex justify-content-between">
-                                                <strong>Jami:</strong>
+                                                <strong>{{ __('messages.total') }}:</strong>
                                                 <strong
                                                     class="text-primary">{{ number_format($order->amount, 0, '.', ' ') }}
-                                                    UZS</strong>
+                                                    {{ __('messages.currency') }}</strong>
                                             </div>
                                         </div>
                                     </div>
@@ -179,10 +185,10 @@
                                     <div class="mt-3 text-center">
                                         <p class="text-muted small mb-2">
                                             <i class="fas fa-lock me-1"></i>
-                                            Xavfsiz to'lov
+                                            {{ __('messages.secure_payment') }}
                                         </p>
                                         <p class="text-muted small mb-0">
-                                            To'lov SSL shifrlash orqali himoyalangan
+                                            {{ __('messages.payment_ssl_protected') }}
                                         </p>
                                     </div>
                                 </div>
@@ -192,11 +198,11 @@
                             <div class="d-flex justify-content-between">
                                 <a href="{{ route($backRoute, ['locale' => app()->getLocale()]) }}"
                                     class="btn btn-secondary">
-                                    <i class="fas fa-arrow-left me-2"></i>Orqaga
+                                    <i class="fas fa-arrow-left me-2"></i>{{ __('messages.back') }}
                                 </a>
                                 <button type="button" id="payBtn" class="btn btn-success btn-lg"
                                     onclick="processPayment()">
-                                    <i class="fas fa-credit-card me-2"></i>To'lovni amalga oshirish
+                                    <i class="fas fa-credit-card me-2"></i>{{ __('messages.proceed_payment') }}
                                 </button>
                             </div>
                         </div>
@@ -211,6 +217,16 @@
         const orderId = {{ $order->id }};
         const insuranceType = '{{ $insuranceType }}';
         let selectedPayment = null;
+
+        // Translation strings
+        const translations = {
+            processing: '{{ __('messages.payment_processing') }}',
+            proceedPayment: '{{ __('messages.proceed_payment') }}',
+            connectingToGateway: '{{ __('messages.connecting_to_payment_gateway') }}',
+            orderNumber: '{{ __('messages.order_number') }}',
+            error: '{{ __('errors.general_error') }}',
+            paymentError: '{{ __('errors.insurance.payment.processing_failed') }}'
+        };
 
         function selectPayment(method) {
             selectedPayment = method;
@@ -243,7 +259,7 @@
             // Update button state
             const payBtn = document.getElementById('payBtn');
             payBtn.disabled = true;
-            payBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>To\'lov amalga oshirilmoqda...';
+            payBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>' + translations.processing;
 
             // Make API call to process payment
             const locale = '{{ app()->getLocale() }}';
@@ -265,19 +281,19 @@
                     if (data.success) {
                         // TODO: Redirect to payment gateway
                         alert(
-                            `${selectedPayment.toUpperCase()} to'lov tizimiga ulanilmoqda...\nBuyurtma raqami: #${orderId}`
-                            );
+                            `${selectedPayment.toUpperCase()} ${translations.connectingToGateway}\n${translations.orderNumber}: #${orderId}`
+                        );
                     } else {
-                        alert('Xatolik: ' + (data.message || 'To\'lovni amalga oshirishda xatolik'));
+                        alert(translations.error + ': ' + (data.message || translations.paymentError));
                     }
                     payBtn.disabled = false;
-                    payBtn.innerHTML = '<i class="fas fa-credit-card me-2"></i>To\'lovni amalga oshirish';
+                    payBtn.innerHTML = '<i class="fas fa-credit-card me-2"></i>' + translations.proceedPayment;
                 })
                 .catch(error => {
                     console.error('Payment error:', error);
-                    alert('To\'lovni amalga oshirishda xatolik yuz berdi');
+                    alert(translations.paymentError);
                     payBtn.disabled = false;
-                    payBtn.innerHTML = '<i class="fas fa-credit-card me-2"></i>To\'lovni amalga oshirish';
+                    payBtn.innerHTML = '<i class="fas fa-credit-card me-2"></i>' + translations.proceedPayment;
                 });
         }
 

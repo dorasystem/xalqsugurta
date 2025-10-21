@@ -321,4 +321,24 @@ return [
     'client_phone_number' => 'Номер телефона клиента',
     'client_phone_number_placeholder' => '+998 99 999 99 99',
 
+    // Payment Page
+    'payment' => 'Оплата',
+    'accident_insurance_payment' => 'Оплата Страхования от Несчастных Случаев',
+    'property_insurance_payment' => 'Оплата Страхования Имущества',
+    'complete_insurance_payment' => 'Завершите оплату страховки',
+    'order_information' => 'Информация о заказе',
+    'order_number' => 'Номер заказа',
+    'product' => 'Продукт',
+    'insurance_id' => 'ID Страховки',
+    'select_payment_method' => 'Выберите способ оплаты',
+    'pay_with_cards' => 'Оплата банковскими картами (Uzcard, Humo)',
+    'please_select_payment_method' => 'Пожалуйста, выберите способ оплаты',
+    'payment_amount' => 'Сумма оплаты',
+    'commission' => 'Комиссия',
+    'secure_payment' => 'Безопасная оплата',
+    'payment_ssl_protected' => 'Платеж защищен SSL шифрованием',
+    'proceed_payment' => 'Произвести оплату',
+    'payment_processing' => 'Платеж обрабатывается...',
+    'connecting_to_payment_gateway' => 'подключение к платежной системе...',
+
 ];

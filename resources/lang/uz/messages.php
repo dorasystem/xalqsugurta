@@ -281,6 +281,26 @@ return [
     'total' => 'Jami',
     'currency' => 'so\'m',
 
+    // Payment Page
+    'payment' => 'To\'lov',
+    'accident_insurance_payment' => 'BAXTSIZ HODISA Sug\'urta To\'lovi',
+    'property_insurance_payment' => 'MOL-MULK Sug\'urta To\'lovi',
+    'complete_insurance_payment' => 'Sug\'urta to\'lovini amalga oshiring',
+    'order_information' => 'Buyurtma ma\'lumotlari',
+    'order_number' => 'Buyurtma raqami',
+    'product' => 'Mahsulot',
+    'insurance_id' => 'Sug\'urta ID',
+    'select_payment_method' => 'To\'lov usulini tanlang',
+    'pay_with_cards' => 'Bank kartalari orqali to\'lash (Uzcard, Humo)',
+    'please_select_payment_method' => 'Iltimos, to\'lov usulini tanlang',
+    'payment_amount' => 'To\'lov summasi',
+    'commission' => 'Komissiya',
+    'secure_payment' => 'Xavfsiz to\'lov',
+    'payment_ssl_protected' => 'To\'lov SSL shifrlash orqali himoyalangan',
+    'proceed_payment' => 'To\'lovni amalga oshirish',
+    'payment_processing' => 'To\'lov amalga oshirilmoqda...',
+    'connecting_to_payment_gateway' => 'to\'lov tizimiga ulanilmoqda...',
+
     // Accident Insurance Form
     'applicant_info_title' => 'Ariza beruvchining ma\'lumotlari',
     'insured_person_info_title' => 'Sug\'urtalanuvchi shaxsning ma\'lumotlari',

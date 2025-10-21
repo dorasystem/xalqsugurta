@@ -321,4 +321,24 @@ return [
     'client_phone_number' => 'Client Phone Number',
     'client_phone_number_placeholder' => '+998 99 999 99 99',
 
+    // Payment Page
+    'payment' => 'Payment',
+    'accident_insurance_payment' => 'Accident Insurance Payment',
+    'property_insurance_payment' => 'Property Insurance Payment',
+    'complete_insurance_payment' => 'Complete your insurance payment',
+    'order_information' => 'Order Information',
+    'order_number' => 'Order Number',
+    'product' => 'Product',
+    'insurance_id' => 'Insurance ID',
+    'select_payment_method' => 'Select Payment Method',
+    'pay_with_cards' => 'Pay with bank cards (Uzcard, Humo)',
+    'please_select_payment_method' => 'Please select a payment method',
+    'payment_amount' => 'Payment Amount',
+    'commission' => 'Commission',
+    'secure_payment' => 'Secure Payment',
+    'payment_ssl_protected' => 'Payment is protected by SSL encryption',
+    'proceed_payment' => 'Proceed Payment',
+    'payment_processing' => 'Payment is being processed...',
+    'connecting_to_payment_gateway' => 'connecting to payment gateway...',
+
 ];
