@@ -1,6 +1,7 @@
 @extends('layouts.app')
-
+@section('title', __('insurance.payment.page_title'))
 @section('content')
+    <x-insurence.steps :activeStep="3" />
     <section class="container-fluid product-page py-4">
         <div class="container">
             <div class="row">

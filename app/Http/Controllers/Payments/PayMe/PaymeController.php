@@ -26,7 +26,7 @@ class PaymeController extends Controller
         $transactionId = $order->id;
         // $backUrl = route('show.insurance.pdf', ['id' => $order->id]);
 
-        $merchantId = '67287714e51de1c6a3a79636';
+        $merchantId = '68f7581688f28864c066266f';
         $tiyinAmount = intval($amount * 100);
         $payload = "m={$merchantId};ac.order_id={$transactionId};a={$tiyinAmount};";
         $encoded = base64_encode($payload);

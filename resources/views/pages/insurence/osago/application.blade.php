@@ -6,6 +6,7 @@
 @endpush
 
 @section('content')
+    <x-insurence.steps :activeStep="2" />
     <section class="container-fluid product-page py-4">
         <div class="container">
             {{-- Error Messages --}}

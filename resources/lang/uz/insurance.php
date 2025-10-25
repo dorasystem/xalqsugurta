@@ -14,6 +14,13 @@ return [
     'car_type_15' => "Tramvaylar, mototsikllar va skuterlar, traktorlar, o`ziyurar yo`l qurilishi va boshqa mashinalar",
     'car_not_found' => 'Avtomobil topilmadi',
 
+    'step' => [
+        'title' => 'Polis olish uchun 3 qadam',
+        'step1' => 'Ma\'lumotlarni to‘ldirish',
+        'step2' => 'Ma\'lumotlarni tekshirish',
+        'step3' => 'To\'lov',
+    ],
+
     'client' => [
         'title' => 'Mijoz ma\'lumotlari',
     ],

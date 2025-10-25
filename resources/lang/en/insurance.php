@@ -13,6 +13,13 @@ return [
     'car_type_15' => 'Trams, motorcycles and scooters, tractors, self-propelled road construction and other machines',
     'car_not_found' => 'Vehicle not found',
 
+    'step' => [
+        'title' => '3 steps to get a policy',
+        'step1' => 'Fill the information',
+        'step2' => 'Check the information',
+        'step3' => 'Payment',
+    ],
+
     'client' => [
         'title' => 'Client Information',
     ],
@@ -176,6 +183,6 @@ return [
         ],
         'address' => 'Birth place',
         'note' => 'NOTE!',
-        'note_text' => 'If the right to drive a motor vehicle is provided by power of attorney, the data of the person to whom the right is granted by power of attorney must also be entered as the driver.',  
+        'note_text' => 'If the right to drive a motor vehicle is provided by power of attorney, the data of the person to whom the right is granted by power of attorney must also be entered as the driver.',
     ]
 ];

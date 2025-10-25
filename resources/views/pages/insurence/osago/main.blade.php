@@ -6,7 +6,7 @@
 @endpush
 
 @section('content')
-    <x-insurence.steps />
+    <x-insurence.steps :activeStep="1" />
     <section class="container-fluid product-page py-4" id="osago-main" style="">
         <div class="container">
             <form id="policy-calculation-form" method="POST" action="{{ route('osago.calculation', app()->getLocale()) }}">
@@ -251,7 +251,7 @@
                         <div id="limited-drivers-info" class="card d-none">
                             <!--d-none qo'shish kerak!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
                             <div class="card-header">
-                                <h4 class="card-title">{{ __('messages.applicant_info_title') }}</h4>
+                                <h4 class="card-title">{{ __('insurance.driver_info') }}</h4>
                             </div>
                             <div class="card-body">
                                 <!--Driver info if chooses limited drivers-->
@@ -647,7 +647,6 @@
 
                     let insuranceAmount = 40000000;
                     let calcDiscount = vehicleTypeC * regionIdC * periodC * limitedC;
-
                     let amount = (calcDiscount * insuranceAmount) / 100;
 
                     // console.log('amount', amount,'period', periodC,'limitedC', limitedC,'regionId', regionIdC,'vehicleType', vehicleTypeC);
@@ -804,12 +803,12 @@
                                 const driverHtml = `
                                 <div class="card-footer mb-3" data-id="${uniqueId}">
                                     <h4 class="card-title">@lang('messages.driver_info_title')</h4>
-                                
+
                                     <div class="row mb-2">
                                         <div class="col-md-5">
                                             <label for="driver-${uniqueId}-full-name" class="form-label">@lang('messages.driver_full_name')</label>
                                             <input type="text" class="form-input" id="driver-${uniqueId}-full-name" name="driver_full_name[${uniqueId}]" value="${shortResult.DriverInfo.pOwner.split(' ')[0] + ' ' + shortResult.DriverInfo.pOwner.split(' ')[1]}" readonly />
-                                            <input type="hidden" name="driver_full_info[${uniqueId}]" value="${string}">    
+                                            <input type="hidden" name="driver_full_info[${uniqueId}]" value="${string}">
                                         </div>
                                         <div class="col-md-4">
                                             <label for="driver-${uniqueId}-kinship" class="form-label">
@@ -833,7 +832,9 @@
                                         </div>
                                         <div class="col-md-3 d-flex flex-column align-items-end justify-content-end">
                                             <button type="button" id="delete-${uniqueId}" class="btn btn-icon btn-danger btn-sm" data-target="${uniqueId}">
-                                            <span class="text-danger">Delete</span>
+                                            <svg width="20" height="20">
+                                                <use xlink:href="#icon-cancel"></use>
+                                            </svg>
                                             </button>
                                         </div>
                                     </div>

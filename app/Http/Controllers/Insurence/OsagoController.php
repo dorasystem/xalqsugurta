@@ -227,7 +227,7 @@ class OsagoController extends Controller
 
                 $order = $this->orderService->createOrder($orderData)->id;
 
-                return redirect()->route('osago.payment', ['locale' => getCurrentLocale(),'order' => $order]);
+                return redirect()->route('osago.payment', ['locale' => getCurrentLocale(), 'order' => $order]);
             }
 
             return redirect()->back()->with('error', 'Xatolik yuz berdi');
@@ -243,6 +243,6 @@ class OsagoController extends Controller
     public function payment($lang, Order $order)
     {
         // dd($order);
-        return view('pages.insurence.osago.payment', compact('order'));
+        return view('pages.insurence.payment', compact('order'));
     }
 }
