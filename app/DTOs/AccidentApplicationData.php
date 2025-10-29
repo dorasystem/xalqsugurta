@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\DTOs;
 
 final class AccidentApplicationData
@@ -16,6 +18,9 @@ final class AccidentApplicationData
         public string $paymentEndDate,
     ) {}
 
+    /**
+     * Build DTO from validated request payload
+     */
     public static function fromRequest(array $data): self
     {
         $applicant = $data['applicant'];
@@ -83,20 +88,110 @@ final class AccidentApplicationData
         ];
     }
 
+    /**
+     * Transform to Accident API payload
+     */
     public function toApiFormat(): array
     {
-        return [
-            'contractData' => null,
-            'contractResponseData' => null,
-            'child_person_info' => [
-                '_token' => csrf_token(),
-                'applicantData' => $this->applicantData,
-                'insuredData' => $this->insuredData,
-                'insuredInfo' => $this->insuredInfo,
+        $sum = $this->insuranceAmount;
+        $rate = (float) config('services.insurance.accident.rate', 0.3); // percent
+        $premium = (int) round(($rate * $sum) / 100);
+
+        $exchangeRate = (float) config('services.insurance.accident.exchange_rate', 12053.46);
+        $currencyId = (int) config('services.insurance.accident.currency_id', 840);
+        $foreignSum = round($sum / max($exchangeRate, 0.0001), 2);
+        $foreignPremium = round($premium / max($exchangeRate, 0.0001), 2);
+
+        $regionId = (int) ($this->applicantData['regionId'] ?? $this->insuredInfo['regionId'] ?? 21);
+        $genderMap = fn(string $g) => $g === '1' ? 'm' : 'f';
+
+        $insurant = [
+            'person' => [
+                'passportData' => [
+                    'pinfl' => $this->applicantData['pinfl'] ?? '',
+                    'seria' => $this->applicantData['seria'] ?? '',
+                    'number' => $this->applicantData['number'] ?? '',
+                ],
+                'fullName' => [
+                    'firstname' => $this->applicantData['firstName'] ?? '',
+                    'lastname' => $this->applicantData['lastName'] ?? '',
+                    'middlename' => $this->applicantData['middleName'] ?? '',
+                ],
+                'regionId' => $regionId,
+                'gender' => $genderMap((string) ($this->applicantData['gender'] ?? '1')),
+                'birthDate' => $this->applicantData['birthDate'] ?? '',
+                'address' => $this->applicantData['address'] ?? '',
+                'residentType' => 1,
+                'countryId' => 210,
                 'phone' => $this->phone,
-                'insured_birthday' => $this->insuredBirthday,
             ],
-            'agreement' => $this->agreement,
+        ];
+
+        $personObject = [
+            'passportData' => [
+                'pinfl' => $this->insuredInfo['pinfl'] ?? '',
+                'seria' => $this->insuredInfo['seria'] ?? '',
+                'number' => $this->insuredInfo['number'] ?? '',
+            ],
+            'fullName' => [
+                'firstname' => $this->insuredInfo['firstName'] ?? '',
+                'lastname' => $this->insuredInfo['lastName'] ?? '',
+                'middlename' => $this->insuredInfo['middleName'] ?? '',
+            ],
+            'regionId' => (int) ($this->insuredInfo['regionId'] ?? $regionId),
+            'gender' => $genderMap((string) ($this->insuredInfo['gender'] ?? '1')),
+            'birthDate' => $this->insuredInfo['birthDate'] ?? '',
+            'address' => $this->insuredInfo['address'] ?? '',
+            'residentType' => 1,
+            'countryId' => 210,
+            'phone' => $this->insuredInfo['phoneNumber'] ?? $this->phone,
+        ];
+
+        $policy = [
+            'paymentConditionsId' => (int) config('services.insurance.accident.payment_conditions_id', 3),
+            'startDate' => $this->paymentStartDate,
+            'endDate' => $this->paymentEndDate,
+            'insuranceForeignSum' => $foreignSum,
+            'insuranceForeignPremium' => $foreignPremium,
+            'insuranceSum' => (string) $sum,
+            'insuranceRate' => $rate,
+            'insurancePremium' => (string) $premium,
+            'insuranceTermId' => (int) config('services.insurance.accident.insurance_term_id', 6),
+            'ruleLink' => (string) config('services.insurance.accident.rule_link', 'https://kafil.uz'),
+            'objects' => [
+                [
+                    'classes' => [(int) config('services.insurance.accident.class_id', 8)],
+                    'risks' => (string) config('services.insurance.accident.risks', 'Jismoniy shaxslarni baxtsiz hodisalardan ehtiyot shart sug‘urtalash'),
+                    'insuranceSum' => (string) $sum,
+                    'insuranceRate' => $rate,
+                    'insurancePremium' => (string) $premium,
+                    'insuranceForeignSum' => $foreignSum,
+                    'insuranceForeignPremium' => $foreignPremium,
+                    'price' => (string) $premium,
+                    'person' => $personObject,
+                ],
+            ],
+        ];
+
+        return [
+            'number' => (string) (config('services.insurance.accident.number') ?? str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT)),
+            'sum' => (string) $sum,
+            'contractStartDate' => $this->paymentStartDate,
+            'contractEndDate' => $this->paymentEndDate,
+            'regionId' => $regionId,
+            'areaTypeId' => (int) config('services.insurance.accident.area_type_id', 1),
+            'agencyId' => (int) config('services.insurance.agency_id', 221),
+            'comission' => (int) config('services.insurance.accident.commission', 0),
+            'insuranceProductName' => (string) config('services.insurance.accident.product_name', 'Jismoniy shaxslarni baxtsiz hodisalardan ehtiyot shart sug‘urtalash'),
+            'formOfInsuranceId' => (int) config('services.insurance.accident.form_of_insurance_id', 2),
+            'insuranceTypeId' => (int) config('services.insurance.accident.insurance_type_id', 999),
+            'contractLink' => (string) config('services.insurance.accident.contract_link', 'https://kafil.uz'),
+            'foreignSum' => $foreignSum,
+            'exchangeRate' => $exchangeRate,
+            'currencyId' => $currencyId,
+            'uprAccountingGroupId' => (int) config('services.insurance.accident.upr_accounting_group_id', 1),
+            'insurant' => $insurant,
+            'policies' => [$policy],
         ];
     }
 }

@@ -8,7 +8,8 @@ return [
     // Insurance Success Messages
     'insurance' => [
         // Order Success
-        'order_created' => 'Заказ успешно создан',
+        'order_created' => 'Заказ успешно создан! Перенаправление на оплату...',
+        'order_created_title' => 'Успешно!',
         'order_updated' => 'Заказ успешно обновлен',
 
         // Application Success

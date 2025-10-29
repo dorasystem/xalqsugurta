@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Insurence;
 
-use App\Actions\Insurence\ProcessPropertyApplicationAction;
 use App\DTOs\PropertyApplicationData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Insurence\PropertyApplicationRequest;
 use App\Models\Order;
 use App\Services\OrderService;
+use App\Services\InsuranceApiService;
 use App\Services\PropertyService;
 use App\Traits\HandlesInsuranceErrors;
 use Illuminate\Http\JsonResponse;
@@ -21,8 +21,24 @@ final class PropertyController extends Controller
     use HandlesInsuranceErrors;
     public function __construct(
         private readonly PropertyService $propertyService,
-        private readonly OrderService $orderService
-    ) {}
+        private readonly OrderService $orderService,
+        private readonly InsuranceApiService $apiService
+    ) {
+        // Configure API service for PROPERTY product (same endpoint family as accident)
+        $baseUrl = (string) config('services.insurance.accident.endpoint', 'https://erspapi.e-osgo.uz/api/v3');
+        $token = (string) config('services.insurance.accident.api_token');
+
+        $this->apiService
+            ->setEndpoint(rtrim($baseUrl, '/') . '/contract')
+            ->setProductType('PROPERTY')
+            ->setHeaders([
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $token,
+            ])
+            ->setTimeout((int) config('services.insurance.accident.timeout', 10))
+            ->setRetries((int) config('services.insurance.accident.retries', 3));
+    }
 
     public function main(): View
     {
@@ -42,8 +58,7 @@ final class PropertyController extends Controller
     }
 
     public function application(
-        PropertyApplicationRequest $request,
-        ProcessPropertyApplicationAction $action
+        PropertyApplicationRequest $request
     ): View|RedirectResponse {
         try {
             // Create DTO from validated request data
@@ -51,8 +66,9 @@ final class PropertyController extends Controller
 
 
 
-            // Execute the action to send data to API
-            $result = $action->execute($applicationData);
+            // Send data to API using centralized service
+            $requestData = $applicationData->toApiFormat();
+            $result = $this->apiService->sendApplication($requestData);
 
             if (!$result['success']) {
                 return back()
@@ -100,6 +116,9 @@ final class PropertyController extends Controller
                 'insurances_data' => $applicationData,
                 'insurances_response_data' => $apiResponse,
                 'status' => Order::STATUS_NEW,
+                'contractStartDate' => $applicationData['paymentStartDate'] ?? null,
+                'contractEndDate' => $applicationData['paymentEndDate'] ?? null,
+                'insuranceProductName' => 'MOL-MULK Sug\'urta',
             ];
 
             $order = $this->orderService->createOrder($orderData);

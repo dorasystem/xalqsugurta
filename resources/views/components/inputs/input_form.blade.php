@@ -9,17 +9,20 @@
     'placeholder' => '',
 ])
 
+@php
+    $errorKey = str_replace(['[', ']'], ['.', ''], $name);
+@endphp
+
 <div class="{{ $class }} d-flex flex-column justify-content-end">
     <label for="{{ $idFor }}" class="form-label">{{ __($label) }}</label>
-    <div class="position-relative">
+    <div>
         <input type="{{ $type }}" id="{{ $idFor }}" placeholder="{{ __($placeholder) }}"
-            name="{{ $name }}" class="form-input @error($name) is-invalid @enderror"
-            value="{{ old(str_replace(['[', ']'], ['.', ''], $name)) }}"
-            @if ($disabled === true) readonly @endif>
-        @error(str_replace(['[', ']'], ['.', ''], $name))
-            <div class="position-absolute top-50 end-0 translate-middle-y me-2">
-                <i class="fas fa-exclamation-circle text-danger" data-bs-toggle="tooltip" data-bs-placement="top"
-                    data-bs-title="{{ $message }}" style="cursor: help; font-size: 16px;"></i>
+            name="{{ $name }}" class="form-input @error($errorKey) is-invalid @enderror"
+            value="{{ old($errorKey) }}" @if ($disabled === true) disabled @endif
+            @if ($readonly === true) readonly @endif>
+        @error($errorKey)
+            <div class="invalid-feedback d-block">
+                {{ $message }}
             </div>
         @enderror
     </div>

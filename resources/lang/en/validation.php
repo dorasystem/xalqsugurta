@@ -1,3 +1,4 @@
+
 <?php
 
 return [
@@ -25,7 +26,7 @@ return [
     'end_date_required' => 'End date is required',
 
 
-    
+
     // --- General ---
     'required' => 'This field is required.',
     'string' => 'This field must be a string.',

@@ -44,6 +44,7 @@ return [
     ],
 
     'accident' => [
+        'product_name' => 'Accident Insurance',
         'page_title' => 'MTPL - Application Details',
         'title' => 'MTPL Insurance Application Details',
         'subtitle' => 'Review and confirm application details',
@@ -141,6 +142,7 @@ return [
     ],
 
     'osago' => [
+        'product_name' => 'OSAGO Insurance',
         'owner_info' => 'Vehicle Owner Information',
         'vehicle_info' => 'Vehicle Information',
         'applicantIsOwner' => 'Applicant is owner',

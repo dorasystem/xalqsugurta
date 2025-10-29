@@ -44,4 +44,27 @@ return [
         'cadaster_api_url' => env('IMPEX_CADASTER_API_URL', 'https://impex-insurance.uz/api/fetch-cadaster'),
     ],
 
+    'payme' => [
+        'merchant_id' => env('PAYME_MERCHANT_ID', 'Paycom'),
+        'secret_key' => env('PAYME_SECRET_KEY'),
+        'kassa_id' => env('PAYME_KASSA_ID', '68f7581688f28864c066266f'),
+        'endpoint' => env('PAYME_ENDPOINT', 'https://checkout.paycom.uz'),
+        'test_mode' => env('PAYME_TEST_MODE', false),
+    ],
+
+    'insurance' => [
+        'agency_id' => env('INSURANCE_AGENCY_ID', 28),
+        'osago' => [
+            'endpoint' => env('INSURANCE_OSAGO_ENDPOINT', 'https://impex-insurance.uz/api/osago/contract/add'),
+            'timeout' => env('INSURANCE_OSAGO_TIMEOUT', 10),
+            'retries' => env('INSURANCE_OSAGO_RETRIES', 3),
+        ],
+        'accident' => [
+            'endpoint' => env('INSURANCE_ACCIDENT_ENDPOINT', 'https://impex-insurance.uz/api/contract/add'),
+            'api_token' => env('INSURANCE_ACCIDENT_TOKEN'),
+            'timeout' => env('INSURANCE_ACCIDENT_TIMEOUT', 10),
+            'retries' => env('INSURANCE_ACCIDENT_RETRIES', 3),
+        ],
+    ],
+
 ];

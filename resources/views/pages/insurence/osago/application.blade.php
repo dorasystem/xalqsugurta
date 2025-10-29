@@ -390,7 +390,7 @@
                                         </label>
                                     </div>
 
-                                    <form action="{{ route('osago.prepare', ['locale' => getCurrentLocale()]) }}"
+                                    <form action="{{ route('osago.storage', ['locale' => getCurrentLocale()]) }}"
                                         method="POST" id="storage-form">
                                         @csrf
 

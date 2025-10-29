@@ -41,12 +41,6 @@ class InsurantInfoRequest extends FormRequest
             ]);
         }
 
-        if ($this->has('driver_full_info') && is_string($this->insurance_infos)) {
-            $this->merge([
-                'insurance_infos' => json_decode($this->insurance_infos, true),
-            ]);
-        }
-
         if ($this->has('driver_full_info') && is_array($this->driver_full_info)) {
             $decodedDrivers = [];
 
@@ -97,10 +91,12 @@ class InsurantInfoRequest extends FormRequest
             'applicant_phone' => ['nullable', 'max:12', 'min:12', 'regex:/^\+?[0-9]{9,15}$/'],
             'applicant_passport_series' => ['nullable', 'string', 'max:2', 'min:2'],
             'applicant_passport_number' => ['nullable', 'string', 'max:7', 'min:7'],
-            'apllicant_infos' => ['nullable', 'array', 'max:1000', 'required_array_keys:regionId,districtId,issuedBy,issueDate,gender,birthDate,address'],
+            'applicant_infos' => ['nullable', 'array', 'max:1000', 'required_array_keys:regionId,districtId,issuedBy,issueDate,gender,birthDate,address'],
+            'car_owner' => ['nullable', 'string', 'max:255'],
+
             // --- Insurance details ---
             'policy_start_date' => ['required', 'date'],
-            'policy_end_date' => ['required', 'date', 'after:insurance_start_date'],
+            'policy_end_date' => ['required', 'date', 'after:policy_start_date'],
             'insurance_infos' => ['required', 'array', 'required_array_keys:amount,period,insuranceAmount'],
 
             // --- Driver info arrays ---
@@ -179,8 +175,8 @@ class InsurantInfoRequest extends FormRequest
             'applicant_passport_series.max' => __('messages.applicant_passport_series_length'),
             'applicant_passport_number.min' => __('messages.applicant_passport_number_length'),
             'applicant_passport_number.max' => __('messages.applicant_passport_number_length'),
-            'apllicant_infos.array' => __('messages.applicant_infos_array'),
-            'apllicant_infos.required_array_keys' => __('messages.applicant_infos_required_keys'),
+            'applicant_infos.array' => __('messages.applicant_infos_array'),
+            'applicant_infos.required_array_keys' => __('messages.applicant_infos_required_keys'),
 
             // === Insurance ===
             'policy_start_date.required' => __('messages.policy_start_date_required'),

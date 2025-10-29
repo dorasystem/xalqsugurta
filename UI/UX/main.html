@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XALQ SUG'URTA - OSAGO Polis Sotib Olish</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .step-active { @apply bg-indigo-600 text-white; }
+        .step-completed { @apply bg-green-500 text-white; }
+        .step-inactive { @apply bg-gray-200 text-gray-500; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-indigo-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                        <span class="text-white font-bold text-xl">X</span>
+                    </div>
+                    <div>
+                        <div class="font-bold text-gray-900 text-lg">XALQ SUG'URTA</div>
+                        <div class="text-xs text-gray-500">XALQ XIZMATI</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <a href="tel:+998712021966" class="hidden md:flex items-center space-x-2 text-gray-600 hover:text-indigo-600">
+                        <span>📞</span>
+                        <span class="text-sm">(+998 71) 202-19-66</span>
+                    </a>
+                    <select class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option>UZ</option>
+                        <option>RU</option>
+                        <option>EN</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Progress Steps -->
+        <div class="bg-white rounded-2xl shadow-sm p-8 mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-8 text-center">OSAGO Polis Sotib Olish</h1>
+            
+            <div class="flex items-center justify-between mb-8 relative">
+                <div class="absolute top-6 left-0 right-0 h-1 bg-gray-200 -z-10"></div>
+                <div class="absolute top-6 left-0 h-1 bg-indigo-600 -z-10 transition-all duration-500" style="width: 0%" id="progressBar"></div>
+                
+                <div class="flex flex-col items-center z-10 bg-white px-4">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center font-bold mb-2 step-active" id="step1">
+                        1
+                    </div>
+                    <div class="text-sm font-medium text-center">Ma'lumotlarni<br>to'ldirish</div>
+                </div>
+                
+                <div class="flex flex-col items-center z-10 bg-white px-4">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center font-bold mb-2 step-inactive" id="step2">
+                        2
+                    </div>
+                    <div class="text-sm font-medium text-center text-gray-500">Tekshirish</div>
+                </div>
+                
+                <div class="flex flex-col items-center z-10 bg-white px-4">
+                    <div class="w-12 h-12 rounded-full flex items-center justify-center font-bold mb-2 step-inactive" id="step3">
+                        3
+                    </div>
+                    <div class="text-sm font-medium text-center text-gray-500">To'lov</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="grid lg:grid-cols-3 gap-6">
+            <!-- Left Side - Forms -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Vehicle Information -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                            <span class="text-2xl">🚗</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900">Avtomobil haqida ma'lumot</h2>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Davlat raqami</label>
+                            <input type="text" value="01L097BB" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" placeholder="01A123BC">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Texnik ko'rik guvohnomasi</label>
+                            <input type="text" value="AAG" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Avtomobil modeli</label>
+                            <input type="text" value="NEXIA 3" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Avtomobil turi</label>
+                            <input type="text" value="Yengil avtomobil" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Ishlab chiqarilgan yili</label>
+                            <input type="text" value="2020" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">O'rindiqlar soni</label>
+                            <input type="text" value="07/56/068" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Texshirish shaxar RO'YXA JCB raqami</label>
+                        <input type="text" value="MAXMUDOV FERUZ TULKINOVICH" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
+                    </div>
+
+                    <button class="mt-4 w-full md:w-auto px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">
+                        🔍 Tekshirish
+                    </button>
+                </div>
+
+                <!-- Owner Information -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <span class="text-2xl">👤</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900">Mulk egasi ma'lumotlari</h2>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Pasport seriya</label>
+                            <input type="text" value="AD" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Pasport raqami</label>
+                            <input type="text" value="0677482" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">JSHSHIR</label>
+                            <input type="text" value="32607873920010" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Familiya</label>
+                            <input type="text" value="MAXMUDOV" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Ism</label>
+                            <input type="text" value="FERUZ" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Otasining ismi</label>
+                            <input type="text" value="TULKINOVICH" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
+                        </div>
+                    </div>
+
+                    <button class="mt-4 w-full md:w-auto px-6 py-3 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition-all shadow-lg shadow-purple-200">
+                        🔍 Tekshirish
+                    </button>
+                </div>
+
+                <!-- Application Provider Information -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <span class="text-2xl">📋</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900">Ariza beruvchining ma'lumotlari</h2>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" checked class="w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500">
+                            <span class="text-sm text-gray-700 font-medium">Transport vositasining egasi ariza beruvchisi</span>
+                        </label>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Pasport seriya</label>
+                            <input type="text" value="AD" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Pasport raqami</label>
+                            <input type="text" value="0677482" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">JSHSHIR</label>
+                            <input type="text" value="32607873920010" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Familiya</label>
+                            <input type="text" value="MAXMUDOV" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Ism</label>
+                            <input type="text" value="FERUZ" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Otasining ismi</label>
+                            <input type="text" value="TULKINOVICH" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Manzil</label>
+                            <input type="text" value="Borbor-M548, Horezm ..." class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Telefon raqami</label>
+                            <input type="text" value="+998 99 999 99 99" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all">
+                        </div>
+                    </div>
+
+                    <button class="mt-4 w-full md:w-auto px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">
+                        🔍 Tekshirish
+                    </button>
+                </div>
+
+                <!-- Policy Details -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 hover:shadow-md transition-shadow">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                            <span class="text-2xl">📄</span>
+                        </div>
+                        <h2 class="text-xl font-bold text-gray-900">Polis hisobi</h2>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Polis amal qilish sanasi</label>
+                            <input type="date" value="2025-10-28" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Polis amal qilish tugash sanasi</label>
+                            <input type="date" value="2026-10-27" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Sug'urta davri</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all">
+                                <option>1 yil</option>
+                                <option>6 oy</option>
+                                <option>3 oy</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Chegirma yo'li</label>
+                            <select class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all">
+                                <option>Chegirma yo'q</option>
+                                <option>5% chegirma</option>
+                                <option>10% chegirma</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-4">
+                        <div class="flex items-start space-x-3">
+                            <span class="text-2xl">💡</span>
+                            <div>
+                                <p class="text-sm text-gray-700 mb-2">
+                                    <strong>Haydovchi ma'lumotlari:</strong> Birinchi marta, shuning bilan avvalgi majburiy sug'urta sh avval ...
+                                </p>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="radio" name="driver" checked class="w-4 h-4 text-green-600 focus:ring-2 focus:ring-green-500">
+                                    <span class="text-sm font-medium text-gray-700">8 ballagacha cheklangan</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer mt-2">
+                                    <input type="radio" name="driver" class="w-4 h-4 text-green-600 focus:ring-2 focus:ring-green-500">
+                                    <span class="text-sm font-medium text-gray-700">Cheklanmagan</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex gap-4">
+                    <button class="flex-1 bg-gray-100 text-gray-700 py-4 rounded-xl font-semibold hover:bg-gray-200 transition-all">
+                        ← Bekor qilish
+                    </button>
+                    <button class="flex-1 bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 rounded-xl font-semibold hover:shadow-xl transition-all shadow-lg" onclick="nextStep()">
+                        Davom etish →
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Side - Summary -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-sm p-6 sticky top-24">
+                    <h3 class="text-lg font-bold text-gray-900 mb-4">Hisob narxlari</h3>
+                    
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                            <span class="text-gray-600">Sug'urta premisi</span>
+                            <span class="font-semibold text-gray-900">40,000,000.00</span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                            <span class="text-gray-600">Sug'urta summasi</span>
+                            <span class="font-semibold text-gray-900">168,000.00</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-6 mb-6">
+                        <div class="text-sm text-gray-600 mb-2">Jami to'lov:</div>
+                        <div class="text-4xl font-bold text-gray-900 mb-1">168,000</div>
+                        <div class="text-sm text-gray-600">UZS</div>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6">
+                        <div class="flex items-start space-x-3">
+                            <span class="text-xl">ℹ️</span>
+                            <div class="text-sm text-gray-700">
+                                <strong class="block mb-1">Sug'urta qamrovi:</strong>
+                                Yo'l-transport hodisalari natijasida uchinchi shaxslarga yetkazilgan zarar uchun javobgarlik sug'urtasi.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-2 text-sm">
+                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-700">Onlayn ro'yxatdan o'tish</span>
+                        </div>
+                        <div class="flex items-center space-x-2 text-sm">
+                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-700">Tez va xavfsiz to'lov</span>
+                        </div>
+                        <div class="flex items-center space-x-2 text-sm">
+                            <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="text-gray-700">Elektron polis</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white mt-16">
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <h4 class="font-semibold mb-3">Kompaniya haqida</h4>
+                    <p class="text-sm text-gray-400">O'zbekistonda ishonchli sug'urta xizmatlari</p>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-3">Telefon:</h4>
+                    <p class="text-sm text-gray-400">(+998 71) 202-19-66</p>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-3">Email:</h4>
+                    <p class="text-sm text-gray-400">info@xalqsugurta.uz</p>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-6 pt-6 text-center text-sm text-gray-400">
+                © 2025 XALQ SUG'URTA. Barcha huquqlar himoyalangan.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function nextStep() {
+            const step1 = document.getElementById('step1');
+            const step2 = document.getElementById('step2');
+            const progressBar = document.getElementById('progressBar');
+            
+            step1.classList.remove('step-active');
+            step1.classList.add('step-completed');
+            step1.innerHTML = '✓';
+            
+            step2.classList.remove('step-inactive');
+            step2.classList.add('step-active');
+            
+            progressBar.style.width = '50%';
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

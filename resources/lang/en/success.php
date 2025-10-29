@@ -8,7 +8,8 @@ return [
     // Insurance Success Messages
     'insurance' => [
         // Order Success
-        'order_created' => 'Order created successfully',
+        'order_created' => 'Order created successfully! Redirecting to payment...',
+        'order_created_title' => 'Success!',
         'order_updated' => 'Order updated successfully',
 
         // Application Success

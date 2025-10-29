@@ -8,7 +8,8 @@ return [
     // Insurance Success Messages
     'insurance' => [
         // Order Success
-        'order_created' => 'Buyurtma muvaffaqiyatli yaratildi',
+        'order_created' => 'Buyurtma muvaffaqiyatli yaratildi! To\'lov sahifasiga o\'tilmoqda...',
+        'order_created_title' => 'Muvaffaqiyatli!',
         'order_updated' => 'Buyurtma muvaffaqiyatli yangilandi',
 
         // Application Success

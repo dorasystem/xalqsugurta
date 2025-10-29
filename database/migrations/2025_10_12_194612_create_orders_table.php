@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->string('product_name')->nullable();
-            $table->decimal('amount', 15, 2)->nullable();
+            $table->decimal('amount', 20, 2)->nullable();
             $table->integer('state')->nullable();
             $table->string('payment_type')->nullable();
             $table->string('insurance_id');
@@ -22,6 +22,13 @@ return new class extends Migration
             $table->text('insurances_data')->nullable();
             $table->text('insurances_response_data')->nullable();
             $table->string('status')->default('new');
+
+            // new order fields
+            $table->timestamp('contractStartDate')->nullable();
+            $table->timestamp('contractEndDate')->nullable();
+            $table->string('insuranceProductName')->nullable();
+            $table->string('polic_id_number')->nullable();
+
             $table->timestamps();
         });
     }

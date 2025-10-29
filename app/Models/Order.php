@@ -19,6 +19,9 @@ class Order extends Model
         'insurances_data',
         'insurances_response_data',
         'status',
+        'contractStartDate',
+        'contractEndDate',
+        'insuranceProductName',
     ];
 
     protected $casts = [
@@ -26,6 +29,8 @@ class Order extends Model
         'state' => 'integer',
         'insurances_data' => 'array',
         'insurances_response_data' => 'array',
+        'contractStartDate' => 'datetime',
+        'contractEndDate' => 'datetime',
     ];
 
     /**

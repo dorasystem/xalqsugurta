@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSAGO Polis - XALQ SUG'URTA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slide-in { animation: slideIn 0.5s ease-out; }
+        .step-line { position: relative; }
+        .step-line::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #4f46e5 0%, #4f46e5 50%, #e5e7eb 50%, #e5e7eb 100%);
+            z-index: -1;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zM11 14a1 1 0 11-2 0 1 1 0 012 0zm0-7a1 1 0 10-2 0v3a1 1 0 102 0V7z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <span class="text-xl font-bold text-gray-900">XALQ SUG'URTA</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="tel:+998712023546" class="hidden md:flex items-center text-gray-600 hover:text-indigo-600 transition">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                        </svg>
+                        (+998 71) 202-35-46
+                    </a>
+                    <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="hidden sm:inline">Shaxsiy kabinet</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Progress Steps -->
+        <div class="mb-12">
+            <h1 class="text-3xl sm:text-4xl font-bold text-center text-gray-900 mb-10">Polis olish uchun 3 qadam</h1>
+            
+            <div class="flex items-center justify-center max-w-3xl mx-auto px-4">
+                <div class="flex items-center w-full">
+                    <!-- Step 1 -->
+                    <div class="flex flex-col items-center flex-1 relative z-10">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-indigo-600 flex items-center justify-center shadow-lg">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+                        <span class="mt-3 text-sm sm:text-base font-medium text-gray-900 text-center">Ma'lumotlarni<br/>to'ldirish</span>
+                    </div>
+                    
+                    <!-- Line 1 -->
+                    <div class="flex-1 h-0.5 bg-indigo-600 mx-2"></div>
+                    
+                    <!-- Step 2 -->
+                    <div class="flex flex-col items-center flex-1 relative z-10">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-indigo-600 flex items-center justify-center shadow-lg">
+                            <span class="text-white text-xl sm:text-2xl font-bold">2</span>
+                        </div>
+                        <span class="mt-3 text-sm sm:text-base font-medium text-gray-900 text-center">Ma'lumotlarni<br/>tekshirish</span>
+                    </div>
+                    
+                    <!-- Line 2 -->
+                    <div class="flex-1 h-0.5 bg-gray-300 mx-2"></div>
+                    
+                    <!-- Step 3 -->
+                    <div class="flex flex-col items-center flex-1 relative z-10">
+                        <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gray-300 flex items-center justify-center">
+                            <span class="text-gray-600 text-xl sm:text-2xl font-bold">3</span>
+                        </div>
+                        <span class="mt-3 text-sm sm:text-base font-medium text-gray-500 text-center">To'lov</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden animate-slide-in">
+            <!-- Header Section -->
+            <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 sm:px-8 py-6">
+                <h2 class="text-2xl sm:text-3xl font-bold text-white flex items-center">
+                    <svg class="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
+                    </svg>
+                    OSAGO Sug'urta Ariza Ma'lumotlari
+                </h2>
+                <p class="text-indigo-100 mt-2">Ariza ma'lumotlarini tekshiring, tasdiqlang</p>
+            </div>
+
+            <div class="p-6 sm:p-8">
+                <!-- Section 1: Applicant Information -->
+                <div class="mb-8">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 ml-4">Ariza Beruvchi Ma'lumotlari</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="group">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Familiya</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">MAXMUDOV</p>
+                        </div>
+                        <div class="group">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Ismi</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">FERUZ</p>
+                        </div>
+                        <div class="group">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Otasining ismi</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">TULKINOVICH</p>
+                        </div>
+                        <div class="group">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Passport seriyasi</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">AD</p>
+                        </div>
+                        <div class="group">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Passport raqami</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">0677482</p>
+                        </div>
+                        <div class="group">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tug'ilgan sanasi</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">1987-07-26</p>
+                        </div>
+                        <div class="group">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Manzil</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">Toshkent shahri</p>
+                        </div>
+                        <div class="group">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Telefon</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">+998901234578</p>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-8 border-gray-200"/>
+
+                <!-- Section 2: Vehicle Owner -->
+                <div class="mb-8">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 ml-4">Avtomobil egasi ma'lumotlari</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="group">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Familiya</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">MAXMUDOV</p>
+                        </div>
+                        <div class="group">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Ismi</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">FERUZ</p>
+                        </div>
+                        <div class="group">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Otasining ismi</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">TULKINOVICH</p>
+                        </div>
+                        <div class="group col-span-1 md:col-span-2 lg:col-span-3">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Ariza beruvchi egasi</label>
+                            <p class="mt-1 text-lg font-semibold text-green-600 bg-green-50 px-4 py-3 rounded-lg flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                Yo'q
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-8 border-gray-200"/>
+
+                <!-- Section 3: Vehicle Information -->
+                <div class="mb-8">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+                                <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1v-5a1 1 0 00-.293-.707l-2-2A1 1 0 0015 7h-1z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 ml-4">Avtomobil ma'lumotlari</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="group">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Model</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">NEXIA 3</p>
+                        </div>
+                        <div class="group">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Ishlab chiqarilgan yili</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">2020</p>
+                        </div>
+                        <div class="group">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Avtomobil raqami</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">01L097BB</p>
+                        </div>
+                        <div class="group md:col-span-2">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Kuzov raqami</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">XWBTA5VLLA054157</p>
+                        </div>
+                        <div class="group">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Registratsiya</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">AAG 0756508</p>
+                        </div>
+                        <div class="group md:col-span-2 lg:col-span-3">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Motor raqami</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">B1502112007270R0X0598</p>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-8 border-gray-200"/>
+
+                <!-- Section 4: Insurance Details -->
+                <div class="mb-8">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"/>
+                                <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 ml-4">Sug'urta Ma'lumotlari</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 border-2 border-indigo-200 rounded-xl p-6">
+                            <label class="text-sm font-semibold text-indigo-700 uppercase tracking-wider flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/>
+                                </svg>
+                                To'lov summasi
+                            </label>
+                            <p class="text-4xl font-bold text-indigo-700 mt-2">168,000</p>
+                            <p class="text-sm text-indigo-600 mt-1">UZS</p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200 rounded-xl p-6">
+                            <label class="text-sm font-semibold text-green-700 uppercase tracking-wider flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                Sug'urta summasi
+                            </label>
+                            <p class="text-4xl font-bold text-green-700 mt-2">40,000,000</p>
+                            <p class="text-sm text-green-600 mt-1">UZS</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="group">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Boshlanish sanasi</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">2025-10-28</p>
+                        </div>
+                        <div class="group">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tugash sanasi</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">2026-10-27</p>
+                        </div>
+                        <div class="group">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Sug'urta muddati</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">1 yil</p>
+                        </div>
+                        <div class="group md:col-span-2 lg:col-span-3">
+                            <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Haydovchilar soni</label>
+                            <p class="mt-1 text-lg font-semibold text-gray-900 bg-gray-50 px-4 py-3 rounded-lg group-hover:bg-gray-100 transition">Cheklanmadagi haydovchilar</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agreement Checkboxes -->
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
+                    <div class="space-y-4">
+                        <label class="flex items-start cursor-pointer group">
+                            <input type="checkbox" class="mt-1 w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer">
+                            <span class="ml-3 text-sm text-gray-700 group-hover:text-gray-900">Bambu rus huquqlar ta'yini utaladigan tarifdandan</span>
+                        </label>
+                        <label class="flex items-start cursor-pointer group">
+                            <input type="checkbox" class="mt-1 w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer">
+                            <span class="ml-3 text-sm text-gray-700 group-hover:text-gray-900">Ommaviy ofertani tarqab etqatlon va bomchu shortnomas rasmim</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 flex items-center justify-center group">
+                        <span>Davom Qayilish</span>
+                        <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                    </button>
+                    <button class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-4 px-6 rounded-xl border-2 border-gray-300 transition-all duration-200 flex items-center justify-center group">
+                        <svg class="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12"/>
+                        </svg>
+                        <span>To'luvga O'tish</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="mt-8 bg-white rounded-xl shadow-md p-6">
+            <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <h4 class="text-lg font-semibold text-gray-900 mb-2">Yordam kerakmi?</h4>
+                    <p class="text-gray-600 mb-3">Agar savolaringiz bo'lsa, biz bilan bog'laning. Mutaxassislarimiz sizga yordam berishga tayyor.</p>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="tel:+998712023546" class="inline-flex items-center px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition">
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                            </svg>
+                            Qo'ng'iroq qiling
+                        </a>
+                        <a href="mailto:info@xalqinsurance.uz" class="inline-flex items-center px-4 py-2 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 transition">
+                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                            </svg>
+                            Email yuboring
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gradient-to-r from-indigo-900 to-indigo-800 text-white mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Company Info -->
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zM11 14a1 1 0 11-2 0 1 1 0 012 0zm0-7a1 1 0 10-2 0v3a1 1 0 102 0V7z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <span class="text-xl font-bold">XALQ SUG'URTA</span>
+                    </div>
+                    <p class="text-indigo-200 text-sm">Ishonchli hamkor, xavfsiz kelajak</p>
+                </div>
+
+                <!-- Contact -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Aloqa</h3>
+                    <div class="space-y-3">
+                        <a href="tel:+998712023546" class="flex items-center text-indigo-200 hover:text-white transition">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                            </svg>
+                            (+998 71) 202-35-46
+                        </a>
+                        <a href="mailto:info@xalqinsurance.uz" class="flex items-center text-indigo-200 hover:text-white transition">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
+                            </svg>
+                            info@xalqinsurance.uz
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Address -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Manzil</h3>
+                    <p class="text-indigo-200 text-sm flex items-start">
+                        <svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                        </svg>
+                        Toshkent shahar, Mirzo Ulugbek tumani, Lutfkorlar ko'chasi, 62 A
+                    </p>
+                </div>
+
+                <!-- Working Hours -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Ish vaqti</h3>
+                    <p class="text-indigo-200 text-sm">Dush - Juma: 09:00 - 18:00</p>
+                    <p class="text-indigo-200 text-sm mt-2">Dam olish kunlari yopiq</p>
+                </div>
+            </div>
+
+            <div class="border-t border-indigo-700 mt-8 pt-8">
+                <div class="flex flex-col sm:flex-row justify-between items-center">
+                    <p class="text-indigo-200 text-sm text-center sm:text-left">© 2023 "XALQ SUG'URTA" aksiyadorlik jamiyati</p>
+                    <div class="flex space-x-6 mt-4 sm:mt-0">
+                        <a href="#" class="text-indigo-200 hover:text-white transition">
+                            <span class="sr-only">Facebook</span>
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-indigo-200 hover:text-white transition">
+                            <span class="sr-only">Instagram</span>
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-indigo-200 hover:text-white transition">
+                            <span class="sr-only">Telegram</span>
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

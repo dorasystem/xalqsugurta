@@ -45,6 +45,7 @@ return [
     ],
 
     'accident' => [
+        'product_name' => 'Baxtsiz hodisa sug\'urtasi',
         'page_title' => 'OSAGO - Ariza ma\'lumotlari',
         'title' => 'OSAGO Sug\'urta Ariza Ma\'lumotlari',
         'subtitle' => 'Ariza ma\'lumotlarini tekshirib, tasdiqlang',
@@ -142,6 +143,7 @@ return [
     ],
 
     'osago' => [
+        'product_name' => 'OSAGO sug\'urtasi',
         'owner_info' => 'Avtomobil egasi ma\'lumotlari',
         'vehicle_info' => 'Avtomobil ma\'lumotlari',
         'applicantIsOwner' => 'Ariza beruvchi egasi',

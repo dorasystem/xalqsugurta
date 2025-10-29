@@ -7,8 +7,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="apple-touch-icon" sizes="60x60" href="assets/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/favicon-16x16.png') }}">
     <link rel="manifest" href="{{ asset('assets/site.webmanifest') }}">
     <link rel="mask-icon" href="{{ asset('assets/safari-pinned-tab.svg') }}" color="#5bbad5">
     <meta name="msapplication-TileColor" content="#2d89ef">
@@ -364,7 +364,7 @@
         @include('components.pageComponents.header')
 
         @include('components.toasts.all')
-        
+
         <ul class="social social--fixed">
             <li class="social__item">
                 <a href="#" class="social__link" target="_blank" aria-label="Instagram">

@@ -239,6 +239,11 @@ h1 {
     font-size: calc(1.375rem + 1.5vw)
 }
 
+.payment-page h3 {
+    color: var(--violet) !important;
+    font-weight: 700;
+}
+
 @media (min-width:1200px) {
 
     .h1,
@@ -13835,3 +13840,64 @@ fieldset:disabled .btn {
 }
 
 /*# sourceMappingURL=bootstrap.min.css.map */
+/* Payment Card Styles */
+.payment-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1.5rem;
+    border: 2px solid #e8ecef;
+    border-radius: 16px;
+    background: #ffffff;
+    transition: all 0.3s ease;
+    cursor: default;
+    text-align: center;
+    min-height: 200px;
+}
+
+.payment-card.clickable {
+    cursor: pointer;
+    border: 2px solid #e8ecef;
+    background: transparent;
+}
+
+.payment-card.clickable:hover {
+    border-color: #5B4CCC;
+    background: #f8f7ff;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(91, 76, 204, 0.15);
+}
+
+.payment-card.disabled {
+    background: #f8f9fa;
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .payment-card {
+        min-height: 180px;
+        padding: 2rem 1rem;
+    }
+
+    .payment-icon {
+        width: 70px;
+        height: 70px;
+    }
+
+    .payment-icon img {
+        max-width: 40px;
+        max-height: 40px;
+    }
+
+    .payment-icon svg {
+        max-width: 40px;
+        max-height: 40px;
+    }
+
+    .payment-title {
+        font-size: 1.1rem;
+    }
+}

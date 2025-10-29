@@ -17,6 +17,10 @@ Route::get('/get-person-info', [PersonInfoController::class, 'getPersonInfo']);
 //Payme
 Route::get('payment', [PaymeController::class, 'payment'])->name('payment.payme');
 
+Route::post('payme/callback', [PaymeController::class, 'handleCallback'])
+    ->middleware('payme')
+    ->name('payment.payme.callback');
+
 
 //Click
 Route::get('payment/click', [ClickController::class, 'payment'])->name('payment.click');

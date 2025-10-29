@@ -1,6 +1,6 @@
 @props(['activeStep' => 1])
 
-<section class="banner1">
+<section class="banner1" style="background-image: url('{{ asset('assets/img/step-bg.png') }}');">
     <h1 class="Gilroy-header">{{ __('insurance.step.title') }}</h1>
 
     <div class="container-vkladki order-3 order-xxl-2">
@@ -210,9 +210,8 @@
 
 
     .banner1 {
-        background-image: url("./img/background-image.png"), url("./img/Group92.png");
         background-repeat: no-repeat, no-repeat;
-        background-size: clamp(200px, calc(12.94vw + 151.45px), 400px), clamp(200px, calc(12.94vw + 151.45px), 400px);
+        background-size: contain;
         background-position: 350px 70px, right top;
         padding-bottom: clamp(60px, calc(9.06vw + 26px), 200px);
     }

@@ -7,15 +7,22 @@
 
 @section('content')
     <x-insurence.steps />
-
-    {{-- validation errorlarni chiqarish --}}
+    {{-- Validation errors --}}
     @if ($errors->any())
-        <div class="alert alert-danger">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+        <div class="container">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <h4 class="alert-heading">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {{ __('insurance.accident.errors.error') }}
+                </h4>
+                <p class="mb-2">{{ __('insurance.accident.errors.errors_title') }}</p>
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         </div>
     @endif
 
@@ -67,9 +74,12 @@
                                         :name="'applicant[phoneNumber]'" :label="'messages.phone_number'" :placeholder="'messages.phone_number_placeholder'" />
                                 </div>
 
+                                <div class="row">
+                                    <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'applicant-pinfl'"
+                                        :name="'applicant[pinfl]'" :label="'messages.owner_pinfl'" :placeholder="'messages.owner_pinfl_placeholder'" />
+                                </div>
+
                                 {{-- Hidden fields for additional applicant data --}}
-                                <input type="hidden" id="applicant-pinfl" name="applicant[pinfl]"
-                                    value="{{ old('applicant.pinfl') }}">
                                 <input type="hidden" id="applicant-birth-place" name="applicant[birthPlace]"
                                     value="{{ old('applicant.birthPlace') }}">
                                 <input type="hidden" id="applicant-birth-country" name="applicant[birthCountry]"
@@ -132,9 +142,12 @@
                                         :name="'client[phoneNumber]'" :label="'messages.phone_number'" :placeholder="'messages.phone_number_placeholder'" />
                                 </div>
 
+                                <div class="row">
+                                    <x-inputs.input_form :type="'number'" :class="'col-md-6'" :idFor="'client-pinfl'"
+                                        :name="'client[pinfl]'" :label="'messages.owner_pinfl'" :placeholder="'messages.owner_pinfl_placeholder'" />
+                                </div>
+
                                 {{-- Hidden fields for additional client data --}}
-                                <input type="hidden" id="client-pinfl" name="client[pinfl]"
-                                    value="{{ old('client.pinfl') }}">
                                 <input type="hidden" id="client-birth-place" name="client[birthPlace]"
                                     value="{{ old('client.birthPlace') }}">
                                 <input type="hidden" id="client-birth-country" name="client[birthCountry]"
@@ -196,6 +209,28 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
+                // Bootstrap alert close functionality
+                document.querySelectorAll('.btn-close').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const alert = this.closest('.alert');
+                        if (alert) {
+                            alert.style.transition = 'opacity 0.15s linear';
+                            alert.style.opacity = '0';
+                            setTimeout(() => alert.remove(), 150);
+                        }
+                    });
+                });
+
+                // Auto-scroll to first error field
+                const firstError = document.querySelector('.is-invalid');
+                if (firstError) {
+                    firstError.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                    firstError.focus();
+                }
+
                 const applicantInfoBtn = document.getElementById('applicant-information-search-btn');
                 const passportSeria = document.getElementById('applicant-passport-series');
                 const passportNumber = document.getElementById('applicant-passport-number');
@@ -355,7 +390,8 @@
                             document.getElementById('applicant-address').value = personInfo.address || '';
 
                             // Populate hidden fields with additional data
-                            document.getElementById('applicant-pinfl').value = personInfo.pinfl || '';
+                            document.getElementById('applicant-pinfl').value = personInfo.currentPinfl ||
+                                '';
                             document.getElementById('applicant-birth-place').value = personInfo
                                 .birthPlace || '';
                             document.getElementById('applicant-birth-country').value = personInfo
@@ -447,7 +483,7 @@
                                 document.getElementById('client-address').value = clientInfo.address || '';
 
                                 // Populate hidden fields with additional data
-                                document.getElementById('client-pinfl').value = clientInfo.pinfl || '';
+                                document.getElementById('client-pinfl').value = clientInfo.currentPinfl || '';
                                 document.getElementById('client-birth-place').value = clientInfo
                                     .birthPlace || '';
                                 document.getElementById('client-birth-country').value = clientInfo

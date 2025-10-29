@@ -13,6 +13,7 @@ final class OrderService
      */
     public function createOrder(array $data): Order
     {
+
         try {
             return DB::transaction(function () use ($data) {
                 $order = Order::create([
@@ -25,7 +26,15 @@ final class OrderService
                     'insurances_data' => $data['insurances_data'] ?? null,
                     'insurances_response_data' => $data['insurances_response_data'] ?? null,
                     'status' => Order::STATUS_NEW,
+                    'contractStartDate' => $data['contractStartDate'] ?? null,
+                    'contractEndDate' => $data['contractEndDate'] ?? null,
+                    'insuranceProductName' => $data['insuranceProductName'] ?? null,
+                    'polic_id_number' => $data['polic_id_number'],
                 ]);
+
+                $order->polic_id_number = $data['polic_id_number'];
+
+                $order->save();
 
                 Log::info('Order created successfully', [
                     'order_id' => $order->id,
@@ -113,6 +122,3 @@ final class OrderService
         }
     }
 }
-
-
-

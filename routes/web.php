@@ -53,5 +53,5 @@ Route::get('/debug-session', function () {
 })->name('debug.session');
 
 Route::get('/test', function () {
-    return  Order::query()->get();
+    return  Order::query()->latest()->limit(3)->get();
 })->name('test');

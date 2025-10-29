@@ -31,7 +31,7 @@ final class AccidentApplicationRequest extends FormRequest
             'applicant.middleName' => ['nullable', 'string', 'max:255'],
             'applicant.address' => ['required', 'string', 'max:500'],
             'applicant.phoneNumber' => ['required', 'string'],
-            'applicant.pinfl' => ['nullable', 'string', 'size:14'],
+            'applicant.pinfl' => ['required', 'string', 'size:14'],
             'applicant.birthPlace' => ['nullable', 'string', 'max:255'],
             'applicant.birthCountry' => ['nullable', 'string', 'max:255'],
             'applicant.gender' => ['nullable', 'string', 'in:1,2'],
@@ -49,7 +49,7 @@ final class AccidentApplicationRequest extends FormRequest
             'client.middleName' => ['nullable', 'string', 'max:255'],
             'client.address' => ['required', 'string', 'max:500'],
             'client.phoneNumber' => ['required', 'string'],
-            'client.pinfl' => ['nullable', 'string', 'size:14'],
+            'client.pinfl' => ['required', 'string', 'size:14'],
             'client.birthPlace' => ['nullable', 'string', 'max:255'],
             'client.birthCountry' => ['nullable', 'string', 'max:255'],
             'client.gender' => ['nullable', 'string', 'in:1,2'],
@@ -80,6 +80,7 @@ final class AccidentApplicationRequest extends FormRequest
             'applicant.middleName' => __('insurance.person.middle_name'),
             'applicant.address' => __('insurance.person.address'),
             'applicant.phoneNumber' => __('insurance.person.phone'),
+            'applicant.pinfl' => __('insurance.person.pinfl'),
 
             'client.passportSeries' => __('insurance.person.passport_series'),
             'client.passportNumber' => __('insurance.person.passport_number'),
@@ -89,6 +90,7 @@ final class AccidentApplicationRequest extends FormRequest
             'client.middleName' => __('insurance.person.middle_name'),
             'client.address' => __('insurance.person.address'),
             'client.phoneNumber' => __('insurance.person.phone'),
+            'client.pinfl' => __('insurance.person.pinfl'),
 
             'insurance_amount' => __('messages.insurance_sum'),
             'payment_start_date' => __('messages.start_date'),
