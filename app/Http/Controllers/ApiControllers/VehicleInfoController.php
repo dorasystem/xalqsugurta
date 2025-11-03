@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\ApiControllers;
 
 use App\Http\Controllers\Controller;
+use App\Traits\Api;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 
 class VehicleInfoController extends Controller
 {
+    use Api;
 
     public function getVehicleInfo(Request $request)
     {
@@ -18,13 +19,14 @@ class VehicleInfoController extends Controller
         ]);
 
         $data = [
-            'gov' => substr($request->gov_number, 0, 2),
-            'number' => substr($request->gov_number, 2),
+            'govNumber' => $request->gov_number,
             'techPassportSeria' => $request->tech_passport_series,
             'techPassportNumber' => $request->tech_passport_number
         ];
 
-        $response = Http::post('https://impex-insurance.uz/api/fetch-vehicle-info', $data);
+        // $response = Http::post('https://impex-insurance.uz/api/fetch-vehicle-info', $data);
+
+        $response = $this->sendRequest('/api/provider/osago/vehicle', $data);
 
         if ($response->failed()) {
             return response()->json([

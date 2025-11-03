@@ -77,7 +77,7 @@
                     REGION_TASHKENT: 1.4,
                     REGION_OTHER: 1.2,
                     VEHICLE_TYPES: {
-                        2: {
+                        1: {
                             coef: 0.1,
                             label: '@lang('insurance.car_type_2')'
                         },

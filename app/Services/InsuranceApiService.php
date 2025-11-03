@@ -152,8 +152,8 @@ final class InsuranceApiService
 
         // Resolve UUID based on product type
         if (in_array($this->productType, ['ACCIDENT', 'PROPERTY'], true)) {
-            // Try to extract from first policy
-            $uuid = data_get($json, 'response.result.policies.0.uuid');
+            // Try to extract from first policy or contractUuid
+            $uuid = data_get($json, 'response.result.policies.0.uuid') ?? data_get($json, 'response.result.contractUuid');
             if ($statusOk && $apiError === 0 && !empty($uuid)) {
                 return [
                     'success' => true,
@@ -164,7 +164,7 @@ final class InsuranceApiService
             }
         } else {
             // Default OSAGO path
-            $uuid = data_get($json, 'response.result.uuid');
+            $uuid = data_get($json, 'response.result.uuid') ?? data_get($json, 'response.result.contractUuid');
             if ($statusOk && $apiError === 0 && !empty($uuid)) {
                 return [
                     'success' => true,

@@ -20,9 +20,40 @@ final class PropertyApplicationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // Property data
+            // Applicant information (person applying for insurance)
+            'applicant.passportSeries' => ['required', 'string', 'size:2'],
+            'applicant.passportNumber' => ['required', 'string', 'size:7'],
+            'applicant.birthDate' => ['required', 'date', 'before:today'],
+            'applicant.lastName' => ['required', 'string', 'max:255'],
+            'applicant.firstName' => ['required', 'string', 'max:255'],
+            'applicant.middleName' => ['nullable', 'string', 'max:255'],
+            'applicant.address' => ['required', 'string', 'max:500'],
+            'applicant.phoneNumber' => ['required', 'string'],
+            'applicant.pinfl' => ['required', 'string', 'size:14', 'regex:/^\d{14}$/'],
+            'applicant.birthPlace' => ['nullable', 'string', 'max:255'],
+            'applicant.birthCountry' => ['nullable', 'string', 'max:255'],
+            'applicant.gender' => ['nullable', 'string', 'in:1,2'],
+            'applicant.regionId' => ['nullable', 'numeric'],
+            'applicant.districtId' => ['nullable', 'numeric'],
+
+            // Property owner information (can be same as applicant)
+            'owner.passportSeries' => ['required', 'string', 'size:2'],
+            'owner.passportNumber' => ['required', 'string', 'size:7'],
+            'owner.birthDate' => ['required', 'date', 'before:today'],
+            'owner.lastName' => ['required', 'string', 'max:255'],
+            'owner.firstName' => ['required', 'string', 'max:255'],
+            'owner.middleName' => ['nullable', 'string', 'max:255'],
+            'owner.address' => ['required', 'string', 'max:500'],
+            'owner.phoneNumber' => ['required', 'string'],
+            'owner.pinfl' => ['required', 'string', 'size:14', 'regex:/^\d{14}$/'],
+            'owner.birthPlace' => ['nullable', 'string', 'max:255'],
+            'owner.birthCountry' => ['nullable', 'string', 'max:255'],
+            'owner.gender' => ['nullable', 'string', 'in:1,2'],
+            'owner.regionId' => ['nullable', 'numeric'],
+            'owner.districtId' => ['nullable', 'numeric'],
+
+            // Property information from cadaster search
             'property.cadasterNumber' => ['required', 'string', 'regex:/^\d{2}:\d{2}:\d{2}:\d{2}:\d{2}:\d{4}$/'],
-            'property.address' => ['required', 'string', 'max:500'],
             'property.shortAddress' => ['required', 'string', 'max:255'],
             'property.street' => ['nullable', 'string', 'max:255'],
             'property.tip' => ['required', 'string'],
@@ -32,7 +63,6 @@ final class PropertyApplicationRequest extends FormRequest
             'property.objectArea' => ['required', 'string'],
             'property.objectAreaL' => ['nullable', 'string'],
             'property.objectAreaU' => ['nullable', 'string'],
-            'property.regionId' => ['required', 'string'],
             'property.region' => ['required', 'string', 'max:255'],
             'property.districtId' => ['required', 'string'],
             'property.district' => ['required', 'string', 'max:255'],
@@ -40,46 +70,15 @@ final class PropertyApplicationRequest extends FormRequest
             'property.kvartiraNum' => ['nullable', 'string', 'max:50'],
             'property.neighborhood' => ['nullable', 'string', 'max:255'],
             'property.neighborhoodId' => ['nullable', 'string'],
+            'property.cost' => ['nullable', 'numeric'],
 
-            // Owner passport info
-            'owner.passportSeries' => ['required', 'string', 'size:2'],
-            'owner.passportNumber' => ['required', 'string', 'size:7'],
-            'owner.birthDate' => ['required', 'date', 'before:today'],
-
-            // Owner personal info
-            'owner.lastName' => ['required', 'string', 'max:255'],
-            'owner.firstName' => ['required', 'string', 'max:255'],
-            'owner.middleName' => ['nullable', 'string', 'max:255'],
-            'owner.address' => ['required', 'string', 'max:500'],
-            'owner.phoneNumber' => ['required', 'string'],
-            'owner.pinfl' => ['nullable', 'string', 'size:14'],
-            'owner.inn' => ['nullable', 'string', 'max:50'],
-            'owner.type' => ['nullable', 'string'],
-            'owner.percent' => ['nullable', 'string'],
-            'owner.gender' => ['nullable', 'string', 'in:1,2'],
-
-            // Applicant passport info
-            'applicant.passportSeries' => ['required', 'string', 'size:2'],
-            'applicant.passportNumber' => ['required', 'string', 'size:7'],
-            'applicant.birthDate' => ['required', 'date', 'before:today'],
-
-            // Applicant personal info
-            'applicant.lastName' => ['required', 'string', 'max:255'],
-            'applicant.firstName' => ['required', 'string', 'max:255'],
-            'applicant.middleName' => ['nullable', 'string', 'max:255'],
-            'applicant.address' => ['required', 'string', 'max:500'],
-            'applicant.phoneNumber' => ['required', 'string'],
-            'applicant.pinfl' => ['nullable', 'string', 'size:14'],
-            'applicant.inn' => ['nullable', 'string', 'max:50'],
-            'applicant.gender' => ['nullable', 'string', 'in:1,2'],
-
-            // Insurance calculation
+            // Insurance details
             'insurance_amount' => ['required', 'numeric', 'min:50000000', 'max:500000000'],
             'payment_start_date' => ['required', 'date', 'after_or_equal:today'],
             'payment_end_date' => ['required', 'date', 'after:payment_start_date'],
 
-            // Checkbox
-            'is_owner_applicant' => ['nullable', 'boolean'],
+            // Checkboxes and agreements
+            'is_applicant_owner' => ['nullable', 'boolean'],
             'agreement' => ['required', 'accepted'],
         ];
     }
@@ -91,7 +90,7 @@ final class PropertyApplicationRequest extends FormRequest
     {
         return [
             'property.cadasterNumber' => 'Kadastr raqami',
-            'property.address' => 'Mulk manzili',
+            'property.shortAddress' => 'Mulk manzili',
 
             'owner.passportSeries' => __('messages.owner_passport_series'),
             'owner.passportNumber' => __('messages.owner_passport_number'),
@@ -101,6 +100,7 @@ final class PropertyApplicationRequest extends FormRequest
             'owner.middleName' => __('messages.owner_middle_name'),
             'owner.address' => __('messages.owner_address'),
             'owner.phoneNumber' => __('messages.owner_phone_number'),
+            'owner.pinfl' => __('messages.owner_pinfl'),
 
             'applicant.passportSeries' => __('messages.applicant_passport_series'),
             'applicant.passportNumber' => __('messages.applicant_passport_number'),
@@ -110,6 +110,7 @@ final class PropertyApplicationRequest extends FormRequest
             'applicant.middleName' => __('messages.applicant_middle_name'),
             'applicant.address' => __('messages.applicant_address'),
             'applicant.phoneNumber' => __('messages.applicant_phone_number'),
+            'applicant.pinfl' => __('messages.applicant_pinfl'),
 
             'insurance_amount' => __('messages.insurance_sum'),
             'payment_start_date' => __('messages.start_date'),

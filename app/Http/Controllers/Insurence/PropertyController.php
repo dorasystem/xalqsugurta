@@ -26,18 +26,9 @@ final class PropertyController extends Controller
     ) {
         // Configure API service for PROPERTY product (same endpoint family as accident)
         $baseUrl = (string) config('services.insurance.accident.endpoint', 'https://erspapi.e-osgo.uz/api/v3');
-        $token = (string) config('services.insurance.accident.api_token');
 
         $this->apiService
-            ->setEndpoint(rtrim($baseUrl, '/') . '/contract')
-            ->setProductType('PROPERTY')
-            ->setHeaders([
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $token,
-            ])
-            ->setTimeout((int) config('services.insurance.accident.timeout', 10))
-            ->setRetries((int) config('services.insurance.accident.retries', 3));
+            ->setEndpoint(rtrim($baseUrl));
     }
 
     public function main(): View
@@ -68,11 +59,33 @@ final class PropertyController extends Controller
 
             // Send data to API using centralized service
             $requestData = $applicationData->toApiFormat();
+
+            Log::info('Property application: Sending request to API', [
+                'has_applicant' => !empty($requestData['insurant']['person']['fullName']['firstname']),
+                'has_owner' => !empty($requestData['policies'][0]['objects'][0]['others']['ownerPerson']['fullName']['firstname']),
+                'insurance_amount' => $requestData['sum'] ?? 0,
+            ]);
+
             $result = $this->apiService->sendApplication($requestData);
 
+            Log::info('Property application: API response received', [
+                'success' => $result['success'] ?? false,
+                'has_data' => !empty($result['data']),
+                'error_type' => gettype($result['error'] ?? null),
+            ]);
+
             if (!$result['success']) {
+                $errorMessage = is_array($result['error'])
+                    ? json_encode($result['error'], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+                    : (string) $result['error'];
+
+                Log::error('Property application: API returned error', [
+                    'error' => $result['error'],
+                    'formatted_error' => $errorMessage,
+                ]);
+
                 return back()
-                    ->withErrors(['error' => $result['error']])
+                    ->withErrors(['error' => $errorMessage])
                     ->withInput();
             }
 
@@ -119,6 +132,7 @@ final class PropertyController extends Controller
                 'contractStartDate' => $applicationData['paymentStartDate'] ?? null,
                 'contractEndDate' => $applicationData['paymentEndDate'] ?? null,
                 'insuranceProductName' => 'MOL-MULK Sug\'urta',
+                'polic_id_number' => $apiResponse['response']['result']['contractUuid'],
             ];
 
             $order = $this->orderService->createOrder($orderData);
