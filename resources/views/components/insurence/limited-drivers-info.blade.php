@@ -1,6 +1,6 @@
 <div id="limited-drivers-info" class="card {{ old('driver_limit') == 'limited' ? '' : 'd-none' }}">
     <div class="card-header">
-        <h4 class="card-title">{{ __('insurance.driver_info') }}</h4>
+        <h4 class="card-title">{{ __('insurance.osago.driver_info') }}</h4>
     </div>
     <div class="card-body">
         <div id="driver-info-search">

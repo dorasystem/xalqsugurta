@@ -40,6 +40,7 @@ return [
         'passport_code_place' => 'Место кода паспорта',
         'telephone_number' => 'Номер телефона',
         'telephone_number_placeholder' => '+998xxxxxxxxx',
+        'placeholder' => 'Введите информацию',
     ],
 
     'accident' => [
