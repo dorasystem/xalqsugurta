@@ -4,10 +4,11 @@ namespace App\Http\Controllers\ApiControllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Http;
+use App\Traits\Api;
 
 class DriverInfoController extends Controller
 {
+    use Api;
     public function getDriverInfo(Request $request)
     {
         $request->validate([
@@ -15,14 +16,17 @@ class DriverInfoController extends Controller
             'passport_number' => 'required|string',
             'pinfl' => 'required|string'
         ]);
-        
+
         $data = [
+            'transactionId' => now()->timestamp,
+            'isConsent' => 'Y',
             'pinfl' => $request->input('pinfl'),
-            'passportSeries' => $request->input('passport_series'),
-            'passportNumber' => $request->input('passport_number'),
+            'document' => $request->input('passport_series') . $request->input('passport_number'),
+            'senderPinfl' => $request->input('pinfl'),
         ];
 
-        $response = Http::post('https://impex-insurance.uz/api/fetch-driver-summary', $data);
+        // $response = Http::post('https://impex-insurance.uz/api/fetch-driver-summary', $data);
+        $response = $this->sendRequest('/api/provider/driver-summary-v2', $data);
 
         if ($response->failed()) {
             return response()->json([

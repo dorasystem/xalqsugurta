@@ -7,23 +7,34 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\PersonPinflRequest;
 use App\Http\Requests\Insurence\PersonBirthdateRequest;
 use Illuminate\Support\Facades\Http;
+use App\Traits\Api;
 
 class PersonInfoController extends Controller
 {
-
+    use Api;
     public function getPersonInfo(PersonPinflRequest $request)
     {
         $personData = $request->validated();
 
         $data = [
-            'senderPinfl' => $personData['senderPinfl'],
-            'passport_series' => strtoupper($personData['passport_series']),
-            'passport_number' => $personData['passport_number'],
+            'document' => strtoupper($personData['passport_series']) . $personData['passport_number'],
             'pinfl' => $personData['pinfl'],
-            'isConsent' => $request->input('isConsent')
+            'senderPinfl' => $personData['senderPinfl'],
+            'isConsent' => 'Y',
+            'transactionId' => now()->timestamp,
         ];
 
-        $response = Http::post('https://impex-insurance.uz/api/fetch-person-pinfl-v2', $data);
+        // {
+        //     "transactionId": "string",
+        //     "isConsent": "string",
+        //     "senderPinfl": "string",
+        //     "document": "string",
+        //     "pinfl": "string"
+        //   }
+
+        $response = $this->sendRequest('/api/provider/pinfl-v2', $data);
+
+        // $response = Http::post('https://impex-insurance.uz/api/fetch-person-pinfl-v2', $data);
 
         if ($response->failed()) {
             return response()->json([
@@ -47,12 +58,15 @@ class PersonInfoController extends Controller
         $data = [
             'isConsent' => 'Y',
             'senderPinfl' => "50101005690010",
-            'passport_series' => strtoupper($personData['passport_series']),
-            'passport_number' => $personData['passport_number'],
+            'document' => strtoupper($personData['passport_series']) . $personData['passport_number'],
             'birthDate' => $personData['birthDate'],
+            'transactionId' => now()->timestamp,
         ];
 
-        $response = Http::post('https://impex-insurance.uz/api/fetch-brith-date-v2', $data);
+        dd($data);
+
+        $response = $this->sendRequest('/api/provider/passport-birth-date-v2', $data);
+        // $response = Http::post('https://impex-insurance.uz/api/fetch-brith-date-v2', $data);
 
         if ($response->failed()) {
             return response()->json([
