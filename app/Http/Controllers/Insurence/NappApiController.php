@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Insurence;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Insurence\PersonBirthdate;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class NappApiController extends Controller
 {

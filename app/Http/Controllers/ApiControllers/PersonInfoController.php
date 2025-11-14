@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers\ApiControllers;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PersonPinflRequest;
 use App\Http\Requests\Insurence\PersonBirthdateRequest;
-use Illuminate\Support\Facades\Http;
 use App\Traits\Api;
 
 class PersonInfoController extends Controller
@@ -62,8 +60,6 @@ class PersonInfoController extends Controller
             'birthDate' => $personData['birthDate'],
             'transactionId' => now()->timestamp,
         ];
-
-        dd($data);
 
         $response = $this->sendRequest('/api/provider/passport-birth-date-v2', $data);
         // $response = Http::post('https://impex-insurance.uz/api/fetch-brith-date-v2', $data);

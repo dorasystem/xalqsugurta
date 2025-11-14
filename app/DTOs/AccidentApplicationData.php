@@ -15,7 +15,7 @@ final class AccidentApplicationData
         public string $agreement,
         public int $insuranceAmount,
         public string $paymentStartDate,
-        public string $paymentEndDate,
+        public string $paymentEndDate,  
     ) {}
 
     /**

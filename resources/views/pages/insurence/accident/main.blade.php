@@ -375,7 +375,7 @@
                                     showError(fieldMap[field] || field, message);
                                 });
                             } else {
-                                alert(data.message || 'Xatolik yuz berdi');
+                                showToast(data.message || 'Xatolik yuz berdi');
                             }
                         } else if (data.success && data.result) {
                             // Handle success - populate form fields with person data
@@ -406,11 +406,11 @@
                             document.getElementById('applicant-info-display').classList.remove('d-none');
                             document.getElementById('client-info').classList.remove('d-none');
                         } else {
-                            alert(data.message || 'Ma\'lumot topilmadi');
+                            showToast(data.message || 'Ma\'lumot topilmadi');
                         }
                     } catch (error) {
                         console.error('Error:', error);
-                        alert('Tarmoq xatosi yuz berdi');
+                        showToast('Tarmoq xatosi yuz berdi');
                     } finally {
                         // Restore button state
                         applicantInfoBtn.disabled = false;
@@ -468,7 +468,7 @@
                                         showError(fieldMap[field] || field, message);
                                     });
                                 } else {
-                                    alert(data.message || 'Xatolik yuz berdi');
+                                    showToast(data.message || 'Xatolik yuz berdi');
                                 }
                             } else if (data.success && data.result) {
                                 // Handle success - populate form fields with client data
@@ -483,7 +483,8 @@
                                 document.getElementById('client-address').value = clientInfo.address || '';
 
                                 // Populate hidden fields with additional data
-                                document.getElementById('client-pinfl').value = clientInfo.currentPinfl || '';
+                                document.getElementById('client-pinfl').value = clientInfo.currentPinfl ||
+                                    '';
                                 document.getElementById('client-birth-place').value = clientInfo
                                     .birthPlace || '';
                                 document.getElementById('client-birth-country').value = clientInfo
@@ -498,11 +499,11 @@
                                 document.getElementById('client-info-display').classList.remove('d-none');
                                 document.getElementById('calculation').classList.remove('d-none');
                             } else {
-                                alert(data.message || 'Ma\'lumot topilmadi');
+                                showToast(data.message || 'Ma\'lumot topilmadi');
                             }
                         } catch (error) {
                             console.error('Error:', error);
-                            alert('Tarmoq xatosi yuz berdi');
+                            showToast('Tarmoq xatosi yuz berdi');
                         } finally {
                             // Restore button state
                             clientInfoBtn.disabled = false;
@@ -585,6 +586,92 @@
                 }
 
             });
+
+
+          function showToast(message, type = 'error', duration = 4000) {
+    const toast = document.createElement('div');
+
+    // Rang va icon turini aniqlaymiz
+    let bgColor, icon;
+    switch (type) {
+        case 'success':
+            bgColor = '#4CAF50';
+            icon = '✅';
+            break;
+        case 'warning':
+            bgColor = '#FF9800';
+            icon = '⚠️';
+            break;
+        case 'info':
+            bgColor = '#2196F3';
+            icon = 'ℹ️';
+            break;
+        default: // error
+            bgColor = '#F44336';
+            icon = '❌';
+    }
+
+    toast.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:20px;">${icon}</span>
+            <span style="flex:1;">${message}</span>
+        </div>
+    `;
+
+    Object.assign(toast.style, {
+        position: 'fixed',
+        top: '20px',        // yuqoridan 20px
+        right: '20px',      // o‘ngdan 20px
+        backgroundColor: bgColor,
+        color: '#fff',
+        padding: '14px 24px',
+        borderRadius: '10px',
+        fontSize: '16px',
+        fontWeight: '500',
+        opacity: '0',
+        boxShadow: '0 8px 20px rgba(0,0,0,0.3)',
+        zIndex: 99999,
+        pointerEvents: 'auto',
+        maxWidth: '350px',
+        width: 'auto',
+        transform: 'translateX(50px)',
+        transition: 'all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)'
+    });
+
+    // Toast container faqat bir marta
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        Object.assign(toastContainer.style, {
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+            zIndex: 99999,
+            pointerEvents: 'none'
+        });
+        document.body.appendChild(toastContainer);
+    }
+
+    toastContainer.appendChild(toast);
+
+    // Chiqarish animatsiyasi
+    setTimeout(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(0)';
+    }, 10);
+
+    // Avtomatik yopish
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(50px)';
+        setTimeout(() => toast.remove(), 400);
+    }, duration);
+}
+
         </script>
     @endpush
 @endsection
