@@ -7,7 +7,7 @@ use App\Traits\HandlesInsuranceErrors;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 
-class AccidentStorageService
+class KafilStorageService
 {
     use HandlesInsuranceErrors;
 
@@ -18,12 +18,12 @@ class AccidentStorageService
     public function handle(): RedirectResponse
     {
         try {
-            if (!session()->has('accident_application_data')) {
-                return $this->handleSessionNotFound('accident');
+            if (!session()->has('kafil_application_data')) {
+                return $this->handleSessionNotFound('kafil');
             }
 
-            $applicationData = session('accident_application_data');
-            $apiResponse = session('accident_api_response');
+            $applicationData = session('kafil_application_data');
+            $apiResponse = session('kafil_api_response');;
 
             Log::info('Accident storage: Creating order', [
                 'has_application_data' => !empty($applicationData),

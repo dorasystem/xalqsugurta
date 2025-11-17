@@ -68,20 +68,23 @@ final class OsagoController extends Controller
 
             $applicationData = session('osago_application_data');
 
-            Log::info('OSAGO storage: Processing application', [
-                'has_application_data' => !empty($applicationData),
-            ]);
-
-            // Validate required keys exist
             $requiredKeys = ['applicant', 'owner', 'details', 'cost', 'vehicle', 'drivers', 'govNumber', 'insurancePremium'];
             foreach ($requiredKeys as $key) {
                 if (!isset($applicationData[$key])) {
-                    Log::error("OSAGO storage: Missing required key: {$key}");
                     return $this->handleValidationError(__('errors.insurance.invalid_session_data'));
                 }
             }
 
-            // Create DTO from session data
+            // Decode drivers JSON safely
+            $drivers = [];
+            if (!empty($applicationData['drivers']) && is_array($applicationData['drivers'])) {
+                foreach ($applicationData['drivers'] as $driverJson) {
+                    $decoded = is_string($driverJson) ? json_decode($driverJson, true) : $driverJson;
+                    if ($decoded) $drivers[] = $decoded;
+                }
+            }
+            $applicationData['drivers'] = $drivers;
+
             $dataDTO = new OsagoApplicationData(
                 applicant: $applicationData['applicant'],
                 owner: $applicationData['owner'],
@@ -93,23 +96,16 @@ final class OsagoController extends Controller
                 insurancePremium: $applicationData['insurancePremium'],
             );
 
-            // Send data to API using service
             $requestData = $dataDTO->toApiFormat();
             $result = $this->apiService->sendApplication($requestData);
 
             if (!$result['success']) {
-                return back()
-                    ->withErrors(['error' => $result['error']])
-                    ->withInput();
+                return back()->withErrors(['error' => $result['error']])->withInput();
             }
 
             $apiResponse = $result['data'] ?? null;
 
-            Log::info('OSAGO storage: Creating order', [
-                'has_api_response' => !empty($apiResponse),
-            ]);
-
-            // SECURITY: Re-verify price on final submission
+            // SECURITY: Re-verify price
             $finalPriceCheck = $this->priceCalculator->verifyPrice(
                 submittedAmount: $applicationData['insurancePremium'],
                 govNumber: $applicationData['govNumber'],
@@ -120,28 +116,19 @@ final class OsagoController extends Controller
             );
 
             if (!$finalPriceCheck) {
-                Log::warning('OSAGO final price verification failed', [
-                    'submitted' => $applicationData['insurancePremium'],
-                    'session_data' => $applicationData,
-                    'ip' => request()->ip(),
-                ]);
-
-                // Recalculate correct price
                 $correctPrice = $this->priceCalculator->calculate(
                     govNumber: $applicationData['govNumber'],
                     vehicleTypeId: $applicationData['vehicle']['typeId'],
                     period: $applicationData['cost']['contractTermConclusionId'],
                     driverLimit: $applicationData['details']['driverNumberRestriction'] ? 'limited' : 'unlimited'
                 );
-
-                // Use server-calculated price
                 $applicationData['insurancePremium'] = $correctPrice['amount'];
                 $applicationData['cost']['insurancePremium'] = $correctPrice['amount'];
                 $applicationData['cost']['insurancePremiumPaidToInsurer'] = $correctPrice['amount'];
             }
 
             // Create order
-            $orderData = [
+            $order = $this->orderService->createOrder([
                 'product_name' => __('insurance.osago.product_name'),
                 'amount' => $applicationData['insurancePremium'] ?? 0,
                 'state' => 0,
@@ -153,14 +140,9 @@ final class OsagoController extends Controller
                 'contractStartDate' => data_get($applicationData, 'details.startDate'),
                 'contractEndDate' => data_get($applicationData, 'details.endDate'),
                 'insuranceProductName' => __('insurance.osago.product_name'),
-            ];
+            ]);
 
-            $order = $this->orderService->createOrder($orderData);
-
-            Log::info('OSAGO storage: Order created successfully', ['order_id' => $order->id]);
-
-            // Clear session data after successful order creation
-            session()->forget(['osago_application_data']);
+            session()->forget('osago_application_data');
 
             return $this->redirectWithSuccess(
                 'payment.show',
@@ -171,6 +153,7 @@ final class OsagoController extends Controller
             return $this->handleOrderCreationError('osago', $e);
         }
     }
+
 
     public function payment($lang, Order $order): View
     {

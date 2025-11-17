@@ -706,19 +706,23 @@
                 }
 
                 function getNecessaryInfo(result) {
-                    if (!result?.data?.result) return {};
+                        const data = result?.data?.result || {};
 
-                    const data = result.data.result;
-                    return {
-                        regionId: data.regionId,
-                        districtId: data.districtId,
-                        issuedBy: data.issuedBy,
-                        issueDate: data.startDate,
-                        gender: data.gender,
-                        birthDate: data.birthDate,
-                        address: data.address || ''
-                    };
-                }
+                        // Agar API da mavjud bo'lmasa, default qiymat berish
+                        const issueDate = data.issueDate || data.passportIssueDate || data.startDate || new Date().toISOString().split('T')[0];
+                        const issuedBy = data.issuedBy || data.passportIssuedBy || 'Not specified';
+
+                        return {
+                            regionId: data.regionId || 0,
+                            districtId: data.districtId || 0,
+                            issuedBy: issuedBy,        // majburiy
+                            issueDate: issueDate,      // majburiy
+                            gender: data.gender || '',
+                            birthDate: data.birthDate || data.birthDateAlt || '',
+                            address: data.address || ''
+                        };
+                    }
+
 
                 function validateInputs(elements) {
                     return elements.every(el => el && el.value && el.value.trim() !== '');

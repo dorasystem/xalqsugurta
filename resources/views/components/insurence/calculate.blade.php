@@ -1,4 +1,4 @@
-<div class="col-md-4">
+{{-- <div class="col-md-4">
     <div class="card summary-panel">
         <div class="card-header">
             <h5>{{ __('messages.calculation_results') }}</h5>
@@ -20,4 +20,4 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}

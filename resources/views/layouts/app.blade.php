@@ -474,7 +474,7 @@
 
             @yield('content')
 
-        </main><!-- footer -->
+        </main>
         @include('components.pageComponents.footer')
 
         <!-- Scripts -->

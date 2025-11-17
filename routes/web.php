@@ -24,6 +24,7 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
     require_once 'insurence/osago.php';
     require_once 'insurence/accident.php';
     require_once 'insurence/property.php';
+    require_once 'insurence/kafil.php';
 });
 
 Route::post('/get-vehicle-info', [VehicleInfoController::class, 'getVehicleInfo']);
