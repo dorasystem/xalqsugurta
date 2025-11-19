@@ -29,6 +29,8 @@ final class OrderService
                     'contractStartDate' => $data['contractStartDate'] ?? null,
                     'contractEndDate' => $data['contractEndDate'] ?? null,
                     'insuranceProductName' => $data['insuranceProductName'] ?? null,
+                    'applicant' => $data['applicant'] ?? null,
+                    'owner' => $data['owner'] ?? null,
                 ]);
 
 

@@ -96,16 +96,11 @@ final class OsagoController extends Controller
             $requestData = $dataDTO->toApiFormat();
 
             $result = $this->sendRequest('', $requestData, '/doraosago/create');
-            // dd($requestData);
             $response = $result->json();
             $apiResponse = $result->json();
 
 
-            Log::info('OSAGO API Request:', $requestData);
-            Log::info('OSAGO API Response:', $response);
-
             if (!$result->successful()) {
-                // server tomonidan yuborilgan xabarni aniq chiqarish
                 $msg = data_get($apiResponse, 'result_message', $result->body());
                 return back()->withErrors(['error' => 'API xatosi: ' . $msg])->withInput();
             }
@@ -161,11 +156,11 @@ final class OsagoController extends Controller
                 'status' => Order::STATUS_NEW,
                 'contractStartDate' => data_get($applicationData, 'details.startDate'),
                 'contractEndDate' => data_get($applicationData, 'details.endDate'),
-                'applicant' => $applicationData['applicant'] ?? [],
-                'owner' => $applicationData['owner'] ?? [],
+                'applicant' => $applicationData,
+                'owner' => $applicationData,
             ]);
 
-            // session()->forget('osago_application_data');
+            session()->forget('osago_application_data');
 
             return $this->redirectWithSuccess(
                 'payment.show',
