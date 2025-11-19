@@ -10,6 +10,7 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
+        'contract_id',
         'product_name',
         'amount',
         'state',
@@ -21,7 +22,8 @@ class Order extends Model
         'status',
         'contractStartDate',
         'contractEndDate',
-        'insuranceProductName',
+        'applicant',
+        'owner'
     ];
 
     protected $casts = [
@@ -31,6 +33,8 @@ class Order extends Model
         'insurances_response_data' => 'array',
         'contractStartDate' => 'datetime',
         'contractEndDate' => 'datetime',
+        'applicant' => 'array',
+        'owner' => 'array',
     ];
 
     /**

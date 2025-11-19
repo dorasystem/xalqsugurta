@@ -29,10 +29,8 @@ final class OrderService
                     'contractStartDate' => $data['contractStartDate'] ?? null,
                     'contractEndDate' => $data['contractEndDate'] ?? null,
                     'insuranceProductName' => $data['insuranceProductName'] ?? null,
-                    'polic_id_number' => $data['polic_id_number'],
                 ]);
 
-                $order->polic_id_number = $data['polic_id_number'];
 
                 $order->save();
 

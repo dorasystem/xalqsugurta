@@ -26,9 +26,6 @@ return new class extends Migration
             // new order fields
             $table->timestamp('contractStartDate')->nullable();
             $table->timestamp('contractEndDate')->nullable();
-            $table->string('insuranceProductName')->nullable();
-            $table->string('polic_id_number')->nullable();
-
             $table->timestamps();
         });
     }

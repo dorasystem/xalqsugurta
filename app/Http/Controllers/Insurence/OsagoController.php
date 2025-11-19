@@ -124,9 +124,6 @@ final class OsagoController extends Controller
 
             $apiResponse = $result['data'] ?? [];
 
-            // APIdan polic_id_number olish
-            $applicationData['polic_id_number'] = $apiResponse['response']['result']['polic_id_number'] ?? '';
-
             // Price tekshirish (security)
             $finalPriceCheck = $this->priceCalculator->verifyPrice(
                 submittedAmount: $applicationData['insurancePremium'],
@@ -148,19 +145,24 @@ final class OsagoController extends Controller
                 $applicationData['cost']['insurancePremium'] = $correctPrice['amount'];
                 $applicationData['cost']['insurancePremiumPaidToInsurer'] = $correctPrice['amount'];
             }
+            Log::info('Applicant data before save:', ['applicant' => $applicationData['applicant'] ?? null]);
+            Log::info('Owner data before save:', ['owner' => $applicationData['owner'] ?? null]);
+
 
             // Order yaratish
             $order = $this->orderService->createOrder([
                 'product_name' => __('insurance.osago.product_name'),
                 'amount' => $applicationData['insurancePremium'] ?? 0,
                 'state' => 0,
-                'insurance_uuid' => $apiResponse['response']['result']['uuid'] ?? uniqid('osago_'),
+                'insurance_id' => $apiResponse['response']['result']['uuid'] ?? uniqid('osago_'),
                 'phone' => $applicationData['applicant']['person']['phoneNumber'] ?? null,
                 'insurances_data' => $applicationData,
                 'insurances_response_data' => $apiResponse,
                 'status' => Order::STATUS_NEW,
                 'contractStartDate' => data_get($applicationData, 'details.startDate'),
                 'contractEndDate' => data_get($applicationData, 'details.endDate'),
+                'applicant' => $applicationData['applicant'] ?? [],
+                'owner' => $applicationData['owner'] ?? [],
             ]);
 
             // session()->forget('osago_application_data');

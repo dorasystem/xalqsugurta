@@ -132,7 +132,6 @@ final class PropertyController extends Controller
                 'contractStartDate' => $applicationData['paymentStartDate'] ?? null,
                 'contractEndDate' => $applicationData['paymentEndDate'] ?? null,
                 'insuranceProductName' => 'MOL-MULK Sug\'urta',
-                'polic_id_number' => $apiResponse['response']['result']['contractUuid'],
             ];
 
             $order = $this->orderService->createOrder($orderData);
