@@ -11,6 +11,7 @@ class AccidentStorageService
 {
     use HandlesInsuranceErrors;
 
+
     public function __construct(
         private readonly OrderService $orderService
     ) {}

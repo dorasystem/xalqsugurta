@@ -135,6 +135,15 @@ final class OsagoApplicationData
                     'issuedBy' => $isApplicantOwner ? ($data['owner']['infos']['issuedBy'] ?? '') : ($data['applicant']['infos']['issuedBy'] ?? ''),
                     'issueDate' => $isApplicantOwner ? ($data['owner']['infos']['issueDate'] ?? '') : ($data['applicant']['infos']['issueDate'] ?? '')
                 ],
+                'organization' => [
+                    'phoneNumber' => $data['applicant']['organization']['phoneNumber'] ?? '',
+                    'inn' => $data['applicant']['organization']['inn'] ?? '',
+                    'name' => $data['applicant']['organization']['name'] ?? ''
+                ],
+                'citizenshipId' => $data['applicant']['citizenshipId'] ?? 210,
+                'address' => $address,
+                'email' => $data['applicant']['email'] ?? '',
+                'residentOfUzb' => 1,
                 'fullName' => [
                     'firstname' => $isApplicantOwner ? ($data['owner']['firstName'] ?? '') : ($data['applicant']['firstName'] ?? ''),
                     'lastname' => $isApplicantOwner ? ($data['owner']['lastName'] ?? '') : ($data['applicant']['lastName'] ?? ''),
@@ -156,6 +165,9 @@ final class OsagoApplicationData
 
         // Build owner data
         $owner = [
+            'organization' => [
+                'inn' => $data['owner']['organization']['inn'] ?? null,
+            ],
             'person' => [
                 'passportData' => [
                     'pinfl' => $data['owner']['pinfl'],
@@ -227,16 +239,16 @@ final class OsagoApplicationData
         }
 
         $cost = [
-            'discountId' => '1',
+            'discountId' => 1,
             'discountSum' => 0,
             'insurancePremium' => $insurancePremium, // Server-calculated price
-            'sumInsured' => 40000000, // Fixed amount
+            'sumInsured' => "40000000",
             'contractTermConclusionId' => $data['insurance_infos']['period'] ?? 1,
             'useTerritoryId' => $useTerritoryId,
             'commission' => 0,
             'insurancePremiumPaidToInsurer' => $insurancePremium, // Server-calculated price
             'seasonalInsuranceId' => 7,
-            'foreignVehicleId' => null
+            'foreignVehicleId' => ''
         ];
 
         // Build vehicle
@@ -247,6 +259,7 @@ final class OsagoApplicationData
                 'issueDate' => isset($data['other_info']['techPassportIssueDate'])
                     ? Carbon::parse($data['other_info']['techPassportIssueDate'])->format('Y-m-d')
                     : Carbon::now()->format('Y-m-d')
+
             ],
             'modelCustomName' => $data['model'],
             'engineNumber' => $data['engine_number'],
@@ -257,7 +270,7 @@ final class OsagoApplicationData
             'regionId' => $isApplicantOwner
                 ? ($data['owner']['infos']['regionId'] ?? null)
                 : ($data['applicant']['infos']['regionId'] ?? null),
-            'terrainId' => '1'
+            'terrainId' => 1
         ];
 
         return new self(
@@ -305,7 +318,17 @@ final class OsagoApplicationData
     public function toApiFormat(): array
     {
         return [
-            'applicant' => $this->applicant,
+            'applicant' => [
+                'person' => [
+                    'passportData' => $this->applicant['person']['passportData'],
+                    'fullName' => $this->applicant['person']['fullName'],
+                    'phoneNumber' => $this->applicant['person']['phoneNumber'],
+                    'gender' => $this->applicant['person']['gender'],
+                    'birthDate' => $this->applicant['person']['birthDate'],
+                    'regionId' => $this->applicant['person']['regionId'],
+                    'districtId' => $this->applicant['person']['districtId'],
+                    ]
+            ],
             'owner' => $this->owner,
             'details' => $this->details,
             'cost' => $this->cost,

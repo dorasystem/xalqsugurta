@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Services\InsuranceApiService;
 use App\Services\OrderService;
 use App\Services\OsagoPriceCalculator;
+use App\Traits\Api;
 use App\Traits\HandlesInsuranceErrors;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 final class OsagoController extends Controller
 {
     use HandlesInsuranceErrors;
+    use Api;
 
     public function __construct(
         private readonly OrderService $orderService,
@@ -68,14 +70,7 @@ final class OsagoController extends Controller
 
             $applicationData = session('osago_application_data');
 
-            $requiredKeys = ['applicant', 'owner', 'details', 'cost', 'vehicle', 'drivers', 'govNumber', 'insurancePremium'];
-            foreach ($requiredKeys as $key) {
-                if (!isset($applicationData[$key])) {
-                    return $this->handleValidationError(__('errors.insurance.invalid_session_data'));
-                }
-            }
-
-            // Decode drivers JSON safely
+            // Drivers decode qilish
             $drivers = [];
             if (!empty($applicationData['drivers']) && is_array($applicationData['drivers'])) {
                 foreach ($applicationData['drivers'] as $driverJson) {
@@ -85,6 +80,7 @@ final class OsagoController extends Controller
             }
             $applicationData['drivers'] = $drivers;
 
+            // DTO yaratamiz
             $dataDTO = new OsagoApplicationData(
                 applicant: $applicationData['applicant'],
                 owner: $applicationData['owner'],
@@ -96,16 +92,42 @@ final class OsagoController extends Controller
                 insurancePremium: $applicationData['insurancePremium'],
             );
 
+            // API formatga o‘tkazamiz
             $requestData = $dataDTO->toApiFormat();
-            $result = $this->apiService->sendApplication($requestData);
 
-            if (!$result['success']) {
-                return back()->withErrors(['error' => $result['error']])->withInput();
+            $result = $this->sendRequest('', $requestData, '/doraosago/create');
+            // dd($requestData);
+            $response = $result->json();
+            $apiResponse = $result->json();
+
+
+            Log::info('OSAGO API Request:', $requestData);
+            Log::info('OSAGO API Response:', $response);
+
+            if (!$result->successful()) {
+                // server tomonidan yuborilgan xabarni aniq chiqarish
+                $msg = data_get($apiResponse, 'result_message', $result->body());
+                return back()->withErrors(['error' => 'API xatosi: ' . $msg])->withInput();
             }
 
-            $apiResponse = $result['data'] ?? null;
+            if (isset($apiResponse['result']) && $apiResponse['result'] != 0) {
+                $msg = $apiResponse['result_message'] ?? 'Unknown API error';
+                Log::error('OSAGO API returned error code: ' . $apiResponse['result'] . ' — ' . $msg);
+                return back()->withErrors(['error' => 'API xatosi: ' . $msg])->withInput();
+            }
 
-            // SECURITY: Re-verify price
+            if (!$result->successful()) {
+                return back()->withErrors([
+                    'error' => $response['result_message'] ?? 'API xatosi'
+                ]);
+            }
+
+            $apiResponse = $result['data'] ?? [];
+
+            // APIdan polic_id_number olish
+            $applicationData['polic_id_number'] = $apiResponse['response']['result']['polic_id_number'] ?? '';
+
+            // Price tekshirish (security)
             $finalPriceCheck = $this->priceCalculator->verifyPrice(
                 submittedAmount: $applicationData['insurancePremium'],
                 govNumber: $applicationData['govNumber'],
@@ -127,22 +149,21 @@ final class OsagoController extends Controller
                 $applicationData['cost']['insurancePremiumPaidToInsurer'] = $correctPrice['amount'];
             }
 
-            // Create order
+            // Order yaratish
             $order = $this->orderService->createOrder([
                 'product_name' => __('insurance.osago.product_name'),
                 'amount' => $applicationData['insurancePremium'] ?? 0,
                 'state' => 0,
-                'insurance_id' => $apiResponse['response']['result']['uuid'] ?? uniqid('osago_'),
+                'insurance_uuid' => $apiResponse['response']['result']['uuid'] ?? uniqid('osago_'),
                 'phone' => $applicationData['applicant']['person']['phoneNumber'] ?? null,
                 'insurances_data' => $applicationData,
                 'insurances_response_data' => $apiResponse,
                 'status' => Order::STATUS_NEW,
                 'contractStartDate' => data_get($applicationData, 'details.startDate'),
                 'contractEndDate' => data_get($applicationData, 'details.endDate'),
-                'insuranceProductName' => __('insurance.osago.product_name'),
             ]);
 
-            session()->forget('osago_application_data');
+            // session()->forget('osago_application_data');
 
             return $this->redirectWithSuccess(
                 'payment.show',
@@ -153,6 +174,7 @@ final class OsagoController extends Controller
             return $this->handleOrderCreationError('osago', $e);
         }
     }
+
 
 
     public function payment($lang, Order $order): View

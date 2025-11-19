@@ -189,12 +189,6 @@
                                 <div class="col-12">
                                     <div>
                                         <div class="card-body">
-                                            {{-- <div class="form-check mb-3">
-                                                <input class="form-check-input" type="checkbox" id="confirm-data" required>
-                                                <label class="form-check-label" for="confirm-data">
-                                                    <strong>{{ __('insurance.accident.confirmation.confirm_data') }}</strong>
-                                                </label>
-                                            </div> --}}
                                             <div class="form-check mb-3">
                                                 <input class="form-check-input" type="checkbox" id="confirm-offer" required>
                                                 <label class="form-check-label" for="confirm-offer">

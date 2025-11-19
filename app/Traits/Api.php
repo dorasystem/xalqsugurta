@@ -3,18 +3,19 @@
 namespace App\Traits;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 trait Api
 {
-    private $baseUrl = 'http://online.xalqsugurta.uz/xs/ins/osago/proxy';
-    private $username = 'XWEB';
-    private $password = '1GsdMHa053Msd@';
+    private string $baseUrl = 'http://online.xalqsugurta.uz/xs/ins';
+    private string $username = 'XWEB';
+    private string $password = '1GsdMHa053Msd@';
 
-    public function sendRequest(string $endpoint, array $data = [])
+    public function sendRequest(string $endpoint = '', array $data = [], string $url = '/osago/proxy')
     {
         $endpoint = '/' . ltrim($endpoint, '/');
 
-        return Http::withHeaders([
+        $response =  Http::withHeaders([
             'param' => $endpoint,
             'mtd' => 'POST',
             'Content-Type' => 'application/json',
@@ -22,6 +23,13 @@ trait Api
             'Authorization' => 'Basic ' . base64_encode($this->username . ':' . $this->password),
         ])->timeout(4)
             ->retry(3, 1000)
-            ->post($this->baseUrl, $data);
+            ->post($this->baseUrl . $url, $data);
+
+
+        Log::info('OSAGO HTTP Status: ' . $response->status());
+        Log::info('OSAGO HTTP Headers: ', $response->headers());
+        Log::info('OSAGO HTTP Body: ' . $response->body());
+
+        return $response;
     }
 }

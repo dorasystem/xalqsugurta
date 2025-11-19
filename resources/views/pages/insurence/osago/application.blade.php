@@ -377,32 +377,29 @@
                             <div class="row">
                                 <div class="col-12">
                                     <div class="form-check mb-3">
-                                        <input class="form-check-input" type="checkbox" id="confirm-data" required>
-                                        <label class="form-check-label" for="confirm-data">
-                                            <strong>{{ __('insurance.confirmation.confirm_data') }}</strong>
+                                        <input class="form-check-input" type="checkbox" id="confirm-offer" required>
+                                        <label class="form-check-label" for="confirm-offer">
+                                            <strong>
+                                                <a href="#"
+                                                    id="offer-link">{{ __('insurance.accident.confirmation.confirm_offer') }}</a>
+                                            </strong>
                                         </label>
                                     </div>
 
-                                    <div class="form-check mb-3">
-                                        <input class="form-check-input" type="checkbox" id="confirm-offer" required>
-                                        <label class="form-check-label" for="confirm-offer">
-                                            <strong>{{ __('insurance.confirmation.confirm_offer') }}</strong>
-                                        </label>
-                                    </div>
 
                                     <form action="{{ route('osago.storage', ['locale' => getCurrentLocale()]) }}"
                                         method="POST" id="storage-form">
                                         @csrf
 
                                         <div class="d-flex justify-content-between align-items-center">
-                                            <a href="{{ route('osago.main', ['locale' => getCurrentLocale()]) }}"
-                                                class="btn btn-secondary">
+                                            <a href="{{ route('kafil.main', ['locale' => getCurrentLocale()]) }}"
+                                                class="btn btn-secondary custom-btn">
                                                 <i class="fas fa-arrow-left me-2"></i>
                                                 {{ __('insurance.accident.confirmation.back') }}
                                             </a>
 
-                                            <button type="submit" class="btn btn-success" id="confirm-application"
-                                                disabled>
+                                            <button type="submit" class="btn btn-success hover-light-btn"
+                                                style="margin-left: 70%" id="confirm-application" disabled>
                                                 <i class="fas fa-check me-2"></i>
                                                 {{ __('insurance.accident.confirmation.proceed_to_payment') }}
                                             </button>
@@ -420,38 +417,71 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const confirmData = document.getElementById('confirm-data');
                 const confirmOffer = document.getElementById('confirm-offer');
                 const confirmBtn = document.getElementById('confirm-application');
 
-                // Enable/disable confirm button based on checkboxes
                 function toggleConfirmButton() {
-                    if (confirmData.checked && confirmOffer.checked) {
-                        confirmBtn.disabled = false;
-                        confirmBtn.classList.remove('btn-secondary');
-                        confirmBtn.classList.add('btn-success');
-                    } else {
-                        confirmBtn.disabled = true;
-                        confirmBtn.classList.remove('btn-success');
-                        confirmBtn.classList.add('btn-secondary');
-                    }
+                    confirmBtn.disabled = !confirmOffer.checked;
                 }
 
-                confirmData.addEventListener('change', toggleConfirmButton);
                 confirmOffer.addEventListener('change', toggleConfirmButton);
 
-                // Form submit handler
                 const storageForm = document.getElementById('storage-form');
                 storageForm.addEventListener('submit', function(e) {
-                    // Show loading state
                     confirmBtn.innerHTML =
                         '<span class="spinner-border spinner-border-sm me-2"></span>{{ __('insurance.accident.confirmation.creating_order') }}';
                     confirmBtn.disabled = true;
                 });
 
-                // Initialize button state
-                toggleConfirmButton();
+                toggleConfirmButton(); // initialize
             });
         </script>
     @endpush
+
+    <style>
+        .hover-light-btn {
+            transition: all 0.3s ease;
+        }
+
+        .hover-light-btn:hover {
+            background-color: white !important;
+            /* Hoverda fon oq */
+            color: #0d6efd !important;
+            /* Matn va icon ko‘k */
+            border-color: #0d6efd !important;
+            /* Border ham ko‘k */
+        }
+
+        .hover-light-btn:hover i {
+            color: #0d6efd !important;
+            /* Icon rangini ham o‘zgartirish */
+        }
+
+        .custom-btn {
+            background-color: var(--violet);
+            /* Asosiy fon rangi */
+            color: white;
+            /* Matn oq rangda */
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            /* Icon va matn orasidagi bo‘sh joy */
+            border-radius: 0.25rem;
+            border: 1px solid var(--violet);
+            padding: 0.5rem 1rem;
+            min-width: 100px;
+            transition: all 0.3s ease;
+        }
+
+        .custom-btn:hover {
+            background-color: white;
+            /* Hover paytida fon oq bo‘ladi */
+            color: var(--violet);
+            /* Matn va icon violet rangga o‘tadi */
+            border-color: var(--violet);
+            text-decoration: none;
+        }
+    </style>
 @endsection

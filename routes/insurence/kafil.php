@@ -3,7 +3,7 @@
 use App\Http\Controllers\Insurence\KafilController;
 use Illuminate\Support\Facades\Route;
 
-// Accident insurance routes with language support
+// Kafil insurance routes with language support
 
 Route::get('/gas-cylinders', [KafilController::class, 'main'])->name('kafil.main');
 Route::get('/gas/application', [KafilController::class, 'applicationView'])->name('kafil.application.view');
