@@ -1,633 +1,728 @@
                                                                                                                                                                                                                                                                                                                                     @extends('layouts.app')
-@section('title', 'OSAGO')
-
-@push('styles')
-    <link href="{{ asset('assets/css/form.css') }}" rel="stylesheet">
-@endpush
-
-@section('content')
-    <x-insurence.steps :activeStep="1" />
-    <section class="container-fluid product-page py-4" id="osago-main" style="">
-        <div class="container">
-            <form id="policy-calculation-form" method="POST" action="{{ route('osago.application', app()->getLocale()) }}">
-                @csrf
-                <div class="row g-4">
-                    <div class="col-md-8">
-                        {{-- Validation errors display --}}
-                        @if ($errors->any())
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <h4 class="alert-heading">
-                                    <i class="fas fa-exclamation-triangle me-2"></i>
-                                    {{ __('messages.error') }}
-                                </h4>
-                                <p class="mb-2">{{ __('messages.validation_errors_found') }}</p>
-                                <ul class="mb-0">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                    aria-label="Close"></button>
-                            </div>
-                        @endif
-
-                        <x-insurence.vehicle-info />
-                        <x-insurence.owner-info />
-                        <x-insurence.applicant-info />
-                        <x-insurence.policy-calculation />
-                        <x-insurence.limited-drivers-info />
-                        <x-insurence.confirmation />
-
-                    </div>
-                    <x-insurence.calculate />
-                </div>
-            </form>
-        </div>
-    </section>
-    @push('scripts')
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // Bootstrap alert close functionality
-                document.querySelectorAll('.btn-close').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const alert = this.closest('.alert');
-                        if (alert) {
-                            alert.style.transition = 'opacity 0.15s linear';
-                            alert.style.opacity = '0';
-                            setTimeout(() => alert.remove(), 150);
-                        }
-                    });
-                });
-
-                // Auto-scroll to first error field
-                const firstError = document.querySelector('.is-invalid');
-                if (firstError) {
-                    firstError.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center'
-                    });
-                    firstError.focus();
-                }
-
-                // Configuration constants
-                const CONFIG = {
-                    INSURANCE_AMOUNT: 40000000,
-                    DEFAULT_AMOUNT: 168000,
-                    MAX_DRIVERS: 5,
-                    REGION_TASHKENT: 1.4,
-                    REGION_OTHER: 1.2,
-                    VEHICLE_TYPES: {
-                        1: {
-                            coef: 0.1,
-                            label: '@lang('insurance.car_type_2')'
-                        },
-                        6: {
-                            coef: 0.12,
-                            label: '@lang('insurance.car_type_6')'
-                        },
-                        9: {
-                            coef: 0.12,
-                            label: '@lang('insurance.car_type_9')'
-                        },
-                        15: {
-                            coef: 0.04,
-                            label: '@lang('insurance.car_type_15')'
-                        }
-                    },
-                    MONTHS_MAP: {
-                        '1': 12,
-                        '0.7': 6,
-                        '0.4': 3
-                    }
-                };
-
-                // State management
-                const state = {
-                    regionId: null,
-                    period: null,
-                    vehicleType: null,
-                    limitedC: 3,
-                    driverIdCounter: 0
-                };
-
-                // Cache DOM elements
-                const elements = {
-                    searchBtn: document.getElementById('vehicle-search-btn'),
-                    ownerInfoBtn: document.getElementById('owner-information-search-btn'),
-                    applicantInfoCheck: document.getElementById('is-applicant-owner'),
-                    applicantInfoBtn: document.getElementById('applicant-information-search-btn'),
-                    startInput: document.getElementById('policy_start_date'),
-                    endInput: document.getElementById('policy_end_date'),
-                    periodSelect: document.getElementById('insurance_period'),
-                    driverSearchBtn: document.getElementById('driver-information-search-btn'),
-                    applicantInfos: document.getElementById('applicant-infos'),
-                    unlimitedRadio: document.getElementById('driver_unlimited'),
-                    limitedDriver: document.getElementById('driver_limited')
-                };
-
-                // Event listeners with null checks
-                if (elements.startInput) elements.startInput.addEventListener('change', updateEndDate);
-                if (elements.periodSelect) elements.periodSelect.addEventListener('change', updateEndDate);
-
-                // If old values exist, show the display sections
-                @if (old('model'))
-                    // Vehicle info filled
-                    showSection('vehicle-info-display');
-                    showSection('owner-info');
-                @endif
-
-                @if (old('owner.lastName'))
-                    // Owner info filled
-                    showSection('insurance-driver-full-information');
-                    showSection('applicant-info');
-                @endif
-
-                @if (old('applicant.lastName'))
-                    // Applicant info filled
-                    showSection('applicant-info-display');
-                    showSection('policy-calculation');
-                    showSection('confirmation');
-                @endif
-
-                @if (old('driver_limit') === 'limited')
-                    // Limited drivers selected
-                    showSection('limited-drivers-info');
-                    showSection('note');
-                @endif
-
-                // Recalculate policy if needed
-                @if (old('gov_number'))
-                    setTimeout(() => {
-                        updateEndDate();
-                        calculatePolicy();
-                    }, 100);
-                @endif
-
-                // Vehicle search handler
-                if (elements.searchBtn) {
-                    elements.searchBtn.addEventListener('click', async function() {
-                        const govNumber = document.getElementById('gov_number');
-                        const techPassportSeries = document.getElementById('tech_passport_series');
-                        const techPassportNumber = document.getElementById('tech_passport_number');
-
-                        // Validate inputs
-                        if (!validateInputs([govNumber, techPassportSeries, techPassportNumber])) {
-                            showSimpleToast('error', '{{ __('messages.error') }}',
-                                '{{ __('errors.all_fields') }}');
-                            return;
-                        }
-
-                        const data = {
-                            gov_number: govNumber.value.trim(),
-                            tech_passport_series: techPassportSeries.value.trim(),
-                            tech_passport_number: techPassportNumber.value.trim()
-                        };
-
-                        setButtonLoading(elements.searchBtn, true);
-
-                        try {
-                            const result = await sendPostRequest('/get-vehicle-info', data);
-
-                            if (result?.data?.result) {
-                                populateVehicleInfo(result.data.result, govNumber, techPassportSeries,
-                                    techPassportNumber);
-                                showSection('vehicle-info-display');
-                                showSection('owner-info');
-                                scrollToElement('vehicle-info-display');
-                            } else {
-                                showSimpleToast('error', 'XALQ SUG\'URTA',
-                                    '{{ __('errors.connection_with_api') }}');
-                            }
-                        } catch (error) {
-                            showSimpleToast('error', 'XALQ SUG\'URTA',
-                                '{{ __('errors.unexpected_issue') }}: ' + error.message);
-                        } finally {
-                            setButtonLoading(elements.searchBtn, false);
-                        }
-                    });
-                }
-
-                // Populate vehicle information
-                function populateVehicleInfo(result, govNumber, techPassportSeries, techPassportNumber) {
-                    // Make inputs readonly
-                    [govNumber, techPassportSeries, techPassportNumber].forEach(el => el?.setAttribute('readonly',
-                        true));
-
-                    // Get all input elements
-                    const fields = {
-                        'engine_number': result.engineNumber || '',
-                        'car_year': result.issueYear || '',
-                        'registration_region': result.division || '',
-                        'car_owner': result.owner || '',
-                        'model': result.modelName || '',
-                        'insurance-pinfl': result.pinfl || ''
-                    };
-
-                    // Set field values
-                    Object.entries(fields).forEach(([id, value]) => {
-                        const element = document.getElementById(id);
-                        if (element) element.value = value;
-                    });
-
-                    // Handle vehicle type
-                    const carType = document.getElementById('car_type');
-                    const vehicleTypeInfo = CONFIG.VEHICLE_TYPES[result.vehicleTypeId];
-
-                    if (vehicleTypeInfo) {
-                        state.vehicleType = vehicleTypeInfo.coef;
-                        if (carType) carType.value = vehicleTypeInfo.label;
-                    } else {
-                        if (carType) carType.value = '@lang('insurance.car_not_found')';
-                    }
-
-                    // Store other info
-                    const otherInfo = {
-                        techPassportIssueDate: result.techPassportIssueDate?.split('T')[0],
-                        typeId: result.vehicleTypeId,
-                        bodyNumber: result.bodyNumber
-                    };
-
-                    const otherInfoElement = document.getElementById('other_info');
-                    if (otherInfoElement) {
-                        otherInfoElement.value = JSON.stringify(otherInfo);
-                    }
-                }
-
-                // Owner info search handler
-                if (elements.ownerInfoBtn) {
-                    elements.ownerInfoBtn.addEventListener('click', async function() {
-                        const insurantPassportSeries = document.getElementById('insurance-passport-series');
-                        const insurantPassportNumber = document.getElementById('insurance-passport-number');
-                        const insurantPinfl = document.getElementById('insurance-pinfl');
-
-                        if (!validateInputs([insurantPassportSeries, insurantPassportNumber,
-                                insurantPinfl
-                            ])) {
-                            showSimpleToast('error', '{{ __('messages.error') }}',
-                                '{{ __('errors.all_fields') }}');
-                            return;
-                        }
-
-                        setButtonLoading(elements.ownerInfoBtn, true);
-
-                        const data = {
-                            senderPinfl: insurantPinfl.value,
-                            passport_series: insurantPassportSeries.value,
-                            passport_number: insurantPassportNumber.value,
-                            pinfl: insurantPinfl.value,
-                            isConsent: 'Y'
-                        };
-
-                        try {
-                            const result = await sendPostRequest('/get-person-info', data);
-
-                            if (result?.data?.result) {
-                                populateOwnerInfo(result);
-
-                                // Auto-check applicant as owner
-                                if (elements.applicantInfoCheck) {
-                                    elements.applicantInfoCheck.checked = true;
-                                    checkApplicantInfo();
-
-                                }
-
-
-
-                                showSection('insurance-driver-full-information');
-                                showSection('applicant-info');
-                                scrollToElement('insurance-driver-full-information');
-                            } else {
-                                showSimpleToast('error', 'XALQ SUG\'URTA',
-                                    '{{ __('errors.connection_with_api') }}');
-                            }
-                        } catch (error) {
-                            showSimpleToast('error', 'XALQ SUG\'URTA',
-                                '{{ __('errors.unexpected_issue') }}: ' + error.message);
-                        } finally {
-                            setButtonLoading(elements.ownerInfoBtn, false);
-                        }
-                    });
-                }
-
-                function populateOwnerInfo(result) {
-                    const fields = {
-                        'insurance-last-name': result.data.result.lastNameLatin || '',
-                        'insurance-first-name': result.data.result.firstNameLatin || '',
-                        'insurance-middle-name': result.data.result.middleNameLatin || '',
-                        'owner-address': result.data.result.address || ''
-                    };
-
-                    Object.entries(fields).forEach(([id, value]) => {
-                        const element = document.getElementById(id);
-                        if (element) element.value = value;
-                    });
-
-                    const ownerInfo = getNecessaryInfo(result);
-                    const ownerInfosElement = document.getElementById('owner-infos');
-                    if (ownerInfosElement) {
-                        ownerInfosElement.value = JSON.stringify(ownerInfo);
-                    }
-
-                    // Set applicant info as well
-                    if (elements.applicantInfos) {
-                        elements.applicantInfos.value = JSON.stringify(ownerInfo);
-                    }
-                }
-
-                // Check if applicant is the same as owner
-                function checkApplicantInfo() {
-                    const isChecked = elements.applicantInfoCheck?.checked;
-
-                    if (isChecked) {
-
-                        updateEndDate()
-                        // Copy owner info to applicant
-                        const ownerFields = ['last-name', 'first-name', 'middle-name', 'address', 'pinfl',
-                            'passport-series', 'passport-number'
-                        ];
-                        console.log(ownerFields);
-                        ownerFields.forEach(field => {
-                            const ownerEl = document.getElementById(`insurance-${field}`);
-                            const applicantEl = document.getElementById(`applicant-${field}`);
-                            if (ownerEl && applicantEl) {
-                                applicantEl.value = ownerEl.value || '';
-                            }
-                            if (field === 'pinfl') {
-                                const applicantEl = document.getElementById(`applicant-pinfl`);
-                                applicantEl.value = ownerEl.value || '';
-                            } else if (field === 'passport-series') {
-                                const applicantEl = document.getElementById(`applicant-passport-series`);
-                                applicantEl.value = ownerEl.value || '';
-                            } else if (field === 'passport-number') {
-                                const applicantEl = document.getElementById(`applicant-passport-number`);
-                                applicantEl.value = ownerEl.value || '';
-                            }
-                            if (field === "address") {
-                                const applicantEl = document.getElementById(`applicant-address`);
-                                applicantEl.value = document.getElementById(`owner-address`).value || '';
-                            }
-                        });
-
-                        // hideSection('applicant-info-search');
-                        showSection('applicant-info-search');
-                        showSection('applicant-info-display');
-                        showSection('policy-calculation');
-                        showSection('confirmation');
-                    } else {
-                        // Clear applicant fields
-                        ['applicant-passport-series', 'applicant-passport-number', 'applicant-pinfl'].forEach(id => {
-                            const el = document.getElementById(id);
-                            if (el) el.value = '';
-                        });
-
-                        showSection('applicant-info-search');
-                        hideSection('applicant-info-display');
-                        hideSection('policy-calculation');
-                        hideSection('confirmation');
-                    }
-                }
-
-                // Applicant info checkbox listener
-                if (elements.applicantInfoCheck) {
-                    elements.applicantInfoCheck.addEventListener('change', checkApplicantInfo);
-                }
-
-                // Applicant info search handler
-                if (elements.applicantInfoBtn) {
-                    elements.applicantInfoBtn.addEventListener('click', async function() {
-                        const insurantPassportSeries = document.getElementById('applicant-passport-series');
-                        const insurantPassportNumber = document.getElementById('applicant-passport-number');
-                        const insurantPinfl = document.getElementById('applicant-pinfl');
-
-                        if (!validateInputs([insurantPassportSeries, insurantPassportNumber,
-                                insurantPinfl
-                            ])) {
-                            showSimpleToast('error', 'KAFIL SUG\'URTA', '{{ __('errors.all_fields') }}');
-                            return;
-                        }
-
-                        setButtonLoading(elements.applicantInfoBtn, true);
-
-                        const data = {
-                            senderPinfl: insurantPinfl.value,
-                            passport_series: insurantPassportSeries.value,
-                            passport_number: insurantPassportNumber.value,
-                            pinfl: insurantPinfl.value,
-                            isConsent: 'Y'
-                        };
-
-                        try {
-                            const result = await sendPostRequest('/get-person-info', data);
-
-                            if (result?.data?.result) {
-                                populateApplicantInfo(result);
-                                showSection('applicant-info-display');
-                                showSection('policy-calculation');
-                                showSection('confirmation');
-                                updateEndDate()
-                            } else {
-                                showSimpleToast('error', 'XALQ SUG\'URTA',
-                                    '{{ __('errors.connection_with_api') }}');
-                            }
-                        } catch (error) {
-                            showSimpleToast('error', 'XALQ SUG\'URTA',
-                                '{{ __('errors.unexpected_issue') }}: ' + error.message);
-                        } finally {
-                            setButtonLoading(elements.applicantInfoBtn, false);
-                        }
-                    });
-                }
-
-                function populateApplicantInfo(result) {
-                    const fields = {
-                        'applicant-last-name': result.data.result.lastNameLatin || '',
-                        'applicant-first-name': result.data.result.firstNameLatin || '',
-                        'applicant-middle-name': result.data.result.middleNameLatin || '',
-                        'applicant-address': result.data.result.address || ''
-                    };
-
-                    Object.entries(fields).forEach(([id, value]) => {
-                        const element = document.getElementById(id);
-                        if (element) element.value = value;
-                    });
-
-                    const applicantInfoResult = getNecessaryInfo(result);
-                    if (elements.applicantInfos) {
-                        elements.applicantInfos.value = JSON.stringify(applicantInfoResult);
-                    }
-                }
-
-                // Calculate policy amount
-                function calculatePolicy() {
-                    const govNumberElement = document.getElementById('gov_number');
-                    if (!govNumberElement || !govNumberElement.value) return;
-
-                    const govPrefix = govNumberElement.value.trim().substring(0, 2);
-                    state.regionId = (govPrefix === '01' || govPrefix === '10') ? CONFIG.REGION_TASHKENT : CONFIG
-                        .REGION_OTHER;
-
-                    // Get current period value
-                    state.period = parseFloat(elements.periodSelect?.value) || 1;
-
-                    // Calculate amount
-                    const calcDiscount = state.vehicleType * state.regionId * state.period * state.limitedC;
-                    let amount = (calcDiscount * CONFIG.INSURANCE_AMOUNT) / 100;
-
-                    // Fallback to default if calculation fails
-                    if (isNaN(amount) || amount === 0) {
-                        amount = CONFIG.DEFAULT_AMOUNT;
-                    }
-
-                    // Store insurance info
-                    const insuranceInfosElement = document.getElementById('insurance-infos');
-                    if (insuranceInfosElement) {
-                        insuranceInfosElement.value = JSON.stringify({
-                            amount: formatCurrency(amount),
-                            period: state.period,
-                            insuranceAmount: CONFIG.INSURANCE_AMOUNT
-                        });
-                    }
-
-                    // Update UI
-                    updateElement('amount', formatCurrency(amount));
-                    updateElement('premium', formatCurrency(CONFIG.INSURANCE_AMOUNT));
-                }
-
-                // Update end date based on start date and period
-                function updateEndDate() {
-                    if (!elements.startInput || !elements.endInput || !elements.periodSelect) return;
-
-                    // Agar start date bo'lmasa, bugungi sanani o'rnatish
-                    let startDate;
-                    if (!elements.startInput.value) {
-                        const today = new Date();
-                        elements.startInput.value = today.toISOString().split('T')[0];
-                        startDate = today;
-                    } else {
-                        startDate = new Date(elements.startInput.value);
-                    }
-
-                    const monthsToAdd = CONFIG.MONTHS_MAP[elements.periodSelect.value] || 12;
-
-                    // Calculate end date: add months, then subtract 1 day
-                    const endDate = new Date(startDate);
-                    endDate.setMonth(endDate.getMonth() + monthsToAdd);
-                    endDate.setDate(endDate.getDate() - 1);
-
-                    // Format as YYYY-MM-DD
-                    elements.endInput.value = endDate.toISOString().split('T')[0];
-
-                    calculatePolicy();
-                }
-
-                // Driver limit radio button handlers
-                if (elements.unlimitedRadio) {
-                    elements.unlimitedRadio.addEventListener('change', () => showDriverAddButton('unlimited'));
-                }
-                if (elements.limitedDriver) {
-                    elements.limitedDriver.addEventListener('change', () => showDriverAddButton('limited'));
-                }
-
-                function showDriverAddButton(driverType) {
-                    const addButton = document.getElementById('limited-drivers-info');
-                    const note = document.getElementById('note');
-
-                    if (driverType === 'limited') {
-                        showSection('limited-drivers-info');
-                        showSection('note');
-                        elements.periodSelect?.removeAttribute('disabled');
-                        state.limitedC = 1;
-                    } else if (driverType === 'unlimited') {
-                        hideSection('limited-drivers-info');
-                        hideSection('note');
-                        if (elements.periodSelect) {
-                            elements.periodSelect.value = '1';
-                            elements.periodSelect.setAttribute('disabled', 'disabled');
-                        }
-                        state.limitedC = 3;
-                    }
-                    calculatePolicy();
-                }
-
-                // Driver search handler
-                if (elements.driverSearchBtn) {
-                    elements.driverSearchBtn.addEventListener('click', async function() {
-                        const driverPassportSeries = document.getElementById('driver-passport-series');
-                        const driverPassportNumber = document.getElementById('driver-passport-number');
-                        const driverPinfl = document.getElementById('driver-pinfl');
-
-                        if (!validateInputs([driverPassportSeries, driverPassportNumber, driverPinfl])) {
-                            showSimpleToast('error', 'KAFIL SUG\'URTA', '{{ __('errors.all_fields') }}');
-                            return;
-                        }
-
-                        const driverInfoDisplay = document.getElementById('driver-info-display');
-                        const existing = driverInfoDisplay?.querySelectorAll('.card-footer').length || 0;
-
-                        if (existing >= CONFIG.MAX_DRIVERS) {
-                            showSimpleToast('error', 'KAFIL SUG\'URTA',
-                                '{{ __('errors.drivers_limited') }}');
-                            return;
-                        }
-
-                        const driverData = {
-                            passport_series: driverPassportSeries.value,
-                            passport_number: driverPassportNumber.value,
-                            pinfl: driverPinfl.value
-                        };
-
-                        const personData = {
-                            senderPinfl: driverPinfl.value,
-                            passport_series: driverPassportSeries.value,
-                            passport_number: driverPassportNumber.value,
-                            pinfl: driverPinfl.value,
-                            isConsent: 'Y'
-                        };
-
-                        setButtonLoading(elements.driverSearchBtn, true);
-
-                        try {
-                            const result = await sendPostRequest('/get-driver-info', driverData);
-
-                            if (result?.success && result?.data?.result) {
-                                const shortResult = result.data.result;
-
-                                // Increment the counter to get a unique ID
-                                state.driverIdCounter++;
-                                const uniqueId = state.driverIdCounter;
-
-                                const personResult = await sendPostRequest('/get-person-info', personData);
-
-                                if (!personResult?.data?.result) {
-                                    throw new Error('Haydovchi ma\'lumotlari topilmadi');
-                                }
-
-                                const driverSelfInfo = {
-                                    pinfl: driverData.pinfl,
-                                    seria: driverData.passport_series,
-                                    number: driverData.passport_number,
-                                    issuedBy: personResult.data.result.issuedBy,
-                                    issueDate: personResult.data.result.startDate,
-                                    firstname: personResult.data.result.firstNameLatin,
-                                    lastname: personResult.data.result.lastNameLatin,
-                                    middlename: personResult.data.result.middleNameLatin,
-                                    licenseNumber: shortResult.DriverInfo.licenseNumber,
-                                    licenseSeria: shortResult.DriverInfo.licenseSeria,
-                                    birthDate: shortResult.DriverInfo.pOwnerDate,
-                                    birthPlace: personResult.data.result.birthPlace,
-                                    licenseIssueDate: shortResult.DriverInfo.issueDate?.split('T')[0]
-                                };
-
-                                const driverInfoJson = JSON.stringify(driverSelfInfo)
-                                    .replace(/"/g, '&quot;')
-                                    .replace(/'/g, '&#39;');
-
-                                const driverName = shortResult.DriverInfo.pOwner.split(' ');
-                                const fullName = driverName.length >= 2 ?
-                                    `${driverName[0]} ${driverName[1]}` :
-                                    driverName[0] || '';
-
-                                const driverHtml = `
+                                                                                                                                                                                                                                                                                                                                    @section('title',
+                                                                                                                                                                                                                                                                                                                                        'OSAGO')
+
+                                                                                                                                                                                                                                                                                                                                        @push('styles')
+                                                                                                                                                                                                                                                                                                                                            <link
+                                                                                                                                                                                                                                                                                                                                                href="{{ asset('assets/css/form.css') }}"
+                                                                                                                                                                                                                                                                                                                                                rel="stylesheet">
+                                                                                                                                                                                                                                                                                                                                        @endpush
+
+                                                                                                                                                                                                                                                                                                                                    @section('content')
+                                                                                                                                                                                                                                                                                                                                        <x-insurence.steps
+                                                                                                                                                                                                                                                                                                                                            :activeStep="1" />
+                                                                                                                                                                                                                                                                                                                                        <section
+                                                                                                                                                                                                                                                                                                                                            class="container-fluid product-page py-4"
+                                                                                                                                                                                                                                                                                                                                            id="osago-main"
+                                                                                                                                                                                                                                                                                                                                            style="">
+                                                                                                                                                                                                                                                                                                                                            <div
+                                                                                                                                                                                                                                                                                                                                                class="container">
+                                                                                                                                                                                                                                                                                                                                                <form
+                                                                                                                                                                                                                                                                                                                                                    id="policy-calculation-form"
+                                                                                                                                                                                                                                                                                                                                                    method="POST"
+                                                                                                                                                                                                                                                                                                                                                    action="{{ route('osago.application', app()->getLocale()) }}">
+                                                                                                                                                                                                                                                                                                                                                    @csrf
+                                                                                                                                                                                                                                                                                                                                                    <div
+                                                                                                                                                                                                                                                                                                                                                        class="row g-4">
+                                                                                                                                                                                                                                                                                                                                                        <div
+                                                                                                                                                                                                                                                                                                                                                            class="col-md-8">
+                                                                                                                                                                                                                                                                                                                                                            {{-- Validation errors display --}}
+                                                                                                                                                                                                                                                                                                                                                            @if ($errors->any())
+                                                                                                                                                                                                                                                                                                                                                                <div class="alert alert-danger alert-dismissible fade show"
+                                                                                                                                                                                                                                                                                                                                                                    role="alert">
+                                                                                                                                                                                                                                                                                                                                                                    <h4
+                                                                                                                                                                                                                                                                                                                                                                        class="alert-heading">
+                                                                                                                                                                                                                                                                                                                                                                        <i
+                                                                                                                                                                                                                                                                                                                                                                            class="fas fa-exclamation-triangle me-2"></i>
+                                                                                                                                                                                                                                                                                                                                                                        {{ __('messages.error') }}
+                                                                                                                                                                                                                                                                                                                                                                    </h4>
+                                                                                                                                                                                                                                                                                                                                                                    <p
+                                                                                                                                                                                                                                                                                                                                                                        class="mb-2">
+                                                                                                                                                                                                                                                                                                                                                                        {{ __('messages.validation_errors_found') }}
+                                                                                                                                                                                                                                                                                                                                                                    </p>
+                                                                                                                                                                                                                                                                                                                                                                    <ul
+                                                                                                                                                                                                                                                                                                                                                                        class="mb-0">
+                                                                                                                                                                                                                                                                                                                                                                        @foreach ($errors->all() as $error)
+                                                                                                                                                                                                                                                                                                                                                                            <li>{{ $error }}
+                                                                                                                                                                                                                                                                                                                                                                            </li>
+                                                                                                                                                                                                                                                                                                                                                                        @endforeach
+                                                                                                                                                                                                                                                                                                                                                                    </ul>
+                                                                                                                                                                                                                                                                                                                                                                    <button
+                                                                                                                                                                                                                                                                                                                                                                        type="button"
+                                                                                                                                                                                                                                                                                                                                                                        class="btn-close"
+                                                                                                                                                                                                                                                                                                                                                                        data-bs-dismiss="alert"
+                                                                                                                                                                                                                                                                                                                                                                        aria-label="Close"></button>
+                                                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                            @endif
+
+                                                                                                                                                                                                                                                                                                                                                            <x-insurence.vehicle-info />
+                                                                                                                                                                                                                                                                                                                                                            <x-insurence.owner-info />
+                                                                                                                                                                                                                                                                                                                                                            <x-insurence.applicant-info />
+                                                                                                                                                                                                                                                                                                                                                            <x-insurence.policy-calculation />
+                                                                                                                                                                                                                                                                                                                                                            <x-insurence.limited-drivers-info />
+                                                                                                                                                                                                                                                                                                                                                            <x-insurence.confirmation />
+
+                                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                                        <x-insurence.calculate />
+                                                                                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                                                                                </form>
+                                                                                                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                                                                                                        </section>
+                                                                                                                                                                                                                                                                                                                                        @push('scripts')
+                                                                                                                                                                                                                                                                                                                                            <script>
+                                                                                                                                                                                                                                                                                                                                                document.addEventListener('DOMContentLoaded', function() {
+                                                                                                                                                                                                                                                                                                                                                    // Bootstrap alert close functionality
+                                                                                                                                                                                                                                                                                                                                                    document.querySelectorAll('.btn-close').forEach(button => {
+                                                                                                                                                                                                                                                                                                                                                        button.addEventListener('click', function() {
+                                                                                                                                                                                                                                                                                                                                                            const alert = this.closest('.alert');
+                                                                                                                                                                                                                                                                                                                                                            if (alert) {
+                                                                                                                                                                                                                                                                                                                                                                alert.style.transition = 'opacity 0.15s linear';
+                                                                                                                                                                                                                                                                                                                                                                alert.style.opacity = '0';
+                                                                                                                                                                                                                                                                                                                                                                setTimeout(() => alert.remove(), 150);
+                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                        });
+                                                                                                                                                                                                                                                                                                                                                    });
+
+                                                                                                                                                                                                                                                                                                                                                    // Auto-scroll to first error field
+                                                                                                                                                                                                                                                                                                                                                    const firstError = document.querySelector('.is-invalid');
+                                                                                                                                                                                                                                                                                                                                                    if (firstError) {
+                                                                                                                                                                                                                                                                                                                                                        firstError.scrollIntoView({
+                                                                                                                                                                                                                                                                                                                                                            behavior: 'smooth',
+                                                                                                                                                                                                                                                                                                                                                            block: 'center'
+                                                                                                                                                                                                                                                                                                                                                        });
+                                                                                                                                                                                                                                                                                                                                                        firstError.focus();
+                                                                                                                                                                                                                                                                                                                                                    }
+
+                                                                                                                                                                                                                                                                                                                                                    // Configuration constants
+                                                                                                                                                                                                                                                                                                                                                    const CONFIG = {
+                                                                                                                                                                                                                                                                                                                                                        INSURANCE_AMOUNT: 40000000,
+                                                                                                                                                                                                                                                                                                                                                        DEFAULT_AMOUNT: 168000,
+                                                                                                                                                                                                                                                                                                                                                        MAX_DRIVERS: 5,
+                                                                                                                                                                                                                                                                                                                                                        REGION_TASHKENT: 1.4,
+                                                                                                                                                                                                                                                                                                                                                        REGION_OTHER: 1.2,
+                                                                                                                                                                                                                                                                                                                                                        VEHICLE_TYPES: {
+                                                                                                                                                                                                                                                                                                                                                            1: {
+                                                                                                                                                                                                                                                                                                                                                                coef: 0.1,
+                                                                                                                                                                                                                                                                                                                                                                label: '@lang('insurance.car_type_2')'
+                                                                                                                                                                                                                                                                                                                                                            },
+                                                                                                                                                                                                                                                                                                                                                            6: {
+                                                                                                                                                                                                                                                                                                                                                                coef: 0.12,
+                                                                                                                                                                                                                                                                                                                                                                label: '@lang('insurance.car_type_6')'
+                                                                                                                                                                                                                                                                                                                                                            },
+                                                                                                                                                                                                                                                                                                                                                            9: {
+                                                                                                                                                                                                                                                                                                                                                                coef: 0.12,
+                                                                                                                                                                                                                                                                                                                                                                label: '@lang('insurance.car_type_9')'
+                                                                                                                                                                                                                                                                                                                                                            },
+                                                                                                                                                                                                                                                                                                                                                            15: {
+                                                                                                                                                                                                                                                                                                                                                                coef: 0.04,
+                                                                                                                                                                                                                                                                                                                                                                label: '@lang('insurance.car_type_15')'
+                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                        },
+                                                                                                                                                                                                                                                                                                                                                        MONTHS_MAP: {
+                                                                                                                                                                                                                                                                                                                                                            '1': 12,
+                                                                                                                                                                                                                                                                                                                                                            '0.7': 6,
+                                                                                                                                                                                                                                                                                                                                                            '0.4': 3
+                                                                                                                                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                                                                                                                    };
+
+                                                                                                                                                                                                                                                                                                                                                    // State management
+                                                                                                                                                                                                                                                                                                                                                    const state = {
+                                                                                                                                                                                                                                                                                                                                                        regionId: null,
+                                                                                                                                                                                                                                                                                                                                                        period: null,
+                                                                                                                                                                                                                                                                                                                                                        vehicleType: null,
+                                                                                                                                                                                                                                                                                                                                                        limitedC: 3,
+                                                                                                                                                                                                                                                                                                                                                        driverIdCounter: 0
+                                                                                                                                                                                                                                                                                                                                                    };
+
+                                                                                                                                                                                                                                                                                                                                                    // Cache DOM elements
+                                                                                                                                                                                                                                                                                                                                                    const elements = {
+                                                                                                                                                                                                                                                                                                                                                        searchBtn: document.getElementById('vehicle-search-btn'),
+                                                                                                                                                                                                                                                                                                                                                        ownerInfoBtn: document.getElementById('owner-information-search-btn'),
+                                                                                                                                                                                                                                                                                                                                                        applicantInfoCheck: document.getElementById('is-applicant-owner'),
+                                                                                                                                                                                                                                                                                                                                                        applicantInfoBtn: document.getElementById('applicant-information-search-btn'),
+                                                                                                                                                                                                                                                                                                                                                        startInput: document.getElementById('policy_start_date'),
+                                                                                                                                                                                                                                                                                                                                                        endInput: document.getElementById('policy_end_date'),
+                                                                                                                                                                                                                                                                                                                                                        periodSelect: document.getElementById('insurance_period'),
+                                                                                                                                                                                                                                                                                                                                                        driverSearchBtn: document.getElementById('driver-information-search-btn'),
+                                                                                                                                                                                                                                                                                                                                                        applicantInfos: document.getElementById('applicant-infos'),
+                                                                                                                                                                                                                                                                                                                                                        unlimitedRadio: document.getElementById('driver_unlimited'),
+                                                                                                                                                                                                                                                                                                                                                        limitedDriver: document.getElementById('driver_limited')
+                                                                                                                                                                                                                                                                                                                                                    };
+
+                                                                                                                                                                                                                                                                                                                                                    // Event listeners with null checks
+                                                                                                                                                                                                                                                                                                                                                    if (elements.startInput) elements.startInput.addEventListener('change', updateEndDate);
+                                                                                                                                                                                                                                                                                                                                                    if (elements.periodSelect) elements.periodSelect.addEventListener('change', updateEndDate);
+                                                                                                                                                                                                                                                                                                                                                    // Client-side validation: ensure JSON payloads are valid before submit
+                                                                                                                                                                                                                                                                                                                                                    const formEl = document.getElementById('policy-calculation-form');
+                                                                                                                                                                                                                                                                                                                                                    if (formEl) {
+                                                                                                                                                                                                                                                                                                                                                        formEl.addEventListener('submit', function(e) {
+                                                                                                                                                                                                                                                                                                                                                            const ownerInfosEl = document.getElementById('owner-infos');
+                                                                                                                                                                                                                                                                                                                                                            const applicantInfosEl = document.getElementById('applicant-infos');
+                                                                                                                                                                                                                                                                                                                                                            const otherInfoEl = document.getElementById('other_info');
+                                                                                                                                                                                                                                                                                                                                                            const requiredOwnerKeys = ['regionId', 'districtId', 'issuedBy', 'issueDate', 'gender',
+                                                                                                                                                                                                                                                                                                                                                                'birthDate', 'address'
+                                                                                                                                                                                                                                                                                                                                                            ];
+                                                                                                                                                                                                                                                                                                                                                            const requiredOtherKeys = ['techPassportIssueDate', 'typeId', 'bodyNumber'];
+
+                                                                                                                                                                                                                                                                                                                                                            function parseJsonSafe(value) {
+                                                                                                                                                                                                                                                                                                                                                                if (!value) return null;
+                                                                                                                                                                                                                                                                                                                                                                try {
+                                                                                                                                                                                                                                                                                                                                                                    return JSON.parse(value);
+                                                                                                                                                                                                                                                                                                                                                                } catch (_) {
+                                                                                                                                                                                                                                                                                                                                                                    return null;
+                                                                                                                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                                                                                                            }
+
+                                                                                                                                                                                                                                                                                                                                                            function missingKeys(obj, keys) {
+                                                                                                                                                                                                                                                                                                                                                                if (!obj || typeof obj !== 'object') return keys;
+                                                                                                                                                                                                                                                                                                                                                                return keys.filter(k => !(k in obj) || obj[k] === null || obj[k] === '');
+                                                                                                                                                                                                                                                                                                                                                            }
+
+                                                                                                                                                                                                                                                                                                                                                            // Owner infos must exist and contain keys
+                                                                                                                                                                                                                                                                                                                                                            const ownerInfos = parseJsonSafe(ownerInfosEl?.value);
+                                                                                                                                                                                                                                                                                                                                                            const ownerMissing = missingKeys(ownerInfos, requiredOwnerKeys);
+                                                                                                                                                                                                                                                                                                                                                            if (ownerMissing.length) {
+                                                                                                                                                                                                                                                                                                                                                                e.preventDefault();
+                                                                                                                                                                                                                                                                                                                                                                showSimpleToast('error', 'XALQ SUG\'URTA',
+                                                                                                                                                                                                                                                                                                                                                                    '{{ __('messages.validation_errors_found') }}');
+                                                                                                                                                                                                                                                                                                                                                                if (ownerInfosEl) ownerInfosEl.classList.add('is-invalid');
+                                                                                                                                                                                                                                                                                                                                                                return;
+                                                                                                                                                                                                                                                                                                                                                            }
+
+                                                                                                                                                                                                                                                                                                                                                            // Applicant infos are nullable, but if present they must contain keys
+                                                                                                                                                                                                                                                                                                                                                            const applicantValue = applicantInfosEl?.value || '';
+                                                                                                                                                                                                                                                                                                                                                            if (applicantValue.trim().length) {
+                                                                                                                                                                                                                                                                                                                                                                const applicantInfos = parseJsonSafe(applicantValue);
+                                                                                                                                                                                                                                                                                                                                                                const applicantMissing = missingKeys(applicantInfos, requiredOwnerKeys);
+                                                                                                                                                                                                                                                                                                                                                                if (applicantMissing.length) {
+                                                                                                                                                                                                                                                                                                                                                                    e.preventDefault();
+                                                                                                                                                                                                                                                                                                                                                                    showSimpleToast('error', 'XALQ SUG\'URTA',
+                                                                                                                                                                                                                                                                                                                                                                        '{{ __('messages.validation_errors_found') }}');
+                                                                                                                                                                                                                                                                                                                                                                    applicantInfosEl.classList.add('is-invalid');
+                                                                                                                                                                                                                                                                                                                                                                    return;
+                                                                                                                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                                                                                                            }
+
+                                                                                                                                                                                                                                                                                                                                                            // other_info must contain required keys
+                                                                                                                                                                                                                                                                                                                                                            const otherInfos = parseJsonSafe(otherInfoEl?.value);
+                                                                                                                                                                                                                                                                                                                                                            const otherMissing = missingKeys(otherInfos, requiredOtherKeys);
+                                                                                                                                                                                                                                                                                                                                                            if (otherMissing.length) {
+                                                                                                                                                                                                                                                                                                                                                                e.preventDefault();
+                                                                                                                                                                                                                                                                                                                                                                showSimpleToast('error', 'XALQ SUG\'URTA',
+                                                                                                                                                                                                                                                                                                                                                                    '{{ __('messages.validation_errors_found') }}');
+                                                                                                                                                                                                                                                                                                                                                                if (otherInfoEl) otherInfoEl.classList.add('is-invalid');
+                                                                                                                                                                                                                                                                                                                                                                return;
+                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                        });
+                                                                                                                                                                                                                                                                                                                                                    }
+
+                                                                                                                                                                                                                                                                                                                                                    // If old values exist, show the display sections
+                                                                                                                                                                                                                                                                                                                                                    @if (old('model'))
+                                                                                                                                                                                                                                                                                                                                                        // Vehicle info filled
+                                                                                                                                                                                                                                                                                                                                                        showSection('vehicle-info-display');
+                                                                                                                                                                                                                                                                                                                                                        showSection('owner-info');
+                                                                                                                                                                                                                                                                                                                                                    @endif
+
+                                                                                                                                                                                                                                                                                                                                                    @if (old('owner.lastName'))
+                                                                                                                                                                                                                                                                                                                                                        // Owner info filled
+                                                                                                                                                                                                                                                                                                                                                        showSection('insurance-driver-full-information');
+                                                                                                                                                                                                                                                                                                                                                        showSection('applicant-info');
+                                                                                                                                                                                                                                                                                                                                                    @endif
+
+                                                                                                                                                                                                                                                                                                                                                    @if (old('applicant.lastName'))
+                                                                                                                                                                                                                                                                                                                                                        // Applicant info filled
+                                                                                                                                                                                                                                                                                                                                                        showSection('applicant-info-display');
+                                                                                                                                                                                                                                                                                                                                                        showSection('policy-calculation');
+                                                                                                                                                                                                                                                                                                                                                        showSection('confirmation');
+                                                                                                                                                                                                                                                                                                                                                    @endif
+
+                                                                                                                                                                                                                                                                                                                                                    @if (old('driver_limit') === 'limited')
+                                                                                                                                                                                                                                                                                                                                                        // Limited drivers selected
+                                                                                                                                                                                                                                                                                                                                                        showSection('limited-drivers-info');
+                                                                                                                                                                                                                                                                                                                                                        showSection('note');
+                                                                                                                                                                                                                                                                                                                                                    @endif
+
+                                                                                                                                                                                                                                                                                                                                                    // Recalculate policy if needed
+                                                                                                                                                                                                                                                                                                                                                    @if (old('gov_number'))
+                                                                                                                                                                                                                                                                                                                                                        setTimeout(() => {
+                                                                                                                                                                                                                                                                                                                                                            updateEndDate();
+                                                                                                                                                                                                                                                                                                                                                            calculatePolicy();
+                                                                                                                                                                                                                                                                                                                                                        }, 100);
+                                                                                                                                                                                                                                                                                                                                                    @endif
+
+                                                                                                                                                                                                                                                                                                                                                    // Vehicle search handler
+                                                                                                                                                                                                                                                                                                                                                    if (elements.searchBtn) {
+                                                                                                                                                                                                                                                                                                                                                        elements.searchBtn.addEventListener('click', async function() {
+                                                                                                                                                                                                                                                                                                                                                            const govNumber = document.getElementById('gov_number');
+                                                                                                                                                                                                                                                                                                                                                            const techPassportSeries = document.getElementById('tech_passport_series');
+                                                                                                                                                                                                                                                                                                                                                            const techPassportNumber = document.getElementById('tech_passport_number');
+
+                                                                                                                                                                                                                                                                                                                                                            // Validate inputs
+                                                                                                                                                                                                                                                                                                                                                            if (!validateInputs([govNumber, techPassportSeries, techPassportNumber])) {
+                                                                                                                                                                                                                                                                                                                                                                showSimpleToast('error', '{{ __('messages.error') }}',
+                                                                                                                                                                                                                                                                                                                                                                    '{{ __('errors.all_fields') }}');
+                                                                                                                                                                                                                                                                                                                                                                return;
+                                                                                                                                                                                                                                                                                                                                                            }
+
+                                                                                                                                                                                                                                                                                                                                                            const data = {
+                                                                                                                                                                                                                                                                                                                                                                gov_number: govNumber.value.trim(),
+                                                                                                                                                                                                                                                                                                                                                                tech_passport_series: techPassportSeries.value.trim(),
+                                                                                                                                                                                                                                                                                                                                                                tech_passport_number: techPassportNumber.value.trim()
+                                                                                                                                                                                                                                                                                                                                                            };
+
+                                                                                                                                                                                                                                                                                                                                                            setButtonLoading(elements.searchBtn, true);
+
+                                                                                                                                                                                                                                                                                                                                                            try {
+                                                                                                                                                                                                                                                                                                                                                                const result = await sendPostRequest('/get-vehicle-info', data);
+
+                                                                                                                                                                                                                                                                                                                                                                if (result?.data?.result) {
+                                                                                                                                                                                                                                                                                                                                                                    populateVehicleInfo(result.data.result, govNumber, techPassportSeries,
+                                                                                                                                                                                                                                                                                                                                                                        techPassportNumber);
+                                                                                                                                                                                                                                                                                                                                                                    showSection('vehicle-info-display');
+                                                                                                                                                                                                                                                                                                                                                                    showSection('owner-info');
+                                                                                                                                                                                                                                                                                                                                                                    scrollToElement('vehicle-info-display');
+                                                                                                                                                                                                                                                                                                                                                                } else {
+                                                                                                                                                                                                                                                                                                                                                                    showSimpleToast('error', 'XALQ SUG\'URTA',
+                                                                                                                                                                                                                                                                                                                                                                        '{{ __('errors.connection_with_api') }}');
+                                                                                                                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                                                                                                            } catch (error) {
+                                                                                                                                                                                                                                                                                                                                                                showSimpleToast('error', 'XALQ SUG\'URTA',
+                                                                                                                                                                                                                                                                                                                                                                    '{{ __('errors.unexpected_issue') }}: ' + error.message);
+                                                                                                                                                                                                                                                                                                                                                            } finally {
+                                                                                                                                                                                                                                                                                                                                                                setButtonLoading(elements.searchBtn, false);
+                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                        });
+                                                                                                                                                                                                                                                                                                                                                    }
+
+                                                                                                                                                                                                                                                                                                                                                    // Populate vehicle information
+                                                                                                                                                                                                                                                                                                                                                    function populateVehicleInfo(result, govNumber, techPassportSeries, techPassportNumber) {
+                                                                                                                                                                                                                                                                                                                                                        // Make inputs readonly
+                                                                                                                                                                                                                                                                                                                                                        [govNumber, techPassportSeries, techPassportNumber].forEach(el => el?.setAttribute('readonly',
+                                                                                                                                                                                                                                                                                                                                                            true));
+
+                                                                                                                                                                                                                                                                                                                                                        // Get all input elements
+                                                                                                                                                                                                                                                                                                                                                        const fields = {
+                                                                                                                                                                                                                                                                                                                                                            'engine_number': result.engineNumber || '',
+                                                                                                                                                                                                                                                                                                                                                            'car_year': result.issueYear || '',
+                                                                                                                                                                                                                                                                                                                                                            'registration_region': result.division || '',
+                                                                                                                                                                                                                                                                                                                                                            'car_owner': result.owner || '',
+                                                                                                                                                                                                                                                                                                                                                            'model': result.modelName || '',
+                                                                                                                                                                                                                                                                                                                                                            'insurance-pinfl': result.pinfl || ''
+                                                                                                                                                                                                                                                                                                                                                        };
+
+                                                                                                                                                                                                                                                                                                                                                        // Set field values
+                                                                                                                                                                                                                                                                                                                                                        Object.entries(fields).forEach(([id, value]) => {
+                                                                                                                                                                                                                                                                                                                                                            const element = document.getElementById(id);
+                                                                                                                                                                                                                                                                                                                                                            if (element) element.value = value;
+                                                                                                                                                                                                                                                                                                                                                        });
+
+                                                                                                                                                                                                                                                                                                                                                        // Handle vehicle type
+                                                                                                                                                                                                                                                                                                                                                        const carType = document.getElementById('car_type');
+                                                                                                                                                                                                                                                                                                                                                        const vehicleTypeInfo = CONFIG.VEHICLE_TYPES[result.vehicleTypeId];
+
+                                                                                                                                                                                                                                                                                                                                                        if (vehicleTypeInfo) {
+                                                                                                                                                                                                                                                                                                                                                            state.vehicleType = vehicleTypeInfo.coef;
+                                                                                                                                                                                                                                                                                                                                                            if (carType) carType.value = vehicleTypeInfo.label;
+                                                                                                                                                                                                                                                                                                                                                        } else {
+                                                                                                                                                                                                                                                                                                                                                            if (carType) carType.value = '@lang('insurance.car_not_found')';
+                                                                                                                                                                                                                                                                                                                                                        }
+
+                                                                                                                                                                                                                                                                                                                                                        // Store other info
+                                                                                                                                                                                                                                                                                                                                                        const otherInfo = {
+                                                                                                                                                                                                                                                                                                                                                            techPassportIssueDate: result.techPassportIssueDate?.split('T')[0],
+                                                                                                                                                                                                                                                                                                                                                            typeId: result.vehicleTypeId,
+                                                                                                                                                                                                                                                                                                                                                            bodyNumber: result.bodyNumber
+                                                                                                                                                                                                                                                                                                                                                        };
+
+                                                                                                                                                                                                                                                                                                                                                        const otherInfoElement = document.getElementById('other_info');
+                                                                                                                                                                                                                                                                                                                                                        if (otherInfoElement) {
+                                                                                                                                                                                                                                                                                                                                                            otherInfoElement.value = JSON.stringify(otherInfo);
+                                                                                                                                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                                                                                                                    }
+
+                                                                                                                                                                                                                                                                                                                                                    // Owner info search handler
+                                                                                                                                                                                                                                                                                                                                                    if (elements.ownerInfoBtn) {
+                                                                                                                                                                                                                                                                                                                                                        elements.ownerInfoBtn.addEventListener('click', async function() {
+                                                                                                                                                                                                                                                                                                                                                            const insurantPassportSeries = document.getElementById('insurance-passport-series');
+                                                                                                                                                                                                                                                                                                                                                            const insurantPassportNumber = document.getElementById('insurance-passport-number');
+                                                                                                                                                                                                                                                                                                                                                            const insurantPinfl = document.getElementById('insurance-pinfl');
+
+                                                                                                                                                                                                                                                                                                                                                            if (!validateInputs([insurantPassportSeries, insurantPassportNumber,
+                                                                                                                                                                                                                                                                                                                                                                    insurantPinfl
+                                                                                                                                                                                                                                                                                                                                                                ])) {
+                                                                                                                                                                                                                                                                                                                                                                showSimpleToast('error', '{{ __('messages.error') }}',
+                                                                                                                                                                                                                                                                                                                                                                    '{{ __('errors.all_fields') }}');
+                                                                                                                                                                                                                                                                                                                                                                return;
+                                                                                                                                                                                                                                                                                                                                                            }
+
+                                                                                                                                                                                                                                                                                                                                                            setButtonLoading(elements.ownerInfoBtn, true);
+
+                                                                                                                                                                                                                                                                                                                                                            const data = {
+                                                                                                                                                                                                                                                                                                                                                                senderPinfl: insurantPinfl.value,
+                                                                                                                                                                                                                                                                                                                                                                passport_series: insurantPassportSeries.value,
+                                                                                                                                                                                                                                                                                                                                                                passport_number: insurantPassportNumber.value,
+                                                                                                                                                                                                                                                                                                                                                                pinfl: insurantPinfl.value,
+                                                                                                                                                                                                                                                                                                                                                                isConsent: 'Y'
+                                                                                                                                                                                                                                                                                                                                                            };
+
+                                                                                                                                                                                                                                                                                                                                                            try {
+                                                                                                                                                                                                                                                                                                                                                                const result = await sendPostRequest('/get-person-info', data);
+
+                                                                                                                                                                                                                                                                                                                                                                if (result?.data?.result) {
+                                                                                                                                                                                                                                                                                                                                                                    populateOwnerInfo(result);
+
+                                                                                                                                                                                                                                                                                                                                                                    // Auto-check applicant as owner
+                                                                                                                                                                                                                                                                                                                                                                    if (elements.applicantInfoCheck) {
+                                                                                                                                                                                                                                                                                                                                                                        elements.applicantInfoCheck.checked = true;
+                                                                                                                                                                                                                                                                                                                                                                        checkApplicantInfo();
+
+                                                                                                                                                                                                                                                                                                                                                                    }
+
+
+
+                                                                                                                                                                                                                                                                                                                                                                    showSection('insurance-driver-full-information');
+                                                                                                                                                                                                                                                                                                                                                                    showSection('applicant-info');
+                                                                                                                                                                                                                                                                                                                                                                    scrollToElement('insurance-driver-full-information');
+                                                                                                                                                                                                                                                                                                                                                                } else {
+                                                                                                                                                                                                                                                                                                                                                                    showSimpleToast('error', 'XALQ SUG\'URTA',
+                                                                                                                                                                                                                                                                                                                                                                        '{{ __('errors.connection_with_api') }}');
+                                                                                                                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                                                                                                            } catch (error) {
+                                                                                                                                                                                                                                                                                                                                                                showSimpleToast('error', 'XALQ SUG\'URTA',
+                                                                                                                                                                                                                                                                                                                                                                    '{{ __('errors.unexpected_issue') }}: ' + error.message);
+                                                                                                                                                                                                                                                                                                                                                            } finally {
+                                                                                                                                                                                                                                                                                                                                                                setButtonLoading(elements.ownerInfoBtn, false);
+                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                        });
+                                                                                                                                                                                                                                                                                                                                                    }
+
+                                                                                                                                                                                                                                                                                                                                                    function populateOwnerInfo(result) {
+                                                                                                                                                                                                                                                                                                                                                        const fields = {
+                                                                                                                                                                                                                                                                                                                                                            'insurance-last-name': result.data.result.lastNameLatin || '',
+                                                                                                                                                                                                                                                                                                                                                            'insurance-first-name': result.data.result.firstNameLatin || '',
+                                                                                                                                                                                                                                                                                                                                                            'insurance-middle-name': result.data.result.middleNameLatin || '',
+                                                                                                                                                                                                                                                                                                                                                            'owner-address': result.data.result.address || ''
+                                                                                                                                                                                                                                                                                                                                                        };
+
+                                                                                                                                                                                                                                                                                                                                                        Object.entries(fields).forEach(([id, value]) => {
+                                                                                                                                                                                                                                                                                                                                                            const element = document.getElementById(id);
+                                                                                                                                                                                                                                                                                                                                                            if (element) element.value = value;
+                                                                                                                                                                                                                                                                                                                                                        });
+
+                                                                                                                                                                                                                                                                                                                                                        const ownerInfo = getNecessaryInfo(result);
+                                                                                                                                                                                                                                                                                                                                                        const ownerInfosElement = document.getElementById('owner-infos');
+                                                                                                                                                                                                                                                                                                                                                        if (ownerInfosElement) {
+                                                                                                                                                                                                                                                                                                                                                            ownerInfosElement.value = JSON.stringify(ownerInfo);
+                                                                                                                                                                                                                                                                                                                                                        }
+
+                                                                                                                                                                                                                                                                                                                                                        // Set applicant info as well
+                                                                                                                                                                                                                                                                                                                                                        if (elements.applicantInfos) {
+                                                                                                                                                                                                                                                                                                                                                            elements.applicantInfos.value = JSON.stringify(ownerInfo);
+                                                                                                                                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                                                                                                                    }
+
+                                                                                                                                                                                                                                                                                                                                                    // Check if applicant is the same as owner
+                                                                                                                                                                                                                                                                                                                                                    function checkApplicantInfo() {
+                                                                                                                                                                                                                                                                                                                                                        const isChecked = elements.applicantInfoCheck?.checked;
+
+                                                                                                                                                                                                                                                                                                                                                        if (isChecked) {
+
+                                                                                                                                                                                                                                                                                                                                                            updateEndDate()
+                                                                                                                                                                                                                                                                                                                                                            // Copy owner info to applicant
+                                                                                                                                                                                                                                                                                                                                                            const ownerFields = ['last-name', 'first-name', 'middle-name', 'address', 'pinfl',
+                                                                                                                                                                                                                                                                                                                                                                'passport-series', 'passport-number'
+                                                                                                                                                                                                                                                                                                                                                            ];
+                                                                                                                                                                                                                                                                                                                                                            console.log(ownerFields);
+                                                                                                                                                                                                                                                                                                                                                            ownerFields.forEach(field => {
+                                                                                                                                                                                                                                                                                                                                                                const ownerEl = document.getElementById(`insurance-${field}`);
+                                                                                                                                                                                                                                                                                                                                                                const applicantEl = document.getElementById(`applicant-${field}`);
+                                                                                                                                                                                                                                                                                                                                                                if (ownerEl && applicantEl) {
+                                                                                                                                                                                                                                                                                                                                                                    applicantEl.value = ownerEl.value || '';
+                                                                                                                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                                                                                                                if (field === 'pinfl') {
+                                                                                                                                                                                                                                                                                                                                                                    const applicantEl = document.getElementById(`applicant-pinfl`);
+                                                                                                                                                                                                                                                                                                                                                                    applicantEl.value = ownerEl.value || '';
+                                                                                                                                                                                                                                                                                                                                                                } else if (field === 'passport-series') {
+                                                                                                                                                                                                                                                                                                                                                                    const applicantEl = document.getElementById(`applicant-passport-series`);
+                                                                                                                                                                                                                                                                                                                                                                    applicantEl.value = ownerEl.value || '';
+                                                                                                                                                                                                                                                                                                                                                                } else if (field === 'passport-number') {
+                                                                                                                                                                                                                                                                                                                                                                    const applicantEl = document.getElementById(`applicant-passport-number`);
+                                                                                                                                                                                                                                                                                                                                                                    applicantEl.value = ownerEl.value || '';
+                                                                                                                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                                                                                                                if (field === "address") {
+                                                                                                                                                                                                                                                                                                                                                                    const applicantEl = document.getElementById(`applicant-address`);
+                                                                                                                                                                                                                                                                                                                                                                    applicantEl.value = document.getElementById(`owner-address`).value || '';
+                                                                                                                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                                                                                                            });
+
+                                                                                                                                                                                                                                                                                                                                                            // hideSection('applicant-info-search');
+                                                                                                                                                                                                                                                                                                                                                            showSection('applicant-info-search');
+                                                                                                                                                                                                                                                                                                                                                            showSection('applicant-info-display');
+                                                                                                                                                                                                                                                                                                                                                            showSection('policy-calculation');
+                                                                                                                                                                                                                                                                                                                                                            showSection('confirmation');
+                                                                                                                                                                                                                                                                                                                                                            // Keep applicant infos JSON in sync with owner infos when checkbox is on
+                                                                                                                                                                                                                                                                                                                                                            const ownerInfosEl = document.getElementById('owner-infos');
+                                                                                                                                                                                                                                                                                                                                                            if (elements.applicantInfos && ownerInfosEl && ownerInfosEl.value) {
+                                                                                                                                                                                                                                                                                                                                                                elements.applicantInfos.value = ownerInfosEl.value;
+                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                        } else {
+                                                                                                                                                                                                                                                                                                                                                            // Clear applicant fields
+                                                                                                                                                                                                                                                                                                                                                            ['applicant-passport-series', 'applicant-passport-number', 'applicant-pinfl'].forEach(id => {
+                                                                                                                                                                                                                                                                                                                                                                const el = document.getElementById(id);
+                                                                                                                                                                                                                                                                                                                                                                if (el) el.value = '';
+                                                                                                                                                                                                                                                                                                                                                            });
+
+                                                                                                                                                                                                                                                                                                                                                            showSection('applicant-info-search');
+                                                                                                                                                                                                                                                                                                                                                            hideSection('applicant-info-display');
+                                                                                                                                                                                                                                                                                                                                                            hideSection('policy-calculation');
+                                                                                                                                                                                                                                                                                                                                                            hideSection('confirmation');
+                                                                                                                                                                                                                                                                                                                                                            if (elements.applicantInfos) {
+                                                                                                                                                                                                                                                                                                                                                                elements.applicantInfos.value = '';
+                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                                                                                                                    }
+
+                                                                                                                                                                                                                                                                                                                                                    // Applicant info checkbox listener
+                                                                                                                                                                                                                                                                                                                                                    if (elements.applicantInfoCheck) {
+                                                                                                                                                                                                                                                                                                                                                        elements.applicantInfoCheck.addEventListener('change', checkApplicantInfo);
+                                                                                                                                                                                                                                                                                                                                                    }
+
+                                                                                                                                                                                                                                                                                                                                                    // Applicant info search handler
+                                                                                                                                                                                                                                                                                                                                                    if (elements.applicantInfoBtn) {
+                                                                                                                                                                                                                                                                                                                                                        elements.applicantInfoBtn.addEventListener('click', async function() {
+                                                                                                                                                                                                                                                                                                                                                            const insurantPassportSeries = document.getElementById('applicant-passport-series');
+                                                                                                                                                                                                                                                                                                                                                            const insurantPassportNumber = document.getElementById('applicant-passport-number');
+                                                                                                                                                                                                                                                                                                                                                            const insurantPinfl = document.getElementById('applicant-pinfl');
+
+                                                                                                                                                                                                                                                                                                                                                            if (!validateInputs([insurantPassportSeries, insurantPassportNumber,
+                                                                                                                                                                                                                                                                                                                                                                    insurantPinfl
+                                                                                                                                                                                                                                                                                                                                                                ])) {
+                                                                                                                                                                                                                                                                                                                                                                showSimpleToast('error', 'XALQ SUG\'URTA', '{{ __('errors.all_fields') }}');
+                                                                                                                                                                                                                                                                                                                                                                return;
+                                                                                                                                                                                                                                                                                                                                                            }
+
+                                                                                                                                                                                                                                                                                                                                                            setButtonLoading(elements.applicantInfoBtn, true);
+
+                                                                                                                                                                                                                                                                                                                                                            const data = {
+                                                                                                                                                                                                                                                                                                                                                                senderPinfl: insurantPinfl.value,
+                                                                                                                                                                                                                                                                                                                                                                passport_series: insurantPassportSeries.value,
+                                                                                                                                                                                                                                                                                                                                                                passport_number: insurantPassportNumber.value,
+                                                                                                                                                                                                                                                                                                                                                                pinfl: insurantPinfl.value,
+                                                                                                                                                                                                                                                                                                                                                                isConsent: 'Y'
+                                                                                                                                                                                                                                                                                                                                                            };
+
+                                                                                                                                                                                                                                                                                                                                                            try {
+                                                                                                                                                                                                                                                                                                                                                                const result = await sendPostRequest('/get-person-info', data);
+
+                                                                                                                                                                                                                                                                                                                                                                if (result?.data?.result) {
+                                                                                                                                                                                                                                                                                                                                                                    populateApplicantInfo(result);
+                                                                                                                                                                                                                                                                                                                                                                    showSection('applicant-info-display');
+                                                                                                                                                                                                                                                                                                                                                                    showSection('policy-calculation');
+                                                                                                                                                                                                                                                                                                                                                                    showSection('confirmation');
+                                                                                                                                                                                                                                                                                                                                                                    updateEndDate()
+                                                                                                                                                                                                                                                                                                                                                                } else {
+                                                                                                                                                                                                                                                                                                                                                                    showSimpleToast('error', 'XALQ SUG\'URTA',
+                                                                                                                                                                                                                                                                                                                                                                        '{{ __('errors.connection_with_api') }}');
+                                                                                                                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                                                                                                            } catch (error) {
+                                                                                                                                                                                                                                                                                                                                                                showSimpleToast('error', 'XALQ SUG\'URTA',
+                                                                                                                                                                                                                                                                                                                                                                    '{{ __('errors.unexpected_issue') }}: ' + error.message);
+                                                                                                                                                                                                                                                                                                                                                            } finally {
+                                                                                                                                                                                                                                                                                                                                                                setButtonLoading(elements.applicantInfoBtn, false);
+                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                        });
+                                                                                                                                                                                                                                                                                                                                                    }
+
+                                                                                                                                                                                                                                                                                                                                                    function populateApplicantInfo(result) {
+                                                                                                                                                                                                                                                                                                                                                        const fields = {
+                                                                                                                                                                                                                                                                                                                                                            'applicant-last-name': result.data.result.lastNameLatin || '',
+                                                                                                                                                                                                                                                                                                                                                            'applicant-first-name': result.data.result.firstNameLatin || '',
+                                                                                                                                                                                                                                                                                                                                                            'applicant-middle-name': result.data.result.middleNameLatin || '',
+                                                                                                                                                                                                                                                                                                                                                            'applicant-address': result.data.result.address || ''
+                                                                                                                                                                                                                                                                                                                                                        };
+
+                                                                                                                                                                                                                                                                                                                                                        Object.entries(fields).forEach(([id, value]) => {
+                                                                                                                                                                                                                                                                                                                                                            const element = document.getElementById(id);
+                                                                                                                                                                                                                                                                                                                                                            if (element) element.value = value;
+                                                                                                                                                                                                                                                                                                                                                        });
+
+                                                                                                                                                                                                                                                                                                                                                        const applicantInfoResult = getNecessaryInfo(result);
+                                                                                                                                                                                                                                                                                                                                                        if (elements.applicantInfos) {
+                                                                                                                                                                                                                                                                                                                                                            elements.applicantInfos.value = JSON.stringify(applicantInfoResult);
+                                                                                                                                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                                                                                                                    }
+
+                                                                                                                                                                                                                                                                                                                                                    // Calculate policy amount
+                                                                                                                                                                                                                                                                                                                                                    function calculatePolicy() {
+                                                                                                                                                                                                                                                                                                                                                        const govNumberElement = document.getElementById('gov_number');
+                                                                                                                                                                                                                                                                                                                                                        if (!govNumberElement || !govNumberElement.value) return;
+
+                                                                                                                                                                                                                                                                                                                                                        const govPrefix = govNumberElement.value.trim().substring(0, 2);
+                                                                                                                                                                                                                                                                                                                                                        state.regionId = (govPrefix === '01' || govPrefix === '10') ? CONFIG.REGION_TASHKENT : CONFIG
+                                                                                                                                                                                                                                                                                                                                                            .REGION_OTHER;
+
+                                                                                                                                                                                                                                                                                                                                                        // Get current period value
+                                                                                                                                                                                                                                                                                                                                                        state.period = parseFloat(elements.periodSelect?.value) || 1;
+
+                                                                                                                                                                                                                                                                                                                                                        // Calculate amount
+                                                                                                                                                                                                                                                                                                                                                        const calcDiscount = state.vehicleType * state.regionId * state.period * state.limitedC;
+                                                                                                                                                                                                                                                                                                                                                        let amount = (calcDiscount * CONFIG.INSURANCE_AMOUNT) / 100;
+
+                                                                                                                                                                                                                                                                                                                                                        // Fallback to default if calculation fails
+                                                                                                                                                                                                                                                                                                                                                        if (isNaN(amount) || amount === 0) {
+                                                                                                                                                                                                                                                                                                                                                            amount = CONFIG.DEFAULT_AMOUNT;
+                                                                                                                                                                                                                                                                                                                                                        }
+
+                                                                                                                                                                                                                                                                                                                                                        // Store insurance info
+                                                                                                                                                                                                                                                                                                                                                        const insuranceInfosElement = document.getElementById('insurance-infos');
+                                                                                                                                                                                                                                                                                                                                                        if (insuranceInfosElement) {
+                                                                                                                                                                                                                                                                                                                                                            insuranceInfosElement.value = JSON.stringify({
+                                                                                                                                                                                                                                                                                                                                                                amount: formatCurrency(amount),
+                                                                                                                                                                                                                                                                                                                                                                period: state.period,
+                                                                                                                                                                                                                                                                                                                                                                insuranceAmount: CONFIG.INSURANCE_AMOUNT
+                                                                                                                                                                                                                                                                                                                                                            });
+                                                                                                                                                                                                                                                                                                                                                        }
+
+                                                                                                                                                                                                                                                                                                                                                        // Update UI
+                                                                                                                                                                                                                                                                                                                                                        updateElement('amount', formatCurrency(amount));
+                                                                                                                                                                                                                                                                                                                                                        updateElement('premium', formatCurrency(CONFIG.INSURANCE_AMOUNT));
+                                                                                                                                                                                                                                                                                                                                                    }
+
+                                                                                                                                                                                                                                                                                                                                                    // Update end date based on start date and period
+                                                                                                                                                                                                                                                                                                                                                    function updateEndDate() {
+                                                                                                                                                                                                                                                                                                                                                        if (!elements.startInput || !elements.endInput || !elements.periodSelect) return;
+
+                                                                                                                                                                                                                                                                                                                                                        // Agar start date bo'lmasa, bugungi sanani o'rnatish
+                                                                                                                                                                                                                                                                                                                                                        let startDate;
+                                                                                                                                                                                                                                                                                                                                                        if (!elements.startInput.value) {
+                                                                                                                                                                                                                                                                                                                                                            const today = new Date();
+                                                                                                                                                                                                                                                                                                                                                            elements.startInput.value = today.toISOString().split('T')[0];
+                                                                                                                                                                                                                                                                                                                                                            startDate = today;
+                                                                                                                                                                                                                                                                                                                                                        } else {
+                                                                                                                                                                                                                                                                                                                                                            startDate = new Date(elements.startInput.value);
+                                                                                                                                                                                                                                                                                                                                                        }
+
+                                                                                                                                                                                                                                                                                                                                                        const monthsToAdd = CONFIG.MONTHS_MAP[elements.periodSelect.value] || 12;
+
+                                                                                                                                                                                                                                                                                                                                                        // Calculate end date: add months, then subtract 1 day
+                                                                                                                                                                                                                                                                                                                                                        const endDate = new Date(startDate);
+                                                                                                                                                                                                                                                                                                                                                        endDate.setMonth(endDate.getMonth() + monthsToAdd);
+                                                                                                                                                                                                                                                                                                                                                        endDate.setDate(endDate.getDate() - 1);
+
+                                                                                                                                                                                                                                                                                                                                                        // Format as YYYY-MM-DD
+                                                                                                                                                                                                                                                                                                                                                        elements.endInput.value = endDate.toISOString().split('T')[0];
+
+                                                                                                                                                                                                                                                                                                                                                        calculatePolicy();
+                                                                                                                                                                                                                                                                                                                                                    }
+
+                                                                                                                                                                                                                                                                                                                                                    // Driver limit radio button handlers
+                                                                                                                                                                                                                                                                                                                                                    if (elements.unlimitedRadio) {
+                                                                                                                                                                                                                                                                                                                                                        elements.unlimitedRadio.addEventListener('change', () => showDriverAddButton('unlimited'));
+                                                                                                                                                                                                                                                                                                                                                    }
+                                                                                                                                                                                                                                                                                                                                                    if (elements.limitedDriver) {
+                                                                                                                                                                                                                                                                                                                                                        elements.limitedDriver.addEventListener('change', () => showDriverAddButton('limited'));
+                                                                                                                                                                                                                                                                                                                                                    }
+
+                                                                                                                                                                                                                                                                                                                                                    function showDriverAddButton(driverType) {
+                                                                                                                                                                                                                                                                                                                                                        const addButton = document.getElementById('limited-drivers-info');
+                                                                                                                                                                                                                                                                                                                                                        const note = document.getElementById('note');
+
+                                                                                                                                                                                                                                                                                                                                                        if (driverType === 'limited') {
+                                                                                                                                                                                                                                                                                                                                                            showSection('limited-drivers-info');
+                                                                                                                                                                                                                                                                                                                                                            showSection('note');
+                                                                                                                                                                                                                                                                                                                                                            elements.periodSelect?.removeAttribute('disabled');
+                                                                                                                                                                                                                                                                                                                                                            state.limitedC = 1;
+                                                                                                                                                                                                                                                                                                                                                        } else if (driverType === 'unlimited') {
+                                                                                                                                                                                                                                                                                                                                                            hideSection('limited-drivers-info');
+                                                                                                                                                                                                                                                                                                                                                            hideSection('note');
+                                                                                                                                                                                                                                                                                                                                                            if (elements.periodSelect) {
+                                                                                                                                                                                                                                                                                                                                                                elements.periodSelect.value = '1';
+                                                                                                                                                                                                                                                                                                                                                                elements.periodSelect.setAttribute('disabled', 'disabled');
+                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                            state.limitedC = 3;
+                                                                                                                                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                                                                                                                        calculatePolicy();
+                                                                                                                                                                                                                                                                                                                                                    }
+
+                                                                                                                                                                                                                                                                                                                                                    // Driver search handler
+                                                                                                                                                                                                                                                                                                                                                    if (elements.driverSearchBtn) {
+                                                                                                                                                                                                                                                                                                                                                        elements.driverSearchBtn.addEventListener('click', async function() {
+                                                                                                                                                                                                                                                                                                                                                            const driverPassportSeries = document.getElementById('driver-passport-series');
+                                                                                                                                                                                                                                                                                                                                                            const driverPassportNumber = document.getElementById('driver-passport-number');
+                                                                                                                                                                                                                                                                                                                                                            const driverPinfl = document.getElementById('driver-pinfl');
+
+                                                                                                                                                                                                                                                                                                                                                            if (!validateInputs([driverPassportSeries, driverPassportNumber, driverPinfl])) {
+                                                                                                                                                                                                                                                                                                                                                                showSimpleToast('error', 'XALQ SUG\'URTA', '{{ __('errors.all_fields') }}');
+                                                                                                                                                                                                                                                                                                                                                                return;
+                                                                                                                                                                                                                                                                                                                                                            }
+
+                                                                                                                                                                                                                                                                                                                                                            const driverInfoDisplay = document.getElementById('driver-info-display');
+                                                                                                                                                                                                                                                                                                                                                            const existing = driverInfoDisplay?.querySelectorAll('.card-footer').length || 0;
+
+                                                                                                                                                                                                                                                                                                                                                            if (existing >= CONFIG.MAX_DRIVERS) {
+                                                                                                                                                                                                                                                                                                                                                                showSimpleToast('error', 'XALQ SUG\'URTA',
+                                                                                                                                                                                                                                                                                                                                                                    '{{ __('errors.drivers_limited') }}');
+                                                                                                                                                                                                                                                                                                                                                                return;
+                                                                                                                                                                                                                                                                                                                                                            }
+
+                                                                                                                                                                                                                                                                                                                                                            const driverData = {
+                                                                                                                                                                                                                                                                                                                                                                passport_series: driverPassportSeries.value,
+                                                                                                                                                                                                                                                                                                                                                                passport_number: driverPassportNumber.value,
+                                                                                                                                                                                                                                                                                                                                                                pinfl: driverPinfl.value
+                                                                                                                                                                                                                                                                                                                                                            };
+
+                                                                                                                                                                                                                                                                                                                                                            const personData = {
+                                                                                                                                                                                                                                                                                                                                                                senderPinfl: driverPinfl.value,
+                                                                                                                                                                                                                                                                                                                                                                passport_series: driverPassportSeries.value,
+                                                                                                                                                                                                                                                                                                                                                                passport_number: driverPassportNumber.value,
+                                                                                                                                                                                                                                                                                                                                                                pinfl: driverPinfl.value,
+                                                                                                                                                                                                                                                                                                                                                                isConsent: 'Y'
+                                                                                                                                                                                                                                                                                                                                                            };
+
+                                                                                                                                                                                                                                                                                                                                                            setButtonLoading(elements.driverSearchBtn, true);
+
+                                                                                                                                                                                                                                                                                                                                                            try {
+                                                                                                                                                                                                                                                                                                                                                                const result = await sendPostRequest('/get-driver-info', driverData);
+
+                                                                                                                                                                                                                                                                                                                                                                if (result?.success && result?.data?.result) {
+                                                                                                                                                                                                                                                                                                                                                                    const shortResult = result.data.result;
+
+                                                                                                                                                                                                                                                                                                                                                                    // Increment the counter to get a unique ID
+                                                                                                                                                                                                                                                                                                                                                                    state.driverIdCounter++;
+                                                                                                                                                                                                                                                                                                                                                                    const uniqueId = state.driverIdCounter;
+
+                                                                                                                                                                                                                                                                                                                                                                    const personResult = await sendPostRequest('/get-person-info', personData);
+
+                                                                                                                                                                                                                                                                                                                                                                    if (!personResult?.data?.result) {
+                                                                                                                                                                                                                                                                                                                                                                        throw new Error('Haydovchi ma\'lumotlari topilmadi');
+                                                                                                                                                                                                                                                                                                                                                                    }
+
+                                                                                                                                                                                                                                                                                                                                                                    const driverSelfInfo = {
+                                                                                                                                                                                                                                                                                                                                                                        pinfl: driverData.pinfl,
+                                                                                                                                                                                                                                                                                                                                                                        seria: driverData.passport_series,
+                                                                                                                                                                                                                                                                                                                                                                        number: driverData.passport_number,
+                                                                                                                                                                                                                                                                                                                                                                        issuedBy: personResult.data.result.issuedBy,
+                                                                                                                                                                                                                                                                                                                                                                        issueDate: personResult.data.result.startDate,
+                                                                                                                                                                                                                                                                                                                                                                        firstname: personResult.data.result.firstNameLatin,
+                                                                                                                                                                                                                                                                                                                                                                        lastname: personResult.data.result.lastNameLatin,
+                                                                                                                                                                                                                                                                                                                                                                        middlename: personResult.data.result.middleNameLatin,
+                                                                                                                                                                                                                                                                                                                                                                        licenseNumber: shortResult.DriverInfo.licenseNumber,
+                                                                                                                                                                                                                                                                                                                                                                        licenseSeria: shortResult.DriverInfo.licenseSeria,
+                                                                                                                                                                                                                                                                                                                                                                        birthDate: shortResult.DriverInfo.pOwnerDate,
+                                                                                                                                                                                                                                                                                                                                                                        birthPlace: personResult.data.result.birthPlace,
+                                                                                                                                                                                                                                                                                                                                                                        licenseIssueDate: shortResult.DriverInfo.issueDate?.split('T')[0]
+                                                                                                                                                                                                                                                                                                                                                                    };
+
+                                                                                                                                                                                                                                                                                                                                                                    const driverInfoJson = JSON.stringify(driverSelfInfo)
+                                                                                                                                                                                                                                                                                                                                                                        .replace(/"/g, '&quot;')
+                                                                                                                                                                                                                                                                                                                                                                        .replace(/'/g, '&#39;');
+
+                                                                                                                                                                                                                                                                                                                                                                    const driverName = shortResult.DriverInfo.pOwner.split(' ');
+                                                                                                                                                                                                                                                                                                                                                                    const fullName = driverName.length >= 2 ?
+                                                                                                                                                                                                                                                                                                                                                                        `${driverName[0]} ${driverName[1]}` :
+                                                                                                                                                                                                                                                                                                                                                                        driverName[0] || '';
+
+                                                                                                                                                                                                                                                                                                                                                                    const driverHtml = `
                                 <div class="card-footer mb-3" data-id="${uniqueId}">
                                     <h4 class="card-title">@lang('messages.driver_info_title')</h4>
                                     <div class="row mb-2">
@@ -661,124 +756,124 @@
                                     </div>
                                 </div>`;
 
-                                if (driverInfoDisplay) {
-                                    driverInfoDisplay.innerHTML += driverHtml;
-                                }
+                                                                                                                                                                                                                                                                                                                                                                    if (driverInfoDisplay) {
+                                                                                                                                                                                                                                                                                                                                                                        driverInfoDisplay.innerHTML += driverHtml;
+                                                                                                                                                                                                                                                                                                                                                                    }
 
-                                // Clear input fields
-                                [driverPassportSeries, driverPassportNumber, driverPinfl].forEach(el => {
-                                    if (el) el.value = '';
-                                });
-                            } else {
-                                showSimpleToast('error', 'XALQ SUG\'URTA',
-                                    '{{ __('errors.connection_with_api') }}');
-                            }
-                        } catch (error) {
-                            showSimpleToast('error', 'XALQ SUG\'URTA',
-                                '{{ __('errors.unexpected_issue') }}: ' + error.message);
-                        } finally {
-                            setButtonLoading(elements.driverSearchBtn, false);
-                        }
-                    });
-                }
+                                                                                                                                                                                                                                                                                                                                                                    // Clear input fields
+                                                                                                                                                                                                                                                                                                                                                                    [driverPassportSeries, driverPassportNumber, driverPinfl].forEach(el => {
+                                                                                                                                                                                                                                                                                                                                                                        if (el) el.value = '';
+                                                                                                                                                                                                                                                                                                                                                                    });
+                                                                                                                                                                                                                                                                                                                                                                } else {
+                                                                                                                                                                                                                                                                                                                                                                    showSimpleToast('error', 'XALQ SUG\'URTA',
+                                                                                                                                                                                                                                                                                                                                                                        '{{ __('errors.connection_with_api') }}');
+                                                                                                                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                                                                                                            } catch (error) {
+                                                                                                                                                                                                                                                                                                                                                                showSimpleToast('error', 'XALQ SUG\'URTA',
+                                                                                                                                                                                                                                                                                                                                                                    '{{ __('errors.unexpected_issue') }}: ' + error.message);
+                                                                                                                                                                                                                                                                                                                                                            } finally {
+                                                                                                                                                                                                                                                                                                                                                                setButtonLoading(elements.driverSearchBtn, false);
+                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                        });
+                                                                                                                                                                                                                                                                                                                                                    }
 
-                // Utility functions
-                async function sendPostRequest(url, data) {
-                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+                                                                                                                                                                                                                                                                                                                                                    // Utility functions
+                                                                                                                                                                                                                                                                                                                                                    async function sendPostRequest(url, data) {
+                                                                                                                                                                                                                                                                                                                                                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify(data)
-                    });
+                                                                                                                                                                                                                                                                                                                                                        const response = await fetch(url, {
+                                                                                                                                                                                                                                                                                                                                                            method: 'POST',
+                                                                                                                                                                                                                                                                                                                                                            headers: {
+                                                                                                                                                                                                                                                                                                                                                                'Content-Type': 'application/json',
+                                                                                                                                                                                                                                                                                                                                                                'X-CSRF-TOKEN': csrfToken,
+                                                                                                                                                                                                                                                                                                                                                                'Accept': 'application/json'
+                                                                                                                                                                                                                                                                                                                                                            },
+                                                                                                                                                                                                                                                                                                                                                            body: JSON.stringify(data)
+                                                                                                                                                                                                                                                                                                                                                        });
 
-                    const result = await response.json();
+                                                                                                                                                                                                                                                                                                                                                        const result = await response.json();
 
-                    if (!response.ok) {
-                        throw new Error(result.message || 'So\'rov muvaffaqiyatsiz tugadi');
-                    }
+                                                                                                                                                                                                                                                                                                                                                        if (!response.ok) {
+                                                                                                                                                                                                                                                                                                                                                            throw new Error(result.message || 'So\'rov muvaffaqiyatsiz tugadi');
+                                                                                                                                                                                                                                                                                                                                                        }
 
-                    return result;
-                }
+                                                                                                                                                                                                                                                                                                                                                        return result;
+                                                                                                                                                                                                                                                                                                                                                    }
 
-                function getNecessaryInfo(result) {
-                    if (!result?.data?.result) return {};
+                                                                                                                                                                                                                                                                                                                                                    function getNecessaryInfo(result) {
+                                                                                                                                                                                                                                                                                                                                                        if (!result?.data?.result) return {};
 
-                    const data = result.data.result;
-                    return {
-                        regionId: data.regionId,
-                        districtId: data.districtId,
-                        issuedBy: data.issuedBy,
-                        issueDate: data.startDate,
-                        gender: data.gender,
-                        birthDate: data.birthDate,
-                        address: data.address || ''
-                    };
-                }
+                                                                                                                                                                                                                                                                                                                                                        const data = result.data.result;
+                                                                                                                                                                                                                                                                                                                                                        return {
+                                                                                                                                                                                                                                                                                                                                                            regionId: data.regionId,
+                                                                                                                                                                                                                                                                                                                                                            districtId: data.districtId,
+                                                                                                                                                                                                                                                                                                                                                            issuedBy: data.issuedBy,
+                                                                                                                                                                                                                                                                                                                                                            issueDate: data.startDate,
+                                                                                                                                                                                                                                                                                                                                                            gender: data.gender,
+                                                                                                                                                                                                                                                                                                                                                            birthDate: data.birthDate,
+                                                                                                                                                                                                                                                                                                                                                            address: data.address || ''
+                                                                                                                                                                                                                                                                                                                                                        };
+                                                                                                                                                                                                                                                                                                                                                    }
 
-                function validateInputs(elements) {
-                    return elements.every(el => el && el.value && el.value.trim() !== '');
-                }
+                                                                                                                                                                                                                                                                                                                                                    function validateInputs(elements) {
+                                                                                                                                                                                                                                                                                                                                                        return elements.every(el => el && el.value && el.value.trim() !== '');
+                                                                                                                                                                                                                                                                                                                                                    }
 
-                function setButtonLoading(button, loading) {
-                    if (!button) return;
+                                                                                                                                                                                                                                                                                                                                                    function setButtonLoading(button, loading) {
+                                                                                                                                                                                                                                                                                                                                                        if (!button) return;
 
-                    button.disabled = loading;
-                    button.innerHTML = loading ?
-                        '<span class="spinner-border spinner-border-sm me-2"></span>' :
-                        '<svg width="20" height="20"><use xlink:href="#icon-search"></use></svg>';
-                }
+                                                                                                                                                                                                                                                                                                                                                        button.disabled = loading;
+                                                                                                                                                                                                                                                                                                                                                        button.innerHTML = loading ?
+                                                                                                                                                                                                                                                                                                                                                            '<span class="spinner-border spinner-border-sm me-2"></span>' :
+                                                                                                                                                                                                                                                                                                                                                            '<svg width="20" height="20"><use xlink:href="#icon-search"></use></svg>';
+                                                                                                                                                                                                                                                                                                                                                    }
 
-                function showSection(elementId) {
-                    const element = document.getElementById(elementId);
-                    if (element) element.classList.remove('d-none');
-                }
+                                                                                                                                                                                                                                                                                                                                                    function showSection(elementId) {
+                                                                                                                                                                                                                                                                                                                                                        const element = document.getElementById(elementId);
+                                                                                                                                                                                                                                                                                                                                                        if (element) element.classList.remove('d-none');
+                                                                                                                                                                                                                                                                                                                                                    }
 
-                function hideSection(elementId) {
-                    const element = document.getElementById(elementId);
-                    if (element) element.classList.add('d-none');
-                }
+                                                                                                                                                                                                                                                                                                                                                    function hideSection(elementId) {
+                                                                                                                                                                                                                                                                                                                                                        const element = document.getElementById(elementId);
+                                                                                                                                                                                                                                                                                                                                                        if (element) element.classList.add('d-none');
+                                                                                                                                                                                                                                                                                                                                                    }
 
-                function scrollToElement(elementId) {
-                    const element = document.getElementById(elementId);
-                    if (element) {
-                        element.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'nearest'
-                        });
-                    }
-                }
+                                                                                                                                                                                                                                                                                                                                                    function scrollToElement(elementId) {
+                                                                                                                                                                                                                                                                                                                                                        const element = document.getElementById(elementId);
+                                                                                                                                                                                                                                                                                                                                                        if (element) {
+                                                                                                                                                                                                                                                                                                                                                            element.scrollIntoView({
+                                                                                                                                                                                                                                                                                                                                                                behavior: 'smooth',
+                                                                                                                                                                                                                                                                                                                                                                block: 'nearest'
+                                                                                                                                                                                                                                                                                                                                                            });
+                                                                                                                                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                                                                                                                    }
 
-                function updateElement(elementId, value) {
-                    const element = document.getElementById(elementId);
-                    if (element) element.innerHTML = value;
-                }
+                                                                                                                                                                                                                                                                                                                                                    function updateElement(elementId, value) {
+                                                                                                                                                                                                                                                                                                                                                        const element = document.getElementById(elementId);
+                                                                                                                                                                                                                                                                                                                                                        if (element) element.innerHTML = value;
+                                                                                                                                                                                                                                                                                                                                                    }
 
-                function formatCurrency(amount) {
-                    return amount.toLocaleString('en-US', {
-                        minimumFractionDigits: 2
-                    });
-                }
+                                                                                                                                                                                                                                                                                                                                                    function formatCurrency(amount) {
+                                                                                                                                                                                                                                                                                                                                                        return amount.toLocaleString('en-US', {
+                                                                                                                                                                                                                                                                                                                                                            minimumFractionDigits: 2
+                                                                                                                                                                                                                                                                                                                                                        });
+                                                                                                                                                                                                                                                                                                                                                    }
 
-                // Delete driver handler
-                document.addEventListener('click', function(e) {
-                    const button = e.target.closest('.btn-danger[data-target]');
-                    if (button) {
-                        const targetId = button.getAttribute('data-target');
-                        if (confirm('Haydovchini o\'chirmoqchimisiz?')) {
-                            const card = document.querySelector(`.card-footer[data-id="${targetId}"]`);
-                            if (card) {
-                                card.remove();
-                                calculatePolicy(); // Recalculate after removing driver
-                            }
-                        }
-                    }
-                });
-            });
-        </script>
-    @endpush
-@endsection
+                                                                                                                                                                                                                                                                                                                                                    // Delete driver handler
+                                                                                                                                                                                                                                                                                                                                                    document.addEventListener('click', function(e) {
+                                                                                                                                                                                                                                                                                                                                                        const button = e.target.closest('.btn-danger[data-target]');
+                                                                                                                                                                                                                                                                                                                                                        if (button) {
+                                                                                                                                                                                                                                                                                                                                                            const targetId = button.getAttribute('data-target');
+                                                                                                                                                                                                                                                                                                                                                            if (confirm('Haydovchini o\'chirmoqchimisiz?')) {
+                                                                                                                                                                                                                                                                                                                                                                const card = document.querySelector(`.card-footer[data-id="${targetId}"]`);
+                                                                                                                                                                                                                                                                                                                                                                if (card) {
+                                                                                                                                                                                                                                                                                                                                                                    card.remove();
+                                                                                                                                                                                                                                                                                                                                                                    calculatePolicy(); // Recalculate after removing driver
+                                                                                                                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                                                                                                            }
+                                                                                                                                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                                                                                                                    });
+                                                                                                                                                                                                                                                                                                                                                });
+                                                                                                                                                                                                                                                                                                                                            </script>
+                                                                                                                                                                                                                                                                                                                                        @endpush
+                                                                                                                                                                                                                                                                                                                                    @endsection

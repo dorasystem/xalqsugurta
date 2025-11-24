@@ -5,7 +5,7 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-        container_name: impex-insurance-app
+        container_name: xalqsugurta-app
         restart: unless-stopped
         working_dir: /var/www/html
         volumes:
@@ -22,7 +22,7 @@ services:
 
     nginx:
         image: nginx:alpine
-        container_name: impex-insurance-nginx
+        container_name: xalqsugurta-nginx
         restart: unless-stopped
         ports:
             - "8080:80"
@@ -36,7 +36,7 @@ services:
 
     mysql:
         image: mysql:8.0
-        container_name: impex-insurance-mysql
+        container_name: xalqsugurta-mysql
         restart: unless-stopped
         environment:
             MYSQL_ROOT_PASSWORD: rootpassword123
@@ -53,7 +53,7 @@ services:
 
     redis:
         image: redis:7-alpine
-        container_name: impex-insurance-redis
+        container_name: xalqsugurta-redis
         restart: unless-stopped
         ports:
             - "6379:6379"
@@ -65,7 +65,7 @@ services:
 
     phpmyadmin:
         image: phpmyadmin/phpmyadmin
-        container_name: impex-insurance-phpmyadmin
+        container_name: xalqsugurta-phpmyadmin
         restart: unless-stopped
         environment:
             PMA_HOST: mysql
@@ -81,7 +81,7 @@ services:
 
     redis-commander:
         image: rediscommander/redis-commander:latest
-        container_name: impex-insurance-redis-commander
+        container_name: xalqsugurta-redis-commander
         restart: unless-stopped
         environment:
             REDIS_HOSTS: local:redis:6379
