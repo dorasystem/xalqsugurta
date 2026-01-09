@@ -376,7 +376,7 @@
                 const storageForm = document.getElementById('storage-form');
                 storageForm.addEventListener('submit', function(e) {
                     confirmBtn.innerHTML =
-                        '<span class="spinner-border spinner-border-sm me-2"></span>{{ __('messages.creating_order') }}';
+                        '<span class="spinner-border spinner-border-sm me-2"></span>';
                     confirmBtn.disabled = true;
                 });
 
