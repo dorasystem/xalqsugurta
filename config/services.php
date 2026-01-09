@@ -55,7 +55,9 @@ return [
     'insurance' => [
         'agency_id' => env('INSURANCE_AGENCY_ID', 28),
         'osago' => [
-            'endpoint' => env('INSURANCE_OSAGO_ENDPOINT', 'https://impex-insurance.uz/api/osago/contract/add'),
+            'endpoint' => env('INSURANCE_OSAGO_ENDPOINT', 'http://online.xalqsugurta.uz/xs/ins/doraosago/create'),
+            'username' => env('INSURANCE_OSAGO_USERNAME'),
+            'password' => env('INSURANCE_OSAGO_PASSWORD'),
             'timeout' => env('INSURANCE_OSAGO_TIMEOUT', 10),
             'retries' => env('INSURANCE_OSAGO_RETRIES', 3),
         ],

@@ -143,6 +143,9 @@ return [
 
     'osago' => [
         'product_name' => 'OSAGO Insurance',
+        'page_title' => 'MTPL - Application Details',
+        'subtitle' => 'Review and confirm application details',
+        'applicant_info' => 'Applicant Information',
         'owner_info' => 'Vehicle Owner Information',
         'vehicle_info' => 'Vehicle Information',
         'applicantIsOwner' => 'Applicant is owner',
@@ -156,6 +159,9 @@ return [
         'vehicle_registrationInfo' => 'Registration certificate',
 
         'insurance_amount' => 'Insurance Amount',
+        'sum_insured' => 'Sum Insured',
+        'insurance_premium' => 'Insurance Premium',
+        'insurance_info' => 'Insurance Information',
         'driver_limit' => 'Driver Limit',
         'limited_drivers' => 'Limited Drivers',
         'unlimited_drivers' => 'Unlimited Drivers',
@@ -186,5 +192,27 @@ return [
         'address' => 'Birth place',
         'note' => 'NOTE!',
         'note_text' => 'If the right to drive a motor vehicle is provided by power of attorney, the data of the person to whom the right is granted by power of attorney must also be entered as the driver.',
-    ]
+    ],
+
+    'payment' => [
+        'page_title' => 'MTPL Insurance Payment',
+        'title' => 'MTPL Insurance Payment',
+        'subtitle' => 'Make insurance payment',
+        'order_info' => 'Order Information',
+        'order_number' => 'Order Number',
+        'product' => 'Product',
+        'phone' => 'Phone',
+        'insurance_id' => 'Insurance ID',
+        'status' => 'Status',
+        'date' => 'Date',
+        'select_payment_method' => 'Select Payment Method',
+        'bank_cards_payment' => 'Pay with bank cards (Uzcard, Humo)',
+        'payment_amount' => 'Payment Amount',
+        'insurance_premium' => 'Insurance Premium',
+        'commission' => 'Commission',
+        'total' => 'Total',
+        'secure_payment' => 'Secure Payment',
+        'ssl_encrypted' => 'Payment is protected by SSL encryption',
+        'back' => 'Back',
+    ],
 ];

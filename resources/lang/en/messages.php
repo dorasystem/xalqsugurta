@@ -1,4 +1,4 @@
-+<?php
+<?php
 
     return [
         'welcome' => 'Welcome',
@@ -432,5 +432,6 @@
         'kinship_array' => 'Kinship information is in incorrect format',
         'kinship_in' => 'Kinship has incorrect value',
         'invalid_driver_json' => 'Driver information is in incorrect JSON format',
+        'proceed_to_payment' => 'Proceed to Payment',
 
     ];

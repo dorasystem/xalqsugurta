@@ -12,7 +12,6 @@ use App\Services\OsagoPriceCalculator;
 use App\Traits\HandlesInsuranceErrors;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Log;
 
 final class OsagoController extends Controller
 {
@@ -54,6 +53,7 @@ final class OsagoController extends Controller
         }
 
         $applicationData = session('osago_application_data');
+
         return view('pages.insurence.osago.application', [
             'data' => $applicationData,
         ]);
@@ -68,20 +68,6 @@ final class OsagoController extends Controller
 
             $applicationData = session('osago_application_data');
 
-            Log::info('OSAGO storage: Processing application', [
-                'has_application_data' => !empty($applicationData),
-            ]);
-
-            // Validate required keys exist
-            $requiredKeys = ['applicant', 'owner', 'details', 'cost', 'vehicle', 'drivers', 'govNumber', 'insurancePremium'];
-            foreach ($requiredKeys as $key) {
-                if (!isset($applicationData[$key])) {
-                    Log::error("OSAGO storage: Missing required key: {$key}");
-                    return $this->handleValidationError(__('errors.insurance.invalid_session_data'));
-                }
-            }
-
-            // Create DTO from session data
             $dataDTO = new OsagoApplicationData(
                 applicant: $applicationData['applicant'],
                 owner: $applicationData['owner'],
@@ -89,13 +75,9 @@ final class OsagoController extends Controller
                 cost: $applicationData['cost'],
                 vehicle: $applicationData['vehicle'],
                 drivers: $applicationData['drivers'],
-                govNumber: $applicationData['govNumber'],
-                insurancePremium: $applicationData['insurancePremium'],
             );
 
-            // Send data to API using service
-            $requestData = $dataDTO->toApiFormat();
-            $result = $this->apiService->sendApplication($requestData);
+            $result = $this->apiService->sendApplication($dataDTO->toApiFormat());
 
             if (!$result['success']) {
                 return back()
@@ -103,68 +85,33 @@ final class OsagoController extends Controller
                     ->withInput();
             }
 
-            $apiResponse = $result['data'] ?? null;
+            $apiResponse = $result['data'];
+            $uuid = $apiResponse['UUID'] ?? $result['uuid'] ?? null;
+            $finalAmount = $apiResponse['amount'] ?? $applicationData['cost']['insurancePremium'] ?? 0;
+            $paymeUrl = $apiResponse['payme_url'] ?? null;
+            $clickUrl = $apiResponse['click_url'] ?? null;
 
-            Log::info('OSAGO storage: Creating order', [
-                'has_api_response' => !empty($apiResponse),
-            ]);
-
-            // SECURITY: Re-verify price on final submission
-            $finalPriceCheck = $this->priceCalculator->verifyPrice(
-                submittedAmount: $applicationData['insurancePremium'],
-                govNumber: $applicationData['govNumber'],
-                vehicleTypeId: $applicationData['vehicle']['typeId'],
-                period: $applicationData['cost']['contractTermConclusionId'],
-                driverLimit: $applicationData['details']['driverNumberRestriction'] ? 'limited' : 'unlimited',
-                tolerance: 100
-            );
-
-            if (!$finalPriceCheck) {
-                Log::warning('OSAGO final price verification failed', [
-                    'submitted' => $applicationData['insurancePremium'],
-                    'session_data' => $applicationData,
-                    'ip' => request()->ip(),
-                ]);
-
-                // Recalculate correct price
-                $correctPrice = $this->priceCalculator->calculate(
-                    govNumber: $applicationData['govNumber'],
-                    vehicleTypeId: $applicationData['vehicle']['typeId'],
-                    period: $applicationData['cost']['contractTermConclusionId'],
-                    driverLimit: $applicationData['details']['driverNumberRestriction'] ? 'limited' : 'unlimited'
-                );
-
-                // Use server-calculated price
-                $applicationData['insurancePremium'] = $correctPrice['amount'];
-                $applicationData['cost']['insurancePremium'] = $correctPrice['amount'];
-                $applicationData['cost']['insurancePremiumPaidToInsurer'] = $correctPrice['amount'];
-            }
-
-            // Create order
-            $orderData = [
+            $order = $this->orderService->createOrder([
                 'product_name' => __('insurance.osago.product_name'),
-                'amount' => $applicationData['insurancePremium'] ?? 0,
+                'amount' => $finalAmount,
                 'state' => 0,
-                'insurance_id' => $apiResponse['response']['result']['uuid'] ?? uniqid('osago_'),
+                'insurance_id' => $uuid ?? uniqid('osago_'),
                 'phone' => $applicationData['applicant']['person']['phoneNumber'] ?? null,
                 'insurances_data' => $applicationData,
                 'insurances_response_data' => $apiResponse,
+                'payme_url' => $paymeUrl,
+                'click_url' => $clickUrl,
                 'status' => Order::STATUS_NEW,
                 'contractStartDate' => data_get($applicationData, 'details.startDate'),
                 'contractEndDate' => data_get($applicationData, 'details.endDate'),
                 'insuranceProductName' => __('insurance.osago.product_name'),
-            ];
+            ]);
 
-            $order = $this->orderService->createOrder($orderData);
-
-            Log::info('OSAGO storage: Order created successfully', ['order_id' => $order->id]);
-
-            // Clear session data after successful order creation
-            session()->forget(['osago_application_data']);
+            // session()->forget(['osago_application_data']);
 
             return $this->redirectWithSuccess(
-                'payment.show',
-                ['locale' => getCurrentLocale(), 'orderId' => $order->id],
+                'osago.payment',
+                ['locale' => getCurrentLocale(), 'order' => $order->id],
                 __('success.insurance.order_created')
             );
         } catch (\Exception $e) {
@@ -174,6 +121,9 @@ final class OsagoController extends Controller
 
     public function payment($lang, Order $order): View
     {
-        return view('pages.insurence.payment', compact('order'));
+        $paymeUrl = $order->payme_url ?? $order->insurances_response_data['payme_url'] ?? null;
+        $clickUrl = $order->click_url ?? $order->insurances_response_data['click_url'] ?? null;
+
+        return view('pages.insurence.osago.payment', compact('order', 'paymeUrl', 'clickUrl'));
     }
 }

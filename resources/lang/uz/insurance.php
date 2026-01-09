@@ -144,6 +144,9 @@ return [
 
     'osago' => [
         'product_name' => 'OSAGO sug\'urtasi',
+        'page_title' => 'OSAGO - Ariza ma\'lumotlari',
+        'subtitle' => 'Ariza ma\'lumotlarini tekshirib, tasdiqlang',
+        'applicant_info' => 'Ariza Beruvchi Ma\'lumotlari',
         'owner_info' => 'Avtomobil egasi ma\'lumotlari',
         'vehicle_info' => 'Avtomobil ma\'lumotlari',
         'applicantIsOwner' => 'Ariza beruvchi egasi',
@@ -157,6 +160,9 @@ return [
         'vehicle_registrationInfo' => 'Registratsiya ma\'lumotlari',
 
         'insurance_amount' => 'Sug\'urta summasi',
+        'sum_insured' => 'Sug\'urta summasi',
+        'insurance_premium' => 'Sug\'urta mukofoti',
+        'insurance_info' => 'Sug\'urta Ma\'lumotlari',
         'driver_limit' => 'Haydovchilar soni',
         'limited_drivers' => 'Cheklangan haydovchilar',
         'unlimited_drivers' => 'Cheklanmadagi haydovchilar',
@@ -165,7 +171,7 @@ return [
         '6_month' => '6 oy',
         '3_month' => '3 oy',
 
-        'driver_info' => 'haydovchi ma\'lumotlari',
+        'driver_info' => 'Haydovchilar ma\'lumotlari',
         'full_name' => 'To\'liq ism',
         'birth_date' => 'Tug\'ulgan sana',
         'license_info' => 'Haydovchilik guvohnoma ma\'lumotlari',
@@ -187,5 +193,27 @@ return [
         'address' => 'Tug\'ulgan joyi',
         'note' => 'ESLATMA!',
         'note_text' => 'Avtotransport vositasini boshqarish huquqi ishonchnoma bilan ta\'minlangan bo\'lsa, haydovchi sifatida ishonchnoma bo\'yicha huquq berilgan shaxsning ma\'lumotlari ham kiritilishi kerak.'
-    ]
+    ],
+
+    'payment' => [
+        'page_title' => 'OSAGO Sug\'urta To\'lovi',
+        'title' => 'OSAGO Sug\'urta To\'lovi',
+        'subtitle' => 'Sug\'urta to\'lovini amalga oshiring',
+        'order_info' => 'Buyurtma ma\'lumotlari',
+        'order_number' => 'Buyurtma raqami',
+        'product' => 'Mahsulot',
+        'phone' => 'Telefon',
+        'insurance_id' => 'Sug\'urta ID',
+        'status' => 'Holat',
+        'date' => 'Sana',
+        'select_payment_method' => 'To\'lov usulini tanlang',
+        'bank_cards_payment' => 'Bank kartalari orqali to\'lash (Uzcard, Humo)',
+        'payment_amount' => 'To\'lov summasi',
+        'insurance_premium' => 'Sug\'urta mukofoti',
+        'commission' => 'Komissiya',
+        'total' => 'Jami',
+        'secure_payment' => 'Xavfsiz to\'lov',
+        'ssl_encrypted' => 'To\'lov SSL shifrlash orqali himoyalangan',
+        'back' => 'Orqaga',
+    ],
 ];

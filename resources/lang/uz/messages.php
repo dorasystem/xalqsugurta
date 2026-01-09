@@ -150,7 +150,7 @@ return [
     'model' => 'Avtomobil modeli',
     'model_placeholder' => 'Camry',
     'owner_pinfl_placeholder' => '12345678910111',
-    'owner_pinfl' => 'JShShIR',
+    'owner_pinfl' => 'JSHSHIR',
 
     // Common Fields (Used by all sections)
     'passport_series' => 'Passport seriyasi',
@@ -391,8 +391,8 @@ return [
     'owner_first_name_required' => 'Eganing ismi kiritilishi shart',
     'owner_last_name_required' => 'Eganing familiyasi kiritilishi shart',
     'owner_middle_name_required' => 'Eganing otasining ismi kiritilishi shart',
-    'owner_pinfl_required' => 'Eganing JShShIR raqami kiritilishi shart',
-    'owner_pinfl_digits' => 'JShShIR 14 ta raqamdan iborat bo\'lishi kerak',
+    'owner_pinfl_required' => 'Eganing JSHSHIR raqami kiritilishi shart',
+    'owner_pinfl_digits' => 'JSHSHIR 14 ta raqamdan iborat bo\'lishi kerak',
     'owner_passport_series_required' => 'Eganing passport seriyasi kiritilishi shart',
     'owner_passport_series_length' => 'Passport seriyasi 2 ta belgidan iborat bo\'lishi kerak',
     'owner_passport_number_required' => 'Eganing passport raqami kiritilishi shart',
@@ -431,5 +431,6 @@ return [
     'kinship_array' => 'Qarindoshlik ma\'lumotlari noto\'g\'ri formatda',
     'kinship_in' => 'Qarindoshlik noto\'g\'ri qiymatga ega',
     'invalid_driver_json' => 'Haydovchi ma\'lumotlari noto\'g\'ri JSON formatda',
+    'proceed_to_payment' => 'To\'lovga O\'tish',
 
 ];

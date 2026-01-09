@@ -13,34 +13,57 @@ namespace App\Services;
 final class OsagoPriceCalculator
 {
     // Base insurance amount (40 million UZS)
-    private const INSURANCE_AMOUNT = 40000000;
+    private const INSURANCE_AMOUNT = 80000000;
 
     // Default premium if calculation fails
-    private const DEFAULT_AMOUNT = 168000;
+    private const DEFAULT_AMOUNT = 384000;
 
-    // Region coefficients
-    private const REGION_TASHKENT = 1.4;
-    private const REGION_OTHER = 1.2;
+    // Region coefficients (КТ - Territory coefficient)
+    // According to new regulations 2026: Toshkent shahri va viloyati = 1.2, Boshqalar = 1.0
+    private const REGION_TASHKENT = 1.2;
+    private const REGION_OTHER = 1.0;
 
-    // Vehicle type coefficients
+    // Vehicle type coefficients (ТБ - Annual base rate)
+    // According to new regulations 2026:
+    // 1. Yengil avtomobillar: 0.2
+    // 2. Yuk avtomobillari: 0.35
+    // 3. Avtobuslar va mikroavtobuslar: 0.4
+    // 4. Tramvaylar, mototsikllar: 0.075
     private const VEHICLE_TYPES = [
-        1 => 0.1,   // Passenger cars
-        2 => 0.1,   // Passenger cars
-        6 => 0.12,  // Cargo vehicles
-        9 => 0.12,  // Buses
-        15 => 0.04, // Motorcycles
+        1 => 0.2,    // Yengil avtomobillar (was 0.1)
+        2 => 0.2,    // Yengil avtomobillar (was 0.1)
+        6 => 0.35,   // Yuk avtomobillari (was 0.12)
+        9 => 0.4,    // Avtobuslar va mikroavtobuslar (was 0.12)
+        15 => 0.075, // Tramvaylar, mototsikllar (was 0.04)
     ];
 
-    // Period multipliers
+    // Period multipliers (КС - Seasonal coefficient)
     private const PERIOD_MULTIPLIERS = [
         '1' => 1.0,    // 12 months
         '0.7' => 0.7,  // 6 months
-        '0.4' => 0.4,  // 3 months
+        '0.4' => 0.4,  // 3 months (not in new regulations, but kept for compatibility)
     ];
 
-    // Driver limit multipliers
-    private const DRIVER_UNLIMITED = 3;
+    // Driver limit multipliers (КБО - Driver restriction coefficient)
+    // According to new regulations 2026: Unlimited = 2, Limited = 1
+    private const DRIVER_UNLIMITED = 2;  // Changed from 3 to 2
     private const DRIVER_LIMITED = 1;
+
+    // КБМ - Accident history coefficient (for limited drivers)
+    // O'tgan 12 oy davomida sug'urta hodisalari
+    private const ACCIDENT_COEF_NO_ACCIDENTS = 1.0;      // Birinchi marta yoki hodisa yo'q
+    private const ACCIDENT_COEF_ONE_ACCIDENT = 1.3;      // 1 hodisa
+    private const ACCIDENT_COEF_TWO_ACCIDENTS = 2.0;    // 2 hodisa
+    private const ACCIDENT_COEF_THREE_OR_MORE = 3.0;   // 3 va undan ko'p
+
+    // КВ - Driver experience coefficient (always 1.0)
+    private const EXPERIENCE_COEF = 1.0;
+
+    // КН - Violation coefficient (always 1.0)
+    private const VIOLATION_COEF = 1.0;
+
+    // КВЗ - Driver age coefficient (always 1.0)
+    private const AGE_COEF = 1.0;
 
     /**
      * Calculate OSAGO insurance premium
@@ -66,14 +89,24 @@ final class OsagoPriceCalculator
         // Get vehicle type coefficient
         $vehicleCoef = $this->getVehicleTypeCoefficient($vehicleTypeId);
 
-        // Get period multiplier
+        // Get period multiplier (КС - Seasonal coefficient)
         $periodMultiplier = $this->getPeriodMultiplier($period);
 
-        // Get driver limit multiplier
+        // Get driver limit multiplier (КБО - Driver restriction coefficient)
         $driverMultiplier = $this->getDriverLimitMultiplier($driverLimit);
 
-        // Calculate premium: (vehicleCoef * regionCoef * periodMultiplier * driverMultiplier * INSURANCE_AMOUNT) / 100
-        $calculatedAmount = ($vehicleCoef * $regionCoef * $periodMultiplier * $driverMultiplier * self::INSURANCE_AMOUNT) / 100;
+        // Calculate premium according to new 2026 regulations
+        if ($driverLimit === 'unlimited') {
+            // Unlimited drivers: ПР = СС х ТБ х КТ х КБО х КС / 100
+            // For 12 months: КС = 1.0, so: ПР = СС х ТБ х КТ х КБО / 100
+            $calculatedAmount = (self::INSURANCE_AMOUNT * $vehicleCoef * $regionCoef * $driverMultiplier * $periodMultiplier) / 100;
+        } else {
+            // Limited drivers: ПР = СС х ТБ х КТ х КБМ х КВ х КС х КН х КВЗ / 100
+            // КВ, КН, КВЗ are always 1.0, so simplified: ПР = СС х ТБ х КТ х КБМ х КС / 100
+            // For now, КБМ = 1.0 (no accidents) - can be extended later
+            $accidentCoef = self::ACCIDENT_COEF_NO_ACCIDENTS;
+            $calculatedAmount = (self::INSURANCE_AMOUNT * $vehicleCoef * $regionCoef * $accidentCoef * self::EXPERIENCE_COEF * $periodMultiplier * self::VIOLATION_COEF * self::AGE_COEF) / 100;
+        }
 
         // Round and ensure minimum amount
         $amount = (int) round($calculatedAmount);

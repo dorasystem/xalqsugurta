@@ -1011,7 +1011,7 @@
             if (window.vehicleData && window.vehicleData.vehicleTypeId) {
                 switch (window.vehicleData.vehicleTypeId) {
                     case 2:
-                        vehicleTypeC = 0.1; // Passenger car
+                        vehicleTypeC = 0.2; // Passenger car
                         break;
                     case 6:
                         vehicleTypeC = 0.12; // Truck

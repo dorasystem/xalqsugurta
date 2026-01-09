@@ -34,6 +34,7 @@ class PersonInfoController extends Controller
 
         $response = $this->sendRequest('/api/provider/pinfl-v2', $data);
 
+
         // $response = Http::post('https://impex-insurance.uz/api/fetch-person-pinfl-v2', $data);
 
         if ($response->failed()) {
@@ -43,6 +44,12 @@ class PersonInfoController extends Controller
                 'message' => $response->json(),
                 'inputs' => $request->all()
             ]);
+        }
+
+        $responseData = $response->json();
+
+        if (isset($responseData['result'])) {
+            session(['osago_person_info' => $responseData['result']]);
         }
 
         return response()->json([
@@ -62,8 +69,6 @@ class PersonInfoController extends Controller
             'birthDate' => $personData['birthDate'],
             'transactionId' => now()->timestamp,
         ];
-
-        dd($data);
 
         $response = $this->sendRequest('/api/provider/passport-birth-date-v2', $data);
         // $response = Http::post('https://impex-insurance.uz/api/fetch-brith-date-v2', $data);

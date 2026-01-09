@@ -28,8 +28,8 @@
             <x-inputs.input_info :class="'col-md-4'" :idFor="'insurance-middle-name'" :name="'owner[middleName]'" :label="'messages.middle_name'"
                 :placeholder="'messages.middle_name_placeholder'" />
 
+            {{-- Owner infos will be loaded from session (PersonInfoController) --}}
             <input type="hidden" id="owner-address" name="owner[address]" value="{{ old('owner.address') }}">
-            <input type="hidden" id="owner-infos" name="owner[infos]" value="{{ old('owner.infos') }}">
         </div>
     </div>
 </div>

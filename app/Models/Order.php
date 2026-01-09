@@ -18,6 +18,8 @@ class Order extends Model
         'phone',
         'insurances_data',
         'insurances_response_data',
+        'payme_url',
+        'click_url',
         'status',
         'contractStartDate',
         'contractEndDate',

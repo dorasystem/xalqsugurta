@@ -31,7 +31,7 @@ final class InsuranceApiService
         ?int $timeout = null,
         ?int $retries = null
     ) {
-        $this->endpoint = $endpoint ?? (string) config('services.insurance.osago.endpoint', 'https://impex-insurance.uz/api/osago/contract/add');
+        $this->endpoint = $endpoint ?? (string) config('services.insurance.osago.endpoint', 'http://online.xalqsugurta.uz/xs/ins/doraosago/create');
         $this->productType = strtoupper($productType ?? 'OSAGO');
         $this->headers = $headers;
         $this->timeout = $timeout ?? (int) config('services.insurance.osago.timeout', 10);
@@ -54,72 +54,46 @@ final class InsuranceApiService
             $start = microtime(true);
 
             try {
-                Log::info("Sending {$this->productType} application to API", [
-                    'endpoint' => $this->endpoint,
-                    'attempt' => $attempt,
-                    'timeout' => $this->timeout,
-                    'payload' => $data,
-                ]);
-
                 $request = Http::timeout($this->timeout);
+
+                if ($this->productType === 'OSAGO') {
+                    $username = config('services.insurance.osago.username');
+                    $password = config('services.insurance.osago.password');
+                    if ($username && $password) {
+                        $request = $request->withBasicAuth($username, $password);
+                    }
+                }
+
                 if (!empty($this->headers)) {
                     $request = $request->withHeaders($this->headers);
                 }
 
                 $response = $request->post($this->endpoint, $data);
-                $durationMs = (int) round((microtime(true) - $start) * 1000);
-                $json = $response->json();
+                $result = $this->standardizeResponse($response->json(), $response->status());
 
-                Log::info("{$this->productType} API response", [
-                    'endpoint' => $this->endpoint,
-                    'attempt' => $attempt,
-                    'status' => $response->status(),
-                    'duration_ms' => $durationMs,
-                    'response' => $json,
-                ]);
-
-                $result = $this->standardizeResponse($json, $response->status());
-                if ($result['success'] === true) {
+                if ($result['success']) {
                     return $result;
                 }
 
                 $lastError = $result['error'];
 
-                // No retry for non-429 client errors (validation etc.)
                 if ($response->clientError() && $response->status() !== 429) {
                     break;
                 }
             } catch (RequestException | ConnectionException $e) {
-                $durationMs = (int) round((microtime(true) - $start) * 1000);
-                Log::warning("{$this->productType} API network/request error", [
-                    'endpoint' => $this->endpoint,
-                    'attempt' => $attempt,
-                    'duration_ms' => $durationMs,
-                    'exception' => get_class($e),
-                    'message' => $e->getMessage(),
-                ]);
                 $lastError = $e->getMessage();
             } catch (\Throwable $e) {
-                $durationMs = (int) round((microtime(true) - $start) * 1000);
-                Log::error("{$this->productType} API unexpected error", [
+                Log::error("{$this->productType} API error", [
                     'endpoint' => $this->endpoint,
                     'attempt' => $attempt,
-                    'duration_ms' => $durationMs,
                     'exception' => get_class($e),
                     'message' => $e->getMessage(),
                 ]);
                 $lastError = $e->getMessage();
             }
 
-            // Exponential backoff before next attempt
             if ($attempt < $this->retries) {
-                $backoffMs = (int) (200 * (2 ** ($attempt - 1))); // 200ms, 400ms, 800ms, ...
-                Log::warning("{$this->productType} API retrying", [
-                    'endpoint' => $this->endpoint,
-                    'next_delay_ms' => $backoffMs,
-                    'attempt' => $attempt + 1,
-                ]);
-                usleep($backoffMs * 1000);
+                usleep((int) (200 * (2 ** ($attempt - 1))) * 1000);
             }
         }
 
@@ -146,7 +120,7 @@ final class InsuranceApiService
     private function standardizeResponse(?array $json, int $httpStatus): array
     {
         $json = $json ?? [];
-        $statusOk = ($json['status'] ?? null) === 200;
+        $statusOk = $httpStatus === 200;
         $apiError = data_get($json, 'response.error');
         $uuid = null;
 
@@ -163,9 +137,12 @@ final class InsuranceApiService
                 ];
             }
         } else {
-            // Default OSAGO path
-            $uuid = data_get($json, 'response.result.uuid') ?? data_get($json, 'response.result.contractUuid');
-            if ($statusOk && $apiError === 0 && !empty($uuid)) {
+            // OSAGO path - new API format
+            // Success when: result === 0 and UUID exists
+            $result = $json['result'] ?? null;
+            $uuid = $json['UUID'] ?? data_get($json, 'response.result.uuid') ?? data_get($json, 'response.result.contractUuid');
+
+            if ($result === 0 && !empty($uuid)) {
                 return [
                     'success' => true,
                     'data' => $json,
@@ -175,7 +152,8 @@ final class InsuranceApiService
             }
         }
 
-        $errorMessage = data_get($json, 'response.error_message');
+        // Try different error message locations
+        $errorMessage = $json['result_message'] ?? data_get($json, 'response.error_message');
         $errorsArray = data_get($json, 'response.result');
         $errorOut = $errorsArray ?? $errorMessage ?? "Insurance API returned an error (HTTP {$httpStatus}).";
 

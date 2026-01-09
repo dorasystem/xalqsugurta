@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', __('insurance.accident.page_title'))
+@section('title', __('insurance.osago.page_title'))
 
 @push('styles')
     <link href="{{ asset('assets/css/form.css') }}" rel="stylesheet">
@@ -9,11 +9,10 @@
     <x-insurence.steps :activeStep="2" />
     <section class="container-fluid product-page py-4">
         <div class="container">
-            {{-- Error Messages --}}
             @if (session('error'))
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <i class="fas fa-exclamation-circle me-2"></i>
-                    <strong>{{ __('insurance.accident.errors.error') }}</strong> {{ session('error') }}
+                    <strong>{{ __('errors.error') }}</strong> {{ session('error') }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
@@ -21,7 +20,7 @@
             @if ($errors->any())
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     <i class="fas fa-exclamation-circle me-2"></i>
-                    <strong>{{ __('insurance.accident.errors.errors_title') }}</strong>
+                    <strong>{{ __('errors.errors_title') }}</strong>
                     <ul class="mb-0 mt-2">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -39,9 +38,9 @@
                                 <div>
                                     <h3 class="card-title mb-0">
                                         <i class="fas fa-file-alt"></i>
-                                        {{ __('insurance.accident.title') }}
+                                        {{ __('insurance.osago.page_title') }}
                                     </h3>
-                                    <p class="text-muted mb-0">{{ __('insurance.accident.subtitle') }}</p>
+                                    <p class="text-muted mb-0">{{ __('insurance.osago.subtitle') }}</p>
                                 </div>
                             </div>
                         </div>
@@ -51,34 +50,27 @@
                             <div class="row mb-4">
                                 <h5 class="border-bottom pb-2 mb-3">
                                     <i class="fas fa-user text-primary"></i>
-                                    {{ __('insurance.accident.applicant_info') }}
+                                    {{ __('insurance.osago.applicant_info') }}
                                 </h5>
                                 <div class="col-md-6">
                                     <table class="table table-bordered table-sm h-100">
                                         <tbody>
                                             <tr>
                                                 <td class="fw-bold bg-light" style="width: 40%;">
-                                                    {{ __('insurance.accident.fields.last_name') }}</td>
-                                                <td>{{ $data['applicant']['person']['fullName']['lastname'] ?? __('insurance.accident.not_specified') }}
-                                                </td>
+                                                    {{ __('messages.last_name') }}</td>
+                                                <td>{{ $data['applicant']['person']['fullName']['lastname'] ?? '-' }}</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">
-                                                    {{ __('insurance.accident.fields.first_name') }}</td>
-                                                <td>{{ $data['applicant']['person']['fullName']['firstname'] ?? __('insurance.accident.not_specified') }}
-                                                </td>
+                                                <td class="fw-bold bg-light">{{ __('messages.first_name') }}</td>
+                                                <td>{{ $data['applicant']['person']['fullName']['firstname'] ?? '-' }}</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">
-                                                    {{ __('insurance.accident.fields.middle_name') }}</td>
-                                                <td>{{ $data['applicant']['person']['fullName']['middlename'] ?? __('insurance.accident.not_specified') }}
-                                                </td>
+                                                <td class="fw-bold bg-light">{{ __('messages.middle_name') }}</td>
+                                                <td>{{ $data['applicant']['person']['fullName']['middlename'] ?? '-' }}</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">
-                                                    {{ __('insurance.accident.fields.passport_series') }}</td>
-                                                <td>{{ $data['applicant']['person']['passportData']['seria'] ?? __('insurance.accident.not_specified') }}
-                                                </td>
+                                                <td class="fw-bold bg-light">{{ __('messages.passport_series') }}</td>
+                                                <td>{{ $data['applicant']['person']['passportData']['seria'] ?? '-' }}</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -88,27 +80,20 @@
                                         <tbody>
                                             <tr>
                                                 <td class="fw-bold bg-light" style="width: 40%;">
-                                                    {{ __('insurance.accident.fields.passport_number') }}</td>
-                                                <td>{{ $data['applicant']['person']['passportData']['number'] ?? __('insurance.accident.not_specified') }}
-                                                </td>
+                                                    {{ __('messages.passport_number') }}</td>
+                                                <td>{{ $data['applicant']['person']['passportData']['number'] ?? '-' }}</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">
-                                                    {{ __('insurance.accident.fields.birth_date') }}</td>
-                                                <td>{{ $data['applicant']['person']['birthDate'] ?? __('insurance.accident.not_specified') }}
-                                                </td>
+                                                <td class="fw-bold bg-light">{{ __('messages.birth_date') }}</td>
+                                                <td>{{ $data['applicant']['person']['birthDate'] ?? '-' }}</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">{{ __('insurance.accident.fields.address') }}
-                                                </td>
-                                                <td>{{ $data['applicant']['address'] ?? __('insurance.accident.not_specified') }}
-                                                </td>
+                                                <td class="fw-bold bg-light">{{ __('messages.address') }}</td>
+                                                <td>{{ $data['applicant']['address'] ?? '-' }}</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">{{ __('insurance.accident.fields.phone') }}
-                                                </td>
-                                                <td>+{{ $data['applicant']['person']['phoneNumber'] ?? __('insurance.accident.not_specified') }}
-                                                </td>
+                                                <td class="fw-bold bg-light">{{ __('messages.phone_number') }}</td>
+                                                <td>{{ $data['applicant']['person']['phoneNumber'] ?? '-' }}</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -128,15 +113,16 @@
                                         <tbody>
                                             <tr>
                                                 <td class="fw-bold bg-light" style="width: 40%;">
-                                                    {{ __('insurance.accident.fields.last_name') }}</td>
-                                                <td>
-                                                    {{ $data['owner']['person']['fullName']['lastname'] }}</td>
+                                                    {{ __('messages.last_name') }}</td>
+                                                <td>{{ $data['owner']['person']['fullName']['lastname'] ?? '-' }}</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">
-                                                    {{ __('insurance.accident.fields.first_name') }}</td>
-                                                <td>{{ $data['owner']['person']['fullName']['firstname'] }}
-                                                </td>
+                                                <td class="fw-bold bg-light">{{ __('messages.first_name') }}</td>
+                                                <td>{{ $data['owner']['person']['fullName']['firstname'] ?? '-' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold bg-light">{{ __('messages.middle_name') }}</td>
+                                                <td>{{ $data['owner']['person']['fullName']['middlename'] ?? '-' }}</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -146,16 +132,9 @@
                                         <tbody>
                                             <tr>
                                                 <td class="fw-bold bg-light" style="width: 40%;">
-                                                    {{ __('insurance.accident.fields.middle_name') }}</td>
-                                                <td>{{ $data['owner']['person']['fullName']['middlename'] }}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="fw-bold bg-light">{{ __('insurance.osago.applicantIsOwner') }}
-                                                </td>
-                                                <td
-                                                    class="text-{{ $data['owner']['applicantIsOwner'] == true ? 'success' : 'danger' }} fw-bold">
-                                                    {{ $data['owner']['applicantIsOwner'] == true ? __('insurance.osago.yes_applicantIsOwner') : __('insurance.osago.no_applicantIsOwner') }}
+                                                    {{ __('insurance.osago.applicantIsOwner') }}</td>
+                                                <td class="text-{{ ($data['owner']['applicantIsOwner'] ?? 'false') === 'true' ? 'success' : 'danger' }} fw-bold">
+                                                    {{ ($data['owner']['applicantIsOwner'] ?? 'false') === 'true' ? __('insurance.osago.yes_applicantIsOwner') : __('insurance.osago.no_applicantIsOwner') }}
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -187,17 +166,9 @@
                                                 </td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">
-                                                    {{ __('insurance.osago.vehicle_number') }}</td>
-                                                <td>{{ $data['vehicle']['govNumber'] }}
-                                                </td>
+                                                <td class="fw-bold bg-light">{{ __('insurance.osago.vehicle_number') }}</td>
+                                                <td>{{ $data['vehicle']['govNumber'] ?? '-' }}</td>
                                             </tr>
-                                            {{-- <tr>
-                                                <td class="fw-bold bg-light">
-                                                    {{ __('insurance.accident.fields.passport_series') }}</td>
-                                                <td>{{ $data['insuredInfo']['seria'] ?? __('insurance.accident.not_specified') }}
-                                                </td>
-                                            </tr> --}}
                                         </tbody>
                                     </table>
                                 </div>
@@ -207,29 +178,20 @@
                                             <tr>
                                                 <td class="fw-bold bg-light" style="width: 40%;">
                                                     {{ __('insurance.osago.vehicle_bodyNumber') }}</td>
-                                                <td>{{ $data['vehicle']['bodyNumber'] }}
-                                                </td>
+                                                <td>{{ $data['vehicle']['bodyNumber'] ?? '-' }}</td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold bg-light">
                                                     {{ __('insurance.osago.vehicle_engineNumber') }}</td>
-                                                <td>{{ $data['vehicle']['engineNumber'] }}
-                                                </td>
+                                                <td>{{ $data['vehicle']['engineNumber'] ?? '-' }}</td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-bold bg-light">
-                                                    {{ __('insurance.osago.vehicle_registrationInfo') }}
-                                                </td>
-                                                <td>{{ $data['vehicle']['techPassport']['seria'] }}
-                                                    {{ $data['vehicle']['techPassport']['number'] }}
+                                                    {{ __('insurance.osago.vehicle_registrationInfo') }}</td>
+                                                <td>
+                                                    {{ ($data['vehicle']['techPassport']['seria'] ?? '') . ' ' . ($data['vehicle']['techPassport']['number'] ?? '') }}
                                                 </td>
                                             </tr>
-                                            {{-- <tr>
-                                                <td class="fw-bold bg-light">{{ __('insurance.accident.fields.phone') }}
-                                                </td>
-                                                <td>{{ $data['phone'] ?? __('insurance.accident.not_specified') }}
-                                                </td>
-                                            </tr> --}}
                                         </tbody>
                                     </table>
                                 </div>
@@ -240,7 +202,7 @@
                                 <div class="col-12">
                                     <h5 class="border-bottom pb-2 mb-3">
                                         <i class="fas fa-shield-alt text-warning"></i>
-                                        {{ __('insurance.accident.insurance_info') }}
+                                        {{ __('insurance.osago.insurance_info') }}
                                     </h5>
                                 </div>
                                 <div class="col-md-6">
@@ -248,64 +210,49 @@
                                         <tbody>
                                             <tr>
                                                 <td class="fw-bold bg-light" style="width: 40%;">
-                                                    {{ __('insurance.accident.fields.insurance_amount') }}</td>
+                                                    {{ __('insurance.osago.insurance_premium') }}</td>
                                                 <td class="text-success fw-bold">
-                                                    {{ number_format($data['cost']['insurancePremium']) }} UZS</td>
+                                                    {{ number_format($data['cost']['insurancePremium'] ?? 0) }} UZS</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">
-                                                    {{ __('insurance.accident.fields.start_date') }}</td>
-                                                <td>{{ $data['details']['startDate'] }}
-                                                </td>
+                                                <td class="fw-bold bg-light">{{ __('messages.start_date') }}</td>
+                                                <td>{{ $data['details']['startDate'] ?? '-' }}</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">
-                                                    {{ __('insurance.accident.fields.end_date') }}</td>
-                                                <td>{{ $data['details']['endDate'] }}
-                                                </td>
+                                                <td class="fw-bold bg-light">{{ __('messages.end_date') }}</td>
+                                                <td>{{ $data['details']['endDate'] ?? '-' }}</td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
                                 <div class="col-md-6">
                                     @php
-                                        if ($data['cost']['contractTermConclusionId'] == 1) {
-                                            $period = __('insurance.osago.1_year');
-                                        } elseif ($data['cost']['contractTermConclusionId'] == 0.7) {
-                                            $period = __('insurance.osago.6_month');
-                                        } elseif ($data['cost']['contractTermConclusionId'] == 0.4) {
-                                            $period = __('insurance.osago.3_month');
-                                        } else {
-                                            $period = '';
-                                        }
-
-                                        if ($data['details']['driverNumberRestriction']) {
-                                            $limit = __('insurance.osago.limited_drivers');
-                                        } else {
-                                            $limit = __('insurance.osago.unlimited_drivers');
-                                        }
+                                        $periodId = $data['cost']['contractTermConclusionId'] ?? 1;
+                                        $period = match($periodId) {
+                                            1 => __('messages.1_year'),
+                                            '0.7' => __('messages.6_months'),
+                                            '0.4' => __('messages.3_months'),
+                                            default => '-'
+                                        };
+                                        $limit = ($data['details']['driverNumberRestriction'] ?? false)
+                                            ? __('insurance.osago.limited_drivers')
+                                            : __('insurance.osago.unlimited_drivers');
                                     @endphp
                                     <table class="table table-bordered table-sm h-100">
                                         <tbody>
                                             <tr>
                                                 <td class="fw-bold bg-light" style="width: 40%;">
-                                                    {{ __('insurance.osago.insurance_amount') }}
-                                                </td>
+                                                    {{ __('insurance.osago.sum_insured') }}</td>
                                                 <td class="text-success fw-bold">
-                                                    {{ number_format($data['cost']['sumInsured']) }}</td>
+                                                    {{ number_format($data['cost']['sumInsured'] ?? 0) }} UZS</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">{{ __('insurance.osago.driver_limit') }}
-                                                </td>
-                                                <td class="fw-bold bg-light">
-                                                    {{ $limit }}
-                                                </td>
+                                                <td class="fw-bold bg-light">{{ __('insurance.osago.driver_limit') }}</td>
+                                                <td>{{ $limit }}</td>
                                             </tr>
                                             <tr>
-                                                <td class="fw-bold bg-light">{{ __('insurance.osago.insurance_period') }}
-                                                </td>
-                                                <td class="fw-bold bg-light">
-                                                    {{ $period }}</td>
+                                                <td class="fw-bold bg-light">{{ __('insurance.osago.insurance_period') }}</td>
+                                                <td>{{ $period }}</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -313,65 +260,50 @@
                             </div>
 
 
-                            @forelse ($data['drivers'] as $id => $driver)
-                                {{-- Drivers info if exist --}}
-                                <div class="row mb-4">
-                                    <div class="col-12">
-                                        <h5 class="border-bottom pb-2 mb-3">
-                                            <i class="fas fa-shield-alt text-warning"></i>
-                                            {{ $loop->iteration }} - {{ __('insurance.osago.driver_info') }}
-                                        </h5>
+                            @if (!empty($data['drivers']))
+                                @foreach ($data['drivers'] as $driver)
+                                    <div class="row mb-4">
+                                        <div class="col-12">
+                                            <h5 class="border-bottom pb-2 mb-3">
+                                                <i class="fas fa-user-tie text-info"></i>
+                                                {{ $loop->iteration }} - {{ __('insurance.osago.driver_info') }}
+                                            </h5>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <table class="table table-bordered table-sm h-100">
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="fw-bold bg-light" style="width: 40%;">
+                                                            {{ __('messages.full_name') }}</td>
+                                                        <td>
+                                                            {{ ($driver['fullName']['lastname'] ?? '') . ' ' . ($driver['fullName']['firstname'] ?? '') . ' ' . ($driver['fullName']['middlename'] ?? '') }}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-bold bg-light">{{ __('messages.birth_date') }}</td>
+                                                        <td>{{ $driver['birthDate'] ?? '-' }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="fw-bold bg-light">{{ __('insurance.osago.license_info') }}</td>
+                                                        <td>{{ ($driver['licenseSeria'] ?? '') . ' ' . ($driver['licenseNumber'] ?? '') }}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <table class="table table-bordered table-sm h-100">
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="fw-bold bg-light" style="width: 40%;">
+                                                            {{ __('insurance.osago.license_issueDate') }}</td>
+                                                        <td>{{ $driver['licenseIssueDate'] ?? '-' }}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <table class="table table-bordered table-sm h-100">
-                                            <tbody>
-                                                <tr>
-                                                    <td class="fw-bold bg-light" style="width: 40%;">
-                                                        {{ __('insurance.osago.full_name') }}</td>
-                                                    <td class="text-success fw-bold">
-                                                        {{ $driver['fullName']['lastname'] }}
-                                                        {{ $driver['fullName']['firstname'] }}
-                                                        {{ $driver['fullName']['middlename'] }}
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="fw-bold bg-light">
-                                                        {{ __('insurance.osago.birth_date') }}</td>
-                                                    <td>{{ $driver['birthDate'] }}
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="fw-bold bg-light">
-                                                        {{ __('insurance.osago.license_info') }}</td>
-                                                    <td>{{ $driver['licenseSeria'] }} {{ $driver['licenseNumber'] }}
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <table class="table table-bordered table-sm h-100">
-                                            <tbody>
-                                                <tr>
-                                                    <td class="fw-bold bg-light" style="width: 40%;">
-                                                        {{ __('insurance.osago.license_issueDate') }}
-                                                    </td>
-                                                    <td class="text-success fw-bold">
-                                                        {{ $driver['licenseIssueDate'] }}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="fw-bold bg-light">{{ __('insurance.osago.kinship_label') }}
-                                                    </td>
-                                                    <td class="fw-bold bg-light">
-                                                        {{ __("insurance.osago.kinship.{$driver['relative']}") }}
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            @empty
-                            @endforelse
+                                @endforeach
+                            @endif
 
                             {{-- Confirmation and Actions --}}
                             <div class="row">
@@ -398,13 +330,13 @@
                                             <a href="{{ route('osago.main', ['locale' => getCurrentLocale()]) }}"
                                                 class="btn btn-secondary">
                                                 <i class="fas fa-arrow-left me-2"></i>
-                                                {{ __('insurance.accident.confirmation.back') }}
+                                                {{ __('messages.back') }}
                                             </a>
 
                                             <button type="submit" class="btn btn-success" id="confirm-application"
                                                 disabled>
                                                 <i class="fas fa-check me-2"></i>
-                                                {{ __('insurance.accident.confirmation.proceed_to_payment') }}
+                                                {{ __('messages.proceed_to_payment') }}
                                             </button>
                                         </div>
                                     </form>
@@ -443,9 +375,8 @@
                 // Form submit handler
                 const storageForm = document.getElementById('storage-form');
                 storageForm.addEventListener('submit', function(e) {
-                    // Show loading state
                     confirmBtn.innerHTML =
-                        '<span class="spinner-border spinner-border-sm me-2"></span>{{ __('insurance.accident.confirmation.creating_order') }}';
+                        '<span class="spinner-border spinner-border-sm me-2"></span>{{ __('messages.creating_order') }}';
                     confirmBtn.disabled = true;
                 });
 
