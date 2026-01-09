@@ -220,6 +220,20 @@ function handleOldValues() {
     if (hasOldDriverLimit === 'limited') {
         dom.showSection('limited-drivers-info');
         dom.showSection('note');
+    } else {
+        // If no old values, check radio buttons and set initial state
+        const unlimitedRadio = document.getElementById('driver_unlimited');
+        const limitedRadio = document.getElementById('driver_limited');
+
+        if (limitedRadio && limitedRadio.checked) {
+            // If limited is checked but no old values, show the section
+            dom.showSection('limited-drivers-info');
+            dom.showSection('note');
+        } else {
+            // Default to unlimited (hide limited-drivers-info)
+            dom.hideSection('limited-drivers-info');
+            dom.hideSection('note');
+        }
     }
 
     // Recalculate policy if we have old values

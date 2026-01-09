@@ -62,14 +62,23 @@ export class DriverHandler {
             limitedDriversInfo.classList.add('d-none');
         }
 
-        // Check which radio is checked and update visibility
-        if (this.elements.unlimitedRadio && this.elements.unlimitedRadio.checked) {
-            this.handleLimitChange('unlimited');
-        } else if (this.elements.limitedRadio && this.elements.limitedRadio.checked) {
-            this.handleLimitChange('limited');
-        } else {
-            // Default to unlimited (hide limited-drivers-info)
-            this.handleLimitChange('unlimited');
+        // Set up event listeners for radio buttons
+        // Don't automatically show/hide based on radio buttons on initial load
+        // Let handleOldValues() in main.js handle initial state after DOMContentLoaded
+        if (this.elements.unlimitedRadio) {
+            this.elements.unlimitedRadio.addEventListener('change', () => {
+                if (this.elements.unlimitedRadio.checked) {
+                    this.handleLimitChange('unlimited');
+                }
+            });
+        }
+
+        if (this.elements.limitedRadio) {
+            this.elements.limitedRadio.addEventListener('change', () => {
+                if (this.elements.limitedRadio.checked) {
+                    this.handleLimitChange('limited');
+                }
+            });
         }
     }
 
@@ -77,7 +86,7 @@ export class DriverHandler {
         formState.setDriverLimit(type);
 
         if (type === 'limited') {
-            dom.showSection('limited-drivers-info');
+            // dom.showSection('limited-drivers-info');
             dom.showSection('note');
         } else {
             dom.hideSection('limited-drivers-info');

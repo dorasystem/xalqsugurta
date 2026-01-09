@@ -1,4 +1,4 @@
-<div id="policy-calculation" class="card ">
+<div id="policy-calculation" class="card d-none">
     <div class="card-header">
         <h4>{{ __('messages.policy_calculation') }}</h4>
     </div>
@@ -43,18 +43,18 @@
                 <label class="form-label">{{ __('messages.driver_limit') }}</label>
                 <div class="form-check">
                     <input class="form-check-input @error('driver_limit') is-invalid @enderror" type="radio"
-                        name="driver_limit" id="driver_limited" value="limited"
-                        {{ old('driver_limit') == 'limited' ? 'checked' : '' }}>
-                    <label class="form-check-label" for="driver_limited">
-                        {{ __('messages.limited_drivers') }}
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input @error('driver_limit') is-invalid @enderror" type="radio"
                         name="driver_limit" id="driver_unlimited" value="unlimited"
                         {{ old('driver_limit', 'unlimited') == 'unlimited' ? 'checked' : '' }}>
                     <label class="form-check-label" for="driver_unlimited">
                         {{ __('messages.unlimited_drivers') }}
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input @error('driver_limit') is-invalid @enderror" type="radio"
+                        name="driver_limit" id="driver_limited" value="limited"
+                        {{ old('driver_limit') == 'limited' ? 'checked' : '' }}>
+                    <label class="form-check-label" for="driver_limited">
+                        {{ __('messages.limited_drivers') }}
                     </label>
                 </div>
                 @error('driver_limit')

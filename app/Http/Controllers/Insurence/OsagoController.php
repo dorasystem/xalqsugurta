@@ -107,7 +107,7 @@ final class OsagoController extends Controller
                 'insuranceProductName' => __('insurance.osago.product_name'),
             ]);
 
-            // session()->forget(['osago_application_data']);
+            session()->forget(['osago_application_data']);
 
             return $this->redirectWithSuccess(
                 'osago.payment',
