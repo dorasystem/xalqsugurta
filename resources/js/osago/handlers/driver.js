@@ -86,7 +86,7 @@ export class DriverHandler {
         formState.setDriverLimit(type);
 
         if (type === 'limited') {
-            // dom.showSection('limited-drivers-info');
+            dom.showSection('limited-drivers-info');
             dom.showSection('note');
         } else {
             dom.hideSection('limited-drivers-info');
