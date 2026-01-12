@@ -434,4 +434,24 @@ return [
     'invalid_driver_json' => 'Информация о водителе в неправильном JSON формате',
     'proceed_to_payment' => 'Перейти к оплате',
 
+    // Gas Balloon Insurance - Property
+    'cadaster_info_title' => 'Кадастровые данные',
+    'cadaster_number' => 'Кадастровый номер',
+    'cadaster_format' => 'Формат: XX:XX:XX:XX:XX:XXXX',
+    'property_info_title' => 'Данные об имуществе',
+    'property_full_address' => 'Полный адрес',
+    'property_name' => 'Название имущества',
+    'property_short_address' => 'Краткий адрес',
+    'property_street' => 'Улица',
+    'property_object_type' => 'Тип объекта',
+    'property_object_view' => 'Вид объекта',
+    'property_total_area' => 'Общая площадь (м²)',
+    'property_region' => 'Область',
+    'property_district' => 'Район',
+    'property_cost' => 'Стоимость (UZS)',
+    'error_occurred' => 'Произошла ошибка',
+    'data_not_found' => 'Данные не найдены',
+    'network_error' => 'Ошибка сети',
+    'cadaster_invalid' => 'Неверный кадастровый номер',
+
 ];

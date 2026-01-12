@@ -4,16 +4,24 @@ namespace App\Http\Controllers\Insurence;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Insurence\GazApplicationRequest;
+use App\DTOs\GazApplicationData;
+use App\Models\Order;
 use App\Services\GazBallonService;
+use App\Services\OrderService;
+use App\Traits\GasInsurenceApi;
+use App\Traits\HandlesInsuranceErrors;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 
 final class GasBallonController extends Controller
 {
-    public function __construct(private readonly GazBallonService $service) {}
+    use GasInsurenceApi, HandlesInsuranceErrors;
+
+    public function __construct(
+        private readonly GazBallonService $service,
+        private readonly OrderService $orderService
+    ) {}
 
     public function main(): View
     {
@@ -27,88 +35,124 @@ final class GasBallonController extends Controller
 
     public function application(GazApplicationRequest $request): RedirectResponse
     {
-        $data = $request->validated();
+        try {
+            $data = $request->validated();
+            $owner = session('gazballon_owner_info');
+            $property = session('gazballon_property_info');
 
-        // Compute premium: sum_bank * 0.5%
-        $sumBank = (int) data_get($data, 'cost.sum_bank', 0);
-        $premium = (int) round($sumBank * 0.005);
+            if (!$owner || !$property) {
+                return back()
+                    ->withErrors(['error' => __('errors.insurance.session_expired')])
+                    ->withInput();
+            }
 
-        // Prepare final payload for initiate (store it for the storage step or call immediately)
-        $payload = $this->mapToInitiatePayload($data, $premium);
+            // Create DTO from request data
+            $applicationData = GazApplicationData::fromRequest($data, $owner, $property);
 
-        // Call API
-        $result = $this->service->initiateTransaction($payload);
+            // Send to API
+            $response = $this->sendGasRequest('InitiateTransactionRequest', $applicationData->toApiFormat());
 
-        if (!$result['success']) {
-            return back()->withErrors(['error' => $result['message'] ?? __('messages.request_error')])->withInput();
+            if ($response->failed()) {
+                $errorData = $response->json();
+                $errorMessage = is_array($errorData)
+                    ? json_encode($errorData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+                    : (string) ($errorData['message'] ?? $response->body());
+
+                Log::error('Gas balloon application: API returned error', [
+                    'status' => $response->status(),
+                    'error' => $errorData,
+                    'formatted_error' => $errorMessage,
+                ]);
+
+                return back()
+                    ->withErrors(['error' => $errorMessage])
+                    ->withInput();
+            }
+
+            $responseData = $response->json();
+
+            Log::info('Gas balloon application: API response received', [
+                'has_data' => !empty($responseData),
+                'result' => $responseData['result'] ?? null,
+            ]);
+
+            // Check if result indicates error (but 302 means transaction exists, which is acceptable)
+            $result = $responseData['result'] ?? null;
+            if ($result !== null && $result !== 0 && $result !== 302) {
+                $errorMessage = $responseData['result_message'] ?? 'API xatosi';
+                Log::error('Gas balloon application: API returned error result', [
+                    'result' => $result,
+                    'message' => $errorMessage,
+                ]);
+
+                return back()
+                    ->withErrors(['error' => $errorMessage])
+                    ->withInput();
+            }
+
+            // Extract insurance ID from polis data (polis_sery + polis_number)
+            $insuranceId = null;
+            if (isset($responseData['polis_sery']) && isset($responseData['polis_number'])) {
+                $insuranceId = $responseData['polis_sery'] . $responseData['polis_number'];
+            } else {
+                $insuranceId = $responseData['id']
+                    ?? $responseData['UUID']
+                    ?? $responseData['contract_id']
+                    ?? uniqid('gaz_');
+            }
+
+            // Extract payment URLs - polis_check might be used as payment URL
+            $paymeUrl = $responseData['payme_url'] ?? null;
+            $clickUrl = $responseData['click_url'] ?? null;
+
+            // If polis_check exists and no payment URLs, use it as fallback
+            if (!$paymeUrl && !$clickUrl && isset($responseData['polis_check'])) {
+                $clickUrl = $responseData['polis_check'];
+            }
+
+            // Extract amount from API response or use calculated premium
+            $amount = $responseData['amount']
+                ?? $responseData['insurancePremium']
+                ?? $applicationData->insurancePremium;
+
+            // Create order
+            $orderData = [
+                'product_name' => __('insurance.gas.product_name'),
+                'amount' => (int) $amount,
+                'state' => 0,
+                'insurance_id' => $insuranceId,
+                'phone' => $applicationData->customer['phone'] ?? null,
+                'insurances_data' => $applicationData->toArray(),
+                'insurances_response_data' => $responseData,
+                'payme_url' => $paymeUrl,
+                'click_url' => $clickUrl,
+                'status' => Order::STATUS_NEW,
+                'contractStartDate' => $applicationData->paymentStartDate,
+                'contractEndDate' => $applicationData->paymentEndDate,
+                'insuranceProductName' => __('insurance.gas.product_name'),
+            ];
+
+            $order = $this->orderService->createOrder($orderData);
+
+            Log::info('Gas balloon storage: Order created successfully', ['order_id' => $order->id]);
+
+            // Clear session data
+            session()->forget(['gazballon_application_data', 'gazballon_owner_info', 'gazballon_property_info']);
+
+            return $this->redirectWithSuccess(
+                'payment.show',
+                ['locale' => getCurrentLocale(), 'orderId' => $order->id],
+                __('success.insurance.order_created')
+            );
+        } catch (\Exception $e) {
+            Log::error('Gas balloon application error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return back()
+                ->withErrors(['error' => __('errors.insurance.general_error')])
+                ->withInput();
         }
-
-        $response = $result['data'] ?? [];
-
-        // Handle existing transaction result = 302
-        if ((int) data_get($response, 'result') === 302) {
-            return back()->with([
-                'existing_policy' => [
-                    'polis_sery' => data_get($response, 'polis_sery'),
-                    'polis_number' => data_get($response, 'polis_number'),
-                    'polis_check' => data_get($response, 'polis_check'),
-                ],
-            ])->withInput();
-        }
-
-        // Success flow identical to Accident (redirect to payment or confirmation as needed)
-        return back()->with('success', __('success.insurance.order_created'));
-    }
-
-    private function mapToInitiatePayload(array $data, int $premium): array
-    {
-        $applicant = (array) data_get($data, 'applicant', []);
-        $property = (array) data_get($data, 'property', []);
-        $details = (array) data_get($data, 'details', []);
-        $sumBank = (int) data_get($data, 'cost.sum_bank', 0);
-
-        $fullName = trim(implode(' ', [
-            (string) data_get($applicant, 'lastName'),
-            (string) data_get($applicant, 'firstName'),
-            (string) data_get($applicant, 'middleName'),
-        ]));
-
-        $birthDate = data_get($applicant, 'birthDate');
-        $sDate = data_get($details, 'startDate');
-        $eDate = data_get($details, 'endDate');
-
-        return [
-            'subject' => 'P',
-            'customer' => [
-                'full_name' => $fullName,
-                'birth_date' => $birthDate ? Carbon::parse($birthDate)->format('d.m.Y') : '',
-                'gender' => (int) data_get($applicant, 'gender', 1),
-                'passport' => (string) data_get($applicant, 'passportSeries') . (string) data_get($applicant, 'passportNumber'),
-                'pinfl' => (string) data_get($applicant, 'pinfl'),
-                'phone' => (string) data_get($applicant, 'phoneNumber', ''),
-                'address' => (string) data_get($applicant, 'address', ''),
-                'oked' => (string) data_get($applicant, 'oked', ''),
-                'ras_sum' => (string) data_get($applicant, 'ras_sum', ''),
-                'subj_mfo' => (string) data_get($applicant, 'subj_mfo', ''),
-                'bxm' => (string) data_get($applicant, 'bxm', ''),
-                'representativename' => (string) data_get($applicant, 'representativename', ''),
-            ],
-            'loan_info' => [
-                'loan_type' => '35',
-                'claim_id' => (string) Str::ulid(),
-                'contract_number' => (string) Str::uuid(),
-                'contract_date' => now()->format('d.m.Y'),
-                's_date' => $sDate ? Carbon::parse($sDate)->format('d.m.Y') : '',
-                'e_date' => $eDate ? Carbon::parse($eDate)->format('d.m.Y') : '',
-                'cadastr_info' => [
-                    'cadastr_number' => (string) data_get($property, 'cadasterNumber'),
-                    'address' => (string) data_get($property, 'shortAddress', ''),
-                    'regionid' => (string) data_get($property, 'region', ''),
-                    'districtid' => (string) data_get($property, 'districtId', ''),
-                    'sum_bank' => $sumBank,
-                    'is_owner' => (int) ((bool) data_get($property, 'is_owner', true)),
-                ],
-            ],
-        ];
     }
 }

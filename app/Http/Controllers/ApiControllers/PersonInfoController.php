@@ -62,16 +62,15 @@ class PersonInfoController extends Controller
     {
         $personData = $request->validated();
 
-        $data = [
+        $requestData = [
             'isConsent' => 'Y',
-            'senderPinfl' => "50101005690010",
+            'senderPinfl' => "31004603480032",
             'document' => strtoupper($personData['passport_series']) . $personData['passport_number'],
             'birthDate' => $personData['birthDate'],
-            'transactionId' => now()->timestamp,
+            'transactionId' => (string) now()->timestamp,
         ];
 
-        $response = $this->sendRequest('/api/provider/passport-birth-date-v2', $data);
-        // $response = Http::post('https://impex-insurance.uz/api/fetch-brith-date-v2', $data);
+        $response = $this->sendRequest('/api/provider/passport-birth-date-v2', $requestData);
 
         if ($response->failed()) {
             return response()->json([
@@ -79,13 +78,20 @@ class PersonInfoController extends Controller
                 'data' => null,
                 'message' => $response->json(),
                 'inputs' => $request->all()
-            ]);
+            ], $response->status());
+        }
+
+        $responseData = $response->json();
+
+        // Save to session if result exists
+        if (isset($responseData['result']) && isset($personData['product_name'])) {
+            session([$personData['product_name'] => $responseData['result']]);
         }
 
         return response()->json([
             'success' => true,
-            'result' => $response->json('result'),
-            'data' => $response->json(),
+            'result' => $responseData['result'] ?? null,
+            'data' => $responseData,
         ]);
     }
 }

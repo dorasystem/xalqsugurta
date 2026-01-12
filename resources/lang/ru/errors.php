@@ -8,6 +8,9 @@ return [
 
     // Insurance Errors
     'insurance' => [
+        // General Errors
+        'general_error' => 'Произошла ошибка',
+
         // Session Errors
         'session_not_found' => 'Данные заявки не найдены. Пожалуйста, заполните заявку заново.',
         'session_expired' => 'Сессия истекла. Пожалуйста, заполните заявку заново.',

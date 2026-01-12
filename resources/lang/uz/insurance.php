@@ -195,6 +195,15 @@ return [
         'note_text' => 'Avtotransport vositasini boshqarish huquqi ishonchnoma bilan ta\'minlangan bo\'lsa, haydovchi sifatida ishonchnoma bo\'yicha huquq berilgan shaxsning ma\'lumotlari ham kiritilishi kerak.'
     ],
 
+    'gas' => [
+        'page_title' => 'Gaz balon sug\'urtasi',
+        'product_name' => 'Gaz balon sug\'urtasi',
+        'errors' => [
+            'error' => 'Xatolik!',
+            'errors_title' => 'Xatoliklar:',
+        ],
+    ],
+
     'payment' => [
         'page_title' => 'OSAGO Sug\'urta To\'lovi',
         'title' => 'OSAGO Sug\'urta To\'lovi',

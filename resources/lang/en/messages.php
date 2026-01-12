@@ -434,4 +434,24 @@
         'invalid_driver_json' => 'Driver information is in incorrect JSON format',
         'proceed_to_payment' => 'Proceed to Payment',
 
+        // Gas Balloon Insurance - Property
+        'cadaster_info_title' => 'Cadaster Information',
+        'cadaster_number' => 'Cadaster Number',
+        'cadaster_format' => 'Format: XX:XX:XX:XX:XX:XXXX',
+        'property_info_title' => 'Property Information',
+        'property_full_address' => 'Full Address',
+        'property_name' => 'Property Name',
+        'property_short_address' => 'Short Address',
+        'property_street' => 'Street',
+        'property_object_type' => 'Object Type',
+        'property_object_view' => 'Object View',
+        'property_total_area' => 'Total Area (m²)',
+        'property_region' => 'Region',
+        'property_district' => 'District',
+        'property_cost' => 'Cost (UZS)',
+        'error_occurred' => 'An error occurred',
+        'data_not_found' => 'Data not found',
+        'network_error' => 'Network error',
+        'cadaster_invalid' => 'Invalid cadaster number',
+
     ];

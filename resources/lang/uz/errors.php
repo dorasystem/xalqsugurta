@@ -8,6 +8,9 @@ return [
 
     // Insurance Errors
     'insurance' => [
+        // General Errors
+        'general_error' => 'Xatolik yuz berdi',
+
         // Session Errors
         'session_not_found' => 'Ariza ma\'lumotlari topilmadi. Iltimos, qaytadan ariza to\'ldiring.',
         'session_expired' => 'Sessiya muddati tugadi. Iltimos, qaytadan ariza to\'ldiring.',

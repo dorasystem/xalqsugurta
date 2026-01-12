@@ -8,6 +8,9 @@ return [
 
     // Insurance Errors
     'insurance' => [
+        // General Errors
+        'general_error' => 'An error occurred',
+
         // Session Errors
         'session_not_found' => 'Application data not found. Please fill out the application again.',
         'session_expired' => 'Session expired. Please fill out the application again.',

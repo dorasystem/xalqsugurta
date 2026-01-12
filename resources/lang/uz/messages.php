@@ -433,4 +433,24 @@ return [
     'invalid_driver_json' => 'Haydovchi ma\'lumotlari noto\'g\'ri JSON formatda',
     'proceed_to_payment' => 'To\'lovga O\'tish',
 
+    // Gas Balloon Insurance - Property
+    'cadaster_info_title' => 'Kadastr ma\'lumotlari',
+    'cadaster_number' => 'Kadastr raqami',
+    'cadaster_format' => 'Format: XX:XX:XX:XX:XX:XXXX',
+    'property_info_title' => 'Mulk ma\'lumotlari',
+    'property_full_address' => 'To\'liq manzil',
+    'property_name' => 'Mulk nomi',
+    'property_short_address' => 'Qisqa manzil',
+    'property_street' => 'Ko\'cha',
+    'property_object_type' => 'Ob\'ekt turi',
+    'property_object_view' => 'Ob\'ekt ko\'rinishi',
+    'property_total_area' => 'Umumiy maydon (m²)',
+    'property_region' => 'Viloyat',
+    'property_district' => 'Tuman',
+    'property_cost' => 'Qiymati (UZS)',
+    'error_occurred' => 'Xatolik yuz berdi',
+    'data_not_found' => 'Ma\'lumot topilmadi',
+    'network_error' => 'Tarmoq xatosi yuz berdi',
+    'cadaster_invalid' => 'Kadastr raqami noto\'g\'ri',
+
 ];

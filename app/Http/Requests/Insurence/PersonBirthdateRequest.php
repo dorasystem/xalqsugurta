@@ -17,6 +17,7 @@ class PersonBirthdateRequest extends FormRequest
             'passport_series' => 'required|string|size:2',
             'passport_number' => 'required|string|size:7',
             'birthDate' => 'required|date_format:Y-m-d',
+            'product_name' => 'required|string',
         ];
     }
 

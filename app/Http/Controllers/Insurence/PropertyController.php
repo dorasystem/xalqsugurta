@@ -7,8 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Insurence\PropertyApplicationRequest;
 use App\Models\Order;
 use App\Services\OrderService;
-use App\Services\InsuranceApiService;
 use App\Services\PropertyService;
+use App\Traits\Api;
 use App\Traits\HandlesInsuranceErrors;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -18,17 +18,12 @@ use Illuminate\View\View;
 
 final class PropertyController extends Controller
 {
-    use HandlesInsuranceErrors;
+    use Api, HandlesInsuranceErrors;
+
     public function __construct(
         private readonly PropertyService $propertyService,
-        private readonly OrderService $orderService,
-        private readonly InsuranceApiService $apiService
+        private readonly OrderService $orderService
     ) {
-        // Configure API service for PROPERTY product (same endpoint family as accident)
-        $baseUrl = (string) config('services.insurance.accident.endpoint', 'https://erspapi.e-osgo.uz/api/v3');
-
-        $this->apiService
-            ->setEndpoint(rtrim($baseUrl));
     }
 
     public function main(): View
@@ -55,9 +50,7 @@ final class PropertyController extends Controller
             // Create DTO from validated request data
             $applicationData = PropertyApplicationData::fromRequest($request->validated());
 
-
-
-            // Send data to API using centralized service
+            // Send data to API using Api trait
             $requestData = $applicationData->toApiFormat();
 
             Log::info('Property application: Sending request to API', [
@@ -66,21 +59,18 @@ final class PropertyController extends Controller
                 'insurance_amount' => $requestData['sum'] ?? 0,
             ]);
 
-            $result = $this->apiService->sendApplication($requestData);
+            // Use Api trait to send request
+            $response = $this->sendRequest('/api/provider/property-insurance', $requestData);
 
-            Log::info('Property application: API response received', [
-                'success' => $result['success'] ?? false,
-                'has_data' => !empty($result['data']),
-                'error_type' => gettype($result['error'] ?? null),
-            ]);
-
-            if (!$result['success']) {
-                $errorMessage = is_array($result['error'])
-                    ? json_encode($result['error'], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
-                    : (string) $result['error'];
+            if ($response->failed()) {
+                $errorData = $response->json();
+                $errorMessage = is_array($errorData)
+                    ? json_encode($errorData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+                    : (string) ($errorData['message'] ?? $response->body());
 
                 Log::error('Property application: API returned error', [
-                    'error' => $result['error'],
+                    'status' => $response->status(),
+                    'error' => $errorData,
                     'formatted_error' => $errorMessage,
                 ]);
 
@@ -89,10 +79,16 @@ final class PropertyController extends Controller
                     ->withInput();
             }
 
+            $responseData = $response->json();
+
+            Log::info('Property application: API response received', [
+                'has_data' => !empty($responseData),
+            ]);
+
             // Store data in session for GET requests (language switching and order creation)
             session([
                 'property_application_data' => $applicationData->toArray(),
-                'property_api_response' => $result['data'] ?? null,
+                'property_api_response' => $responseData ?? null,
             ]);
 
             // Pass the structured data to the view
@@ -119,12 +115,23 @@ final class PropertyController extends Controller
                 'has_api_response' => !empty($apiResponse),
             ]);
 
+            // Extract insurance ID from API response (handle different response formats)
+            $insuranceId = $apiResponse['id']
+                ?? $apiResponse['UUID']
+                ?? ($apiResponse['response']['result']['contractUuid'] ?? null)
+                ?? uniqid('prop_');
+
+            // Extract contract UUID if available
+            $contractUuid = $apiResponse['UUID']
+                ?? ($apiResponse['response']['result']['contractUuid'] ?? null)
+                ?? ($apiResponse['contractUuid'] ?? null);
+
             // Create order
             $orderData = [
                 'product_name' => 'MOL-MULK Sug\'urta',
                 'amount' => $applicationData['insurancePremium'] ?? 0,
                 'state' => 0,
-                'insurance_id' => $apiResponse['id'] ?? uniqid('prop_'),
+                'insurance_id' => $insuranceId,
                 'phone' => $applicationData['applicant']['phoneNumber'] ?? null,
                 'insurances_data' => $applicationData,
                 'insurances_response_data' => $apiResponse,
@@ -132,7 +139,7 @@ final class PropertyController extends Controller
                 'contractStartDate' => $applicationData['paymentStartDate'] ?? null,
                 'contractEndDate' => $applicationData['paymentEndDate'] ?? null,
                 'insuranceProductName' => 'MOL-MULK Sug\'urta',
-                'polic_id_number' => $apiResponse['response']['result']['contractUuid'],
+                'polic_id_number' => $contractUuid,
             ];
 
             $order = $this->orderService->createOrder($orderData);
@@ -161,6 +168,7 @@ final class PropertyController extends Controller
     {
         $request->validate([
             'cadasterNumber' => ['required', 'string', 'regex:/^\d{2}:\d{2}:\d{2}:\d{2}:\d{2}:\d{4}$/'],
+            'product_name' => ['required', 'string'],
         ], [
             'cadasterNumber.required' => 'Kadastr raqami kiritilishi shart',
             'cadasterNumber.regex' => 'Kadastr raqami formati noto\'g\'ri (masalan: 11:11:10:01:03:0499)',
@@ -168,12 +176,16 @@ final class PropertyController extends Controller
 
         $result = $this->propertyService->fetchPropertyByCadaster($request->input('cadasterNumber'));
 
+
+
         if (!$result['success']) {
             return response()->json([
                 'success' => false,
                 'message' => $result['error'] ?? __('errors.insurance.property.cadaster_not_found'),
             ], 422);
         }
+
+        session([$request->input('product_name') => $result['result']]);
 
         return response()->json([
             'success' => true,

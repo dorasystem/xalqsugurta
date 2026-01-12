@@ -17,7 +17,7 @@
                                 <div class="col-md-6">
                                     <p class="mb-2">@lang('payment.contact_id'): <strong>
 
-                                            {{ $order->polic_id_number }}</strong></p>
+                                            {{ $order->insurance_id }}</strong></p>
                                     @php
                                         // Sanalarni olish (Order model maydonlaridan foydalanish)
                                         $rawStartDate =
@@ -60,27 +60,8 @@ if ($rawEndDate) {
                             <h3 class="mb-4">@lang('payment.select_payment_method')</h3>
 
                             <div class="row g-3">
-                                <!-- Plastik karta - Coming Soon -->
-                                <div class="col-12 col-md-4">
-                                    <div class="payment-card disabled position-relative">
-                                        <span
-                                            class="badge bg-success position-absolute top-0 end-0 m-2">@lang('payment.coming_soon')</span>
-                                        <div class="payment-icon">
-                                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <rect x="2" y="5" width="20" height="14" rx="2"
-                                                    stroke="#5B4CCC" stroke-width="2" />
-                                                <path d="M2 10H22" stroke="#5B4CCC" stroke-width="2" />
-                                                <rect x="5" y="14" width="6" height="2" fill="#5B4CCC" />
-                                            </svg>
-                                        </div>
-                                        <h5 class="payment-title">@lang('payment.plastic_card')</h5>
-                                        <p class="payment-subtitle text-muted">@lang('payment.cards_supported')</p>
-                                    </div>
-                                </div>
-
                                 <!-- Click Payment -->
-                                <div class="col-12 col-md-4">
+                                <div class="col-12 col-md-4 d-none">
                                     <form method="GET" action="{{ route('payment.click') }}" target="_blank"
                                         class="h-100">
                                         <input type="hidden" name="id" value="{{ $order->id ?? '' }}">

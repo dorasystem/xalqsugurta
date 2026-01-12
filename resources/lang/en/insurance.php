@@ -194,6 +194,15 @@ return [
         'note_text' => 'If the right to drive a motor vehicle is provided by power of attorney, the data of the person to whom the right is granted by power of attorney must also be entered as the driver.',
     ],
 
+        'gas' => [
+            'page_title' => 'Gas Balloon Insurance',
+            'product_name' => 'Gas Balloon Insurance',
+            'errors' => [
+                'error' => 'Error!',
+                'errors_title' => 'Errors:',
+            ],
+        ],
+
     'payment' => [
         'page_title' => 'MTPL Insurance Payment',
         'title' => 'MTPL Insurance Payment',

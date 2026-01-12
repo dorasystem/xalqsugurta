@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\ApiControllers\DriverInfoController;
 use App\Http\Controllers\Insurence\PaymentController;
-use App\Http\Controllers\Insurence\PropertyController;
+use App\Http\Controllers\ApiControllers\PropertyInfoController;
 use Faker\Provider\ar_EG\Person;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
@@ -24,13 +24,14 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
     require_once 'insurence/osago.php';
     require_once 'insurence/accident.php';
     require_once 'insurence/property.php';
+    require_once 'insurence/gas.php';
 });
 
 Route::post('/get-vehicle-info', [VehicleInfoController::class, 'getVehicleInfo']);
 Route::post('/get-person-info', [PersonInfoController::class, 'getPersonInfo']);
 Route::post('/get-person-info-by-birthdate', [PersonInfoController::class, 'getPersonInfoByBirthdate']);
 Route::post('/get-driver-info', [DriverInfoController::class, 'getDriverInfo']);
-Route::post('/fetch-cadaster', [PropertyController::class, 'fetchCadaster']);
+Route::post('fetch-cadaster', [PropertyInfoController::class, 'fetchPropertyInfo']);
 
 // Default route (redirects to Russian)
 Route::get('/', function () {
