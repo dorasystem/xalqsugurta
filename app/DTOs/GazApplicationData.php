@@ -6,6 +6,8 @@ namespace App\DTOs;
 
 use Carbon\Carbon;
 
+use function Symfony\Component\Clock\now;
+
 final class GazApplicationData
 {
     public function __construct(
@@ -89,7 +91,7 @@ final class GazApplicationData
         // Build loan_info
         $loanInfo = [
             'cadastr_info' => $cadastrInfo,
-            'claim_id' => '987654321', // Default empty, can be updated if needed
+            'claim_id' => now(), // Default empty, can be updated if needed
             'contract_date' => $contractDateFormatted,
             'contract_number' => '', // Default empty, can be updated if needed
             'e_date' => $endDateFormatted,

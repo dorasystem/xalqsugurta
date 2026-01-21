@@ -3,18 +3,14 @@
 namespace App\Http\Controllers\Payments\PayMe;
 
 use App\Models\Order;
-use App\Models\Country;
-use App\Models\TravelPdf;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\TransactionResource;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Carbon\Carbon;
 
 class PaymeController extends Controller
 {
@@ -274,31 +270,56 @@ class PaymeController extends Controller
                 $transaction->perform_time_unix = str_replace('.', '', $currentMillis);
                 $transaction->update();
                 $completed_order = Order::where('id', $transaction->order_id)->first();
-                $completed_order->status = 'yakunlandi';
+                $completed_order->status = Order::STATUS_PAID;
 
+                // Call third-party API for gas balloon insurance
+                // Check if this is a gas balloon order by comparing product_name in all languages
+                $isGasBalloon = false;
+                $gasProductNames = [
+                    __('insurance.gas.product_name', [], 'uz'), // "Gaz balon sug'urtasi"
+                    __('insurance.gas.product_name', [], 'ru'), // "Страхование газового баллона"
+                    __('insurance.gas.product_name', [], 'en'), // "Gas Balloon Insurance"
+                ];
 
-                Log::info("📦 Boshqa product uchun confirmPayed chaqirildi. Order ID: {$completed_order->id}");
-                $this->confirmPayed($completed_order);
+                if (in_array($completed_order->product_name, $gasProductNames, true)) {
+                    $isGasBalloon = true;
+                }
 
+                // Also check insuranceProductName field as fallback
+                if (!$isGasBalloon && $completed_order->insuranceProductName) {
+                    if (in_array($completed_order->insuranceProductName, $gasProductNames, true)) {
+                        $isGasBalloon = true;
+                    }
+                }
+
+                if ($isGasBalloon) {
+                    $this->confirmGasBalloonPayment($completed_order);
+                }
 
                 $completed_order->update();
+
+                // Return JSON-RPC 2.0 format response
                 $response = [
-                    'result' => [
-                        'transaction' => "{$transaction->id}",
-                        'perform_time' => intval($transaction->perform_time_unix),
-                        'state' => intval($transaction->state)
-                    ]
-                ];
-                return json_encode($response);
-            } elseif ($transaction->state == 2) {
-                $response = [
+                    'jsonrpc' => '2.0',
+                    'id' => $req->id,
                     'result' => [
                         'transaction' => strval($transaction->id),
                         'perform_time' => intval($transaction->perform_time_unix),
                         'state' => intval($transaction->state)
                     ]
                 ];
-                return json_encode($response);
+                return response()->json($response);
+            } elseif ($transaction->state == 2) {
+                $response = [
+                    'jsonrpc' => '2.0',
+                    'id' => $req->id,
+                    'result' => [
+                        'transaction' => strval($transaction->id),
+                        'perform_time' => intval($transaction->perform_time_unix),
+                        'state' => intval($transaction->state)
+                    ]
+                ];
+                return response()->json($response);
             }
         } elseif ($req->method == "CancelTransaction") {
             $ldate = date('Y-m-d H:i:s');
@@ -321,7 +342,7 @@ class PaymeController extends Controller
                 $transaction->update();
 
                 $order = Order::find($transaction->order_id);
-                $order->update(['status' => 'bekor qilindi']);
+                $order->update(['status' => Order::STATUS_CANCELLED]);
                 $response = [
                     'result' => [
                         "state" => intval($transaction->state),
@@ -339,7 +360,7 @@ class PaymeController extends Controller
                 $transaction->update();
 
                 $order = Order::find($transaction->order_id);
-                $order->update(['status' => 'bekor qilindi']);
+                $order->update(['status' => Order::STATUS_CANCELLED]);
                 $response = [
                     'result' => [
                         "state" => intval($transaction->state),
@@ -381,160 +402,88 @@ class PaymeController extends Controller
         }
     }
 
-    public function confirmPayed($completed_order)
+    /**
+     * Confirm gas balloon payment with third-party API
+     */
+    private function confirmGasBalloonPayment(Order $order): void
     {
         try {
-            if ($completed_order->travelCalcRequestData !== null) {
-                $travelInfo = $completed_order->confirm_payed_data;
-                $travelResponse = Http::withHeaders([
-                    'Content-Type' => 'application/json',
-                    'Accept' => 'application/json',
-                ])->post('https://impexonline.uz/ords/ins/travel/sale', $travelInfo);
-                $responseTravelData = $travelResponse->json(); // Javobni array sifatida olamiz
+            $insurancesData = $order->insurances_data ?? [];
+            $insurancesResponseData = $order->insurances_response_data ?? [];
 
-                $completed_order->update([
-                    'confirm_payed_response_data' => $responseTravelData ?? 'bu pagega kirmadi',
-                ]);
-                $orderId = $completed_order->id;
-                $existingPdf = TravelPdf::where('order_id', $orderId)->first();
-                $order = Order::findOrFail($orderId);
+            // Extract contract data
+            $loanInfo = $insurancesData['loan_info'] ?? [];
 
-                $countryId = $order->travelCalcRequestData['policy']['country'] ?? null;
-                $country = $countryId ? Country::where('id', $countryId)->first() : null;
+            // Get contract_date from loan_info or contractStartDate
+            $contractDate = $loanInfo['contract_date']
+                ?? ($order->contractStartDate ? Carbon::parse($order->contractStartDate)->format('d.m.Y') : null);
 
-                $order->applicant = $order->confirm_payed_data['applicant'] ?? null;
+            // Get s_date (start date) from loan_info or contractStartDate
+            $sDate = $loanInfo['s_date']
+                ?? ($order->contractStartDate ? Carbon::parse($order->contractStartDate)->format('d.m.Y') : null);
 
-                if (!$existingPdf) {
-                    // QR-kodlarni yaratish va base64 formatga o'tkazish
-                    $svgContent1 = QrCode::format('svg')->size(120)->generate('https://impex-insurance.uz/insurance-pdf/' . $orderId);
-                    $svgContent2 = QrCode::format('svg')->size(120)->generate('https://play.google.com/store/apps/details?id=com.impex_insurance.ionline&pcampaignid=web_share');
+            // Get e_date (end date) from loan_info or contractEndDate
+            $eDate = $loanInfo['e_date']
+                ?? ($order->contractEndDate ? Carbon::parse($order->contractEndDate)->format('d.m.Y') : null);
 
-                    $qrBase641 = 'data:image/svg+xml;base64,' . base64_encode($svgContent1);
-                    $qrBase642 = 'data:image/svg+xml;base64,' . base64_encode($svgContent2);
+            // Get contract_id from response data or use order id
+            $contractId = $insurancesResponseData['contract_id']
+                ?? $insurancesResponseData['id']
+                ?? $order->id;
 
-                    // Logoni base64 formatga o‘tkazish
-                    $logoPath = public_path('page/assets/images/logo.svg');
-                    $logoBase64 = 'data:image/svg+xml;base64,' . base64_encode(file_get_contents($logoPath));
+            // Get contract_number from polis_sery + polis_number or insurance_id
+            $contractNumber = null;
+            if (isset($insurancesResponseData['polis_sery']) && isset($insurancesResponseData['polis_number'])) {
+                $contractNumber = $insurancesResponseData['polis_sery'] . '-' . $insurancesResponseData['polis_number'];
+            } else {
+                $contractNumber = $order->insurance_id ?? (string) $order->id;
+            }
 
-                    $policyProgramm = match ($order->confirm_payed_data['policy']['program']) {
-                        1 => 'STANDARD',
-                        2 => 'VOYAGE',
-                        3 => 'MAXIMUM',
-                        4 => 'STANDARD / COVID-19',
-                        5 => 'VOYAGE / COVID-19',
-                        6 => 'MAXIMUM / COVID-19',
-                        default => 'OTHER',
-                    };
-                    // PDF yaratish
-                    $htmlContent = view('travel.pdf', compact('order', 'country', 'qrBase641', 'qrBase642', 'logoBase64', 'policyProgramm'))->render();
-                    $pdf = Pdf::loadHTML($htmlContent)->output();
+            // Payment date is current date
+            $paymentDate = now()->format('d.m.Y');
 
-                    $pdfFileName = 'travel_insurance_' . $orderId . '_' . time() . '.pdf';
+            // Prepare request data
+            $requestData = [
+                'contract_date' => $contractDate ?? now()->format('d.m.Y'),
+                'contract_id' => (int) $contractId,
+                'contract_number' => $contractNumber,
+                'e_date' => $eDate ?? now()->addYear()->format('d.m.Y'),
+                'payment_date' => $paymentDate,
+                's_date' => $sDate ?? now()->format('d.m.Y'),
+            ];
 
-                    Storage::disk('public')->put('pdfs/' . $pdfFileName, $pdf);
+            Log::info('Gas balloon: Calling PerformTransactionRequest API', [
+                'order_id' => $order->id,
+                'request_data' => $requestData,
+            ]);
 
-                    // Ma’lumotlarni DBga saqlash (endi QR fayl yo'q, base64 orqali ishlatyapsiz)
-                    $travelPdf = new TravelPdf();
-                    $travelPdf->order_id = $orderId;
-                    $travelPdf->pdf = $pdfFileName;
-                    $travelPdf->qr_code1 = $qrBase641; // yoki base64 stringni saqlamoqchi bo‘lsangiz: $qrBase641
-                    $travelPdf->qr_code2 = $qrBase642; // yoki $qrBase642
-                    $travelPdf->save();
-                }
+            // Call third-party API
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json',
+                'Authorization' => 'Basic ' . base64_encode('gazballonsayt:dorasystem1'),
+            ])->timeout(60)
+                ->retry(3, 1000)
+                ->post('http://online.xalqsugurta.uz/xs/ins/unv/gazballonsayt/PerformTransactionRequest', $requestData);
 
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Travel uchun maxsus tasdiq. /page/assets/images/logo.svg',
-                    'data' => $responseTravelData,
-                ]);
-            } elseif ($completed_order->product_name === 'osago') {
-                // ✅ OSAGO bo'lsa confirm_payed_data ni olib yuboramiz
-                $osagoInfo = $completed_order->confirm_payed_data; // to'g'ridan-to'g'ri array
-
-                $osagoResponse = Http::post('https://impex-insurance.uz/api/osago/confirm-payed', $osagoInfo);
-
-                $responseOsagoData = $osagoResponse->json(); // Javobni array sifatida olamiz
-                // 2. Javobdagi seria va number ni olish
-                $click_service_id = $completed_order->id ?? 'AD';
-                $newSeria = $responseOsagoData['response']['result']['seria'] ?? 'AD';
-                $newNumber = $responseOsagoData['response']['result']['number'] ?? '12345378';
-
-                // 3. Eski insurance_id ni olish va massivga aylantirish
-                $ais = json_decode($completed_order->insurance_id, true);
-
-                // 4. Agar yangi qiymatlar mavjud bo‘lsa, yangilash
-                if ($newSeria && $newNumber) {
-                    $ais['app']['click_service_id'] = $click_service_id;
-                    $ais['details']['seria'] = $newSeria;
-                    $ais['details']['number'] = $newNumber;
-                }
-
-                $aisResponse = Http::withBasicAuth('ESHOP', 'Fg5tVo0M5wv8')
-                    ->withHeaders([
-                        'Accept' => 'application/json',
-                        'Content-Type' => 'application/json',
-                    ])
-                    ->post('http://impexonline.uz/ords/ins/eshop/osago', $ais);
-
-                $aisData = $aisResponse->json(); // javobni json formatda olish
-
-                $completed_order->update([
-                    'insurance_id' => json_encode($aisData),
-                    'confirm_payed_response_data' => $responseOsagoData,
-                ]);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'OSAGO uchun maxsus tasdiq.',
-                    'data' => $responseOsagoData,
+            if ($response->successful()) {
+                Log::info('Gas balloon: PerformTransactionRequest successful', [
+                    'order_id' => $order->id,
+                    'response' => $response->json(),
                 ]);
             } else {
-                // 👇 Boshqa product_name bo'lsa mana endi senga kerakli kod kiradi
-                $polisUuid = $completed_order->insurances_response_data['response']['result']['policies'][0]['uuid'] ?? null;
-                $insurancesData = $completed_order->insurances_data;
-
-                $startDate = $insurancesData[0]['policies'][0]['startDate'] ?? null;
-                $endDate = $insurancesData[0]['policies'][0]['endDate'] ?? null;
-                $info = [
-                    "polisUuid" => $polisUuid,
-                    "paidAt" => now()->toDateTimeString(),
-                    "insurancePremium" => $completed_order->amount,
-                    "startDate" => $startDate,
-                    "endDate" => $endDate,
-                    "comission" => 0,
-                    "agencyId" => "28"
-                ];
-
-                $response = Http::post('https://impex-insurance.uz/api/confirm-payed', $info);
-                $responseData = $response->json();
-
-                $completed_order->update([
-                    'confirm_payed_data' => $info,
-                    'confirm_payed_response_data' => $responseData,
+                Log::error('Gas balloon: PerformTransactionRequest failed', [
+                    'order_id' => $order->id,
+                    'status' => $response->status(),
+                    'response' => $response->json(),
                 ]);
-
-                if ($response->successful()) {
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Payment confirmed successfully',
-                        'data' => $responseData,
-                    ]);
-                } else {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'API request failed',
-                        'status' => $response->status(),
-                        'error' => $responseData,
-                    ], $response->status());
-                }
             }
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while confirming payment.',
+            Log::error('Gas balloon: Error calling PerformTransactionRequest', [
+                'order_id' => $order->id ?? null,
                 'error' => $e->getMessage(),
-            ], 500);
+                'trace' => $e->getTraceAsString(),
+            ]);
         }
     }
 }

@@ -45,9 +45,11 @@ return [
     ],
 
     'payme' => [
-        'merchant_id' => env('PAYME_MERCHANT_ID', 'Paycom'),
-        'secret_key' => env('PAYME_SECRET_KEY'),
+        'merchant_id' => env('PAYME_MERCHANT_ID'),
         'kassa_id' => env('PAYME_KASSA_ID', '68f7581688f28864c066266f'),
+        'secret_key' => env('PAYME_SECRET_KEY'),
+        'test_secret_key' => env('PAYME_TEST_SECRET_KEY', 'trNM0xMZv0bzrNws7E19mgMSCbbjEKxSz#j0'),
+        'production_secret_key' => env('PAYME_PRODUCTION_SECRET_KEY', 'YpR&UdoV2@pGoqgqwn#gIX3uCqzxhAwh7z5n@'),
         'endpoint' => env('PAYME_ENDPOINT', 'https://checkout.paycom.uz'),
         'test_mode' => env('PAYME_TEST_MODE', false),
     ],

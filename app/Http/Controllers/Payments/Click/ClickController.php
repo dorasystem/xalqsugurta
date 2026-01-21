@@ -112,7 +112,7 @@ class ClickController extends Controller
 
         if ($error == 0) {
             ClickUz::where('click_trans_id', $clickTransId)->update(['situation' => 1, 'status' => 'success']);
-            Order::where('id', $merchantTransId)->update(['status' => 'yakunlandi']);
+            Order::where('id', $merchantTransId)->update(['status' => Order::STATUS_PAID]);
             $order = Order::find($merchantTransId);
 
             $polisUuid = $order->insurances_response_data['response']['result']['policies'][0]['uuid'] ?? null;
