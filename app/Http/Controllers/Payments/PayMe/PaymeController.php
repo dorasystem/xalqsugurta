@@ -4,16 +4,16 @@ namespace App\Http\Controllers\Payments\PayMe;
 
 use App\Models\Order;
 use App\Models\Transaction;
+use App\Traits\ConfirmPayment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Http;
 use App\Http\Resources\TransactionResource;
-use Carbon\Carbon;
 
 class PaymeController extends Controller
 {
+    use ConfirmPayment;
     public function payment(Request $request)
     {
         // dd($request->all());
@@ -22,7 +22,7 @@ class PaymeController extends Controller
         $transactionId = $order->id;
         // $backUrl = route('show.insurance.pdf', ['id' => $order->id]);
 
-        $merchantId = '68f7581688f28864c066266f';
+        $merchantId = config('services.payme.merchant_id');
         $tiyinAmount = intval($amount * 100);
         $payload = "m={$merchantId};ac.order_id={$transactionId};a={$tiyinAmount};";
         $encoded = base64_encode($payload);
@@ -272,29 +272,11 @@ class PaymeController extends Controller
                 $completed_order = Order::where('id', $transaction->order_id)->first();
                 $completed_order->status = Order::STATUS_PAID;
 
-                // Call third-party API for gas balloon insurance
-                // Check if this is a gas balloon order by comparing product_name in all languages
-                $isGasBalloon = false;
-                $gasProductNames = [
-                    __('insurance.gas.product_name', [], 'uz'), // "Gaz balon sug'urtasi"
-                    __('insurance.gas.product_name', [], 'ru'), // "Страхование газового баллона"
-                    __('insurance.gas.product_name', [], 'en'), // "Gas Balloon Insurance"
-                ];
+                // Call PerformTransactionRequest for Xalq Sugurta products (gas, property, kasko)
+                $xalqProductKeys = ['gas', 'property', 'kasko'];
+                $productKey = $completed_order->insurances_data['_product_key'] ?? null;
 
-                if (in_array($completed_order->product_name, $gasProductNames, true)) {
-                    $isGasBalloon = true;
-                }
-
-                // Also check insuranceProductName field as fallback
-                if (!$isGasBalloon && $completed_order->insuranceProductName) {
-                    if (in_array($completed_order->insuranceProductName, $gasProductNames, true)) {
-                        $isGasBalloon = true;
-                    }
-                }
-
-                if ($isGasBalloon) {
-                    $this->confirmGasBalloonPayment($completed_order);
-                }
+                $this->confirmXalqSugurtaPayment($completed_order, $productKey);
 
                 $completed_order->update();
 
@@ -399,91 +381,6 @@ class PaymeController extends Controller
                 ]
             ];
             return json_encode($response);
-        }
-    }
-
-    /**
-     * Confirm gas balloon payment with third-party API
-     */
-    private function confirmGasBalloonPayment(Order $order): void
-    {
-        try {
-            $insurancesData = $order->insurances_data ?? [];
-            $insurancesResponseData = $order->insurances_response_data ?? [];
-
-            // Extract contract data
-            $loanInfo = $insurancesData['loan_info'] ?? [];
-
-            // Get contract_date from loan_info or contractStartDate
-            $contractDate = $loanInfo['contract_date']
-                ?? ($order->contractStartDate ? Carbon::parse($order->contractStartDate)->format('d.m.Y') : null);
-
-            // Get s_date (start date) from loan_info or contractStartDate
-            $sDate = $loanInfo['s_date']
-                ?? ($order->contractStartDate ? Carbon::parse($order->contractStartDate)->format('d.m.Y') : null);
-
-            // Get e_date (end date) from loan_info or contractEndDate
-            $eDate = $loanInfo['e_date']
-                ?? ($order->contractEndDate ? Carbon::parse($order->contractEndDate)->format('d.m.Y') : null);
-
-            // Get contract_id from response data or use order id
-            $contractId = $insurancesResponseData['contract_id']
-                ?? $insurancesResponseData['id']
-                ?? $order->id;
-
-            // Get contract_number from polis_sery + polis_number or insurance_id
-            $contractNumber = null;
-            if (isset($insurancesResponseData['polis_sery']) && isset($insurancesResponseData['polis_number'])) {
-                $contractNumber = $insurancesResponseData['polis_sery'] . '-' . $insurancesResponseData['polis_number'];
-            } else {
-                $contractNumber = $order->insurance_id ?? (string) $order->id;
-            }
-
-            // Payment date is current date
-            $paymentDate = now()->format('d.m.Y');
-
-            // Prepare request data
-            $requestData = [
-                'contract_date' => $contractDate ?? now()->format('d.m.Y'),
-                'contract_id' => (int) $contractId,
-                'contract_number' => $contractNumber,
-                'e_date' => $eDate ?? now()->addYear()->format('d.m.Y'),
-                'payment_date' => $paymentDate,
-                's_date' => $sDate ?? now()->format('d.m.Y'),
-            ];
-
-            Log::info('Gas balloon: Calling PerformTransactionRequest API', [
-                'order_id' => $order->id,
-                'request_data' => $requestData,
-            ]);
-
-            // Call third-party API
-            $response = Http::withHeaders([
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-                'Authorization' => 'Basic ' . base64_encode('gazballonsayt:dorasystem1'),
-            ])->timeout(60)
-                ->retry(3, 1000)
-                ->post('http://online.xalqsugurta.uz/xs/ins/unv/gazballonsayt/PerformTransactionRequest', $requestData);
-
-            if ($response->successful()) {
-                Log::info('Gas balloon: PerformTransactionRequest successful', [
-                    'order_id' => $order->id,
-                    'response' => $response->json(),
-                ]);
-            } else {
-                Log::error('Gas balloon: PerformTransactionRequest failed', [
-                    'order_id' => $order->id,
-                    'status' => $response->status(),
-                    'response' => $response->json(),
-                ]);
-            }
-        } catch (\Exception $e) {
-            Log::error('Gas balloon: Error calling PerformTransactionRequest', [
-                'order_id' => $order->id ?? null,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
         }
     }
 }

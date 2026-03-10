@@ -140,24 +140,49 @@ final class PropertyApplicationData
 
     public function toArray(): array
     {
-        // Calculate insurance premium (0.2% rate)
-        $insuranceRate = 0.2;
-        $insurancePremium = ($this->insuranceAmount * $insuranceRate) / 100;
+        $insurancePremium = ($this->insuranceAmount * 0.2) / 100;
+
+        $person  = $this->apiData['insurant']['person'] ?? [];
+        $owner   = $this->apiData['policies'][0]['objects'][0]['others']['ownerPerson'] ?? [];
+        $prop    = $this->legacyPropertyData;
 
         return [
-            'apiData' => $this->apiData,
-            'legacyPropertyData' => $this->legacyPropertyData,
-            'insuranceAmount' => $this->insuranceAmount,
-            'insurancePremium' => $insurancePremium,
-            'paymentStartDate' => $this->paymentStartDate,
-            'paymentEndDate' => $this->paymentEndDate,
-            'agreement' => $this->agreement,
-            
-            // Backward compatibility fields
-            'applicant' => [
-                'phoneNumber' => $this->apiData['insurant']['person']['phone'] ?? '',
-                'firstName' => $this->apiData['insurant']['person']['fullName']['firstname'] ?? '',
-                'lastName' => $this->apiData['insurant']['person']['fullName']['lastname'] ?? '',
+            'insuranceAmount'    => $this->insuranceAmount,
+            'insurancePremium'   => $insurancePremium,
+            'paymentStartDate'   => $this->paymentStartDate,
+            'paymentEndDate'     => $this->paymentEndDate,
+            'agreement'          => $this->agreement,
+
+            'applicantData' => [
+                'firstName'      => $person['fullName']['firstname']   ?? '',
+                'lastName'       => $person['fullName']['lastname']    ?? '',
+                'middleName'     => $person['fullName']['middlename']  ?? '',
+                'passportSeries' => $person['passportData']['seria']   ?? '',
+                'passportNumber' => $person['passportData']['number']  ?? '',
+                'birthDate'      => $person['birthDate']               ?? '',
+                'address'        => $person['address']                 ?? '',
+                'phoneNumber'    => $person['phone']                   ?? '',
+            ],
+
+            'ownerData' => [
+                'firstName'      => $owner['fullName']['firstname']    ?? '',
+                'lastName'       => $owner['fullName']['lastname']     ?? '',
+                'middleName'     => $owner['fullName']['middlename']   ?? '',
+                'passportSeries' => $owner['passportData']['seria']    ?? '',
+                'passportNumber' => $owner['passportData']['number']   ?? '',
+                'birthDate'      => $owner['birthDate']                ?? '',
+                'address'        => $owner['address']                  ?? '',
+                'phoneNumber'    => $owner['phone']                    ?? '',
+            ],
+
+            'propertyData' => [
+                'cadasterNumber' => $prop['cadasterNumber'] ?? '',
+                'address'        => $prop['shortAddress']   ?? $prop['address'] ?? '',
+                'objectArea'     => $prop['objectArea']     ?? '',
+                'cost'           => $prop['cost']           ?? 0,
+                'tipText'        => $prop['tipText']        ?? '',
+                'region'         => $prop['region']         ?? '',
+                'district'       => $prop['district']       ?? '',
             ],
         ];
     }

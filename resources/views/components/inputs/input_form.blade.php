@@ -2,11 +2,15 @@
     'type',
     'disabled' => false,
     'readonly' => false,
+    'required' => false,
     'class' => '',
     'idFor' => '',
     'name' => '',
     'label' => '',
     'placeholder' => '',
+    'value' => null,
+    'min' => null,
+    'max' => null,
 ])
 
 @php
@@ -18,8 +22,12 @@
     <div>
         <input type="{{ $type }}" id="{{ $idFor }}" placeholder="{{ __($placeholder) }}"
             name="{{ $name }}" class="form-input @error($errorKey) is-invalid @enderror"
-            value="{{ old($errorKey) }}" @if ($disabled === true) disabled @endif
-            @if ($readonly === true) readonly @endif>
+            value="{{ $value ?? old($errorKey) }}"
+            @if ($min !== null) min="{{ $min }}" @endif
+            @if ($max !== null) max="{{ $max }}" @endif
+            @if ($disabled) disabled @endif
+            @if ($readonly) readonly @endif
+            @if ($required) required @endif>
         @error($errorKey)
             <div class="invalid-feedback d-block">
                 {{ $message }}

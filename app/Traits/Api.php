@@ -10,13 +10,13 @@ trait Api
     private $username = 'XWEB';
     private $password = '1GsdMHa053Msd@';
 
-    public function sendRequest(string $endpoint, array $data = [])
+    public function sendRequest(string $endpoint, array $data = [], string $method = 'POST')
     {
         $endpoint = '/' . ltrim($endpoint, '/');
 
         return Http::withHeaders([
             'param' => $endpoint,
-            'mtd' => 'POST',
+            'mtd' => $method,
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
             'Authorization' => 'Basic ' . base64_encode($this->username . ':' . $this->password),

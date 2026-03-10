@@ -2,141 +2,323 @@
 
 namespace App\Http\Controllers\Insurence;
 
-use App\DTOs\AccidentApplicationData;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Insurence\AccidentApplicationRequest;
-use App\Models\Order;
-use App\Services\InsuranceApiService;
+use App\Exceptions\ProviderException;
 use App\Services\OrderService;
-use App\Traits\HandlesInsuranceErrors;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
-final class AccidentController extends Controller
+final class AccidentController extends BaseInsuranceController
 {
-    use HandlesInsuranceErrors;
+    private const SESSION_KEY = 'accident';
 
-    public function __construct(
-        private readonly OrderService $orderService,
-        private readonly InsuranceApiService $apiService
-    ) {
-        // Configure API service for ACCIDENT product
-        $baseUrl = (string) config('services.insurance.accident.endpoint', 'https://erspapi.e-osgo.uz/api/v3');
-        $token = (string) config('services.insurance.accident.api_token');
-
-        $this->apiService
-            ->setEndpoint(rtrim($baseUrl))
-            ->setProductType('ACCIDENT')
-            ->setHeaders([
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $token,
-            ])
-            ->setTimeout((int) config('services.insurance.accident.timeout', 10))
-            ->setRetries((int) config('services.insurance.accident.retries', 3));
+    public function __construct(OrderService $orderService)
+    {
+        parent::__construct($orderService);
     }
 
-    public function main(): View
+    protected function getProductKey(): string
     {
-        return view('pages.insurence.accident.main');
+        return self::SESSION_KEY;
     }
 
-    public function application(AccidentApplicationRequest $request): View|RedirectResponse
+    // ─── Step 1: Applicant ────────────────────────────────────────────────────
+
+    public function index(): View
     {
-        try {
-            // Create DTO from validated request data
-            $applicationData = AccidentApplicationData::fromRequest($request->validated());
-
-            // Send data to API using service
-            $requestData = $applicationData->toApiFormat();
-            $result = $this->apiService->sendApplication($requestData);
-
-            if (!$result['success']) {
-                return back()
-                    ->withErrors(['error' => $result['error']])
-                    ->withInput();
-            }
-
-            // Store data in session for GET requests (language switching and order creation)
-            session([
-                'accident_application_data' => $applicationData->toArray(),
-                'accident_api_response' => $result['data'] ?? null,
-            ]);
-
-            // Pass the structured data to the view
-            return view('pages.insurence.accident.application', [
-                'applicationData' => $applicationData->toArray(),
-                'apiResponse' => $result['data'] ?? null,
-            ]);
-        } catch (\Exception $e) {
-            return $this->handleGeneralError('accident', $e, 'application');
-        }
+        return view('pages.insurence.accident.main', ['product' => $this->getProduct()]);
     }
 
-
-    public function applicationView(): View|RedirectResponse
+    public function storeApplicant(Request $request): RedirectResponse
     {
-        if (!session()->has('accident_application_data')) {
-            return $this->handleSessionNotFound('accident');
-        }
-
-        $applicationData = session('accident_application_data');
-        return view('pages.insurence.accident.application', [
-            'applicationData' => $applicationData,
+        $request->validate([
+            'passport_seria'  => ['required', 'string', 'max:4'],
+            'passport_number' => ['required', 'digits:7'],
+            'birth_date'      => ['required', 'date', 'before:today'],
+            'phone'           => ['required', 'string', 'min:9', 'max:20'],
+            'offerta_agreed'  => $this->offertaRule(),
+        ], [
+            'offerta_agreed.required' => __('messages.offerta_required'),
+            'offerta_agreed.accepted' => __('messages.offerta_required'),
         ]);
-    }
 
-    public function storage(): RedirectResponse
-    {
         try {
-            if (!session()->has('accident_application_data')) {
-                return $this->handleSessionNotFound('accident');
-            }
-
-            $applicationData = session('accident_application_data');
-            $apiResponse = session('accident_api_response');
-
-            Log::info('Accident storage: Creating order', [
-                'has_application_data' => !empty($applicationData),
-                'has_api_response' => !empty($apiResponse),
-            ]);
-
-            // Create order
-            $orderData = [
-                'product_name' => __('insurance.accident.product_name'),
-                'amount' => $applicationData['insuranceAmount'] ?? 0,
-                'state' => 0,
-                'insurance_id' => $apiResponse['id'] ?? uniqid('acc_'),
-                'phone' => $applicationData['phone'] ?? null,
-                'insurances_data' => $applicationData,
-                'insurances_response_data' => $apiResponse['response']['result'] ?? null,
-                'status' => Order::STATUS_NEW,
-                'contractStartDate' => $applicationData['paymentStartDate'] ?? null,
-                'contractEndDate' => $applicationData['paymentEndDate'] ?? null,
-                'insuranceProductName' => config('services.insurance.accident.product_name', 'Jismoniy shaxslarni baxtsiz hodisalardan ehtiyot shart sug‘urtalash'),
-                'polic_id_number' => $apiResponse['response']['result']['contractUuid'],
-            ];
-
-            $order = $this->orderService->createOrder($orderData);
-
-            Log::info('Accident storage: Order created successfully', ['order_id' => $order->id]);
-
-            // Clear session data after successful order creation
-            session()->forget(['accident_application_data', 'accident_api_response']);
-
-            return $this->redirectWithSuccess(
-                'payment.show',
-                ['locale' => getCurrentLocale(), 'orderId' => $order->id],
-                __('success.insurance.order_created')
+            $person = $this->findPersonByPassport(
+                strtoupper($request->input('passport_seria')) . $request->input('passport_number'),
+                $request->input('birth_date')
             );
-        } catch (\Exception $e) {
-            return $this->handleOrderCreationError('accident', $e);
+        } catch (ProviderException $e) {
+            return back()->withErrors(['passport_seria' => __('messages.person_not_found')])->withInput();
         }
+
+        if (empty($person['currentPinfl'] ?? null)) {
+            return back()->withErrors(['passport_seria' => __('messages.person_not_found')])->withInput();
+        }
+
+        $this->putSess('applicant', array_merge($this->normalizePerson($person, $request), [
+            'passport_seria'  => strtoupper($request->input('passport_seria')),
+            'passport_number' => $request->input('passport_number'),
+            'birth_date'      => $request->input('birth_date'),
+            'phone'           => $this->cleanPhone($request->input('phone')),
+        ]));
+
+        return redirect()->route('accident.getPersons', ['locale' => getCurrentLocale()]);
     }
 
-    public function calculation(): View
+    // ─── Step 2: Persons list ─────────────────────────────────────────────────
+
+    public function getPersons(): View|RedirectResponse
     {
-        return view('pages.insurence.accident.calculation');
+        $applicant = $this->sess('applicant');
+        if (!$applicant) {
+            return redirect()->route('accident.index', ['locale' => getCurrentLocale()]);
+        }
+
+        $persons = $this->sess('persons', []);
+
+        return view('pages.insurence.accident.persons', compact('applicant', 'persons'));
+    }
+
+    public function calculatePremium(Request $request): JsonResponse
+    {
+        $request->validate([
+            'sum_insured' => ['required', 'integer', 'min:50000', 'max:1000000'],
+        ]);
+
+        try {
+            $result = $this->calculateAccident((int) $request->input('sum_insured'));
+        } catch (ProviderException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
+
+        $premium = (int) ($result['persons'][0]['insurancePremium'] ?? $result['cost']['insurancePremium'] ?? 0);
+
+        return response()->json(['success' => true, 'premium' => $premium]);
+    }
+
+    public function addPerson(Request $request): RedirectResponse
+    {
+        if (!$this->sess('applicant')) {
+            return redirect()->route('accident.index', ['locale' => getCurrentLocale()]);
+        }
+
+        $request->validate([
+            'pinfl'           => ['required', 'string'],
+            'passport_seria'  => ['required', 'string', 'max:4'],
+            'passport_number' => ['required', 'digits:7'],
+            'birth_date'      => ['required', 'date', 'before:today'],
+            'firstname'       => ['required', 'string'],
+            'lastname'        => ['required', 'string'],
+            'sum_insured'     => ['required', 'integer', 'min:50000', 'max:1000000'],
+        ]);
+
+        $sumInsured = (int) $request->input('sum_insured');
+
+        try {
+            $calcResult = $this->calculateAccident($sumInsured);
+            $premium    = (int) ($calcResult['persons'][0]['insurancePremium'] ?? $calcResult['cost']['insurancePremium'] ?? 0);
+        } catch (ProviderException $e) {
+            return back()->withErrors(['sum_insured' => $e->getMessage()])->withInput();
+        }
+
+        $persons   = $this->sess('persons', []);
+        $persons[] = [
+            'pinfl'               => $request->input('pinfl'),
+            'passport_seria'      => strtoupper($request->input('passport_seria')),
+            'passport_number'     => $request->input('passport_number'),
+            'passport_issue_date' => $request->input('passport_issue_date', ''),
+            'passport_issued_by'  => $request->input('passport_issued_by', ''),
+            'birth_date'          => $request->input('birth_date'),
+            'firstname'           => $request->input('firstname'),
+            'lastname'            => $request->input('lastname'),
+            'middlename'          => $request->input('middlename', ''),
+            'address'             => $request->input('address', ''),
+            'region_id'           => (int) $request->input('region_id', 10),
+            'district_id'         => (int) $request->input('district_id', 0),
+            'phone'               => $this->cleanPhone($request->input('phone') ?? ''),
+            'resident_type'       => 1,
+            'country_id'          => 210,
+            'sum_insured'         => $sumInsured,
+            'insurance_premium'   => $premium,
+        ];
+
+        $this->putSess('persons', $persons);
+
+        return redirect()->route('accident.getPersons', ['locale' => getCurrentLocale()]);
+    }
+
+    public function removePerson(string $index): RedirectResponse
+    {
+        $persons = $this->sess('persons', []);
+        array_splice($persons, (int) $index, 1);
+        $this->putSess('persons', $persons);
+
+        return redirect()->route('accident.getPersons', ['locale' => getCurrentLocale()]);
+    }
+
+    public function confirmPersons(Request $request): RedirectResponse
+    {
+        if (!$this->sess('applicant')) {
+            return redirect()->route('accident.index', ['locale' => getCurrentLocale()]);
+        }
+
+        $persons = $this->sess('persons', []);
+        if (empty($persons)) {
+            return redirect()->route('accident.getPersons', ['locale' => getCurrentLocale()])
+                ->withErrors(['error' => __('messages.at_least_one_person')]);
+        }
+
+        return redirect()->route('accident.getCalculator', ['locale' => getCurrentLocale()]);
+    }
+
+    // ─── Step 3: Calculator (dates only) ─────────────────────────────────────
+
+    public function getCalculator(): View|RedirectResponse
+    {
+        $applicant = $this->sess('applicant');
+        $persons   = $this->sess('persons', []);
+
+        if (!$applicant || empty($persons)) {
+            return redirect()->route('accident.index', ['locale' => getCurrentLocale()]);
+        }
+
+        $totalSum     = array_sum(array_column($persons, 'sum_insured'));
+        $totalPremium = array_sum(array_column($persons, 'insurance_premium'));
+        $calculation  = $this->sess('calculation', []);
+
+        return view('pages.insurence.accident.calculator', compact('applicant', 'persons', 'totalSum', 'totalPremium', 'calculation'));
+    }
+
+    public function storeCalculation(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'start_date' => ['required', 'date', 'after_or_equal:today'],
+        ]);
+
+        $applicant = $this->sess('applicant');
+        $persons   = $this->sess('persons', []);
+
+        if (!$applicant || empty($persons)) {
+            return redirect()->route('accident.index', ['locale' => getCurrentLocale()]);
+        }
+
+        $startDate    = $request->input('start_date');
+        $endDate      = Carbon::parse($startDate)->addYear()->subDay()->format('Y-m-d');
+        $totalSum     = array_sum(array_column($persons, 'sum_insured'));
+        $totalPremium = array_sum(array_column($persons, 'insurance_premium'));
+
+        $this->putSess('calculation', [
+            'start_date'    => $startDate,
+            'end_date'      => $endDate,
+            'total_sum'     => $totalSum,
+            'total_premium' => $totalPremium,
+        ]);
+
+        return redirect()->route('accident.getConfirm', ['locale' => getCurrentLocale()]);
+    }
+
+    // ─── Step 4: Confirm + Submit ─────────────────────────────────────────────
+
+    public function getConfirm(): View|RedirectResponse
+    {
+        $applicant   = $this->sess('applicant');
+        $persons     = $this->sess('persons', []);
+        $calculation = $this->sess('calculation');
+
+        if (!$applicant || empty($persons) || !$calculation) {
+            return redirect()->route('accident.index', ['locale' => getCurrentLocale()]);
+        }
+
+        return view('pages.insurence.accident.confirm', compact('applicant', 'persons', 'calculation'));
+    }
+
+    public function storeApplication(Request $request): RedirectResponse
+    {
+        $applicant   = $this->sess('applicant');
+        $persons     = $this->sess('persons', []);
+        $calculation = $this->sess('calculation');
+
+        if (!$applicant || empty($persons) || !$calculation) {
+            return redirect()->route('accident.index', ['locale' => getCurrentLocale()])
+                ->withErrors(['error' => __('messages.error_occurred')]);
+        }
+
+        $apiBody = $this->buildAccidentApiBody($applicant, $persons, $calculation);
+
+        try {
+            $apiResponse = $this->submitAccident($apiBody);
+        } catch (ProviderException $e) {
+            return redirect()->route('accident.getConfirm', ['locale' => getCurrentLocale()])
+                ->withErrors(['error' => $e->getMessage()]);
+        }
+
+        $contractId  = $apiResponse['contract_id'] ?? $apiResponse['id'] ?? $apiResponse['UUID'] ?? uniqid('acc_');
+        $paymeUrl    = $apiResponse['payme_url']    ?? null;
+        $clickUrl    = $apiResponse['click_url']    ?? null;
+
+        Log::info('Accident order created', ['contract_id' => $contractId]);
+
+        return $this->createOrderAndRedirect([
+            'product_name'             => __('insurance.accident.product_name'),
+            'amount'                   => $apiResponse['amount'] ?? $calculation['total_premium'],
+            'insurance_id'             => (string) $contractId,
+            'phone'                    => $applicant['phone'],
+            'insurances_data'          => ['applicant' => $applicant, 'persons' => $persons, 'calculation' => $calculation],
+            'insurances_response_data' => $apiResponse,
+            'payme_url'                => $paymeUrl,
+            'click_url'                => $clickUrl,
+            'contractStartDate'        => $calculation['start_date'],
+            'contractEndDate'          => $calculation['end_date'],
+            'insuranceProductName'     => __('insurance.accident.product_name'),
+        ], self::SESSION_KEY);
+    }
+
+    // ─── Private: Build API body ──────────────────────────────────────────────
+
+    private function buildAccidentApiBody(array $applicant, array $persons, array $calculation): array
+    {
+        $applicantPhone = $applicant['phone'] ?? '';
+
+        $buildPerson = fn(array $p) => [
+            'residentType' => 1,
+            'passportData' => [
+                'pinfl'     => $p['pinfl'],
+                'seria'     => $p['passport_seria'],
+                'number'    => $p['passport_number'],
+                'issueDate' => $p['passport_issue_date'] ?? '',
+                'issuedBy'  => $p['passport_issued_by']  ?? '',
+            ],
+            'fullName' => [
+                'firstname'  => $p['firstname'],
+                'lastname'   => $p['lastname'],
+                'middlename' => $p['middlename'] ?? '',
+            ],
+            'birthDate'  => $p['birth_date'],
+            'address'    => $p['address'],
+            'countryId'  => 210,
+            'regionId'   => (int) ($p['region_id']   ?? 10),
+            'districtId' => (int) ($p['district_id'] ?? 0),
+            'phone'      => $p['phone'] ?: $applicantPhone,
+        ];
+
+        return [
+            'applicant' => ['person' => $buildPerson($applicant)],
+            'details'   => [
+                'productCode' => '202',
+                'startDate'   => $calculation['start_date'],
+                'endDate'     => $calculation['end_date'],
+            ],
+            'cost' => [
+                'sumInsured'       => $calculation['total_sum'],
+                'insurancePremium' => $calculation['total_premium'],
+            ],
+            'persons' => array_map(fn($p) => array_merge($buildPerson($p), [
+                'sumInsured'       => $p['sum_insured'],
+                'insurancePremium' => $p['insurance_premium'],
+            ]), $persons),
+        ];
     }
 }

@@ -61,8 +61,19 @@ class OsagoApplicationRequest extends FormRequest
             'insurance_infos.period' => ['required', 'integer'], // Muddat kerak (1 yil va h.k.)
 
             // Haydovchilar (Agar cheklangan bo'lsa)
-            'driver_limit' => ['required', 'string', 'in:limited,unlimited'],
+            'driver_limit'   => ['required', 'string', 'in:limited,unlimited'],
             'driver_full_info' => ['nullable', 'array', 'required_if:driver_limit,limited'],
+
+            // Offerta rozilik
+            'offerta_agreed' => ['required', 'accepted'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'offerta_agreed.required' => __('messages.offerta_required'),
+            'offerta_agreed.accepted' => __('messages.offerta_required'),
         ];
     }
 }

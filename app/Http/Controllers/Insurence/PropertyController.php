@@ -2,194 +2,275 @@
 
 namespace App\Http\Controllers\Insurence;
 
-use App\DTOs\PropertyApplicationData;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Insurence\PropertyApplicationRequest;
-use App\Models\Order;
+use App\Exceptions\ProviderException;
 use App\Services\OrderService;
 use App\Services\PropertyService;
-use App\Traits\Api;
-use App\Traits\HandlesInsuranceErrors;
-use Illuminate\Http\JsonResponse;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
-final class PropertyController extends Controller
+final class PropertyController extends BaseInsuranceController
 {
-    use Api, HandlesInsuranceErrors;
+    private const SESSION_KEY = 'property';
 
     public function __construct(
         private readonly PropertyService $propertyService,
-        private readonly OrderService $orderService
+        OrderService $orderService
     ) {
+        parent::__construct($orderService);
     }
 
-    public function main(): View
+    protected function getProductKey(): string
     {
-        return view('pages.insurence.property.main');
+        return self::SESSION_KEY;
     }
 
-    public function applicationView(): View|RedirectResponse
+    // ─── Step 1: Applicant ────────────────────────────────────────────────────
+
+    public function index(): View
     {
-        if (!session()->has('property_application_data')) {
-            return $this->handleSessionNotFound('property');
-        }
-
-        $applicationData = session('property_application_data');
-        return view('pages.insurence.property.application', [
-            'applicationData' => $applicationData,
-        ]);
+        return view('pages.insurence.property.main', ['product' => $this->getProduct()]);
     }
 
-    public function application(
-        PropertyApplicationRequest $request
-    ): View|RedirectResponse {
-        try {
-            // Create DTO from validated request data
-            $applicationData = PropertyApplicationData::fromRequest($request->validated());
-
-            // Send data to API using Api trait
-            $requestData = $applicationData->toApiFormat();
-
-            Log::info('Property application: Sending request to API', [
-                'has_applicant' => !empty($requestData['insurant']['person']['fullName']['firstname']),
-                'has_owner' => !empty($requestData['policies'][0]['objects'][0]['others']['ownerPerson']['fullName']['firstname']),
-                'insurance_amount' => $requestData['sum'] ?? 0,
-            ]);
-
-            // Use Api trait to send request
-            $response = $this->sendRequest('/api/provider/property-insurance', $requestData);
-
-            if ($response->failed()) {
-                $errorData = $response->json();
-                $errorMessage = is_array($errorData)
-                    ? json_encode($errorData, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
-                    : (string) ($errorData['message'] ?? $response->body());
-
-                Log::error('Property application: API returned error', [
-                    'status' => $response->status(),
-                    'error' => $errorData,
-                    'formatted_error' => $errorMessage,
-                ]);
-
-                return back()
-                    ->withErrors(['error' => $errorMessage])
-                    ->withInput();
-            }
-
-            $responseData = $response->json();
-
-            Log::info('Property application: API response received', [
-                'has_data' => !empty($responseData),
-            ]);
-
-            // Store data in session for GET requests (language switching and order creation)
-            session([
-                'property_application_data' => $applicationData->toArray(),
-                'property_api_response' => $responseData ?? null,
-            ]);
-
-            // Pass the structured data to the view
-            return view('pages.insurence.property.application', [
-                'applicationData' => $applicationData->toArray(),
-            ]);
-        } catch (\Exception $e) {
-            return $this->handleGeneralError('property', $e, 'application');
-        }
-    }
-
-    public function storage(): RedirectResponse
-    {
-        try {
-            if (!session()->has('property_application_data')) {
-                return $this->handleSessionNotFound('property');
-            }
-
-            $applicationData = session('property_application_data');
-            $apiResponse = session('property_api_response');
-
-            Log::info('Property storage: Creating order', [
-                'has_application_data' => !empty($applicationData),
-                'has_api_response' => !empty($apiResponse),
-            ]);
-
-            // Extract insurance ID from API response (handle different response formats)
-            $insuranceId = $apiResponse['id']
-                ?? $apiResponse['UUID']
-                ?? ($apiResponse['response']['result']['contractUuid'] ?? null)
-                ?? uniqid('prop_');
-
-            // Extract contract UUID if available
-            $contractUuid = $apiResponse['UUID']
-                ?? ($apiResponse['response']['result']['contractUuid'] ?? null)
-                ?? ($apiResponse['contractUuid'] ?? null);
-
-            // Create order
-            $orderData = [
-                'product_name' => 'MOL-MULK Sug\'urta',
-                'amount' => $applicationData['insurancePremium'] ?? 0,
-                'state' => 0,
-                'insurance_id' => $insuranceId,
-                'phone' => $applicationData['applicant']['phoneNumber'] ?? null,
-                'insurances_data' => $applicationData,
-                'insurances_response_data' => $apiResponse,
-                'status' => Order::STATUS_NEW,
-                'contractStartDate' => $applicationData['paymentStartDate'] ?? null,
-                'contractEndDate' => $applicationData['paymentEndDate'] ?? null,
-                'insuranceProductName' => 'MOL-MULK Sug\'urta',
-                'polic_id_number' => $contractUuid,
-            ];
-
-            $order = $this->orderService->createOrder($orderData);
-
-            Log::info('Property storage: Order created successfully', ['order_id' => $order->id]);
-
-            return $this->redirectWithSuccess(
-                'payment.show',
-                ['locale' => getCurrentLocale(), 'orderId' => $order->id],
-                __('success.insurance.order_created')
-            );
-        } catch (\Exception $e) {
-            return $this->handleOrderCreationError('property', $e);
-        }
-    }
-
-    public function calculation(): View
-    {
-        return view('pages.insurence.property.calculation');
-    }
-
-    /**
-     * Fetch property data by cadaster number (AJAX endpoint)
-     */
-    public function fetchCadaster(Request $request): JsonResponse
+    public function storeApplicant(Request $request): RedirectResponse
     {
         $request->validate([
-            'cadasterNumber' => ['required', 'string', 'regex:/^\d{2}:\d{2}:\d{2}:\d{2}:\d{2}:\d{4}$/'],
-            'product_name' => ['required', 'string'],
+            'passport_seria'  => ['required', 'string', 'max:4'],
+            'passport_number' => ['required', 'digits:7'],
+            'birth_date'      => ['required', 'date', 'before:today'],
+            'phone'           => ['required', 'string', 'min:9', 'max:20'],
+            'offerta_agreed'  => $this->offertaRule(),
         ], [
-            'cadasterNumber.required' => 'Kadastr raqami kiritilishi shart',
-            'cadasterNumber.regex' => 'Kadastr raqami formati noto\'g\'ri (masalan: 11:11:10:01:03:0499)',
+            'offerta_agreed.required' => __('messages.offerta_required'),
+            'offerta_agreed.accepted' => __('messages.offerta_required'),
+        ]);
+
+        try {
+            $person = $this->findPersonByPassport(
+                strtoupper($request->input('passport_seria')) . $request->input('passport_number'),
+                $request->input('birth_date')
+            );
+        } catch (ProviderException $e) {
+            return back()->withErrors(['passport_seria' => __('messages.person_not_found')])->withInput();
+        }
+
+        if (empty($person['currentPinfl'] ?? null)) {
+            return back()->withErrors(['passport_seria' => __('messages.person_not_found')])->withInput();
+        }
+
+        $this->putSess('applicant', array_merge($this->normalizePerson($person, $request), [
+            'passport_seria'  => strtoupper($request->input('passport_seria')),
+            'passport_number' => $request->input('passport_number'),
+            'birth_date'      => $request->input('birth_date'),
+            'phone'           => $this->cleanPhone($request->input('phone')),
+            'gender'          => ($person['gender'] ?? '') == '1' ? '1' : '2',
+        ]));
+
+        return redirect()->route('property.getProperty', ['locale' => getCurrentLocale()]);
+    }
+
+    // ─── Step 2: Property + Calculation ──────────────────────────────────────
+
+    public function getProperty(): View|RedirectResponse
+    {
+        $applicant = $this->sess('applicant');
+        if (!$applicant) {
+            return redirect()->route('property.index', ['locale' => getCurrentLocale()]);
+        }
+
+        $property    = $this->sess('property', []);
+        $calculation = $this->sess('calculation', []);
+
+        return view('pages.insurence.property.property', compact('applicant', 'property', 'calculation'));
+    }
+
+    public function storeProperty(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'cadaster_number'    => ['required', 'string'],
+            'insurance_amount'   => ['required', 'integer', 'min:50000000', 'max:500000000'],
+            'payment_start_date' => ['required', 'date', 'after_or_equal:today'],
+        ]);
+
+        if (!$this->sess('applicant')) {
+            return redirect()->route('property.index', ['locale' => getCurrentLocale()]);
+        }
+
+        $insuranceAmount = (int) $request->input('insurance_amount');
+        $premium         = (int) round($insuranceAmount * 0.2 / 100);
+        $startDate       = $request->input('payment_start_date');
+        $endDate         = Carbon::parse($startDate)->addYear()->subDay()->format('Y-m-d');
+
+        $districtId = (int) $request->input('prop_district_id', 0);
+        $regionId   = (int) $request->input('prop_region_id', 0)
+            ?: ($districtId > 0 ? (int) floor($districtId / 100) : 10);
+
+        $this->putSess('property', [
+            'cadasterNumber'   => $request->input('cadaster_number'),
+            'shortAddress'     => $request->input('short_address', ''),
+            'objectArea'       => $request->input('object_area', ''),
+            'cost'             => $request->input('prop_cost', ''),
+            'tipText'          => $request->input('tip_text', ''),
+            'vidText'          => $request->input('vid_text', ''),
+            'tip'              => $request->input('tip', ''),
+            'vid'              => $request->input('vid', ''),
+            'region'           => $request->input('prop_region', ''),
+            'regionId'         => $regionId,
+            'districtId'       => $districtId,
+            'district'         => $request->input('prop_district', ''),
+            'street'           => $request->input('prop_street', ''),
+            'domNum'           => $request->input('prop_dom_num', ''),
+            'kvartiraNum'      => $request->input('prop_kvartira', ''),
+            'neighborhood'     => $request->input('prop_neighborhood', ''),
+            'buildingType'     => (int) $request->input('prop_building_type', 1),
+            'cadastrIssueDate' => $request->input('prop_cadastr_issue_date', ''),
+        ]);
+
+        $this->putSess('calculation', [
+            'insurance_amount'   => $insuranceAmount,
+            'insurance_premium'  => $premium,
+            'payment_start_date' => $startDate,
+            'payment_end_date'   => $endDate,
+        ]);
+
+        return redirect()->route('property.getConfirm', ['locale' => getCurrentLocale()]);
+    }
+
+    // ─── Step 3: Confirm + Submit ─────────────────────────────────────────────
+
+    public function getConfirm(): View|RedirectResponse
+    {
+        $applicant   = $this->sess('applicant');
+        $property    = $this->sess('property');
+        $calculation = $this->sess('calculation');
+
+        if (!$applicant || !$property || !$calculation) {
+            return redirect()->route('property.index', ['locale' => getCurrentLocale()]);
+        }
+
+        return view('pages.insurence.property.confirm', compact('applicant', 'property', 'calculation'));
+    }
+
+    public function storeApplication(Request $request): RedirectResponse
+    {
+        $applicant   = $this->sess('applicant');
+        $property    = $this->sess('property');
+        $calculation = $this->sess('calculation');
+
+        if (!$applicant || !$property || !$calculation) {
+            return redirect()->route('property.index', ['locale' => getCurrentLocale()])
+                ->withErrors(['error' => __('messages.error_occurred')]);
+        }
+
+        $apiBody = $this->buildPropertyApiBody($applicant, $property, $calculation);
+
+        try {
+            $apiResponse = $this->submitXalqSugurta($apiBody);
+        } catch (ProviderException $e) {
+            return redirect()->route('property.getConfirm', ['locale' => getCurrentLocale()])
+                ->withErrors(['error' => $e->getMessage()]);
+        }
+
+        $insuranceId = null;
+        if (isset($apiResponse['polis_sery'], $apiResponse['polis_number'])) {
+            $insuranceId = $apiResponse['polis_sery'] . $apiResponse['polis_number'];
+        }
+        $insuranceId ??= $apiResponse['id'] ?? $apiResponse['UUID'] ?? uniqid('prop_');
+
+        Log::info('Property order created', ['insurance_id' => $insuranceId]);
+
+        return $this->createOrderAndRedirect([
+            'product_name'             => __('insurance.property.product_name'),
+            'amount'                   => $calculation['insurance_premium'],
+            'insurance_id'             => (string) $insuranceId,
+            'phone'                    => $applicant['phone'],
+            'insurances_data'          => [
+                'applicant'            => $applicant,
+                'property'             => $property,
+                'calculation'          => $calculation,
+                'xalq_contract_number' => $apiBody['loan_info']['contract_number'] ?? null,
+                'xalq_claim_id'        => $apiBody['loan_info']['claim_id'] ?? null,
+            ],
+            'insurances_response_data' => $apiResponse,
+            'contractStartDate'        => $calculation['payment_start_date'],
+            'contractEndDate'          => $calculation['payment_end_date'],
+            'insuranceProductName'     => __('insurance.property.product_name'),
+        ], self::SESSION_KEY);
+    }
+
+    // ─── AJAX: Cadaster ───────────────────────────────────────────────────────
+
+    public function fetchCadaster(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'cadasterNumber' => ['required', 'string'],
         ]);
 
         $result = $this->propertyService->fetchPropertyByCadaster($request->input('cadasterNumber'));
 
-
-
         if (!$result['success']) {
-            return response()->json([
-                'success' => false,
-                'message' => $result['error'] ?? __('errors.insurance.property.cadaster_not_found'),
-            ], 422);
+            return response()->json(['success' => false, 'message' => $result['error'] ?? __('messages.cadaster_invalid')], 422);
         }
 
-        session([$request->input('product_name') => $result['result']]);
+        return response()->json(['success' => true, 'result' => $result['result']]);
+    }
 
-        return response()->json([
-            'success' => true,
-            'result' => $result['result'],
-        ]);
+    // ─── Private helpers ──────────────────────────────────────────────────────
+
+    /** Convert Y-m-d to DD.MM.YYYY as required by Xalq Sugurta API */
+    private function toApiDate(string $date): string
+    {
+        return Carbon::parse($date)->format('d.m.Y');
+    }
+
+    private function buildPropertyApiBody(array $applicant, array $property, array $calculation): array
+    {
+        $regionId     = (int) ($property['regionId'] ?? 10);
+        $applicantFullName = trim($applicant['lastname'] . ' ' . $applicant['firstname'] . ' ' . ($applicant['middlename'] ?? ''));
+
+        $cadastrIssueDate = !empty($property['cadastrIssueDate'])
+            ? $this->toApiDate($property['cadastrIssueDate'])
+            : $this->toApiDate($calculation['payment_start_date']);
+
+        return [
+            'customer' => [
+                'address'    => $applicant['address'],
+                'birth_date' => $this->toApiDate($applicant['birth_date']),
+                'full_name'  => $applicantFullName,
+                'gender'     => (int) $applicant['gender'],
+                'passport'   => $applicant['passport_seria'] . $applicant['passport_number'],
+                'phone'      => $applicant['phone'],
+                'pinfl'      => $applicant['pinfl'],
+            ],
+            'loan_info' => [
+                'cadastr_info' => [
+                    'address'            => $property['shortAddress'] ?? $property['cadasterNumber'],
+                    'building_type'      => (int) ($property['buildingType'] ?? 1),
+                    'cadastr_issue_date' => $cadastrIssueDate,
+                    'cadastr_number'     => $property['cadasterNumber'],
+                    'country'            => 210,
+                    'description'        => $property['shortAddress'] ?? '',
+                    'districtid'         => (int) ($property['districtId'] ?? 0),
+                    'is_foreign'         => 0,
+                    'is_owner'           => 1,
+                    'name'               => $property['vidText'] ?? ($property['shortAddress'] ?? $property['cadasterNumber']),
+                    'note'               => $property['tipText'] ?? '',
+                    'region_code'        => (string) $regionId,
+                    'regionid'           => $regionId,
+                    'right_land_type'    => 1,
+                    'subject_full_name'  => $applicantFullName,
+                    'sum_bank'           => $calculation['insurance_amount'],
+                ],
+                'claim_id'        => uniqid('PROP-'),
+                'contract_date'   => $this->toApiDate($calculation['payment_start_date']),
+                'contract_number' => uniqid('PROP-'),
+                'e_date'          => $this->toApiDate($calculation['payment_end_date']),
+                'loan_type'       => config('provider.xalq.loan_type.property', '36'),
+                's_date'          => $this->toApiDate($calculation['payment_start_date']),
+            ],
+            'subject' => 'P',
+        ];
     }
 }

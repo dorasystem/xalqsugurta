@@ -45,9 +45,9 @@ return [
 
     'accident' => [
         'product_name' => 'Accident Insurance',
-        'page_title' => 'MTPL - Application Details',
-        'title' => 'MTPL Insurance Application Details',
-        'subtitle' => 'Review and confirm application details',
+        'page_title' => 'Accident Insurance',
+        'title' => 'Accident Insurance',
+        'subtitle' => 'Protection against injuries and disability resulting from accidents',
         'applicant_info' => 'Applicant Information',
         'insured_info' => 'Insured Person Information',
         'insurance_info' => 'Insurance Information',
@@ -197,16 +197,59 @@ return [
         'gas' => [
             'page_title' => 'Gas Balloon Insurance',
             'product_name' => 'Gas Balloon Insurance',
+            'subtitle' => 'Mandatory insurance for gas cylinder equipment owners',
             'errors' => [
                 'error' => 'Error!',
                 'errors_title' => 'Errors:',
             ],
         ],
 
+    'osgor' => [
+        'page_title' => 'OSGOR - Mandatory Employer Liability Insurance',
+        'product_name' => 'OSGOR - Mandatory Employer Liability Insurance',
+        'title' => 'OSGOR Insurance',
+        'description' => 'Mandatory insurance of employer civil liability for employee accidents at work.',
+        'errors' => [
+            'error' => 'Error!',
+            'errors_title' => 'Errors:',
+        ],
+    ],
+
+    'osgop' => [
+        'page_title' => 'OSGOP - Mandatory Carrier Liability Insurance',
+        'product_name' => 'OSGOP - Mandatory Carrier Liability Insurance',
+        'title' => 'OSGOP Insurance',
+        'description' => 'Mandatory insurance of carrier civil liability for passenger transportation.',
+        'errors' => [
+            'error' => 'Error!',
+            'errors_title' => 'Errors:',
+        ],
+    ],
+
+    'tourist' => [
+        'page_title'   => 'Tourist Accident Insurance',
+        'product_name' => 'Tourist Accident Insurance',
+        'subtitle'     => 'Accident insurance for tourists staying in hotels',
+        'errors' => [
+            'error'        => 'Error!',
+            'errors_title' => 'Errors:',
+        ],
+    ],
+
+    'property' => [
+        'page_title'   => 'Property Insurance',
+        'product_name' => 'Property Insurance',
+        'subtitle'     => 'Insure your property quickly and securely',
+        'errors' => [
+            'error'        => 'Error!',
+            'errors_title' => 'Errors:',
+        ],
+    ],
+
     'payment' => [
-        'page_title' => 'MTPL Insurance Payment',
-        'title' => 'MTPL Insurance Payment',
-        'subtitle' => 'Make insurance payment',
+        'page_title' => 'Insurance Payment',
+        'title' => 'Insurance Payment',
+        'subtitle' => 'Complete your insurance payment',
         'order_info' => 'Order Information',
         'order_number' => 'Order Number',
         'product' => 'Product',
@@ -223,5 +266,19 @@ return [
         'secure_payment' => 'Secure Payment',
         'ssl_encrypted' => 'Payment is protected by SSL encryption',
         'back' => 'Back',
+    ],
+
+    'kasko' => [
+        'page_title'     => 'CASCO Insurance',
+        'product_name'   => 'CASCO Insurance',
+        'subtitle'       => 'Protect your vehicle against loss and damage',
+        'vehicle_info'   => 'Vehicle Information',
+        'gov_number'     => 'License Plate',
+        'tp_seria'       => 'Tech. Passport Series',
+        'tp_number'      => 'Tech. Passport Number',
+        'brand_model'    => 'Brand / Model',
+        'year'           => 'Year of Manufacture',
+        'body_number'    => 'Body Number',
+        'engine_number'  => 'Engine Number',
     ],
 ];

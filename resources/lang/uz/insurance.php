@@ -46,9 +46,9 @@ return [
 
     'accident' => [
         'product_name' => 'Baxtsiz hodisa sug\'urtasi',
-        'page_title' => 'OSAGO - Ariza ma\'lumotlari',
-        'title' => 'OSAGO Sug\'urta Ariza Ma\'lumotlari',
-        'subtitle' => 'Ariza ma\'lumotlarini tekshirib, tasdiqlang',
+        'page_title' => 'Baxtsiz hodisa sug\'urtasi',
+        'title' => 'Baxtsiz hodisa sug\'urtasi',
+        'subtitle' => 'Baxtsiz hodisalar natijasida jarohat va nogironlikdan himoya',
         'applicant_info' => 'Ariza Beruvchi Ma\'lumotlari',
         'insured_info' => 'Sug\'urta Qilinuvchi Shaxs Ma\'lumotlari',
         'insurance_info' => 'Sug\'urta Ma\'lumotlari',
@@ -198,16 +198,59 @@ return [
     'gas' => [
         'page_title' => 'Gaz balon sug\'urtasi',
         'product_name' => 'Gaz balon sug\'urtasi',
+        'subtitle' => 'Gaz balon uskunalari egalari uchun majburiy sug\'urta',
         'errors' => [
             'error' => 'Xatolik!',
             'errors_title' => 'Xatoliklar:',
         ],
     ],
 
+    'osgor' => [
+        'page_title' => 'OSGOR - Ish beruvchilarning majburiy sug\'urtasi',
+        'product_name' => 'OSGOR - Ish beruvchilarning majburiy sug\'urtasi',
+        'title' => 'OSGOR Sug\'urtasi',
+        'description' => 'Ish beruvchining ishchilar baxtsiz hodisalari uchun fuqarolik javobgarligini majburiy sug\'urtasi.',
+        'errors' => [
+            'error' => 'Xatolik!',
+            'errors_title' => 'Xatoliklar:',
+        ],
+    ],
+
+    'osgop' => [
+        'page_title' => 'OSGOP - Tashuvchilarning majburiy sug\'urtasi',
+        'product_name' => 'OSGOP - Tashuvchilarning majburiy sug\'urtasi',
+        'title' => 'OSGOP Sug\'urtasi',
+        'description' => 'Yo\'lovchi tashish davomida tashuvchining fuqarolik javobgarligini majburiy sug\'urtasi.',
+        'errors' => [
+            'error' => 'Xatolik!',
+            'errors_title' => 'Xatoliklar:',
+        ],
+    ],
+
+    'tourist' => [
+        'page_title'   => 'Turistlarni baxtsiz hodisadan sug\'urtalash',
+        'product_name' => 'Turistlarni baxtsiz hodisadan sug\'urtalash',
+        'subtitle'     => 'Mehmonxonada yashovchi turistlarni baxtsiz hodisadan sug\'urtalash',
+        'errors' => [
+            'error'        => 'Xatolik!',
+            'errors_title' => 'Xatoliklar:',
+        ],
+    ],
+
+    'property' => [
+        'page_title'   => 'Mol-mulk sug\'urtasi',
+        'product_name' => 'Mol-mulk sug\'urtasi',
+        'subtitle'     => 'Mulkingizni tez va xavfsiz sug\'urta qiling',
+        'errors' => [
+            'error'        => 'Xatolik!',
+            'errors_title' => 'Xatoliklar:',
+        ],
+    ],
+
     'payment' => [
-        'page_title' => 'OSAGO Sug\'urta To\'lovi',
-        'title' => 'OSAGO Sug\'urta To\'lovi',
-        'subtitle' => 'Sug\'urta to\'lovini amalga oshiring',
+        'page_title' => 'Sug\'urta to\'lovi',
+        'title' => 'Sug\'urta to\'lovi',
+        'subtitle' => 'Sug\'urta to\'lovini yakunlang',
         'order_info' => 'Buyurtma ma\'lumotlari',
         'order_number' => 'Buyurtma raqami',
         'product' => 'Mahsulot',
@@ -224,5 +267,19 @@ return [
         'secure_payment' => 'Xavfsiz to\'lov',
         'ssl_encrypted' => 'To\'lov SSL shifrlash orqali himoyalangan',
         'back' => 'Orqaga',
+    ],
+
+    'kasko' => [
+        'page_title'     => 'Kasko sug\'urtasi',
+        'product_name'   => 'Kasko sug\'urtasi',
+        'subtitle'       => 'Transport vositangizni yo\'qotish va shikastlanishdan himoya qiling',
+        'vehicle_info'   => 'Avtomobil ma\'lumotlari',
+        'gov_number'     => 'Davlat raqami',
+        'tp_seria'       => 'Tex. pasport seriyasi',
+        'tp_number'      => 'Tex. pasport raqami',
+        'brand_model'    => 'Marka / Model',
+        'year'           => 'Ishlab chiqarilgan yil',
+        'body_number'    => 'Kuzov raqami',
+        'engine_number'  => 'Dvigatel raqami',
     ],
 ];

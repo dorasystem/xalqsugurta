@@ -315,13 +315,6 @@
                                         </label>
                                     </div>
 
-                                    <div class="form-check mb-3">
-                                        <input class="form-check-input" type="checkbox" id="confirm-offer" required>
-                                        <label class="form-check-label" for="confirm-offer">
-                                            <strong>{{ __('insurance.confirmation.confirm_offer') }}</strong>
-                                        </label>
-                                    </div>
-
                                     <form action="{{ route('osago.storage', ['locale' => getCurrentLocale()]) }}"
                                         method="POST" id="storage-form">
                                         @csrf
@@ -353,12 +346,11 @@
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const confirmData = document.getElementById('confirm-data');
-                const confirmOffer = document.getElementById('confirm-offer');
                 const confirmBtn = document.getElementById('confirm-application');
 
-                // Enable/disable confirm button based on checkboxes
+                // Enable/disable confirm button based on checkbox
                 function toggleConfirmButton() {
-                    if (confirmData.checked && confirmOffer.checked) {
+                    if (confirmData.checked) {
                         confirmBtn.disabled = false;
                         confirmBtn.classList.remove('btn-secondary');
                         confirmBtn.classList.add('btn-success');
@@ -370,7 +362,6 @@
                 }
 
                 confirmData.addEventListener('change', toggleConfirmButton);
-                confirmOffer.addEventListener('change', toggleConfirmButton);
 
                 // Form submit handler
                 const storageForm = document.getElementById('storage-form');

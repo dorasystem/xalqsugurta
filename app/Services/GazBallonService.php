@@ -32,7 +32,7 @@ final class GazBallonService
             'Authorization' => $this->authHeader,
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
-        ])->timeout($this->timeout)->retry($this->retries, 500);
+        ])->timeout($this->timeout)->retry($this->retries, 500, null, false);
     }
 
     public function fetchPerson(string $pinfl, string $passport, string $birthDate): array

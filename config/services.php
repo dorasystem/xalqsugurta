@@ -56,6 +56,11 @@ return [
 
     'insurance' => [
         'agency_id' => env('INSURANCE_AGENCY_ID', 28),
+        'eshop' => [
+            'base_url' => env('INSURANCE_ESHOP_URL', 'http://online.xalqsugurta.uz/xs/ins/eshop'),
+            'username' => env('INSURANCE_ESHOP_USERNAME', 'ESHOP'),
+            'password' => env('INSURANCE_ESHOP_PASSWORD'),
+        ],
         'osago' => [
             'endpoint' => env('INSURANCE_OSAGO_ENDPOINT', 'http://online.xalqsugurta.uz/xs/ins/doraosago/create'),
             'username' => env('INSURANCE_OSAGO_USERNAME'),

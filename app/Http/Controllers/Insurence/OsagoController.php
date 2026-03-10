@@ -6,6 +6,7 @@ use App\DTOs\OsagoApplicationData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Insurance\Osago\OsagoApplicationRequest;
 use App\Models\Order;
+use App\Models\Product;
 use App\Services\InsuranceApiService;
 use App\Services\OrderService;
 use App\Services\OsagoPriceCalculator;
@@ -25,7 +26,8 @@ final class OsagoController extends Controller
 
     public function main(): View
     {
-        return view('pages.insurence.osago.main');
+        $product = Product::where('route', 'osago')->first();
+        return view('pages.insurence.osago.main', compact('product'));
     }
 
     public function application(OsagoApplicationRequest $request): View|RedirectResponse
