@@ -66,6 +66,8 @@ final class OsagoController extends Controller
         try {
             if (!session()->has('osago_application_data')) {
                 return $this->handleSessionNotFound('osago');
+
+                // chat is tah
             }
 
             $applicationData = session('osago_application_data');
