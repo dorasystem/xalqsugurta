@@ -8,7 +8,6 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  # ⚠️  Serverdagi loyiha joylashgan papka — o'zingizga mos o'zgartiring
   APP_PATH: /var/www/new.xalqsugurta.uz
 
 jobs:
@@ -16,6 +15,10 @@ jobs:
   build:
     name: 🐳 Build & Push Image
     runs-on: ubuntu-latest
+    # ghcr.io ga push qilish uchun zarur
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout kodni olish
@@ -29,7 +32,8 @@ jobs:
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
-          password: ${{ secrets.REGISTRY_TOKEN }}
+          # GITHUB_TOKEN ishlatiladi — REGISTRY_TOKEN shart emas
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker metadata (tag) tayyorlash
         id: meta
@@ -41,13 +45,12 @@ jobs:
             type=sha,prefix=sha-
 
       - name: Image yig'ish va push qilish
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # GitHub Actions cache — keyingi buildlar tezroq bo'ladi
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -63,6 +66,7 @@ jobs:
         env:
           GH_ACTOR: ${{ github.actor }}
           GH_REPO: ${{ github.repository }}
+          # Server ghcr.io dan pull qilishi uchun REGISTRY_TOKEN ishlatiladi
           DEPLOY_TOKEN: ${{ secrets.REGISTRY_TOKEN }}
           DEPLOY_PATH: ${{ env.APP_PATH }}
         with:

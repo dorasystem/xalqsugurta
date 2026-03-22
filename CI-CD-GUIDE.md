@@ -40,9 +40,12 @@ Dockerfile              ← PHP 8.2 FPM + Composer + Node image
 
 ### REGISTRY_TOKEN ni qanday olish?
 
+> **Eslatma:** `build` bosqichi `GITHUB_TOKEN` ishlatadi (maxsus sozlash shart emas).
+> `REGISTRY_TOKEN` faqat **serverda** `ghcr.io` dan image pull qilish uchun kerak.
+
 1. GitHub → **Settings** → **Developer settings** → **Personal access tokens** → **Tokens (classic)**
 2. **Generate new token** bosing
-3. Permissions: `write:packages`, `read:packages`, `delete:packages` belgilang
+3. Permissions: `read:packages` belgilang (faqat pull uchun)
 4. Tokenni nusxalab, GitHub Secrets ga qo'shing
 
 ---
