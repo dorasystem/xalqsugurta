@@ -73,6 +73,7 @@ jobs:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_KEY }}
+          port: 2303
           envs: GH_ACTOR,GH_REPO,DEPLOY_TOKEN,DEPLOY_PATH
           script: |
             set -e
