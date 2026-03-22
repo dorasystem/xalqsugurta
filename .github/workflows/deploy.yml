@@ -102,8 +102,10 @@ jobs:
             docker pull "ghcr.io/$GH_REPO:latest"
 
             echo "🔄 Konteynerlarni qayta ishga tushirish..."
-            docker stop xalqsugurta-app xalqsugurta-nginx 2>/dev/null || true
-            docker rm   xalqsugurta-app xalqsugurta-nginx 2>/dev/null || true
+            docker ps -a --filter "name=xalqsugurta-app" -q | xargs -r docker stop
+            docker ps -a --filter "name=xalqsugurta-app" -q | xargs -r docker rm
+            docker ps -a --filter "name=xalqsugurta-nginx" -q | xargs -r docker stop
+            docker ps -a --filter "name=xalqsugurta-nginx" -q | xargs -r docker rm
             APP_IMAGE="ghcr.io/$GH_REPO:latest" \
               docker compose -f docker-compose.prod.yml up -d \
               --no-deps --no-build app nginx
