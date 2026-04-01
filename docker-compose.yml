@@ -9,6 +9,8 @@ services:
         volumes:
             - ./:/var/www/html
             - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+            - ./docker/php/zzz-fpm-docker-listen.conf:/usr/local/etc/php-fpm.d/zzz-fpm-docker-listen.conf
+            - ./docker/php/healthcheck-fpm.sh:/usr/local/bin/healthcheck-fpm.sh
         networks:
             - impex-network
         depends_on:
@@ -17,6 +19,12 @@ services:
         environment:
             - APP_ENV=local
             - APP_DEBUG=true
+        healthcheck:
+            test: ['CMD-SHELL', 'sh /usr/local/bin/healthcheck-fpm.sh']
+            interval: 5s
+            timeout: 3s
+            retries: 5
+            start_period: 40s
 
     nginx:
         image: nginx:alpine
@@ -30,7 +38,8 @@ services:
         networks:
             - impex-network
         depends_on:
-            - app
+            app:
+                condition: service_healthy
 
     mysql:
         image: mysql:8.0
