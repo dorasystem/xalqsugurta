@@ -1,0 +1,139 @@
+/* ===========================
+   ADMIN PANEL (Filament) — Xalq Sug'urta brand layer
+   Loaded via PanelsRenderHook::HEAD_END in AdminPanelProvider.
+   Filament ships precompiled CSS, so this file only targets fi-* classes.
+   =========================== */
+
+/* --- Fonts (same files as the public site) --- */
+
+@font-face {
+    font-family: 'Inter';
+    src: url('../fonts/Inter/Inter-Regular.woff2') format('woff2'),
+         url('../fonts/Inter/Inter-Regular.woff') format('woff');
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('../fonts/Inter/Inter-Medium.woff2') format('woff2'),
+         url('../fonts/Inter/Inter-Medium.woff') format('woff');
+    font-weight: 500 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Gilroy';
+    src: url('../fonts/Gilroy/Gilroy-Semibold.woff2') format('woff2'),
+         url('../fonts/Gilroy/Gilroy-Semibold.woff') format('woff');
+    font-weight: 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Gilroy';
+    src: url('../fonts/Gilroy/Gilroy-Bold.woff2') format('woff2'),
+         url('../fonts/Gilroy/Gilroy-Bold.woff') format('woff');
+    font-weight: 700 800;
+    font-display: swap;
+}
+
+:root {
+    --xs-brand: #393185;
+    --xs-brand-dark: #2a2466;
+    --xs-tint: #ecebf7;
+    --xs-ink: #16143a;
+    --xs-page: #f5f4fb;
+}
+
+/* --- Headings in the brand display face --- */
+
+.fi-header-heading,
+.fi-section-header-heading,
+.fi-simple-header-heading,
+.fi-modal-heading,
+.fi-wi-stats-overview-stat-value {
+    font-family: 'Gilroy', var(--font-family), sans-serif;
+    letter-spacing: -0.01em;
+}
+
+.fi-header-heading {
+    color: var(--xs-ink);
+}
+
+/* --- Page background: same lavender as the site --- */
+
+.fi-body:not(.dark *) {
+    background-color: var(--xs-page);
+}
+
+/* --- Sidebar --- */
+
+.fi-sidebar-header {
+    border-bottom: 1px solid rgba(57, 49, 133, 0.08);
+}
+
+.fi-sidebar-group-label {
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn:not(.dark *) {
+    background-color: var(--xs-tint);
+}
+
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn .fi-sidebar-item-label:not(.dark *) {
+    color: var(--xs-brand);
+    font-weight: 600;
+}
+
+/* --- Stats cards: brand accent line --- */
+
+.fi-wi-stats-overview-stat {
+    border-top: 3px solid var(--xs-brand);
+}
+
+/* --- Login page: brand backdrop like the site header --- */
+
+.fi-simple-layout:not(.dark *) {
+    background:
+        radial-gradient(circle at 85% 10%, rgba(57, 49, 133, 0.14) 0, transparent 45%),
+        radial-gradient(circle at 10% 90%, rgba(57, 49, 133, 0.10) 0, transparent 40%),
+        var(--xs-page);
+}
+
+.fi-simple-main {
+    border-top: 4px solid var(--xs-brand);
+}
+
+/* --- Bootstrap Icons preview inside product table / form --- */
+
+.xs-product-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.75rem;
+    background: var(--xs-tint);
+    color: var(--xs-brand);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.dark .xs-product-icon {
+    background: rgba(255, 255, 255, 0.08);
+    color: #c9c4f5;
+}
+
+/* --- Raw JSON blocks on the order page --- */
+
+.xs-json {
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: var(--mono-font-family), ui-monospace, monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    max-height: 480px;
+    overflow: auto;
+}

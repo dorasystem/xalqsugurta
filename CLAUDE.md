@@ -95,6 +95,13 @@ Blade components under `x-insurence.*` namespace (`resources/views/components/in
 - Offerta checkbox lives on the confirm step (validated in `storeApplication`), not step 1.
 - Helpers: `formatMoney($uzs)` → `250 000 so'm`, `formatPhone($p)` → `+998 90 123 45 67`. Flow strings are under `messages.flow.*`.
 
+### Admin panel (Filament 4, `/admin`)
+
+`app/Providers/Filament/AdminPanelProvider.php` — brand palette (`#393185` = primary 600), site logo/favicon, Inter/Gilroy fonts. Filament ships precompiled CSS, so brand tweaks live in plain CSS `public/assets/css/admin.css` (targets `fi-*` classes, injected via `PanelsRenderHook::HEAD_END`); Tailwind classes added in PHP will not exist. UI is Uzbek-only: `SetAdminLocale` (persistent middleware) sets `uz` and Carbon `uz_Latn`.
+- Dashboard (`Filament/Admin/Pages/Dashboard`, 3 columns): `OrdersStatsOverview`, `RevenueChart`, `ProductSalesChart`, `LatestOrders` widgets. Date grouping is done in PHP so it works on MySQL and SQLite.
+- `OrderResource::columns()` is shared by the list page and `LatestOrders`. Status labels/colors come from `Order::STATUS_LABELS` / `Order::statusColor()`; `Order::client_name` and `Order::applicant` read the applicant from `insurances_data` (person, organization, or OSGOP's nested shape).
+- `ProductResource` form uses UZ/RU/EN tabs; `route` options come from `Product::CATEGORIES`.
+
 ### Premium Rates (client-side calculation)
 - Accident: 0.3% of sum_insured per person
 - Property: 0.2% of insurance_amount

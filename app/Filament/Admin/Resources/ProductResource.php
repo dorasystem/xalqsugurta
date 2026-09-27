@@ -4,24 +4,32 @@ namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\ProductResource\Pages;
 use App\Models\Product;
-use Filament\Forms\Components\ColorPicker;
+use Filament\Actions\Action;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
-use Filament\Tables;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-shield-check';
+
+    protected static string|\UnitEnum|null $navigationGroup = 'Katalog';
 
     protected static ?string $navigationLabel = 'Mahsulotlar';
 
@@ -31,150 +39,153 @@ class ProductResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    protected static ?string $recordTitleAttribute = 'name_uz';
+
+    /** Languages shown as tabs in the form */
+    private const LOCALES = [
+        'uz' => 'O\'zbekcha',
+        'ru' => 'Русский',
+        'en' => 'English',
+    ];
+
+    // ─── Form ─────────────────────────────────────────────────────────────────
+
     public static function form(Schema $schema): Schema
     {
         return $schema
+            ->columns(3)
             ->components([
-                Section::make('Asosiy ma\'lumotlar')
-                    ->columns(3)
+                Tabs::make('Tillar')
+                    ->columnSpan(['lg' => 2])
+                    ->tabs(collect(self::LOCALES)->map(fn (string $label, string $locale) => Tab::make($label)
+                        ->schema([
+                            TextInput::make("name_{$locale}")
+                                ->label('Nomi')
+                                ->required()
+                                ->maxLength(255),
+
+                            Textarea::make("desc_{$locale}")
+                                ->label('Qisqa tavsif')
+                                ->helperText('Bosh sahifadagi kartada ko\'rinadi. 1–2 gap.')
+                                ->rows(3)
+                                ->maxLength(300),
+
+                            FileUpload::make("offerta_{$locale}")
+                                ->label('Oferta (PDF)')
+                                ->disk('public')
+                                ->directory('offerta')
+                                ->acceptedFileTypes(['application/pdf'])
+                                ->maxSize(10240)
+                                ->downloadable()
+                                ->openable(),
+                        ]))
+                        ->values()
+                        ->all()),
+
+                Grid::make(1)
+                    ->columnSpan(['lg' => 1])
                     ->schema([
-                        TextInput::make('name_uz')
-                            ->label('Nomi (UZ)')
-                            ->required()
-                            ->maxLength(255),
+                        Section::make('Holat')
+                            ->schema([
+                                Toggle::make('is_active')
+                                    ->label('Saytda ko\'rinadi')
+                                    ->default(true),
 
-                        TextInput::make('name_ru')
-                            ->label('Nomi (RU)')
-                            ->required()
-                            ->maxLength(255),
+                                TextInput::make('sort_order')
+                                    ->label('Tartib raqami')
+                                    ->helperText('Kichik raqam oldinda turadi.')
+                                    ->numeric()
+                                    ->default(0),
+                            ]),
 
-                        TextInput::make('name_en')
-                            ->label('Nomi (EN)')
-                            ->required()
-                            ->maxLength(255),
+                        Section::make('Sozlamalar')
+                            ->schema([
+                                Select::make('route')
+                                    ->label('Sahifa (route)')
+                                    ->options(fn (): array => collect(Product::CATEGORIES)
+                                        ->keys()
+                                        ->mapWithKeys(fn (string $r) => [$r => $r])
+                                        ->all())
+                                    ->searchable()
+                                    ->required()
+                                    ->helperText('Mahsulot qaysi ariza sahifasini ochishini belgilaydi.'),
 
-                        Textarea::make('desc_uz')
-                            ->label('Tavsif (UZ)')
-                            ->rows(3)
-                            ->columnSpan(1),
-
-                        Textarea::make('desc_ru')
-                            ->label('Tavsif (RU)')
-                            ->rows(3)
-                            ->columnSpan(1),
-
-                        Textarea::make('desc_en')
-                            ->label('Tavsif (EN)')
-                            ->rows(3)
-                            ->columnSpan(1),
-                    ]),
-
-                Section::make('Texnik sozlamalar')
-                    ->columns(2)
-                    ->schema([
-                        TextInput::make('route')
-                            ->label('Route nomi')
-                            ->required()
-                            ->maxLength(100)
-                            ->helperText('Masalan: accident, property, gas'),
-
-                        TextInput::make('sort_order')
-                            ->label('Tartib raqami')
-                            ->numeric()
-                            ->default(0),
-
-                        TextInput::make('icon')
-                            ->label('Icon klassi')
-                            ->maxLength(100)
-                            ->helperText('Masalan: bi bi-fire')
-                            ->columnSpan(1),
-
-                        Toggle::make('is_active')
-                            ->label('Faol')
-                            ->default(true)
-                            ->columnSpan(1),
-
-                        ColorPicker::make('icon_color')
-                            ->label('Icon rangi')
-                            ->columnSpan(1),
-
-                        ColorPicker::make('icon_bg')
-                            ->label('Icon fon rangi')
-                            ->columnSpan(1),
-                    ]),
-
-                Section::make('Offerta fayllari')
-                    ->columns(3)
-                    ->schema([
-                        FileUpload::make('offerta_uz')
-                            ->label('Offerta (UZ)')
-                            ->disk('public')
-                            ->directory('offerta')
-                            ->acceptedFileTypes(['application/pdf'])
-                            ->maxSize(10240)
-                            ->downloadable()
-                            ->columnSpan(1),
-
-                        FileUpload::make('offerta_ru')
-                            ->label('Offerta (RU)')
-                            ->disk('public')
-                            ->directory('offerta')
-                            ->acceptedFileTypes(['application/pdf'])
-                            ->maxSize(10240)
-                            ->downloadable()
-                            ->columnSpan(1),
-
-                        FileUpload::make('offerta_en')
-                            ->label('Offerta (EN)')
-                            ->disk('public')
-                            ->directory('offerta')
-                            ->acceptedFileTypes(['application/pdf'])
-                            ->maxSize(10240)
-                            ->downloadable()
-                            ->columnSpan(1),
+                                TextInput::make('icon')
+                                    ->label('Ikonka')
+                                    ->placeholder('bi bi-fire')
+                                    ->maxLength(100)
+                                    ->live(onBlur: true)
+                                    ->prefix(fn (Get $get): HtmlString => new HtmlString(
+                                        '<i class="' . e($get('icon') ?: 'bi bi-question') . '"></i>'
+                                    ))
+                                    ->helperText(new HtmlString(
+                                        'Bootstrap Icons klassi. <a href="https://icons.getbootstrap.com/" target="_blank" rel="noopener" class="underline">Ro\'yxat</a>'
+                                    )),
+                            ]),
                     ]),
             ]);
     }
+
+    // ─── Table ────────────────────────────────────────────────────────────────
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('sort_order')
-                    ->label('#')
-                    ->sortable()
-                    ->width(50),
+                TextColumn::make('icon')
+                    ->label('')
+                    ->formatStateUsing(fn (?string $state): HtmlString => new HtmlString(
+                        '<span class="xs-product-icon"><i class="' . e($state ?: 'bi bi-shield-check') . '"></i></span>'
+                    ))
+                    ->width('3.5rem'),
 
                 TextColumn::make('name_uz')
-                    ->label('Nomi (UZ)')
-                    ->searchable()
-                    ->weight('bold'),
+                    ->label('Mahsulot')
+                    ->description(fn (Product $record): ?string => $record->desc_uz)
+                    ->searchable(['name_uz', 'name_ru', 'name_en'])
+                    ->weight('bold')
+                    ->wrap(),
 
-                TextColumn::make('name_ru')
-                    ->label('Nomi (RU)')
-                    ->searchable(),
-
-                TextColumn::make('route')
-                    ->label('Route')
+                TextColumn::make('category')
+                    ->label('Kategoriya')
+                    ->state(fn (Product $record): ?string => $record->categoryKey()
+                        ? __t('messages.product_categories.' . $record->categoryKey(), [], 'uz')
+                        : null)
                     ->badge()
-                    ->color('gray'),
+                    ->color('primary')
+                    ->placeholder('—'),
 
-                TextColumn::make('icon')
-                    ->label('Icon'),
+                TextColumn::make('languages')
+                    ->label('Oferta')
+                    ->state(fn (Product $record): string => collect(array_keys(self::LOCALES))
+                        ->map(fn (string $l) => strtoupper($l) . ($record->{"offerta_{$l}"} ? ' ✓' : ' —'))
+                        ->implode('  '))
+                    ->color(fn (Product $record): string => $record->offerta_uz && $record->offerta_ru && $record->offerta_en ? 'success' : 'warning')
+                    ->size('sm'),
 
-                IconColumn::make('is_active')
-                    ->label('Faol')
-                    ->boolean(),
+                ToggleColumn::make('is_active')
+                    ->label('Saytda'),
 
                 TextColumn::make('updated_at')
                     ->label('Yangilangan')
                     ->dateTime('d.m.Y H:i')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([])
+            ->recordActions([
+                Action::make('open')
+                    ->label('Saytda')
+                    ->icon('heroicon-o-arrow-top-right-on-square')
+                    ->color('gray')
+                    ->url(fn (Product $record): string => $record->url(), shouldOpenInNewTab: true),
+                EditAction::make()->label('Tahrirlash'),
+            ])
             ->defaultSort('sort_order')
             ->reorderable('sort_order')
-            ->striped();
+            ->reorderRecordsTriggerAction(fn (Action $action, bool $isReordering) => $action
+                ->label($isReordering ? 'Tayyor' : 'Tartibni o\'zgartirish')
+                ->button())
+            ->paginated(false);
     }
 
     public static function getPages(): array
