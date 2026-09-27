@@ -25,14 +25,14 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
     // Unified payment route for all insurance products
     Route::get('/payment/{orderId}', [PaymentController::class, 'show'])->name('payment.show');
 
-    require_once 'insurence/osago.php';
-    require_once 'insurence/accident.php';
-    require_once 'insurence/property.php';
-    require_once 'insurence/gas.php';
-    require_once 'insurence/osgor.php';
-    require_once 'insurence/osgop.php';
-    require_once 'insurence/kasko.php';
-    require_once 'insurence/tourist.php';
+    require __DIR__ . '/insurence/osago.php';
+    require __DIR__ . '/insurence/accident.php';
+    require __DIR__ . '/insurence/property.php';
+    require __DIR__ . '/insurence/gas.php';
+    require __DIR__ . '/insurence/osgor.php';
+    require __DIR__ . '/insurence/osgop.php';
+    require __DIR__ . '/insurence/kasko.php';
+    require __DIR__ . '/insurence/tourist.php';
 });
 
 Route::post('/get-vehicle-info', [VehicleInfoController::class, 'getVehicleInfo']);
