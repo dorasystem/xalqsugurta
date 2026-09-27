@@ -84,6 +84,16 @@ Blade components under `x-insurence.*` namespace (`resources/views/components/in
 - `x-insurence.error-block` — validation error display
 - `x-insurence.multi-step-stepper` — step progress indicator
 
+**Unified flow standard** (`public/assets/css/flow.css`, brand color `#393185`). Gas balloon is migrated; other products still use the older components above and should move to these:
+- `x-insurence.flow` — page frame: header, stepper, main slot + `summary` slot. Props: `icon`, `title`, `subtitle`, `steps` (labels), `current` (1-based), `stepUrls`. Shows `$errors->first('error')` as an alert.
+- `x-insurence.field` — label + input + help/inline error. Props: `name`, `label`, `type`, `value`, `help`, `id`; extra attributes go to the `<input>`; optional `append` slot.
+- `x-insurence.found` — green "found in database" block (`title`, `text`); JS updates `[data-found="title|text"]`.
+- `x-insurence.summary` — "your policy" sidebar. Props: `premium` (int|null), `rate`, `items` (`key => [label, value|null]`); JS targets `#sidebar_premium`, `[data-summary="key"]`.
+- `x-insurence.review` — confirm-page block with "Edit" link. Props: `title`, `editUrl`, `items` (`label => value`).
+- `x-insurence.actions` — back link + primary submit; becomes a sticky bar with the total on phones. Props: `backUrl`, `submit`, `total`.
+- Offerta checkbox lives on the confirm step (validated in `storeApplication`), not step 1.
+- Helpers: `formatMoney($uzs)` → `250 000 so'm`, `formatPhone($p)` → `+998 90 123 45 67`. Flow strings are under `messages.flow.*`.
+
 ### Premium Rates (client-side calculation)
 - Accident: 0.3% of sum_insured per person
 - Property: 0.2% of insurance_amount

@@ -32,7 +32,7 @@ final class GasBallonController extends BaseInsuranceController
 
     public function index(): View
     {
-        return view('pages.insurence.gas.main', ['product' => $this->getProduct()]);
+        return view('pages.insurence.gas.main', $this->flowViewData());
     }
 
     public function storeApplicant(Request $request): RedirectResponse
@@ -42,10 +42,6 @@ final class GasBallonController extends BaseInsuranceController
             'passport_number' => ['required', 'digits:7'],
             'birth_date'      => ['required', 'date', 'before:today'],
             'phone'           => ['required', 'string', 'min:9', 'max:20'],
-            'offerta_agreed'  => $this->offertaRule(),
-        ], [
-            'offerta_agreed.required' => __('messages.offerta_required'),
-            'offerta_agreed.accepted' => __('messages.offerta_required'),
         ]);
 
         try {
@@ -81,10 +77,7 @@ final class GasBallonController extends BaseInsuranceController
             return redirect()->route('gas.index', ['locale' => getCurrentLocale()]);
         }
 
-        $property    = $this->sess('property', []);
-        $calculation = $this->sess('calculation', []);
-
-        return view('pages.insurence.gas.property', compact('applicant', 'property', 'calculation'));
+        return view('pages.insurence.gas.property', $this->flowViewData());
     }
 
     public function storeProperty(Request $request): RedirectResponse
@@ -158,11 +151,20 @@ final class GasBallonController extends BaseInsuranceController
             return redirect()->route('gas.index', ['locale' => getCurrentLocale()]);
         }
 
-        return view('pages.insurence.gas.confirm', compact('applicant', 'property', 'calculation'));
+        return view('pages.insurence.gas.confirm', $this->flowViewData([
+            'product' => $this->getProduct(),
+        ]));
     }
 
     public function storeApplication(Request $request): RedirectResponse
     {
+        $request->validate([
+            'offerta_agreed' => $this->offertaRule(),
+        ], [
+            'offerta_agreed.required' => __('messages.offerta_required'),
+            'offerta_agreed.accepted' => __('messages.offerta_required'),
+        ]);
+
         $applicant   = $this->sess('applicant');
         $property    = $this->sess('property');
         $calculation = $this->sess('calculation');
@@ -210,10 +212,59 @@ final class GasBallonController extends BaseInsuranceController
 
     // ─── Private helpers ──────────────────────────────────────────────────────
 
+    /** Session data + step list + summary rows shared by every gas flow page */
+    private function flowViewData(array $extra = []): array
+    {
+        $locale      = getCurrentLocale();
+        $applicant   = $this->sess('applicant');
+        $property    = $this->sess('property', []);
+        $calculation = $this->sess('calculation', []);
+
+        $applicantName = $applicant
+            ? trim($applicant['lastname'] . ' ' . $applicant['firstname'] . ' ' . ($applicant['middlename'] ?? ''))
+            : null;
+
+        $propertyLabel = null;
+        if (!empty($property['cadasterNumber'])) {
+            $propertyLabel = ($property['vidText'] ?: $property['tipText'] ?: $property['cadasterNumber'])
+                . (!empty($property['objectArea']) ? ', ' . $property['objectArea'] . ' m²' : '');
+        }
+
+        $period = null;
+        if (!empty($calculation['payment_start_date'])) {
+            $period = Carbon::parse($calculation['payment_start_date'])->format('d.m.Y')
+                . ' – ' . Carbon::parse($calculation['payment_end_date'])->format('d.m.Y');
+        }
+
+        return array_merge([
+            'applicant'     => $applicant,
+            'property'      => $property,
+            'calculation'   => $calculation,
+            'applicantName' => $applicantName,
+            'flowSteps'     => [
+                __t('messages.flow.applicant'),
+                __t('messages.flow.property'),
+                __t('messages.confirm_details'),
+                __t('messages.flow.payment'),
+            ],
+            'flowUrls'      => [
+                route('gas.index', ['locale' => $locale]),
+                route('gas.getProperty', ['locale' => $locale]),
+                route('gas.getConfirm', ['locale' => $locale]),
+            ],
+            'summaryItems'  => [
+                'applicant' => [__t('messages.flow.applicant'), $applicant ? $applicant['lastname'] . ' ' . mb_substr($applicant['firstname'], 0, 1) . '.' : null],
+                'property'  => [__t('messages.flow.property'), $propertyLabel],
+                'sum'       => [__t('messages.insurance_sum'), !empty($calculation['insurance_amount']) ? formatMoney($calculation['insurance_amount']) : null],
+                'period'    => [__t('messages.flow.period'), $period],
+            ],
+        ], $extra);
+    }
+
     /** Convert Y-m-d to DD.MM.YYYY as required by Xalq Sugurta API */
     private function toApiDate(string $date): string
     {
-        return \Carbon\Carbon::parse($date)->format('d.m.Y');
+        return Carbon::parse($date)->format('d.m.Y');
     }
 
     private function buildGasApiBody(array $applicant, array $property, array $calculation): array
