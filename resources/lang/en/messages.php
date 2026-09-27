@@ -39,6 +39,11 @@
             'check_title'          => 'Check your details',
             'check_subtitle'       => 'Is everything correct? If not, press "Edit".',
             'policy_terms'         => 'Policy terms',
+            'vehicle'              => 'Vehicle',
+            'vehicle_title'        => 'Vehicle to insure',
+            'vehicle_subtitle'     => 'Enter the licence plate and registration certificate; the rest is loaded from the database.',
+            'vehicle_hint'         => 'Find the vehicle first, then choose the sum.',
+            'vehicle_fill'         => 'Fill in the licence plate and registration certificate.',
         ],
         'product_categories' => [
             'transport' => 'Transport',

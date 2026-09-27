@@ -39,6 +39,11 @@ return [
         'check_title'          => 'Ma\'lumotlarni tekshiring',
         'check_subtitle'       => 'Hammasi to\'g\'rimi? Xato bo\'lsa, "O\'zgartirish" tugmasini bosing.',
         'policy_terms'         => 'Polis shartlari',
+        'vehicle'              => 'Avtomobil',
+        'vehicle_title'        => 'Sug\'urtalanadigan avtomobil',
+        'vehicle_subtitle'     => 'Davlat raqami va texnik pasportni kiriting, qolgan ma\'lumotlar bazadan olinadi.',
+        'vehicle_hint'         => 'Avval avtomobilni toping, shundan so\'ng summa tanlanadi.',
+        'vehicle_fill'         => 'Davlat raqami va texnik pasportni to\'liq kiriting.',
     ],
     'product_categories' => [
         'transport' => 'Transport',

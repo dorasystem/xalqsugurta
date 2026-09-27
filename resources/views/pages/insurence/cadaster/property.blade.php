@@ -49,7 +49,7 @@
 
             <x-insurence.found
                 id="prop_result"
-                :title="$summaryItems['property'][1] ?? ''"
+                :title="$summaryItems['object'][1] ?? ''"
                 :text="$property['shortAddress'] ?? ''"
                 :hidden="!$hasProperty"
             />
@@ -79,52 +79,7 @@
             <input type="hidden" name="prop_kvartira"           id="h_kvartira"           value="{{ $property['kvartiraNum'] ?? '' }}">
             <input type="hidden" name="prop_neighborhood"       id="h_neighborhood"       value="{{ $property['neighborhood'] ?? '' }}">
 
-            {{-- ── Sum + dates (after the property is found) ── --}}
-            <div id="calc_section" class="xf-panel__body" style="padding: 0" @unless ($hasProperty) hidden @endunless>
-
-                <div class="xf-field">
-                    <span class="xf-field__label" id="amt_label">{{ __('messages.insurance_sum') }}</span>
-                    <div class="xf-chips" role="group" aria-labelledby="amt_label">
-                        @foreach ($flow['presets'] as $preset)
-                            <button type="button" class="xf-chip" data-amount="{{ $preset }}"
-                                    aria-pressed="{{ $preset === $amount ? 'true' : 'false' }}">
-                                {{ $preset / 1000000 }} {{ __t('messages.flow.mln') }}
-                            </button>
-                        @endforeach
-                    </div>
-                    <span class="xf-amount" id="amt_display">{{ formatMoney($amount) }}</span>
-                    <input type="range" id="amt_slider" class="xf-range" min="{{ $flow['min'] }}" max="{{ $flow['max'] }}" step="5000000"
-                           value="{{ $amount }}" aria-labelledby="amt_label">
-                    <input type="hidden" name="insurance_amount" id="h_insurance_amount" value="{{ $amount }}">
-                    @error('insurance_amount')
-                        <p class="xf-field__error">{{ $message }}</p>
-                    @else
-                        <p class="xf-field__help">{{ __t('messages.flow.amount_range', ['min' => $flow['min'] / 1000000, 'max' => $flow['max'] / 1000000]) }}</p>
-                    @enderror
-                </div>
-
-                <div class="xf-row">
-                    <x-insurence.field
-                        name="payment_start_date"
-                        id="start_date"
-                        type="date"
-                        :label="__('messages.start_date')"
-                        :value="$startDate"
-                        :min="now()->format('Y-m-d')"
-                        required
-                    />
-                    <x-insurence.field
-                        name="payment_end_date_display"
-                        id="end_date"
-                        type="date"
-                        :label="__('messages.end_date')"
-                        :value="$calculation['payment_end_date'] ?? null"
-                        :help="__t('messages.flow.term_auto')"
-                        readonly
-                        tabindex="-1"
-                    />
-                </div>
-            </div>
+            @include('pages.insurence.flow.partials.sum-dates', ['revealed' => $hasProperty])
 
         </div>
 
@@ -148,60 +103,13 @@
 @endsection
 
 @push('scripts')
+@include('pages.insurence.flow.partials.calc-script')
 <script>
 (function () {
     var CSRF     = document.querySelector('meta[name="csrf-token"]').content;
-    var RATE     = {{ $flow['rate'] / 100 }};
-    var CURRENCY = @json(__t('messages.currency'));
 
     function $(id) { return document.getElementById(id); }
-    function money(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ' + CURRENCY; }
-    function dmy(d) { return ('0' + d.getDate()).slice(-2) + '.' + ('0' + (d.getMonth() + 1)).slice(-2) + '.' + d.getFullYear(); }
-    function setSummary(key, text) {
-        document.querySelectorAll('[data-summary="' + key + '"]').forEach(function (el) {
-            el.textContent = text;
-            el.classList.remove('is-pending');
-        });
-    }
-
-    // ── Sum: chips + slider ────────────────────────────────────────────────────
-    var slider = $('amt_slider');
-
-    function setAmount(val) {
-        val = parseInt(val, 10);
-        slider.value = val;
-        $('h_insurance_amount').value = val;
-        $('amt_display').textContent = money(val);
-        document.querySelectorAll('[data-amount]').forEach(function (chip) {
-            chip.setAttribute('aria-pressed', parseInt(chip.dataset.amount, 10) === val ? 'true' : 'false');
-        });
-
-        if ($('calc_section').hidden) return;
-
-        var premium = $('sidebar_premium');
-        premium.textContent = money(val * RATE);
-        premium.classList.remove('is-empty');
-        setSummary('sum', money(val));
-        setSummary('total', money(val * RATE));
-    }
-
-    slider.addEventListener('input', function () { setAmount(this.value); });
-    document.querySelectorAll('[data-amount]').forEach(function (chip) {
-        chip.addEventListener('click', function () { setAmount(this.dataset.amount); });
-    });
-
-    // ── Start date → end date ──────────────────────────────────────────────────
-    function updateDates() {
-        var start = $('start_date').value;
-        if (!start) return;
-        var s = new Date(start + 'T00:00:00');
-        var e = new Date(s);
-        e.setFullYear(e.getFullYear() + 1);
-        e.setDate(e.getDate() - 1);
-        $('end_date').value = e.getFullYear() + '-' + ('0' + (e.getMonth() + 1)).slice(-2) + '-' + ('0' + e.getDate()).slice(-2);
-        if (!$('calc_section').hidden) setSummary('period', dmy(s) + ' – ' + dmy(e));
-    }
-    $('start_date').addEventListener('change', updateDates);
+    var calc = window.xfCalc;
 
     // ── Cadaster search ────────────────────────────────────────────────────────
     var cadBtn = $('cad_btn');
@@ -253,12 +161,8 @@
             found.querySelector('[data-found="text"]').textContent  = r.shortAddress || r.address || '';
             found.hidden = false;
             $('cad_hint').hidden = true;
-            $('calc_section').hidden = false;
-            $('submit_btn').disabled = false;
 
-            setSummary('property', title);
-            setAmount(slider.value);
-            updateDates();
+            calc.reveal(title);
         } catch (e) {
             err.textContent = @json(__('messages.error_occurred'));
             err.hidden = false;
@@ -268,9 +172,6 @@
             $('cad_btn_text').textContent = @json(__('messages.search'));
         }
     });
-
-    setAmount(slider.value);
-    updateDates();
 })();
 </script>
 @endpush

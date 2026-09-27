@@ -37,19 +37,14 @@
             />
 
             <x-insurence.review
-                :title="__t('messages.flow.property')"
-                :editUrl="route($flow['key'] . '.getProperty', ['locale' => $locale])"
-                :items="[
-                    __('messages.cadaster_number')        => $property['cadasterNumber'],
-                    __('messages.property_short_address') => $property['shortAddress'] ?? null,
-                    __('messages.property_object_type')   => $property['tipText'] ?? null,
-                    __('messages.area')                   => !empty($property['objectArea']) ? $property['objectArea'] . ' m²' : null,
-                ]"
+                :title="$objectTitle"
+                :editUrl="$flowUrls[1]"
+                :items="$objectReview"
             />
 
             <x-insurence.review
                 :title="__t('messages.flow.policy_terms')"
-                :editUrl="route($flow['key'] . '.getProperty', ['locale' => $locale])"
+                :editUrl="$flowUrls[1]"
                 :items="[
                     __('messages.insurance_sum')     => formatMoney($calculation['insurance_amount']),
                     __t('messages.flow.period')      => $summaryItems['period'][1],
@@ -79,7 +74,7 @@
         </div>
 
         <x-insurence.actions
-            :backUrl="route($flow['key'] . '.getProperty', ['locale' => $locale])"
+            :backUrl="$flowUrls[1]"
             :submit="__('messages.proceed_to_payment')"
             :total="$calculation['insurance_premium']"
         />

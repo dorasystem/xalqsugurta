@@ -29,6 +29,9 @@ final class GasBallonController extends BaseInsuranceController
         'default'       => 50_000_000,
         'presets'       => [10_000_000, 50_000_000, 100_000_000, 250_000_000],
         'cadasterRoute' => 'fetch.cadaster.gas',
+        'objectKey'     => 'property',
+        'objectStep'    => 'getProperty',
+        'objectTitle'   => 'messages.flow.property',
     ];
 
     public function __construct(
@@ -47,7 +50,7 @@ final class GasBallonController extends BaseInsuranceController
 
     public function index(): View
     {
-        return view('pages.insurence.cadaster.applicant', $this->flowViewData());
+        return view('pages.insurence.flow.applicant', $this->flowViewData());
     }
 
     public function storeApplicant(Request $request): RedirectResponse
@@ -166,7 +169,7 @@ final class GasBallonController extends BaseInsuranceController
             return redirect()->route('gas.index', ['locale' => getCurrentLocale()]);
         }
 
-        return view('pages.insurence.cadaster.confirm', $this->flowViewData([
+        return view('pages.insurence.flow.confirm', $this->flowViewData([
             'product' => $this->getProduct(),
         ]));
     }

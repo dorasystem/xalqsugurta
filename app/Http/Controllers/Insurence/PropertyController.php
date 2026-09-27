@@ -28,6 +28,9 @@ final class PropertyController extends BaseInsuranceController
         'default'       => 100_000_000,
         'presets'       => [50_000_000, 100_000_000, 250_000_000, 500_000_000],
         'cadasterRoute' => 'fetch.cadaster',
+        'objectKey'     => 'property',
+        'objectStep'    => 'getProperty',
+        'objectTitle'   => 'messages.flow.property',
     ];
 
     public function __construct(
@@ -46,7 +49,7 @@ final class PropertyController extends BaseInsuranceController
 
     public function index(): View
     {
-        return view('pages.insurence.cadaster.applicant', $this->flowViewData());
+        return view('pages.insurence.flow.applicant', $this->flowViewData());
     }
 
     public function storeApplicant(Request $request): RedirectResponse
@@ -158,7 +161,7 @@ final class PropertyController extends BaseInsuranceController
             return redirect()->route('property.index', ['locale' => getCurrentLocale()]);
         }
 
-        return view('pages.insurence.cadaster.confirm', $this->flowViewData([
+        return view('pages.insurence.flow.confirm', $this->flowViewData([
             'product' => $this->getProduct(),
         ]));
     }

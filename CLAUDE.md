@@ -38,6 +38,7 @@ Five products, each following a **multi-step PRG (Post-Redirect-Get)** pattern w
 | Accident | `AccidentController` | `accident.*` | applicant → persons → calculator → confirm |
 | Property | `PropertyController` | `property.*` | applicant → property → confirm |
 | Gas Balloon | `GasBallonController` | `gas.*` | applicant → property → confirm |
+| KASKO | `KaskoController` | `kasko.*` | applicant → vehicle → confirm |
 
 All insurance controllers extend `BaseInsuranceController` (`app/Http/Controllers/Insurence/BaseInsuranceController.php`), which provides:
 - `sess($key)` / `putSess($key, $value)` / `clearSess()` — session helpers prefixed by product key
@@ -84,14 +85,15 @@ Blade components under `x-insurence.*` namespace (`resources/views/components/in
 - `x-insurence.error-block` — validation error display
 - `x-insurence.multi-step-stepper` — step progress indicator
 
-**Unified flow standard** (`public/assets/css/flow.css`, brand color `#393185`). Gas balloon and property are migrated; other products still use the older components above and should move to these:
+**Unified flow standard** (`public/assets/css/flow.css`, brand color `#393185`). Gas balloon, property and KASKO are migrated; other products still use the older components above and should move to these:
 - `x-insurence.flow` — page frame: header, stepper, main slot + `summary` slot. Props: `icon`, `title`, `subtitle`, `steps` (labels), `current` (1-based), `stepUrls`. Shows `$errors->first('error')` as an alert.
 - `x-insurence.field` — label + input + help/inline error. Props: `name`, `label`, `type`, `value`, `help`, `id`; extra attributes go to the `<input>`; optional `append` slot.
 - `x-insurence.found` — green "found in database" block (`title`, `text`); JS updates `[data-found="title|text"]`.
 - `x-insurence.summary` — "your policy" sidebar. Props: `premium` (int|null), `rate`, `items` (`key => [label, value|null]`); JS targets `#sidebar_premium`, `[data-summary="key"]`.
 - `x-insurence.review` — confirm-page block with "Edit" link. Props: `title`, `editUrl`, `items` (`label => value`).
 - `x-insurence.actions` — back link + primary submit; becomes a sticky bar with the total on phones. Props: `backUrl`, `submit`, `total`.
-- Gas and property share the views in `resources/views/pages/insurence/cadaster/` (`applicant`, `property`, `confirm`) and the `Concerns\CadasterFlow` trait. Per-product differences (icon, rate, min/max sum, presets, cadaster route) live in the controller's `FLOW` constant; `premiumFor()` and `storeProperty` validation read from it.
+- "applicant → object + sum → confirm" products share `pages/insurence/flow/{applicant,confirm}` and the `Concerns\InsuranceFlow` trait (`flowViewData()`, `premiumFor()`). Each controller defines a `FLOW` constant (key, icon, rate, rateLabel, min, max, default, presets, optional step, objectKey, objectStep, objectTitle) and implements `objectLabel()` / `objectReview()` for its insured object.
+- Step 2 pages: gas/property use `cadaster/property` + `Concerns\CadasterFlow` (adds `cadasterRoute`); KASKO uses `kasko/vehicle`. Both include `flow/partials/sum-dates` and `flow/partials/calc-script` (`window.xfCalc.reveal(label)` after the object lookup). The slider `step` must divide `value - min`, or the browser snaps the amount (KASKO uses step 1 mln).
 - Offerta checkbox lives on the confirm step (validated in `storeApplication`), not step 1.
 - Helpers: `formatMoney($uzs)` → `250 000 so'm`, `formatPhone($p)` → `+998 90 123 45 67`. Flow strings are under `messages.flow.*`.
 
@@ -107,6 +109,7 @@ Blade components under `x-insurence.*` namespace (`resources/views/components/in
 - Accident: 0.3% of sum_insured per person
 - Property: 0.2% of insurance_amount
 - Gas Balloon: 0.5% of insurance_amount
+- KASKO: 3% of insurance_amount
 - OSGOR/OSGOP: calculated by API
 
 ### normalizePerson() output fields
