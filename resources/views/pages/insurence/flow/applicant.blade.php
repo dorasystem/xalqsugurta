@@ -19,7 +19,7 @@
         </div>
 
         <div class="xf-panel__body">
-            <div class="xf-row" style="--xf-cols: 3">
+            <div class="xf-row" style="--xf-cols: 2">
                 <x-insurence.field
                     name="passport_seria"
                     :label="__('insurance.passport.series')"
@@ -41,17 +41,20 @@
                     autocomplete="off"
                     required
                 />
-                <x-insurence.field
-                    name="birth_date"
-                    type="date"
-                    :label="__('insurance.passport.birth_date')"
-                    :value="$applicant['birth_date'] ?? null"
-                    :max="now()->subDay()->format('Y-m-d')"
-                    required
-                />
             </div>
 
             <div class="xf-row">
+                <x-insurence.field
+                    name="pinfl"
+                    :label="__t('messages.flow.pinfl')"
+                    :value="$applicant['pinfl'] ?? null"
+                    :help="__t('messages.flow.pinfl_help')"
+                    inputmode="numeric"
+                    maxlength="14"
+                    placeholder="31234567890123"
+                    autocomplete="off"
+                    required
+                />
                 <x-insurence.field
                     name="phone"
                     type="tel"
@@ -82,7 +85,7 @@
     </form>
 
     <x-slot:summary>
-        <x-insurence.summary :premium="null" :rate="$flow['rateLabel']" :items="$summaryItems" />
+        <x-insurence.summary :premium="null" :rate="$flow['rateLabel'] ?? null" :items="$summaryItems" />
     </x-slot:summary>
 </x-insurence.flow>
 @endsection

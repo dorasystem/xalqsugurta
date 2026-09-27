@@ -54,33 +54,12 @@ final class PropertyController extends BaseInsuranceController
 
     public function storeApplicant(Request $request): RedirectResponse
     {
-        $request->validate([
-            'passport_seria'  => ['required', 'string', 'max:4'],
-            'passport_number' => ['required', 'digits:7'],
-            'birth_date'      => ['required', 'date', 'before:today'],
-            'phone'           => ['required', 'string', 'min:9', 'max:20'],
-        ]);
-
-        try {
-            $person = $this->findPersonByPassport(
-                strtoupper($request->input('passport_seria')) . $request->input('passport_number'),
-                $request->input('birth_date')
-            );
-        } catch (ProviderException $e) {
-            return back()->withErrors(['passport_seria' => __('messages.person_not_found')])->withInput();
+        $applicant = $this->applicantFromRequest($request);
+        if ($applicant instanceof RedirectResponse) {
+            return $applicant;
         }
 
-        if (empty($person['currentPinfl'] ?? null)) {
-            return back()->withErrors(['passport_seria' => __('messages.person_not_found')])->withInput();
-        }
-
-        $this->putSess('applicant', array_merge($this->normalizePerson($person, $request), [
-            'passport_seria'  => strtoupper($request->input('passport_seria')),
-            'passport_number' => $request->input('passport_number'),
-            'birth_date'      => $request->input('birth_date'),
-            'phone'           => $this->cleanPhone($request->input('phone')),
-            'gender'          => ($person['gender'] ?? '') == '1' ? '1' : '2',
-        ]));
+        $this->putSess('applicant', $applicant);
 
         return redirect()->route('property.getProperty', ['locale' => getCurrentLocale()]);
     }

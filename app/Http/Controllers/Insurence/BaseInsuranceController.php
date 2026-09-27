@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Services\OrderService;
 use App\Services\Provider\ProviderApiTrait;
+use Carbon\Carbon;
 use App\Traits\HandlesInsuranceErrors;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -103,21 +104,128 @@ abstract class BaseInsuranceController extends Controller
         }
     }
 
+    // ─── Person lookup (PINFL, or legacy passport + birth date) ────────────────
+
+    /**
+     * Validation rules for a person lookup. PINFL is preferred; birth_date is
+     * still accepted so pages not yet migrated to the PINFL field keep working.
+     */
+    protected function personLookupRules(): array
+    {
+        return [
+            'passport_seria'  => ['required', 'string', 'max:4'],
+            'passport_number' => ['required', 'digits:7'],
+            'pinfl'           => ['required_without:birth_date', 'nullable', 'digits:14'],
+            'birth_date'      => ['required_without:pinfl', 'nullable', 'date', 'before:today'],
+        ];
+    }
+
+    /** Calls the provider by PINFL when given, otherwise by passport + birth date */
+    protected function lookupPerson(Request $request): array
+    {
+        $document = strtoupper((string) $request->input('passport_seria')) . $request->input('passport_number');
+        $pinfl    = (string) $request->input('pinfl');
+
+        $person = $pinfl !== ''
+            ? $this->findPersonByPinfl($pinfl, $document)
+            : $this->findPersonByPassport($document, (string) $request->input('birth_date'));
+
+        // pinfl-v2 may not echo the PINFL back under the same key
+        if ($pinfl !== '') {
+            $person['currentPinfl'] ??= $person['pinfl'] ?? $pinfl;
+        }
+
+        return $person;
+    }
+
+    /** Field that lookup errors are attached to */
+    protected function personLookupErrorField(Request $request): string
+    {
+        return $request->filled('pinfl') ? 'pinfl' : 'passport_seria';
+    }
+
+    /**
+     * Birth date as Y-m-d: from the request (legacy form), then the API
+     * response, then decoded from the PINFL (digits 2–7 are DDMMYY,
+     * the first digit gives the century: 1–2 → 1800s, 3–4 → 1900s, 5–6 → 2000s).
+     */
+    protected function personBirthDate(array $person, Request $request): string
+    {
+        foreach ([$request->input('birth_date'), $person['birthDate'] ?? null, $person['birth_date'] ?? null] as $value) {
+            if (filled($value)) {
+                try {
+                    return Carbon::parse(str_replace('.', '-', (string) $value))->format('Y-m-d');
+                } catch (\Carbon\Exceptions\InvalidFormatException) {
+                    // try the next source
+                }
+            }
+        }
+
+        $pinfl = (string) ($person['currentPinfl'] ?? $request->input('pinfl'));
+
+        if (preg_match('/^([1-6])(\d{2})(\d{2})(\d{2})\d{7}$/', $pinfl, $m)) {
+            $century = [1 => 1800, 2 => 1800, 3 => 1900, 4 => 1900, 5 => 2000, 6 => 2000][(int) $m[1]];
+
+            if (checkdate((int) $m[3], (int) $m[2], $century + (int) $m[4])) {
+                return sprintf('%04d-%s-%s', $century + (int) $m[4], $m[3], $m[2]);
+            }
+        }
+
+        return '';
+    }
+
+    /** '1' male / '2' female, from the API or the PINFL's first digit (odd = male) */
+    protected function personGender(array $person): string
+    {
+        if (isset($person['gender']) && in_array((string) $person['gender'], ['1', '2'], true)) {
+            return (string) $person['gender'];
+        }
+
+        $first = (int) substr((string) ($person['currentPinfl'] ?? ''), 0, 1);
+
+        return $first > 0 && $first % 2 === 0 ? '2' : '1';
+    }
+
+    /**
+     * Full step-1 handler body: validate, look the person up, and return the
+     * normalized applicant, or a redirect back with the error.
+     */
+    protected function applicantFromRequest(Request $request): array|RedirectResponse
+    {
+        $request->validate($this->personLookupRules() + [
+            'phone' => ['required', 'string', 'min:9', 'max:20'],
+        ]);
+
+        $errorField = $this->personLookupErrorField($request);
+
+        try {
+            $person = $this->lookupPerson($request);
+        } catch (ProviderException $e) {
+            return back()->withErrors([$errorField => __('messages.person_not_found')])->withInput();
+        }
+
+        if (empty($person['currentPinfl'] ?? null)) {
+            return back()->withErrors([$errorField => __('messages.person_not_found')])->withInput();
+        }
+
+        return array_merge($this->normalizePerson($person, $request), [
+            'pinfl'           => (string) $person['currentPinfl'],
+            'passport_seria'  => strtoupper($request->input('passport_seria')),
+            'passport_number' => $request->input('passport_number'),
+            'birth_date'      => $this->personBirthDate($person, $request),
+            'phone'           => $this->cleanPhone($request->input('phone')),
+            'gender'          => $this->personGender($person),
+        ]);
+    }
+
     // ─── Shared AJAX: Find Person ─────────────────────────────────────────────
 
     public function findPerson(Request $request): JsonResponse
     {
-        $request->validate([
-            'passport_seria'  => ['required', 'string', 'max:4'],
-            'passport_number' => ['required', 'digits:7'],
-            'birth_date'      => ['required', 'date', 'before:today'],
-        ]);
+        $request->validate($this->personLookupRules());
 
         try {
-            $person = $this->findPersonByPassport(
-                strtoupper($request->input('passport_seria')) . $request->input('passport_number'),
-                $request->input('birth_date')
-            );
+            $person = $this->lookupPerson($request);
         } catch (ProviderException $e) {
             return response()->json(['success' => false, 'message' => __('messages.person_not_found')], 422);
         }
@@ -129,7 +237,7 @@ abstract class BaseInsuranceController extends Controller
         return response()->json([
             'success' => true,
             'data'    => [
-                'pinfl'               => $person['currentPinfl'],
+                'pinfl'               => (string) $person['currentPinfl'],
                 'passport_seria'      => strtoupper($request->input('passport_seria')),
                 'passport_number'     => $request->input('passport_number'),
                 'passport_issue_date' => $person['docIssueDate'] ?? $person['issueDate'] ?? '',
@@ -137,8 +245,8 @@ abstract class BaseInsuranceController extends Controller
                 'firstname'           => $person['firstNameLatin']  ?? $person['firstName']  ?? '',
                 'lastname'            => $person['lastNameLatin']   ?? $person['lastName']   ?? '',
                 'middlename'          => $person['middleNameLatin'] ?? $person['middleName'] ?? '',
-                'birth_date'          => $request->input('birth_date'),
-                'gender'              => ($person['gender'] ?? '') == '1' ? 'm' : 'f',
+                'birth_date'          => $this->personBirthDate($person, $request),
+                'gender'              => $this->personGender($person) === '1' ? 'm' : 'f',
                 'address'             => $person['address']    ?? '',
                 'region_id'           => (int) ($person['regionId']   ?? 10),
                 'district_id'         => (int) ($person['districtId'] ?? 0),
