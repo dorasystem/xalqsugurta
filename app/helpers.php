@@ -56,3 +56,16 @@ if (!function_exists('formatPhone')) {
             substr($digits, 0, 3), substr($digits, 3, 2), substr($digits, 5, 3), substr($digits, 8, 2), substr($digits, 10, 2));
     }
 }
+
+if (!function_exists('assetVersioned')) {
+    /**
+     * asset() with a ?v=<file mtime> suffix, so browsers reload CSS/JS after a deploy
+     * instead of serving a stale cached copy.
+     */
+    function assetVersioned(string $path): string
+    {
+        $file = public_path($path);
+
+        return asset($path) . (is_file($file) ? '?v=' . filemtime($file) : '');
+    }
+}

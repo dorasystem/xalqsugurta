@@ -64,7 +64,7 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::HEAD_END,
                 fn (): HtmlString => new HtmlString(
-                    '<link rel="stylesheet" href="' . asset('assets/css/admin.css') . '">' .
+                    '<link rel="stylesheet" href="' . assetVersioned('assets/css/admin.css') . '">' .
                     '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">'
                 ),
             )

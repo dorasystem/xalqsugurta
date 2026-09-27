@@ -7,7 +7,7 @@
     'stepUrls' => [],
 ])
 
-<link rel="stylesheet" href="{{ asset('assets/css/flow.css') }}">
+<link rel="stylesheet" href="{{ assetVersioned('assets/css/flow.css') }}">
 
 <section class="xf">
     <div class="xf__wrapper">

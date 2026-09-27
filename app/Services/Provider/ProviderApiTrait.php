@@ -399,14 +399,24 @@ trait ProviderApiTrait
     // =========================
     // ACCIDENT CALCULATE
     // =========================
-    public function calculateAccident(int $sumInsured): array
+    /**
+     * The calculator rejects requests without a policy period ("Ошибка даты начало страхования").
+     * $startDate is Y-m-d; defaults to tomorrow, the term is one year.
+     */
+    public function calculateAccident(int $sumInsured, ?string $startDate = null): array
     {
+        $start = \Carbon\Carbon::parse($startDate ?? now()->addDay())->startOfDay();
+
         $url = 'http://online.xalqsugurta.uz/xs/ins/website/accident/calc';
 
         $response = Http::timeout(15)
             ->withBasicAuth(config('provider.username'), config('provider.password'))
             ->post($url, [
-                'details' => ['productCode' => '202'],
+                'details' => [
+                    'productCode' => '202',
+                    'startDate'   => $start->format('Y-m-d'),
+                    'endDate'     => $start->copy()->addYear()->subDay()->format('Y-m-d'),
+                ],
                 'persons' => [['sumInsured' => (string) $sumInsured]],
             ]);
 
@@ -434,14 +444,24 @@ trait ProviderApiTrait
     // =========================
     // TOURIST CALCULATE
     // =========================
-    public function calculateTourist(int $sumInsured): array
+    /**
+     * The calculator rejects requests without a policy period ("Ошибка даты начало страхования").
+     * $startDate is Y-m-d; defaults to tomorrow, the term is one year.
+     */
+    public function calculateTourist(int $sumInsured, ?string $startDate = null): array
     {
+        $start = \Carbon\Carbon::parse($startDate ?? now()->addDay())->startOfDay();
+
         $url = 'http://online.xalqsugurta.uz/xs/ins/website/accident/calc';
 
         $response = Http::timeout(15)
             ->withBasicAuth(config('provider.username'), config('provider.password'))
             ->post($url, [
-                'details' => ['productCode' => '203'],
+                'details' => [
+                    'productCode' => '203',
+                    'startDate'   => $start->format('Y-m-d'),
+                    'endDate'     => $start->copy()->addYear()->subDay()->format('Y-m-d'),
+                ],
                 'persons' => [['sumInsured' => (string) $sumInsured]],
             ]);
 

@@ -6,7 +6,7 @@
     $lang = app()->getLocale();
 @endphp
 
-    <link rel="stylesheet" href="{{ asset('assets/css/products.css') }}">
+    <link rel="stylesheet" href="{{ assetVersioned('assets/css/products.css') }}">
 
     <section class="home-products">
         <div class="home-products__wrapper">

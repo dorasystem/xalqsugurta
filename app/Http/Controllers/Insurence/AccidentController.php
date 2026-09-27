@@ -77,7 +77,7 @@ final class AccidentController extends BaseInsuranceController
         ]);
 
         try {
-            $result = $this->calculateAccident((int) $request->input('sum_insured'));
+            $result = $this->calculateAccident((int) $request->input('sum_insured'), $this->sess('calculation.start_date'));
         } catch (ProviderException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
@@ -111,7 +111,7 @@ final class AccidentController extends BaseInsuranceController
         $sumInsured = (int) $request->input('sum_insured');
 
         try {
-            $calcResult = $this->calculateAccident($sumInsured);
+            $calcResult = $this->calculateAccident($sumInsured, $this->sess('calculation.start_date'));
             $premium    = (int) ($calcResult['persons'][0]['insurancePremium'] ?? $calcResult['cost']['insurancePremium'] ?? 0);
         } catch (ProviderException $e) {
             return back()->withErrors(['sum_insured' => $e->getMessage()])->withInput();
