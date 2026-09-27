@@ -42,7 +42,8 @@ class Product extends Model
      * Link to the product's application page in the current locale.
      * Relative, so it works behind the host proxy whatever Host header it sends.
      * If `route` is not a known route name (e.g. edited in the admin panel),
-     * fall back to "/{locale}/{route}" like the old hardcoded link did.
+     * fall back to "/{locale}/{route}" like the old hardcoded link did,
+     * but only for path-safe values (letters, digits, "-", "_", "/").
      */
     public function url(): string
     {
@@ -54,10 +55,7 @@ class Product extends Model
             return route($name, ['locale' => $locale], false);
         }
 
-        if (str_starts_with($slug, 'http')) {
-            return $slug;
-        }
-
-        return $slug !== '' ? '/' . $locale . '/' . $slug : '/' . $locale;
+        // Only path-safe characters: the value can never become an external or scheme URL
+        return preg_match('#^[a-z0-9_/-]+$#i', $slug) ? '/' . $locale . '/' . $slug : '/' . $locale;
     }
 }

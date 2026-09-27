@@ -104,6 +104,8 @@ class ProductResource extends Resource
                                     ->datalist(array_keys(Product::CATEGORIES))
                                     ->required()
                                     ->maxLength(100)
+                                    ->regex('#^[a-z0-9_/-]+$#i')
+                                    ->validationMessages(['regex' => 'Faqat lotin harflari, raqamlar, "-", "_" va "/" ishlatiladi.'])
                                     ->helperText('Masalan: gas, property, osago. Havola: /uz/{route}'),
 
                                 TextInput::make('icon')
