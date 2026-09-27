@@ -7,7 +7,6 @@ use App\Models\Product;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
@@ -100,15 +99,12 @@ class ProductResource extends Resource
 
                         Section::make('Sozlamalar')
                             ->schema([
-                                Select::make('route')
+                                TextInput::make('route')
                                     ->label('Sahifa (route)')
-                                    ->options(fn (): array => collect(Product::CATEGORIES)
-                                        ->keys()
-                                        ->mapWithKeys(fn (string $r) => [$r => $r])
-                                        ->all())
-                                    ->searchable()
+                                    ->datalist(array_keys(Product::CATEGORIES))
                                     ->required()
-                                    ->helperText('Mahsulot qaysi ariza sahifasini ochishini belgilaydi.'),
+                                    ->maxLength(100)
+                                    ->helperText('Masalan: gas, property, osago. Havola: /uz/{route}'),
 
                                 TextInput::make('icon')
                                     ->label('Ikonka')

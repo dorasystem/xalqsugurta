@@ -38,12 +38,26 @@ class Product extends Model
         return self::CATEGORIES[$this->route] ?? null;
     }
 
+    /**
+     * Link to the product's application page in the current locale.
+     * Relative, so it works behind the host proxy whatever Host header it sends.
+     * If `route` is not a known route name (e.g. edited in the admin panel),
+     * fall back to "/{locale}/{route}" like the old hardcoded link did.
+     */
     public function url(): string
     {
-        $name = $this->route === 'osago' ? 'osago.main' : $this->route . '.index';
+        $locale = getCurrentLocale();
+        $slug   = trim((string) $this->route, '/');
+        $name   = $slug === 'osago' ? 'osago.main' : $slug . '.index';
 
-        return Route::has($name)
-            ? route($name, ['locale' => getCurrentLocale()])
-            : route('home', ['locale' => getCurrentLocale()]);
+        if ($slug !== '' && Route::has($name)) {
+            return route($name, ['locale' => $locale], false);
+        }
+
+        if (str_starts_with($slug, 'http')) {
+            return $slug;
+        }
+
+        return $slug !== '' ? '/' . $locale . '/' . $slug : '/' . $locale;
     }
 }
