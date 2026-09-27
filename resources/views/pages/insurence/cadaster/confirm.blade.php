@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', __('insurance.gas.page_title'))
+@section('title', __('insurance.' . $flow['key'] . '.page_title'))
 
 @php
     $locale      = getCurrentLocale();
@@ -9,14 +9,14 @@
 
 @section('content')
 <x-insurence.flow
-    icon="bi-fire"
-    :title="__('insurance.gas.page_title')"
-    :subtitle="__('insurance.gas.subtitle')"
+    :icon="$flow['icon']"
+    :title="__('insurance.' . $flow['key'] . '.page_title')"
+    :subtitle="__('insurance.' . $flow['key'] . '.subtitle')"
     :steps="$flowSteps"
     :current="3"
     :stepUrls="$flowUrls"
 >
-    <form action="{{ route('gas.storeApplication', ['locale' => $locale]) }}" method="POST" class="xf-panel">
+    <form action="{{ route($flow['key'] . '.storeApplication', ['locale' => $locale]) }}" method="POST" class="xf-panel">
         @csrf
 
         <div class="xf-panel__head">
@@ -27,7 +27,7 @@
         <div class="xf-panel__body">
             <x-insurence.review
                 :title="__t('messages.flow.applicant')"
-                :editUrl="route('gas.index', ['locale' => $locale])"
+                :editUrl="route($flow['key'] . '.index', ['locale' => $locale])"
                 :items="[
                     __('messages.full_name')                                              => $applicantName,
                     __('insurance.passport.series') . ' / ' . __('insurance.passport.number') => $applicant['passport_seria'] . ' ' . $applicant['passport_number'],
@@ -38,7 +38,7 @@
 
             <x-insurence.review
                 :title="__t('messages.flow.property')"
-                :editUrl="route('gas.getProperty', ['locale' => $locale])"
+                :editUrl="route($flow['key'] . '.getProperty', ['locale' => $locale])"
                 :items="[
                     __('messages.cadaster_number')        => $property['cadasterNumber'],
                     __('messages.property_short_address') => $property['shortAddress'] ?? null,
@@ -49,7 +49,7 @@
 
             <x-insurence.review
                 :title="__t('messages.flow.policy_terms')"
-                :editUrl="route('gas.getProperty', ['locale' => $locale])"
+                :editUrl="route($flow['key'] . '.getProperty', ['locale' => $locale])"
                 :items="[
                     __('messages.insurance_sum')     => formatMoney($calculation['insurance_amount']),
                     __t('messages.flow.period')      => $summaryItems['period'][1],
@@ -79,7 +79,7 @@
         </div>
 
         <x-insurence.actions
-            :backUrl="route('gas.getProperty', ['locale' => $locale])"
+            :backUrl="route($flow['key'] . '.getProperty', ['locale' => $locale])"
             :submit="__('messages.proceed_to_payment')"
             :total="$calculation['insurance_premium']"
         />
@@ -88,7 +88,7 @@
     <x-slot:summary>
         <x-insurence.summary
             :premium="$calculation['insurance_premium']"
-            rate="0,5"
+            :rate="$flow['rateLabel']"
             :items="$summaryItems"
         />
     </x-slot:summary>

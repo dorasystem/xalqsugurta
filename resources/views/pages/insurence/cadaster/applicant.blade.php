@@ -1,16 +1,16 @@
 @extends('layouts.app')
-@section('title', __('insurance.gas.page_title'))
+@section('title', __('insurance.' . $flow['key'] . '.page_title'))
 
 @section('content')
 <x-insurence.flow
-    icon="bi-fire"
-    :title="__('insurance.gas.page_title')"
-    :subtitle="__('insurance.gas.subtitle')"
+    :icon="$flow['icon']"
+    :title="__('insurance.' . $flow['key'] . '.page_title')"
+    :subtitle="__('insurance.' . $flow['key'] . '.subtitle')"
     :steps="$flowSteps"
     :current="1"
     :stepUrls="$flowUrls"
 >
-    <form action="{{ route('gas.storeApplicant', ['locale' => getCurrentLocale()]) }}" method="POST" class="xf-panel">
+    <form action="{{ route($flow['key'] . '.storeApplicant', ['locale' => getCurrentLocale()]) }}" method="POST" class="xf-panel">
         @csrf
 
         <div class="xf-panel__head">
@@ -82,7 +82,7 @@
     </form>
 
     <x-slot:summary>
-        <x-insurence.summary :premium="null" rate="0,5" :items="$summaryItems" />
+        <x-insurence.summary :premium="null" :rate="$flow['rateLabel']" :items="$summaryItems" />
     </x-slot:summary>
 </x-insurence.flow>
 @endsection

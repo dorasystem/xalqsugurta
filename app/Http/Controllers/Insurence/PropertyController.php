@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Insurence;
 
 use App\Exceptions\ProviderException;
+use App\Http\Controllers\Insurence\Concerns\CadasterFlow;
 use App\Services\OrderService;
 use App\Services\PropertyService;
 use Carbon\Carbon;
@@ -13,7 +14,21 @@ use Illuminate\View\View;
 
 final class PropertyController extends BaseInsuranceController
 {
+    use CadasterFlow;
+
     private const SESSION_KEY = 'property';
+
+    protected const FLOW = [
+        'key'           => self::SESSION_KEY,
+        'icon'          => 'bi-house',
+        'rate'          => 0.2,
+        'rateLabel'     => '0,2',
+        'min'           => 50_000_000,
+        'max'           => 500_000_000,
+        'default'       => 100_000_000,
+        'presets'       => [50_000_000, 100_000_000, 250_000_000, 500_000_000],
+        'cadasterRoute' => 'fetch.cadaster',
+    ];
 
     public function __construct(
         private readonly PropertyService $propertyService,
@@ -31,7 +46,7 @@ final class PropertyController extends BaseInsuranceController
 
     public function index(): View
     {
-        return view('pages.insurence.property.main', ['product' => $this->getProduct()]);
+        return view('pages.insurence.cadaster.applicant', $this->flowViewData());
     }
 
     public function storeApplicant(Request $request): RedirectResponse
@@ -41,10 +56,6 @@ final class PropertyController extends BaseInsuranceController
             'passport_number' => ['required', 'digits:7'],
             'birth_date'      => ['required', 'date', 'before:today'],
             'phone'           => ['required', 'string', 'min:9', 'max:20'],
-            'offerta_agreed'  => $this->offertaRule(),
-        ], [
-            'offerta_agreed.required' => __('messages.offerta_required'),
-            'offerta_agreed.accepted' => __('messages.offerta_required'),
         ]);
 
         try {
@@ -80,17 +91,14 @@ final class PropertyController extends BaseInsuranceController
             return redirect()->route('property.index', ['locale' => getCurrentLocale()]);
         }
 
-        $property    = $this->sess('property', []);
-        $calculation = $this->sess('calculation', []);
-
-        return view('pages.insurence.property.property', compact('applicant', 'property', 'calculation'));
+        return view('pages.insurence.cadaster.property', $this->flowViewData());
     }
 
     public function storeProperty(Request $request): RedirectResponse
     {
         $request->validate([
             'cadaster_number'    => ['required', 'string'],
-            'insurance_amount'   => ['required', 'integer', 'min:50000000', 'max:500000000'],
+            'insurance_amount'   => ['required', 'integer', 'min:' . self::FLOW['min'], 'max:' . self::FLOW['max']],
             'payment_start_date' => ['required', 'date', 'after_or_equal:today'],
         ]);
 
@@ -99,7 +107,7 @@ final class PropertyController extends BaseInsuranceController
         }
 
         $insuranceAmount = (int) $request->input('insurance_amount');
-        $premium         = (int) round($insuranceAmount * 0.2 / 100);
+        $premium         = $this->premiumFor($insuranceAmount);
         $startDate       = $request->input('payment_start_date');
         $endDate         = Carbon::parse($startDate)->addYear()->subDay()->format('Y-m-d');
 
@@ -150,11 +158,20 @@ final class PropertyController extends BaseInsuranceController
             return redirect()->route('property.index', ['locale' => getCurrentLocale()]);
         }
 
-        return view('pages.insurence.property.confirm', compact('applicant', 'property', 'calculation'));
+        return view('pages.insurence.cadaster.confirm', $this->flowViewData([
+            'product' => $this->getProduct(),
+        ]));
     }
 
     public function storeApplication(Request $request): RedirectResponse
     {
+        $request->validate([
+            'offerta_agreed' => $this->offertaRule(),
+        ], [
+            'offerta_agreed.required' => __('messages.offerta_required'),
+            'offerta_agreed.accepted' => __('messages.offerta_required'),
+        ]);
+
         $applicant   = $this->sess('applicant');
         $property    = $this->sess('property');
         $calculation = $this->sess('calculation');

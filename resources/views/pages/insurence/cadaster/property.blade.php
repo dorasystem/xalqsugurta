@@ -1,23 +1,23 @@
 @extends('layouts.app')
-@section('title', __('insurance.gas.page_title'))
+@section('title', __('insurance.' . $flow['key'] . '.page_title'))
 
 @php
     $hasProperty = !empty($property['cadasterNumber']);
-    $amount      = (int) old('insurance_amount', $calculation['insurance_amount'] ?? 50000000);
+    $amount      = (int) old('insurance_amount', $calculation['insurance_amount'] ?? $flow['default']);
     $startDate   = old('payment_start_date', $calculation['payment_start_date'] ?? now()->format('Y-m-d'));
-    $presets     = [10000000, 50000000, 100000000, 250000000];
+    $premiumOf   = fn (int $sum): int => (int) round($sum * $flow['rate'] / 100);
 @endphp
 
 @section('content')
 <x-insurence.flow
-    icon="bi-fire"
-    :title="__('insurance.gas.page_title')"
-    :subtitle="__('insurance.gas.subtitle')"
+    :icon="$flow['icon']"
+    :title="__('insurance.' . $flow['key'] . '.page_title')"
+    :subtitle="__('insurance.' . $flow['key'] . '.subtitle')"
     :steps="$flowSteps"
     :current="2"
     :stepUrls="$flowUrls"
 >
-    <form action="{{ route('gas.storeProperty', ['locale' => getCurrentLocale()]) }}" method="POST" id="gas_prop_form" class="xf-panel">
+    <form action="{{ route($flow['key'] . '.storeProperty', ['locale' => getCurrentLocale()]) }}" method="POST" id="prop_form" class="xf-panel">
         @csrf
 
         <div class="xf-panel__head">
@@ -60,14 +60,24 @@
             </p>
 
             {{-- Values from the cadaster lookup --}}
-            <input type="hidden" name="cadaster_number"  id="h_cadaster"    value="{{ $property['cadasterNumber'] ?? '' }}">
-            <input type="hidden" name="short_address"    id="h_short_addr"  value="{{ $property['shortAddress'] ?? '' }}">
-            <input type="hidden" name="object_area"      id="h_area"        value="{{ $property['objectArea'] ?? '' }}">
-            <input type="hidden" name="tip_text"         id="h_tip_text"    value="{{ $property['tipText'] ?? '' }}">
-            <input type="hidden" name="vid_text"         id="h_vid_text"    value="{{ $property['vidText'] ?? '' }}">
-            <input type="hidden" name="prop_region"      id="h_region"      value="{{ $property['region'] ?? '' }}">
-            <input type="hidden" name="prop_district_id" id="h_district_id" value="{{ $property['districtId'] ?? '' }}">
-            <input type="hidden" name="prop_district"    id="h_district"    value="{{ $property['district'] ?? '' }}">
+            <input type="hidden" name="cadaster_number"         id="h_cadaster"           value="{{ $property['cadasterNumber'] ?? '' }}">
+            <input type="hidden" name="short_address"           id="h_short_addr"         value="{{ $property['shortAddress'] ?? '' }}">
+            <input type="hidden" name="object_area"             id="h_area"               value="{{ $property['objectArea'] ?? '' }}">
+            <input type="hidden" name="prop_cost"               id="h_cost"               value="{{ $property['cost'] ?? '' }}">
+            <input type="hidden" name="tip_text"                id="h_tip_text"           value="{{ $property['tipText'] ?? '' }}">
+            <input type="hidden" name="vid_text"                id="h_vid_text"           value="{{ $property['vidText'] ?? '' }}">
+            <input type="hidden" name="tip"                     id="h_tip"                value="{{ $property['tip'] ?? '' }}">
+            <input type="hidden" name="vid"                     id="h_vid"                value="{{ $property['vid'] ?? '' }}">
+            <input type="hidden" name="prop_region"             id="h_region"             value="{{ $property['region'] ?? '' }}">
+            <input type="hidden" name="prop_region_id"          id="h_region_id"          value="{{ $property['regionId'] ?? '' }}">
+            <input type="hidden" name="prop_district_id"        id="h_district_id"        value="{{ $property['districtId'] ?? '' }}">
+            <input type="hidden" name="prop_district"           id="h_district"           value="{{ $property['district'] ?? '' }}">
+            <input type="hidden" name="prop_building_type"      id="h_building_type"      value="{{ $property['buildingType'] ?? 1 }}">
+            <input type="hidden" name="prop_cadastr_issue_date" id="h_cadastr_issue_date" value="{{ $property['cadastrIssueDate'] ?? '' }}">
+            <input type="hidden" name="prop_street"             id="h_street"             value="{{ $property['street'] ?? '' }}">
+            <input type="hidden" name="prop_dom_num"            id="h_dom_num"            value="{{ $property['domNum'] ?? '' }}">
+            <input type="hidden" name="prop_kvartira"           id="h_kvartira"           value="{{ $property['kvartiraNum'] ?? '' }}">
+            <input type="hidden" name="prop_neighborhood"       id="h_neighborhood"       value="{{ $property['neighborhood'] ?? '' }}">
 
             {{-- ── Sum + dates (after the property is found) ── --}}
             <div id="calc_section" class="xf-panel__body" style="padding: 0" @unless ($hasProperty) hidden @endunless>
@@ -75,7 +85,7 @@
                 <div class="xf-field">
                     <span class="xf-field__label" id="amt_label">{{ __('messages.insurance_sum') }}</span>
                     <div class="xf-chips" role="group" aria-labelledby="amt_label">
-                        @foreach ($presets as $preset)
+                        @foreach ($flow['presets'] as $preset)
                             <button type="button" class="xf-chip" data-amount="{{ $preset }}"
                                     aria-pressed="{{ $preset === $amount ? 'true' : 'false' }}">
                                 {{ $preset / 1000000 }} {{ __t('messages.flow.mln') }}
@@ -83,13 +93,13 @@
                         @endforeach
                     </div>
                     <span class="xf-amount" id="amt_display">{{ formatMoney($amount) }}</span>
-                    <input type="range" id="amt_slider" class="xf-range" min="5000000" max="500000000" step="5000000"
+                    <input type="range" id="amt_slider" class="xf-range" min="{{ $flow['min'] }}" max="{{ $flow['max'] }}" step="5000000"
                            value="{{ $amount }}" aria-labelledby="amt_label">
                     <input type="hidden" name="insurance_amount" id="h_insurance_amount" value="{{ $amount }}">
                     @error('insurance_amount')
                         <p class="xf-field__error">{{ $message }}</p>
                     @else
-                        <p class="xf-field__help">{{ __t('messages.flow.amount_range') }}</p>
+                        <p class="xf-field__help">{{ __t('messages.flow.amount_range', ['min' => $flow['min'] / 1000000, 'max' => $flow['max'] / 1000000]) }}</p>
                     @enderror
                 </div>
 
@@ -119,9 +129,9 @@
         </div>
 
         <x-insurence.actions
-            :backUrl="route('gas.index', ['locale' => getCurrentLocale()])"
+            :backUrl="route($flow['key'] . '.index', ['locale' => getCurrentLocale()])"
             :submit="__t('messages.next_step')"
-            :total="$hasProperty ? (int) round($amount * 0.005) : null"
+            :total="$hasProperty ? $premiumOf($amount) : null"
             id="submit_btn"
             :disabled="!$hasProperty"
         />
@@ -129,8 +139,8 @@
 
     <x-slot:summary>
         <x-insurence.summary
-            :premium="$hasProperty ? (int) round($amount * 0.005) : null"
-            rate="0,5"
+            :premium="$hasProperty ? $premiumOf($amount) : null"
+            :rate="$flow['rateLabel']"
             :items="$summaryItems"
         />
     </x-slot:summary>
@@ -141,7 +151,7 @@
 <script>
 (function () {
     var CSRF     = document.querySelector('meta[name="csrf-token"]').content;
-    var RATE     = 0.005;
+    var RATE     = {{ $flow['rate'] / 100 }};
     var CURRENCY = @json(__t('messages.currency'));
 
     function $(id) { return document.getElementById(id); }
@@ -212,7 +222,7 @@
         $('cad_btn_text').textContent = @json(__('messages.loading'));
 
         try {
-            var res = await fetch(@json(route('fetch.cadaster.gas', ['locale' => getCurrentLocale()])), {
+            var res = await fetch(@json(route($flow['cadasterRoute'], ['locale' => getCurrentLocale()])), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
                 body: JSON.stringify({ cadasterNumber: cadNum }),
@@ -228,15 +238,15 @@
             var r     = json.result;
             var title = (r.vidText || r.tipText || r.cadasterNumber || cadNum) + (r.objectArea ? ', ' + r.objectArea + ' m²' : '');
 
-            $('cad_input').value     = r.cadasterNumber || cadNum;
-            $('h_cadaster').value    = r.cadasterNumber || cadNum;
-            $('h_short_addr').value  = r.shortAddress || '';
-            $('h_area').value        = r.objectArea || '';
-            $('h_tip_text').value    = r.tipText || '';
-            $('h_vid_text').value    = r.vidText || '';
-            $('h_region').value      = r.region || '';
-            $('h_district_id').value = r.districtId || '';
-            $('h_district').value    = r.district || '';
+            var fields = {
+                h_cadaster: r.cadasterNumber || cadNum, h_short_addr: r.shortAddress, h_area: r.objectArea,
+                h_cost: r.cost, h_tip_text: r.tipText, h_vid_text: r.vidText, h_tip: r.tip, h_vid: r.vid,
+                h_region: r.region, h_region_id: r.regionId, h_district_id: r.districtId, h_district: r.district,
+                h_building_type: r.buildingType ?? 1, h_cadastr_issue_date: r.cadastrIssueDate, h_street: r.street,
+                h_dom_num: r.domNum, h_kvartira: r.kvartiraNum, h_neighborhood: r.neighborhood,
+            };
+            Object.keys(fields).forEach(function (id) { $(id).value = fields[id] ?? ''; });
+            $('cad_input').value = fields.h_cadaster;
 
             var found = $('prop_result');
             found.querySelector('[data-found="title"]').textContent = title;

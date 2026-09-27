@@ -33,7 +33,7 @@
             'property_title'       => 'Property to insure',
             'property_subtitle'    => 'Enter the cadastral number and choose the sum insured.',
             'cadaster_hint'        => 'Find the property by its cadastral number first, then choose the sum.',
-            'amount_range'         => 'from 5 mln to 500 mln UZS',
+            'amount_range'         => 'from :min mln to :max mln UZS',
             'term_auto'            => 'Automatic: 1 year',
             'mln'                  => 'mln',
             'check_title'          => 'Check your details',

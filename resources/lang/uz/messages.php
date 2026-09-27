@@ -33,7 +33,7 @@ return [
         'property_title'       => 'Sug\'urtalanadigan mulk',
         'property_subtitle'    => 'Kadastr raqamini kiriting va sug\'urta summasini tanlang.',
         'cadaster_hint'        => 'Avval kadastr raqami bo\'yicha mulkni toping, shundan so\'ng summa tanlanadi.',
-        'amount_range'         => '5 mln dan 500 mln so\'mgacha',
+        'amount_range'         => ':min mln dan :max mln so\'mgacha',
         'term_auto'            => 'Avtomatik: 1 yil',
         'mln'                  => 'mln',
         'check_title'          => 'Ma\'lumotlarni tekshiring',

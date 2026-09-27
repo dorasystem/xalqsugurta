@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Insurence;
 
 use App\Exceptions\ProviderException;
+use App\Http\Controllers\Insurence\Concerns\CadasterFlow;
 use App\Services\OrderService;
 use App\Services\PropertyService;
 use Carbon\Carbon;
@@ -14,7 +15,21 @@ use Illuminate\View\View;
 
 final class GasBallonController extends BaseInsuranceController
 {
+    use CadasterFlow;
+
     private const SESSION_KEY = 'gas';
+
+    protected const FLOW = [
+        'key'           => self::SESSION_KEY,
+        'icon'          => 'bi-fire',
+        'rate'          => 0.5,
+        'rateLabel'     => '0,5',
+        'min'           => 5_000_000,
+        'max'           => 500_000_000,
+        'default'       => 50_000_000,
+        'presets'       => [10_000_000, 50_000_000, 100_000_000, 250_000_000],
+        'cadasterRoute' => 'fetch.cadaster.gas',
+    ];
 
     public function __construct(
         private readonly PropertyService $propertyService,
@@ -32,7 +47,7 @@ final class GasBallonController extends BaseInsuranceController
 
     public function index(): View
     {
-        return view('pages.insurence.gas.main', $this->flowViewData());
+        return view('pages.insurence.cadaster.applicant', $this->flowViewData());
     }
 
     public function storeApplicant(Request $request): RedirectResponse
@@ -77,14 +92,14 @@ final class GasBallonController extends BaseInsuranceController
             return redirect()->route('gas.index', ['locale' => getCurrentLocale()]);
         }
 
-        return view('pages.insurence.gas.property', $this->flowViewData());
+        return view('pages.insurence.cadaster.property', $this->flowViewData());
     }
 
     public function storeProperty(Request $request): RedirectResponse
     {
         $request->validate([
             'cadaster_number'    => ['required', 'string'],
-            'insurance_amount'   => ['required', 'integer', 'min:5000000', 'max:500000000'],
+            'insurance_amount'   => ['required', 'integer', 'min:' . self::FLOW['min'], 'max:' . self::FLOW['max']],
             'payment_start_date' => ['required', 'date', 'after_or_equal:today'],
         ]);
 
@@ -93,7 +108,7 @@ final class GasBallonController extends BaseInsuranceController
         }
 
         $insuranceAmount = (int) $request->input('insurance_amount');
-        $premium         = (int) round($insuranceAmount * 0.5 / 100);
+        $premium         = $this->premiumFor($insuranceAmount);
         $startDate       = $request->input('payment_start_date');
         $endDate         = Carbon::parse($startDate)->addYear()->subDay()->format('Y-m-d');
 
@@ -151,7 +166,7 @@ final class GasBallonController extends BaseInsuranceController
             return redirect()->route('gas.index', ['locale' => getCurrentLocale()]);
         }
 
-        return view('pages.insurence.gas.confirm', $this->flowViewData([
+        return view('pages.insurence.cadaster.confirm', $this->flowViewData([
             'product' => $this->getProduct(),
         ]));
     }
@@ -211,55 +226,6 @@ final class GasBallonController extends BaseInsuranceController
     }
 
     // ─── Private helpers ──────────────────────────────────────────────────────
-
-    /** Session data + step list + summary rows shared by every gas flow page */
-    private function flowViewData(array $extra = []): array
-    {
-        $locale      = getCurrentLocale();
-        $applicant   = $this->sess('applicant');
-        $property    = $this->sess('property', []);
-        $calculation = $this->sess('calculation', []);
-
-        $applicantName = $applicant
-            ? trim($applicant['lastname'] . ' ' . $applicant['firstname'] . ' ' . ($applicant['middlename'] ?? ''))
-            : null;
-
-        $propertyLabel = null;
-        if (!empty($property['cadasterNumber'])) {
-            $propertyLabel = ($property['vidText'] ?: $property['tipText'] ?: $property['cadasterNumber'])
-                . (!empty($property['objectArea']) ? ', ' . $property['objectArea'] . ' m²' : '');
-        }
-
-        $period = null;
-        if (!empty($calculation['payment_start_date'])) {
-            $period = Carbon::parse($calculation['payment_start_date'])->format('d.m.Y')
-                . ' – ' . Carbon::parse($calculation['payment_end_date'])->format('d.m.Y');
-        }
-
-        return array_merge([
-            'applicant'     => $applicant,
-            'property'      => $property,
-            'calculation'   => $calculation,
-            'applicantName' => $applicantName,
-            'flowSteps'     => [
-                __t('messages.flow.applicant'),
-                __t('messages.flow.property'),
-                __t('messages.confirm_details'),
-                __t('messages.flow.payment'),
-            ],
-            'flowUrls'      => [
-                route('gas.index', ['locale' => $locale]),
-                route('gas.getProperty', ['locale' => $locale]),
-                route('gas.getConfirm', ['locale' => $locale]),
-            ],
-            'summaryItems'  => [
-                'applicant' => [__t('messages.flow.applicant'), $applicant ? $applicant['lastname'] . ' ' . mb_substr($applicant['firstname'], 0, 1) . '.' : null],
-                'property'  => [__t('messages.flow.property'), $propertyLabel],
-                'sum'       => [__t('messages.insurance_sum'), !empty($calculation['insurance_amount']) ? formatMoney($calculation['insurance_amount']) : null],
-                'period'    => [__t('messages.flow.period'), $period],
-            ],
-        ], $extra);
-    }
 
     /** Convert Y-m-d to DD.MM.YYYY as required by Xalq Sugurta API */
     private function toApiDate(string $date): string
