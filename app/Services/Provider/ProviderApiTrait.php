@@ -497,12 +497,20 @@ trait ProviderApiTrait
             ->withBasicAuth(config('provider.username'), config('provider.password'))
             ->post($url, $body);
 
-        if (!$response->successful()) {
-            Log::error('Accident Submit HTTP Error', ['body' => $body, 'response' => $response->body()]);
-            throw new ProviderException('Accident submit service unavailable.');
-        }
-
         $data = $response->json() ?? [];
+
+        if (!$response->successful()) {
+            Log::error('Accident Submit HTTP Error', [
+                'status'   => $response->status(),
+                'body'     => $body,
+                'response' => $response->body(),
+            ]);
+
+            // The API usually explains a rejected request in result_message; show that when present
+            throw new ProviderException(
+                $data['result_message'] ?? $data['message'] ?? __('messages.error_occurred') . ' (HTTP ' . $response->status() . ')'
+            );
+        }
 
         // Only check result if the API returns it (some endpoints return contract data directly)
         if (isset($data['result']) && $data['result'] !== 0) {
