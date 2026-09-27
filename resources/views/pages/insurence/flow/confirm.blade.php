@@ -1,6 +1,11 @@
 @extends('layouts.app')
 @section('title', __('insurance.' . $flow['key'] . '.page_title'))
 
+{{--
+    Shared confirm step. Expects from the controller's flow trait:
+    $flow, $flowSteps, $flowUrls (last = this page), $applicant, $applicantName,
+    $confirmBlocks ([title, editUrl, items]), $premiumTotal, $summaryItems, $product
+--}}
 @php
     $locale      = getCurrentLocale();
     $offertaPath = $product?->{'offerta_' . $locale};
@@ -13,7 +18,7 @@
     :title="__('insurance.' . $flow['key'] . '.page_title')"
     :subtitle="__('insurance.' . $flow['key'] . '.subtitle')"
     :steps="$flowSteps"
-    :current="3"
+    :current="count($flowSteps) - 1"
     :stepUrls="$flowUrls"
 >
     <form action="{{ route($flow['key'] . '.storeApplication', ['locale' => $locale]) }}" method="POST" class="xf-panel">
@@ -31,26 +36,19 @@
                 :items="[
                     __('messages.full_name')                                              => $applicantName,
                     __('insurance.passport.series') . ' / ' . __('insurance.passport.number') => $applicant['passport_seria'] . ' ' . $applicant['passport_number'],
-                    __('insurance.passport.birth_date')                                   => \Carbon\Carbon::parse($applicant['birth_date'])->format('d.m.Y'),
+                    __t('messages.flow.pinfl')                                            => $applicant['pinfl'] ?? null,
+                    __('insurance.passport.birth_date')                                   => filled($applicant['birth_date'] ?? null) ? \Carbon\Carbon::parse($applicant['birth_date'])->format('d.m.Y') : null,
                     __('messages.phone_number')                                           => formatPhone($applicant['phone']),
                 ]"
             />
 
-            <x-insurence.review
-                :title="$objectTitle"
-                :editUrl="$flowUrls[1]"
-                :items="$objectReview"
-            />
-
-            <x-insurence.review
-                :title="__t('messages.flow.policy_terms')"
-                :editUrl="$flowUrls[1]"
-                :items="[
-                    __('messages.insurance_sum')     => formatMoney($calculation['insurance_amount']),
-                    __t('messages.flow.period')      => $summaryItems['period'][1],
-                    __('messages.insurance_premium') => formatMoney($calculation['insurance_premium']),
-                ]"
-            />
+            @foreach ($confirmBlocks as $block)
+                <x-insurence.review
+                    :title="$block['title']"
+                    :editUrl="$block['editUrl'] ?? null"
+                    :items="$block['items']"
+                />
+            @endforeach
 
             <div>
                 <label class="xf-agree" for="offerta_agreed">
@@ -74,16 +72,16 @@
         </div>
 
         <x-insurence.actions
-            :backUrl="$flowUrls[1]"
+            :backUrl="$flowUrls[count($flowUrls) - 2]"
             :submit="__('messages.proceed_to_payment')"
-            :total="$calculation['insurance_premium']"
+            :total="$premiumTotal"
         />
     </form>
 
     <x-slot:summary>
         <x-insurence.summary
-            :premium="$calculation['insurance_premium']"
-            :rate="$flow['rateLabel']"
+            :premium="$premiumTotal"
+            :rate="$flow['rateLabel'] ?? null"
             :items="$summaryItems"
         />
     </x-slot:summary>

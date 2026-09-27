@@ -468,6 +468,159 @@
     font-variant-numeric: tabular-nums;
 }
 
+/* --- People list (accident / tourist) --- */
+
+.xf-people {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.xf-person {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid var(--xf-line);
+    border-radius: 14px;
+    padding: 12px 14px;
+}
+
+.xf-person__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--xf-tint);
+    color: var(--xf-brand);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.xf-person__main {
+    flex: 1;
+    min-width: 0;
+}
+
+.xf-person__name {
+    display: block;
+    font-weight: 700;
+    color: var(--xf-ink);
+    overflow-wrap: anywhere;
+}
+
+.xf-person__meta {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--xf-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.xf-person__sum {
+    text-align: right;
+    font-size: 0.85rem;
+    color: var(--xf-ink);
+    font-weight: 600;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.xf-person__sum small {
+    display: block;
+    color: var(--xf-muted);
+    font-weight: 500;
+}
+
+.xf-person__remove {
+    border: 0;
+    background: transparent;
+    color: var(--xf-muted);
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.xf-person__remove:hover {
+    background: var(--xf-err-bg);
+    color: var(--xf-err);
+}
+
+/* Bordered sub-section inside a panel (e.g. "add a person") */
+.xf-subpanel {
+    border: 1.5px dashed #cfcaf0;
+    border-radius: 16px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.xf-subpanel__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.xf-subpanel__title {
+    font: 700 1rem/1.3 Gilroy, sans-serif;
+    color: var(--xf-ink);
+    margin: 0;
+}
+
+.xf-link-btn {
+    border: 0;
+    background: none;
+    padding: 0;
+    color: var(--xf-brand);
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+}
+
+.xf-link-btn:hover {
+    text-decoration: underline;
+}
+
+.xf-premium-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--xf-tint-2);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 0.88rem;
+    color: var(--xf-muted);
+}
+
+.xf-premium-line b {
+    color: var(--xf-ink);
+    font-size: 1rem;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+    .xf-person {
+        flex-wrap: wrap;
+    }
+
+    .xf-person__sum {
+        order: 3;
+        width: 100%;
+        text-align: left;
+        padding-left: 52px;
+    }
+}
+
 /* --- Review --- */
 
 .xf-review {

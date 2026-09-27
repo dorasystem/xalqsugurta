@@ -54,6 +54,15 @@ trait InsuranceFlow
             'applicantName' => $applicantName,
             'objectTitle'   => $objectTitle,
             'objectReview'  => $object ? $this->objectReview($object) : [],
+            'premiumTotal'  => $calculation['insurance_premium'] ?? null,
+            'confirmBlocks' => [
+                ['title' => $objectTitle, 'editUrl' => route($key . '.' . static::FLOW['objectStep'], ['locale' => $locale]), 'items' => $object ? $this->objectReview($object) : []],
+                ['title' => __t('messages.flow.policy_terms'), 'editUrl' => route($key . '.' . static::FLOW['objectStep'], ['locale' => $locale]), 'items' => [
+                    __('messages.insurance_sum')     => !empty($calculation['insurance_amount']) ? formatMoney($calculation['insurance_amount']) : null,
+                    __t('messages.flow.period')      => $period,
+                    __('messages.insurance_premium') => !empty($calculation['insurance_premium']) ? formatMoney($calculation['insurance_premium']) : null,
+                ]],
+            ],
             'flowSteps'     => [
                 __t('messages.flow.applicant'),
                 $objectTitle,

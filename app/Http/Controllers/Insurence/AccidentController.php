@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Insurence;
 
 use App\Exceptions\ProviderException;
+use App\Http\Controllers\Insurence\Concerns\PersonsFlow;
 use App\Services\OrderService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -13,7 +14,20 @@ use Illuminate\View\View;
 
 final class AccidentController extends BaseInsuranceController
 {
+    use PersonsFlow;
+
     private const SESSION_KEY = 'accident';
+
+    /** Sum insured per person (UZS); premium comes from the provider calculator */
+    protected const FLOW = [
+        'key'     => self::SESSION_KEY,
+        'icon'    => 'bi-heart-pulse-fill',
+        'min'     => 50_000,
+        'max'     => 1_000_000,
+        'step'    => 50_000,
+        'default' => 500_000,
+        'presets' => [100_000, 300_000, 500_000, 1_000_000],
+    ];
 
     public function __construct(OrderService $orderService)
     {
@@ -29,41 +43,17 @@ final class AccidentController extends BaseInsuranceController
 
     public function index(): View
     {
-        return view('pages.insurence.accident.main', ['product' => $this->getProduct()]);
+        return view('pages.insurence.flow.applicant', $this->flowViewData());
     }
 
     public function storeApplicant(Request $request): RedirectResponse
     {
-        $request->validate([
-            'passport_seria'  => ['required', 'string', 'max:4'],
-            'passport_number' => ['required', 'digits:7'],
-            'birth_date'      => ['required', 'date', 'before:today'],
-            'phone'           => ['required', 'string', 'min:9', 'max:20'],
-            'offerta_agreed'  => $this->offertaRule(),
-        ], [
-            'offerta_agreed.required' => __('messages.offerta_required'),
-            'offerta_agreed.accepted' => __('messages.offerta_required'),
-        ]);
-
-        try {
-            $person = $this->findPersonByPassport(
-                strtoupper($request->input('passport_seria')) . $request->input('passport_number'),
-                $request->input('birth_date')
-            );
-        } catch (ProviderException $e) {
-            return back()->withErrors(['passport_seria' => __('messages.person_not_found')])->withInput();
+        $applicant = $this->applicantFromRequest($request);
+        if ($applicant instanceof RedirectResponse) {
+            return $applicant;
         }
 
-        if (empty($person['currentPinfl'] ?? null)) {
-            return back()->withErrors(['passport_seria' => __('messages.person_not_found')])->withInput();
-        }
-
-        $this->putSess('applicant', array_merge($this->normalizePerson($person, $request), [
-            'passport_seria'  => strtoupper($request->input('passport_seria')),
-            'passport_number' => $request->input('passport_number'),
-            'birth_date'      => $request->input('birth_date'),
-            'phone'           => $this->cleanPhone($request->input('phone')),
-        ]));
+        $this->putSess('applicant', $applicant);
 
         return redirect()->route('accident.getPersons', ['locale' => getCurrentLocale()]);
     }
@@ -77,15 +67,13 @@ final class AccidentController extends BaseInsuranceController
             return redirect()->route('accident.index', ['locale' => getCurrentLocale()]);
         }
 
-        $persons = $this->sess('persons', []);
-
-        return view('pages.insurence.accident.persons', compact('applicant', 'persons'));
+        return view('pages.insurence.persons.persons', $this->flowViewData());
     }
 
     public function calculatePremium(Request $request): JsonResponse
     {
         $request->validate([
-            'sum_insured' => ['required', 'integer', 'min:50000', 'max:1000000'],
+            'sum_insured' => ['required', 'integer', 'min:' . self::FLOW['min'], 'max:' . self::FLOW['max']],
         ]);
 
         try {
@@ -112,8 +100,13 @@ final class AccidentController extends BaseInsuranceController
             'birth_date'      => ['required', 'date', 'before:today'],
             'firstname'       => ['required', 'string'],
             'lastname'        => ['required', 'string'],
-            'sum_insured'     => ['required', 'integer', 'min:50000', 'max:1000000'],
+            'sum_insured'     => ['required', 'integer', 'min:' . self::FLOW['min'], 'max:' . self::FLOW['max']],
         ]);
+
+        $persons = $this->sess('persons', []);
+        if (in_array($request->input('pinfl'), array_column($persons, 'pinfl'), true)) {
+            return back()->withErrors(['person' => __t('messages.flow.person_exists')])->withInput();
+        }
 
         $sumInsured = (int) $request->input('sum_insured');
 
@@ -124,7 +117,6 @@ final class AccidentController extends BaseInsuranceController
             return back()->withErrors(['sum_insured' => $e->getMessage()])->withInput();
         }
 
-        $persons   = $this->sess('persons', []);
         $persons[] = [
             'pinfl'               => $request->input('pinfl'),
             'passport_seria'      => strtoupper($request->input('passport_seria')),
@@ -150,7 +142,8 @@ final class AccidentController extends BaseInsuranceController
         return redirect()->route('accident.getPersons', ['locale' => getCurrentLocale()]);
     }
 
-    public function removePerson(string $index): RedirectResponse
+    /** Route: {locale}/accident/persons/remove/{index} — the locale comes first */
+    public function removePerson(string $locale, string $index): RedirectResponse
     {
         $persons = $this->sess('persons', []);
         array_splice($persons, (int) $index, 1);
@@ -185,11 +178,7 @@ final class AccidentController extends BaseInsuranceController
             return redirect()->route('accident.index', ['locale' => getCurrentLocale()]);
         }
 
-        $totalSum     = array_sum(array_column($persons, 'sum_insured'));
-        $totalPremium = array_sum(array_column($persons, 'insurance_premium'));
-        $calculation  = $this->sess('calculation', []);
-
-        return view('pages.insurence.accident.calculator', compact('applicant', 'persons', 'totalSum', 'totalPremium', 'calculation'));
+        return view('pages.insurence.persons.term', $this->flowViewData());
     }
 
     public function storeCalculation(Request $request): RedirectResponse
@@ -232,11 +221,20 @@ final class AccidentController extends BaseInsuranceController
             return redirect()->route('accident.index', ['locale' => getCurrentLocale()]);
         }
 
-        return view('pages.insurence.accident.confirm', compact('applicant', 'persons', 'calculation'));
+        return view('pages.insurence.flow.confirm', $this->flowViewData([
+            'product' => $this->getProduct(),
+        ]));
     }
 
     public function storeApplication(Request $request): RedirectResponse
     {
+        $request->validate([
+            'offerta_agreed' => $this->offertaRule(),
+        ], [
+            'offerta_agreed.required' => __('messages.offerta_required'),
+            'offerta_agreed.accepted' => __('messages.offerta_required'),
+        ]);
+
         $applicant   = $this->sess('applicant');
         $persons     = $this->sess('persons', []);
         $calculation = $this->sess('calculation');
@@ -245,6 +243,10 @@ final class AccidentController extends BaseInsuranceController
             return redirect()->route('accident.index', ['locale' => getCurrentLocale()])
                 ->withErrors(['error' => __('messages.error_occurred')]);
         }
+
+        // Totals always follow the current list (it may have changed after the term step)
+        $calculation['total_sum']     = (int) array_sum(array_column($persons, 'sum_insured'));
+        $calculation['total_premium'] = (int) array_sum(array_column($persons, 'insurance_premium'));
 
         $apiBody = $this->buildAccidentApiBody($applicant, $persons, $calculation);
 

@@ -150,7 +150,8 @@ final class TouristController extends BaseInsuranceController
         return redirect()->route('tourist.getPersons', ['locale' => getCurrentLocale()]);
     }
 
-    public function removePerson(string $index): RedirectResponse
+    /** Route: {locale}/tourist/persons/remove/{index} — the locale comes first */
+    public function removePerson(string $locale, string $index): RedirectResponse
     {
         $persons = $this->sess('persons', []);
         array_splice($persons, (int) $index, 1);

@@ -35,7 +35,7 @@ Five products, each following a **multi-step PRG (Post-Redirect-Get)** pattern w
 |---------|------------|----------------|-------|
 | OSGOP (carrier liability) | `OsgopController` | `osgop.*` | applicant → vehicle → calculate → confirm |
 | OSGOR (employer liability) | `OsgorController` | `osgor.*` | applicant → calculator → confirm |
-| Accident | `AccidentController` | `accident.*` | applicant → persons → calculator → confirm |
+| Accident | `AccidentController` | `accident.*` | applicant → persons → term (calculator route) → confirm |
 | Property | `PropertyController` | `property.*` | applicant → property → confirm |
 | Gas Balloon | `GasBallonController` | `gas.*` | applicant → property → confirm |
 | KASKO | `KaskoController` | `kasko.*` | applicant → vehicle → confirm |
@@ -52,7 +52,8 @@ All insurance controllers extend `BaseInsuranceController` (`app/Http/Controller
 **`app/Services/Provider/ProviderApiTrait.php`** — all external API calls go through here:
 - `providerRequest(method, param, body)` — base HTTP call with Basic Auth, throws `ProviderException` on error
 - `calcRequest(url, body)` — checks `result === 0`, returns `$data['policies'][0]`
-- `findPersonByPassport(document, birthDate)` — passport lookup
+- `findPersonByPinfl(pinfl, document)` — person lookup by PINFL + passport (used by all migrated flows)
+- `findPersonByPassport(document, birthDate)` — legacy passport + birth date lookup (only old tourist/OSGOP pages)
 - `findOrganizationByInn(inn)` — organization lookup
 - `submitXalqSugurta(body)` — unified Gas + Property submission (accepts result=302)
 - `submitOsgop`, `submitOsgor`, `submitAccident` — product-specific submissions
@@ -85,7 +86,7 @@ Blade components under `x-insurence.*` namespace (`resources/views/components/in
 - `x-insurence.error-block` — validation error display
 - `x-insurence.multi-step-stepper` — step progress indicator
 
-**Unified flow standard** (`public/assets/css/flow.css`, brand color `#393185`). Gas balloon, property and KASKO are migrated; other products still use the older components above and should move to these:
+**Unified flow standard** (`public/assets/css/flow.css`, brand color `#393185`). Gas balloon, property, KASKO and accident are migrated; other products still use the older components above and should move to these:
 - `x-insurence.flow` — page frame: header, stepper, main slot + `summary` slot. Props: `icon`, `title`, `subtitle`, `steps` (labels), `current` (1-based), `stepUrls`. Shows `$errors->first('error')` as an alert.
 - `x-insurence.field` — label + input + help/inline error. Props: `name`, `label`, `type`, `value`, `help`, `id`; extra attributes go to the `<input>`; optional `append` slot.
 - `x-insurence.found` — green "found in database" block (`title`, `text`); JS updates `[data-found="title|text"]`.
@@ -94,6 +95,9 @@ Blade components under `x-insurence.*` namespace (`resources/views/components/in
 - `x-insurence.actions` — back link + primary submit; becomes a sticky bar with the total on phones. Props: `backUrl`, `submit`, `total`.
 - "applicant → object + sum → confirm" products share `pages/insurence/flow/{applicant,confirm}` and the `Concerns\InsuranceFlow` trait (`flowViewData()`, `premiumFor()`). Each controller defines a `FLOW` constant (key, icon, rate, rateLabel, min, max, default, presets, optional step, objectKey, objectStep, objectTitle) and implements `objectLabel()` / `objectReview()` for its insured object.
 - Step 2 pages: gas/property use `cadaster/property` + `Concerns\CadasterFlow` (adds `cadasterRoute`); KASKO uses `kasko/vehicle`. Both include `flow/partials/sum-dates` and `flow/partials/calc-script` (`window.xfCalc.reveal(label)` after the object lookup). The slider `step` must divide `value - min`, or the browser snaps the amount (KASKO uses step 1 mln).
+- Person lookup: `BaseInsuranceController::applicantFromRequest()` (step 1) and `findPerson()` (AJAX) take passport + `pinfl` (14 digits); `birth_date` is still accepted for unmigrated pages. Birth date comes from the API's `birthDate`, else is decoded from the PINFL (digits 2–7 = DDMMYY, first digit = century/gender).
+- Accident uses `Concerns\PersonsFlow` (applicant → persons → term → confirm) with views `persons/{persons,term}`; premiums per person come from the provider calculator. Tourist can adopt the same trait (routes and controller are identical apart from productCode).
+- `flow/confirm` renders `$confirmBlocks` ([title, editUrl, items]) and `$premiumTotal` supplied by the flow trait.
 - Offerta checkbox lives on the confirm step (validated in `storeApplication`), not step 1.
 - Helpers: `formatMoney($uzs)` → `250 000 so'm`, `formatPhone($p)` → `+998 90 123 45 67`. Flow strings are under `messages.flow.*`.
 
