@@ -98,6 +98,7 @@ Blade components under `x-insurence.*` namespace (`resources/views/components/in
 ### Admin panel (Filament 4, `/admin`)
 
 `app/Providers/Filament/AdminPanelProvider.php` — brand palette (`#393185` = primary 600), site logo/favicon, Inter/Gilroy fonts. Filament ships precompiled CSS, so brand tweaks live in plain CSS `public/assets/css/admin.css` (targets `fi-*` classes, injected via `PanelsRenderHook::HEAD_END`); Tailwind classes added in PHP will not exist. UI is Uzbek-only: `SetAdminLocale` (persistent middleware) sets `uz` and Carbon `uz_Latn`.
+- Access: `User` implements `FilamentUser`; `canAccessPanel()` allows emails in `ADMIN_EMAILS` (comma-separated, `config('app.admin_emails')`), or every user when it is empty. Without this Filament returns 403 whenever `APP_ENV` is not `local`.
 - Dashboard (`Filament/Admin/Pages/Dashboard`, 3 columns): `OrdersStatsOverview`, `RevenueChart`, `ProductSalesChart`, `LatestOrders` widgets. Date grouping is done in PHP so it works on MySQL and SQLite.
 - `OrderResource::columns()` is shared by the list page and `LatestOrders`. Status labels/colors come from `Order::STATUS_LABELS` / `Order::statusColor()`; `Order::client_name` and `Order::applicant` read the applicant from `insurances_data` (person, organization, or OSGOP's nested shape).
 - `ProductResource` form uses UZ/RU/EN tabs; `route` options come from `Product::CATEGORIES`.
