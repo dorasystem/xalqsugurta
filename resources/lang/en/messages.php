@@ -11,7 +11,13 @@
         'products_title' => 'Our Insurance Products',
         'products_subtitle' => 'Choose the right insurance for you — fast, simple and fully online',
         'osago_desc' => 'Compulsory civil liability insurance for vehicle owners',
-        'buy_policy' => 'Buy Policy',
+        'buy_policy' => 'Get a policy',
+        'product_categories' => [
+            'transport' => 'Transport',
+            'personal' => 'Personal',
+            'property' => 'Property',
+            'business' => 'Business',
+        ],
 
         // Home products
         'accident_product'      => 'Accident Insurance',

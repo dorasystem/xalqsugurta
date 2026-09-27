@@ -11,7 +11,13 @@ return [
     'products_title' => 'Sug\'urta mahsulotlarimiz',
     'products_subtitle' => 'O\'zingizga mos sug\'urtani tanlang — tez, qulay va to\'liq onlayn',
     'osago_desc' => 'Transport vositalari egalarining fuqarolik javobgarligini majburiy sug\'urta qilish',
-    'buy_policy' => 'Polisni sotib olish',
+    'buy_policy' => 'Polis olish',
+    'product_categories' => [
+        'transport' => 'Transport',
+        'personal' => 'Shaxs',
+        'property' => 'Mulk',
+        'business' => 'Biznes',
+    ],
 
     // Home products
     'accident_product'      => 'Baxtsiz hodisa sug\'urtasi',

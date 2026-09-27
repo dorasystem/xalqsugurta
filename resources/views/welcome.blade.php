@@ -2,17 +2,9 @@
 @section('title', __('messages.welcome'))
 @section('content')
 
-<?php
-$url = 'https://new.xalqsugurta.uz/';
-$lang = app()->getLocale();
-
-$buytext = [
-    'uz' => 'Buy Policy',
-    'ru' => 'Купить страховку',
-    'en' => 'Buy Policy',
-];
-
-?>
+@php
+    $lang = app()->getLocale();
+@endphp
 
     <link rel="stylesheet" href="{{ asset('assets/css/products.css') }}">
 
@@ -33,36 +25,39 @@ $buytext = [
                 </p>
             </div>
 
-            <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="home-products__grid">
 
                 @foreach ($products as $product)
-                    <div
-                        class="bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 flex flex-col h-full">
+                    <a href="{{ $product->url() }}" class="product-card">
 
-                        <div class="w-16 h-16 rounded-xl flex items-center justify-center mb-5"
-                            style="background-color: {{ $product['icon_bg'] }};">
-                            <i class="{{ $product['icon'] }} text-2xl" style="color: {{ $product['icon_color'] }};"></i>
+                        <div class="product-card__top">
+                            <span class="product-card__icon">
+                                <i class="{{ $product->icon }}"></i>
+                            </span>
+
+                            @if ($product->categoryKey())
+                                <span class="product-card__category">
+                                    {{ __t('messages.product_categories.' . $product->categoryKey()) }}
+                                </span>
+                            @endif
                         </div>
 
-                        <div class="flex flex-col flex-1">
+                        <h3 class="product-card__title">
+                            {{ $product->{'name_' . $lang} }}
+                        </h3>
 
-                            <h3 class="text-lg font-semibold text-gray-900 mb-2">
-                                {{ $product['name_' . $lang] }} 
-                            </h3>
+                        <p class="product-card__desc">
+                            {{ $product->{'desc_' . $lang} }}
+                        </p>
 
-                            <p class="text-sm text-gray-500 mb-6 leading-relaxed flex-1">
-                                {{ $product['desc_' . $lang] }}
-                            </p>
-
-                            <a href="{{ $url . 'uz/' . $product['route'] }}"
-                                class="mt-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium text-white"
-                                style="background-color: {{ $product['icon_color'] }};">
-                                {{ $buytext[$lang] }}
+                        <span class="product-card__cta">
+                            {{ __t('messages.buy_policy') }}
+                            <span class="product-card__arrow">
                                 <i class="bi bi-arrow-right"></i>
-                            </a>
+                            </span>
+                        </span>
 
-                        </div>
-                    </div>
+                    </a>
                 @endforeach
 
             </div>
