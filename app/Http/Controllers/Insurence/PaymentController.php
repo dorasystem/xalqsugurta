@@ -36,6 +36,11 @@ final class PaymentController extends Controller
             'state'       => $state,
             'showDetails' => $this->orderService->canSeeDetails($order),
             'response'    => $order->insurances_response_data ?? [],
+            // The insurer's own Click link when it gave one, else our Click merchant (needs CLICK_SERVICE_ID + CLICK_MERCHANT_ID)
+            'clickUrl'    => $order->click_url
+                ?: (config('services.click.service_id') && config('services.click.merchant_id')
+                    ? route('payment.click', ['id' => $order->id])
+                    : null),
         ]);
     }
 }

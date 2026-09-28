@@ -58,8 +58,8 @@
                             <i class="bi bi-chevron-right" aria-hidden="true"></i>
                         </a>
 
-                        @if ($order->click_url)
-                            <a class="xf-pay__method" rel="noopener" href="{{ $order->click_url }}">
+                        @if ($clickUrl)
+                            <a class="xf-pay__method" rel="noopener" href="{{ $clickUrl }}">
                                 <img src="{{ asset('images/tolovTizimi/click.svg') }}" alt="" width="84" height="28">
                                 <span class="xf-pay__name">Click <small>{{ __t('messages.flow.pay_cards') }}</small></span>
                                 <i class="bi bi-chevron-right" aria-hidden="true"></i>

@@ -48,6 +48,16 @@ class PaymentPageTest extends TestCase
         $this->get('/uz/payment/' . $this->order()->id)->assertDontSee('click.svg', false);
     }
 
+    public function test_click_uses_our_merchant_when_the_insurer_gave_no_link(): void
+    {
+        config(['services.click.service_id' => '111', 'services.click.merchant_id' => '222']);
+        $order = $this->order();
+
+        $this->get("/uz/payment/{$order->id}")
+            ->assertSee(route('payment.click', ['id' => $order->id]), false)
+            ->assertSee('click.svg', false);
+    }
+
     public function test_strangers_do_not_see_personal_data_or_policy_links(): void
     {
         $order = $this->order(['insurances_response_data' => ['download_url' => 'https://example.com/secret.pdf']]);
