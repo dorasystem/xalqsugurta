@@ -56,8 +56,8 @@ final class OsgorController extends BaseInsuranceController
 
         try {
             $org = $this->findOrganizationByInn($request->input('inn'));
-        } catch (ProviderException) {
-            return back()->withErrors(['inn' => __('messages.company_not_found')])->withInput();
+        } catch (ProviderException $e) {
+            return back()->withErrors(['inn' => $this->lookupErrorMessage($e, __('messages.company_not_found'))])->withInput();
         }
 
         if (empty($org['name'] ?? null)) {
@@ -103,7 +103,7 @@ final class OsgorController extends BaseInsuranceController
         try {
             $calculation = $this->calculation($applicant, (float) $request->input('fot'), $request->input('start_date'));
         } catch (ProviderException $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+            return response()->json(['success' => false, 'message' => $this->providerErrorMessage($e)], 422);
         }
 
         return response()->json(['success' => true, 'data' => $calculation]);
@@ -121,7 +121,7 @@ final class OsgorController extends BaseInsuranceController
         try {
             $calculation = $this->calculation($applicant, (float) $request->input('fot'), $request->input('start_date'));
         } catch (ProviderException $e) {
-            return back()->withErrors(['fot' => $e->getMessage()])->withInput();
+            return back()->withErrors(['fot' => $this->providerErrorMessage($e)])->withInput();
         }
 
         $this->putSess('calculation', $calculation);
@@ -207,7 +207,7 @@ final class OsgorController extends BaseInsuranceController
             $apiResponse = $this->submitOsgor($body);
         } catch (ProviderException $e) {
             return redirect()->route('osgor.getConfirm', ['locale' => getCurrentLocale()])
-                ->withErrors(['error' => $e->getMessage()]);
+                ->withErrors(['error' => $this->providerErrorMessage($e)]);
         }
 
         $insuranceId = $apiResponse['contract_id']

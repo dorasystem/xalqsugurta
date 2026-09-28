@@ -39,7 +39,7 @@ final class OsgopController extends Controller
             $org = $this->findOrganizationByInn($request->input('inn'));
         } catch (ProviderException $e) {
             return back()
-                ->withErrors(['inn' => __('messages.company_not_found')])
+                ->withErrors(['inn' => $e->isUnavailable() ? __t('messages.flow.registry_unavailable') : __('messages.company_not_found')])
                 ->withInput();
         }
 
@@ -166,7 +166,7 @@ final class OsgopController extends Controller
             ];
         } catch (ProviderException $e) {
             return back()
-                ->withErrors(['vehicle.gov_number' => __('messages.vehicle_not_found')])
+                ->withErrors(['vehicle.gov_number' => $e->isUnavailable() ? __t('messages.flow.registry_unavailable') : __('messages.vehicle_not_found')])
                 ->withInput();
         }
 
@@ -210,7 +210,7 @@ final class OsgopController extends Controller
         try {
             $calculation = $this->calculation($vehicle, (int) $request->input('insurance_term_id'), $request->input('start_date'));
         } catch (ProviderException $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+            return response()->json(['success' => false, 'message' => $this->providerErrorMessage($e)], 422);
         }
 
         return response()->json(['success' => true, 'data' => $calculation]);
@@ -228,7 +228,7 @@ final class OsgopController extends Controller
         try {
             $calculation = $this->calculation($vehicle, (int) $request->input('insurance_term_id'), $request->input('start_date'));
         } catch (ProviderException $e) {
-            return back()->withErrors(['insurance_term_id' => $e->getMessage()])->withInput();
+            return back()->withErrors(['insurance_term_id' => $this->providerErrorMessage($e)])->withInput();
         }
 
         session([self::SESSION_KEY . '.calculation' => $calculation]);
@@ -273,7 +273,7 @@ final class OsgopController extends Controller
             $apiResponse = $this->submitOsgop($applicant, $vehicle, $calculation);
         } catch (ProviderException $e) {
             return redirect()->route('osgop.getConfirm', ['locale' => getCurrentLocale()])
-                ->withErrors(['error' => $e->getMessage()]);
+                ->withErrors(['error' => $this->providerErrorMessage($e)]);
         }
 
         $insuranceId = $apiResponse['contract_id']
@@ -359,6 +359,12 @@ final class OsgopController extends Controller
         $century = in_array($pinfl[0], ['1', '2'], true) ? 1800 : (in_array($pinfl[0], ['3', '4'], true) ? 1900 : 2000);
 
         return sprintf('%04d-%s-%s', $century + (int) substr($pinfl, 5, 2), substr($pinfl, 3, 2), substr($pinfl, 1, 2));
+    }
+
+    /** The insurer's own message, or "try later" when its service is down */
+    private function providerErrorMessage(ProviderException $e): string
+    {
+        return $e->isUnavailable() ? __t('messages.flow.insurer_unavailable') : $e->getMessage();
     }
 
     /** Digits only, 998XXXXXXXXX when it can be; the caller validates the result */

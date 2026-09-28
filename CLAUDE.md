@@ -51,7 +51,9 @@ All insurance controllers extend `BaseInsuranceController` (`app/Http/Controller
 ### API Layer
 
 **`app/Services/Provider/ProviderApiTrait.php`** — all external API calls go through here:
-- `providerRequest(method, param, body)` — base HTTP call with Basic Auth, throws `ProviderException` on error
+- `providerRequest(method, param, body)` — registry proxy call (person, vehicle, INN, cadaster) with Basic Auth, throws `ProviderException` on error
+- `insurerPost(url, body, timeout, retries, auth)` — every calculator / sale POST goes through it
+- `ProviderException::isUnavailable()` (code ≥ 500: timeout, 5xx, or the proxy's `error: 503`) means an outage, not "not found". Controllers show `messages.flow.registry_unavailable` for lookups (`BaseInsuranceController::lookupErrorMessage()`) and `messages.flow.insurer_unavailable` for calc/sale (`providerErrorMessage()`); otherwise the insurer's own message. Request bodies (passport data) never go to the app log — they are in the API jurnali
 - `calcRequest(url, body)` — checks `result === 0`, returns `$data['policies'][0]`
 - `findPersonByPinfl(pinfl, document)` — person lookup by PINFL + passport (used by all migrated flows)
 - `findPersonByPassport(document, birthDate)` — legacy passport + birth date lookup (no longer used by any product flow)

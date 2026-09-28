@@ -170,7 +170,7 @@ final class GasBallonController extends BaseInsuranceController
             $apiResponse = $this->submitXalqSugurta($apiBody);
         } catch (ProviderException $e) {
             return redirect()->route('gas.getConfirm', ['locale' => getCurrentLocale()])
-                ->withErrors(['error' => $e->getMessage()]);
+                ->withErrors(['error' => $this->providerErrorMessage($e)]);
         }
 
         $insuranceId = null;

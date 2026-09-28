@@ -168,6 +168,12 @@ abstract class BaseInsuranceController extends Controller
             : ($notFound ?? __('messages.person_not_found'));
     }
 
+    /** The insurer's own message, or "try later" when its service is down */
+    protected function providerErrorMessage(ProviderException $e): string
+    {
+        return $e->isUnavailable() ? __t('messages.flow.insurer_unavailable') : $e->getMessage();
+    }
+
     /** Field that lookup errors are attached to */
     protected function personLookupErrorField(Request $request): string
     {

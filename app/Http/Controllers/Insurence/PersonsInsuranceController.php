@@ -75,7 +75,7 @@ abstract class PersonsInsuranceController extends BaseInsuranceController
         try {
             $result = $this->calculatePerson((int) $request->input('sum_insured'));
         } catch (ProviderException $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+            return response()->json(['success' => false, 'message' => $this->providerErrorMessage($e)], 422);
         }
 
         $premium = (int) ($result['persons'][0]['insurancePremium'] ?? $result['cost']['insurancePremium'] ?? 0);
@@ -110,7 +110,7 @@ abstract class PersonsInsuranceController extends BaseInsuranceController
             $calcResult = $this->calculatePerson($sumInsured);
             $premium    = (int) ($calcResult['persons'][0]['insurancePremium'] ?? $calcResult['cost']['insurancePremium'] ?? 0);
         } catch (ProviderException $e) {
-            return back()->withErrors(['sum_insured' => $e->getMessage()])->withInput();
+            return back()->withErrors(['sum_insured' => $this->providerErrorMessage($e)])->withInput();
         }
 
         $persons[] = [
@@ -250,7 +250,7 @@ abstract class PersonsInsuranceController extends BaseInsuranceController
             $apiResponse = $this->submitAccident($apiBody, config('provider.submit.' . $this->getProductKey()));
         } catch (ProviderException $e) {
             return redirect()->route($this->getProductKey() . '.getConfirm', ['locale' => getCurrentLocale()])
-                ->withErrors(['error' => $e->getMessage()]);
+                ->withErrors(['error' => $this->providerErrorMessage($e)]);
         }
 
         $contractId  = $apiResponse['contract_id'] ?? $apiResponse['id'] ?? $apiResponse['UUID'] ?? uniqid($this->getProductKey() . '_');

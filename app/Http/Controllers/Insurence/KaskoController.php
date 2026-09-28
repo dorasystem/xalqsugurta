@@ -165,7 +165,7 @@ final class KaskoController extends BaseInsuranceController
             $apiResponse = $this->submitXalqSugurta($apiBody);
         } catch (ProviderException $e) {
             return redirect()->route('kasko.getConfirm', ['locale' => getCurrentLocale()])
-                ->withErrors(['error' => $e->getMessage()]);
+                ->withErrors(['error' => $this->providerErrorMessage($e)]);
         }
 
         // Same order as gas/property: polis number, then API id, then a local fallback
@@ -218,7 +218,7 @@ final class KaskoController extends BaseInsuranceController
                 strtoupper($request->input('gov_number'))
             );
         } catch (ProviderException $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+            return response()->json(['success' => false, 'message' => $this->providerErrorMessage($e)], 422);
         }
 
         return response()->json([

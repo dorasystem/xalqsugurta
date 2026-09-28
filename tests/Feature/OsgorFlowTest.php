@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Order;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Factory;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -75,6 +76,23 @@ class OsgorFlowTest extends TestCase
         ]);
 
         $this->assertEquals(285500, session('osgor.calculation.insurance_premium'));
+    }
+
+    public function test_insurer_outage_on_submit_keeps_the_user_on_confirm(): void
+    {
+        $this->post('/uz/osgor/applicant', ['inn' => '123456789', 'phone' => '998901234567']);
+        $this->post('/uz/osgor/calculator', ['fot' => 500000000, 'start_date' => now()->addDay()->format('Y-m-d')]);
+
+        foreach ([Http::failedConnection(), Http::response('Bad Gateway', 502)] as $failure) {
+            Http::swap(new Factory($this->app['events']));
+            Http::fake(['*/eshop/osgor' => $failure]);
+
+            $this->post('/uz/osgor/confirm', ['offerta_agreed' => '1'])
+                ->assertRedirect(route('osgor.getConfirm', ['locale' => 'uz']))
+                ->assertSessionHasErrors(['error' => __t('messages.flow.insurer_unavailable')]);
+        }
+
+        $this->assertSame(0, Order::count());
     }
 
     public function test_step_two_needs_an_organization(): void
