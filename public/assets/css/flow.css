@@ -963,3 +963,33 @@
 @media (prefers-reduced-motion: reduce) {
     .xf-pay__method { transition: none; }
 }
+
+/* --- Collapsible help under a field ("Kadastr raqamini qayerdan topaman?") --- */
+
+.xf-hint {
+    font-size: var(--xf-fs-label);
+    color: var(--xf-text);
+}
+
+.xf-hint summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    color: var(--xf-brand);
+    font-weight: 600;
+    list-style: none;
+}
+
+.xf-hint summary::-webkit-details-marker {
+    display: none;
+}
+
+.xf-hint p {
+    margin: 8px 0 0;
+    padding: 10px 14px;
+    background: var(--xf-tint-2);
+    border-radius: 12px;
+    color: var(--xf-text);
+    line-height: 1.5;
+}

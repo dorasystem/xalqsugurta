@@ -83,10 +83,10 @@ final class GasBallonController extends BaseInsuranceController
         $flow = $this->flow();
 
         $request->validate([
-            'cadaster_number'    => ['required', 'string'],
+            'cadaster_number'    => $this->cadasterRule(),
             'insurance_amount'   => ['required', 'integer', 'min:' . $flow['min'], 'max:' . $flow['max']],
             'payment_start_date' => ProductSettings::startDateRules($flow),
-        ]);
+        ], $this->cadasterMessages('cadaster_number'));
 
         if (!$this->sess('applicant')) {
             return redirect()->route('gas.index', ['locale' => getCurrentLocale()]);
@@ -126,17 +126,7 @@ final class GasBallonController extends BaseInsuranceController
 
     public function fetchCadaster(Request $request): JsonResponse
     {
-        $request->validate([
-            'cadasterNumber' => ['required', 'string'],
-        ]);
-
-        $result = $this->propertyService->fetchPropertyByCadaster($request->input('cadasterNumber'));
-
-        if (!$result['success']) {
-            return response()->json(['success' => false, 'message' => $result['error'] ?? __('messages.cadaster_invalid')], 422);
-        }
-
-        return response()->json(['success' => true, 'result' => $result['result']]);
+        return $this->cadasterLookup($request);
     }
 
     // ─── Step 3: Confirm + Submit ─────────────────────────────────────────────

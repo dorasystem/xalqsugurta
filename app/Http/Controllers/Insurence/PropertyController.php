@@ -8,6 +8,7 @@ use App\Services\OrderService;
 use App\Services\ProductSettings;
 use App\Services\PropertyService;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -82,10 +83,10 @@ final class PropertyController extends BaseInsuranceController
         $flow = $this->flow();
 
         $request->validate([
-            'cadaster_number'    => ['required', 'string'],
+            'cadaster_number'    => $this->cadasterRule(),
             'insurance_amount'   => ['required', 'integer', 'min:' . $flow['min'], 'max:' . $flow['max']],
             'payment_start_date' => ProductSettings::startDateRules($flow),
-        ]);
+        ], $this->cadasterMessages('cadaster_number'));
 
         if (!$this->sess('applicant')) {
             return redirect()->route('property.index', ['locale' => getCurrentLocale()]);
@@ -204,19 +205,9 @@ final class PropertyController extends BaseInsuranceController
 
     // ─── AJAX: Cadaster ───────────────────────────────────────────────────────
 
-    public function fetchCadaster(Request $request): \Illuminate\Http\JsonResponse
+    public function fetchCadaster(Request $request): JsonResponse
     {
-        $request->validate([
-            'cadasterNumber' => ['required', 'string'],
-        ]);
-
-        $result = $this->propertyService->fetchPropertyByCadaster($request->input('cadasterNumber'));
-
-        if (!$result['success']) {
-            return response()->json(['success' => false, 'message' => $result['error'] ?? __('messages.cadaster_invalid')], 422);
-        }
-
-        return response()->json(['success' => true, 'result' => $result['result']]);
+        return $this->cadasterLookup($request);
     }
 
     // ─── Private helpers ──────────────────────────────────────────────────────

@@ -50,6 +50,11 @@
 
             <p id="cad_error" class="xf-field__error" role="alert" @error('cadaster_number') @else hidden @enderror>@error('cadaster_number'){{ $message }}@enderror</p>
 
+            <details class="xf-hint">
+                <summary><i class="bi bi-question-circle"></i> {{ __t('messages.flow.cadaster_where') }}</summary>
+                <p>{{ __t('messages.flow.cadaster_where_text') }}</p>
+            </details>
+
             <x-insurence.found
                 id="prop_result"
                 :title="$summaryItems['object'][1] ?? ''"
@@ -167,6 +172,13 @@
 
         if (!cadNum) {
             err.textContent = @json(__('messages.cadaster_number') . ' ' . __('messages.required'));
+            err.hidden = false;
+            return;
+        }
+
+        // Same format the server checks (CadasterFlow::cadasterRule)
+        if (!/^\d{2}(:\d{2}){4}:\d{4}([:\/]\d{1,4})*$/.test(cadNum)) {
+            err.textContent = @json(__t('messages.flow.cadaster_format_error'));
             err.hidden = false;
             return;
         }

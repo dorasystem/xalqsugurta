@@ -43,6 +43,7 @@ final class PropertyService
 
                 return [
                     'success' => false,
+                    'reason'  => 'unavailable',
                     'error' => 'Kadastr ma\'lumotlarini olishda xatolik yuz berdi.',
                     'message' => $response->json('error_message') ?? 'API xatosi',
                 ];
@@ -53,6 +54,7 @@ final class PropertyService
             if (isset($data['error']) && $data['error'] !== 0) {
                 return [
                     'success' => false,
+                    'reason'  => 'not_found',
                     'error' => $data['error_message'] ?? 'Kadastr ma\'lumoti topilmadi',
                 ];
             }
@@ -73,6 +75,7 @@ final class PropertyService
 
             return [
                 'success' => false,
+                'reason'  => 'unavailable',
                 'error' => 'Tizim xatosi yuz berdi.',
                 'message' => $e->getMessage(),
             ];
@@ -127,6 +130,7 @@ final class PropertyService
 
             return [
                 'success' => false,
+                'reason'  => 'unavailable',
                 'error' => 'Tizim xatosi yuz berdi.',
                 'message' => $e->getMessage(),
             ];
