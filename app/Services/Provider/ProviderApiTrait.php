@@ -276,8 +276,9 @@ trait ProviderApiTrait
                     'insuranceRate'      => (string) ($raw['insuranceRate'] ?? $raw['rate'] ?? '0'),
                     'insurancePremium'   => (string) ($calculation['insurance_premium'] ?? 0),
                     'insuranceTermId'    => (int) $calculation['insurance_term_id'],
-                    'healthLifeDamageSum' => (int) config('provider.osgop.health_life_damage_sum'),
-                    'propertyDamageSum'  => (int) config('provider.osgop.property_damage_sum'),
+                    // Strings: the API rejects numbers here ("must be a string"), though its sample had numbers
+                    'healthLifeDamageSum' => (string) (int) config('provider.osgop.health_life_damage_sum'),
+                    'propertyDamageSum'  => (string) (int) config('provider.osgop.property_damage_sum'),
                     'objects'            => [
                         [
                             'vehicle' => [

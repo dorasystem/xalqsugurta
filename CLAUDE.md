@@ -141,6 +141,8 @@ After order creation: redirect to `route('payment.show', ['locale', 'orderId'])`
 - **Payme** (`PaymeController::PerformTransaction`) requests the policy synchronously via `ConfirmPayment::confirmXalqSugurtaPayment()`.
 - **Payment settings in the admin panel** (Tizim → To'lov tizimlari, `Filament/Admin/Pages/PaymentSystems`): `App\Services\PaymentSettings` stores Click (enabled, service/merchant/merchant-user id, secret) and Payme (enabled, cashbox id, keys, test mode) in `app_settings` (secrets encrypted with APP_KEY) and copies them over `config('services.click.*' / 'services.payme.*')` in `AppServiceProvider::boot()` (cached; `save()` clears it). Empty fields fall back to .env; an empty secret field keeps the saved key. Keep reading `config()` in payment code. The payment page shows Click when the insurer gave a `click_url` or `PaymentSettings::clickReady()`, Payme when it gave a `payme_url` or `paymeEnabled()`.
 
+- **Insurer API settings in the admin panel** (Tizim → Sug'urtachi API, `Filament/Admin/Pages/ProviderApiSettings`): `App\Services\ProviderSettings` stores `provider.agency_id` (the OSGOP/OSGOR `agencyId`) in `app_settings` and applies it over config at boot; empty = .env. The insurer rejects an agency that is not its own ("The selected agency does not belong to your insurance organization").
+
 ### Translations
 Three locales: `en`, `ru`, `uz` in `resources/lang/{locale}/`. Key files: `insurance.php`, `messages.php`. Use `__t()` helper (defined in `app/helpers.php`) instead of `__()` to respect the URL locale.
 

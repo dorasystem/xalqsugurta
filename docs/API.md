@@ -545,7 +545,8 @@ Tuzilishi OSGOR'ga o'xshaydi (`number`, `sum`, `contractStartDate`, `regionId`, 
 
 | Maydon | Izoh |
 |---|---|
-| `healthLifeDamageSum`, `propertyDamageSum` | Limitlar: sozlamada 40 000 000 va 4 000 000 |
+| `healthLifeDamageSum`, `propertyDamageSum` | Limitlar: sozlamada 40 000 000 va 4 000 000. **Satr** bo'lishi shart (`"40000000"`): raqam yuborilsa `422 … must be a string` qaytadi, namunada raqam bo'lsa ham |
+| `agencyId` | `PROVIDER_AGENCY_ID`. Login egasining tashkilotiga tegishli bo'lishi kerak, aks holda `The selected agency does not belong to your insurance organization` |
 | `vehicle.techPassport`, `govNumber`, `vehicleTypeId`, `issueYear`, `bodyNumber`, `engineNumber`, `numberOfSeats` | Proxy'dagi `osago/vehicle` javobidan olinadi |
 | `vehicle.vehicleTypeId` | **OSGOP jadvali bo'yicha** (1 avtobus, 2 yengil avtomobil), reyestrdagi raqam emas. Moslash: reyestr 1/2 → 2, reyestr 9 → 1; boshqa turlar onlayn sotilmaydi (`OsgopController::OSGOP_TYPES`) |
 | `vehicle.license` | Tashuvchi litsenziyasi: `seria`, `number`, `beginDate`, `endDate` mijoz kiritadi (reyestrda yo'q); `typeCode` sug'urtachi namunasidagi matn (turi bo'yicha) |

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Services\ApiLogger;
 use App\Services\PaymentSettings;
+use App\Services\ProviderSettings;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
 
@@ -27,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Admin panel "To'lov tizimlari": saved Click / Payme settings override .env
         PaymentSettings::apply();
+
+        // Admin panel "Sug'urtachi API": agencyId etc. override .env
+        ProviderSettings::apply();
 
         if (config('app.env') === 'production') {
             URL::forceScheme('https');

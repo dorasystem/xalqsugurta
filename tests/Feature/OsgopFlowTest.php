@@ -129,6 +129,10 @@ class OsgopFlowTest extends TestCase
         $vehicle = $sent[0][0]->data()['policies'][0]['objects'][0]['vehicle'];
 
         $this->assertSame('2', $vehicle['vehicleTypeId']);
+
+        $policy = $sent[0][0]->data()['policies'][0];
+        $this->assertSame('40000000', $policy['healthLifeDamageSum']);
+        $this->assertSame('4000000', $policy['propertyDamageSum']);
         $this->assertArrayHasKey('ownerOrganization', $vehicle);
         $this->assertArrayNotHasKey('ownerPerson', $vehicle);
         $this->assertSame('AT', $vehicle['license']['seria']);
