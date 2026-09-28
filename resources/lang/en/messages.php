@@ -13,6 +13,15 @@
         'osago_desc' => 'Compulsory civil liability insurance for vehicle owners',
         'buy_policy' => 'Get a policy',
         'product_unavailable' => 'This product is not on sale right now.',
+        'product_page' => [
+            'about'   => 'About the product',
+            'claim'   => 'If something happens',
+            'faq'     => 'Frequently asked questions',
+            'rules'   => 'Insurance rules (PDF)',
+            'offerta' => 'Public offer (PDF)',
+            'online'  => 'Online in 5 minutes',
+            'more'    => 'Learn more',
+        ],
         'my_policies' => [
             'title'             => 'My policies',
             'subtitle'          => 'Policies and orders placed on this site',

@@ -13,6 +13,15 @@ return [
     'osago_desc' => 'Transport vositalari egalarining fuqarolik javobgarligini majburiy sug\'urta qilish',
     'buy_policy' => 'Polis olish',
     'product_unavailable' => 'Bu mahsulot hozircha sotuvda emas.',
+    'product_page' => [
+        'about'   => 'Mahsulot haqida',
+        'claim'   => 'Sug\'urta hodisasi yuz berganda',
+        'faq'     => 'Ko\'p so\'raladigan savollar',
+        'rules'   => 'Sug\'urta qoidalari (PDF)',
+        'offerta' => 'Ommaviy oferta (PDF)',
+        'online'  => 'Onlayn, 5 daqiqada',
+        'more'    => 'Batafsil',
+    ],
     'my_policies' => [
         'title'             => 'Mening polislarim',
         'subtitle'          => 'Shu saytda rasmiylashtirilgan polislar va buyurtmalar',

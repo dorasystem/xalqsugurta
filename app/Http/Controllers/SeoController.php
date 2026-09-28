@@ -13,12 +13,17 @@ final class SeoController extends Controller
 
     public function sitemap(): Response
     {
-        $pages = [['home', 'daily', '1.0'], ['my-policies', 'monthly', '0.3']];
+        // [route name, parameters, changefreq, priority]
+        $pages = [['home', [], 'daily', '1.0'], ['my-policies', [], 'monthly', '0.3']];
 
-        foreach (Product::where('is_active', true)->orderBy('sort_order')->pluck('route') as $route) {
-            $name = trim((string) $route, '/') . '.index';
-            if (Route::has($name)) {
-                $pages[] = [$name, 'weekly', '0.8'];
+        foreach (Product::where('is_active', true)->orderBy('sort_order')->get() as $product) {
+            $slug = trim((string) $product->route, '/');
+
+            if (collect(self::LOCALES)->contains(fn (string $l): bool => $product->hasInfo($l))) {
+                $pages[] = ['product.show', ['product' => $slug], 'weekly', '0.9'];
+            }
+            if (Route::has($slug . '.index')) {
+                $pages[] = [$slug . '.index', [], 'weekly', '0.8'];
             }
         }
 

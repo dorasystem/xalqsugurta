@@ -9,6 +9,8 @@ use App\Services\ProductSettings;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
@@ -81,6 +83,39 @@ class ProductResource extends Resource
                                 ->maxSize(10240)
                                 ->downloadable()
                                 ->openable(),
+
+                            Section::make('Mahsulot sahifasi')
+                                ->description('/' . $locale . '/products/… sahifasi. Bo\'sh bo\'limlar ko\'rsatilmaydi; hammasi bo\'sh bo\'lsa, bosh sahifadagi karta to\'g\'ridan-to\'g\'ri rasmiylashtirishga olib boradi.')
+                                ->collapsible()
+                                ->schema([
+                                    RichEditor::make("content.{$locale}.about")
+                                        ->label('Mahsulot haqida')
+                                        ->helperText('Nimalar qoplanadi, sug\'urta summasi, kimlar uchun.')
+                                        ->toolbarButtons(['bold', 'italic', 'underline', 'h2', 'h3', 'bulletList', 'orderedList', 'link', 'blockquote', 'undo', 'redo']),
+                                    RichEditor::make("content.{$locale}.claim")
+                                        ->label('Sug\'urta hodisasi yuz berganda')
+                                        ->helperText('Mijoz nima qilishi kerak: qayerga murojaat, qaysi hujjatlar, muddatlar.')
+                                        ->toolbarButtons(['bold', 'italic', 'bulletList', 'orderedList', 'link', 'undo', 'redo']),
+                                    Repeater::make("content.{$locale}.faq")
+                                        ->label('Ko\'p so\'raladigan savollar')
+                                        ->schema([
+                                            TextInput::make('q')->label('Savol')->required()->maxLength(255),
+                                            Textarea::make('a')->label('Javob')->required()->rows(3)->maxLength(2000),
+                                        ])
+                                        ->itemLabel(fn (array $state): ?string => $state['q'] ?? null)
+                                        ->collapsible()
+                                        ->reorderable()
+                                        ->defaultItems(0)
+                                        ->addActionLabel('Savol qo\'shish'),
+                                    FileUpload::make("rules_{$locale}")
+                                        ->label('Sug\'urta qoidalari (PDF)')
+                                        ->disk('public')
+                                        ->directory('rules')
+                                        ->acceptedFileTypes(['application/pdf'])
+                                        ->maxSize(20480)
+                                        ->downloadable()
+                                        ->openable(),
+                                ]),
                         ]))
                         ->values()
                         ->all()),

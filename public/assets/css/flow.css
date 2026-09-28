@@ -1073,3 +1073,67 @@ label.xf-chip {
     .xf-policy__head { flex-direction: column; }
     .xf-policy__actions .xf-btn { flex: 1 1 100%; justify-content: center; }
 }
+
+/* ─── Product info page (pages/product/show) ─────────────────────────────── */
+.xf-prose {
+    color: var(--xf-text);
+    font-size: var(--xf-fs-body);
+    line-height: 1.65;
+}
+.xf-prose > :first-child { margin-top: 0; }
+.xf-prose > :last-child  { margin-bottom: 0; }
+.xf-prose h2, .xf-prose h3, .xf-prose h4 { color: var(--xf-ink); font-size: var(--xf-fs-h3); margin: 1.2em 0 .5em; }
+.xf-prose p { margin: 0 0 .8em; }
+.xf-prose ul, .xf-prose ol { padding-left: 1.3em; margin: 0 0 .8em; }
+.xf-prose ul { list-style: disc; }
+.xf-prose ol { list-style: decimal; }
+.xf-prose li { display: list-item; }
+.xf-prose li + li { margin-top: .3em; }
+.xf-prose a { color: var(--xf-brand); text-decoration: underline; }
+.xf-prose blockquote { margin: 1em 0; padding: 10px 14px; border-left: 3px solid var(--xf-brand); background: var(--xf-tint-2); }
+
+.xf-faq { display: grid; gap: 8px; }
+.xf-faq__item {
+    border: 1px solid var(--xf-line);
+    border-radius: 12px;
+    background: #fff;
+}
+.xf-faq__item summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 14px 44px 14px 16px;
+    position: relative;
+    font-weight: 600;
+    color: var(--xf-ink);
+    font-size: var(--xf-fs-name);
+}
+.xf-faq__item summary::-webkit-details-marker { display: none; }
+.xf-faq__item summary::after {
+    content: "+";
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--xf-brand);
+    font-size: 1.2rem;
+}
+.xf-faq__item[open] summary::after { content: "−"; }
+.xf-faq__item summary:focus-visible { outline: 2px solid var(--xf-brand); outline-offset: 2px; border-radius: 12px; }
+.xf-faq__item p { margin: 0; padding: 0 16px 14px; color: var(--xf-text); font-size: var(--xf-fs-body); line-height: 1.6; }
+
+/* White button on the dark summary header */
+.xf-btn.xf-product-cta {
+    width: 100%;
+    justify-content: center;
+    margin-top: 10px;
+    background: #fff;
+    color: var(--xf-brand);
+}
+.xf-btn.xf-product-cta:hover { background: var(--xf-tint); color: var(--xf-brand-dark); }
+.xf-product-docs a { color: var(--xf-brand); text-decoration: none; display: inline-flex; gap: 8px; align-items: center; font-weight: 600; }
+.xf-product-docs a:hover { text-decoration: underline; }
+
+/* On phones the buy button comes before the texts, not after them */
+@media (max-width: 991px) {
+    .xf-summary.xf-product-aside { order: -1; }
+}

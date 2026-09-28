@@ -28,7 +28,7 @@
             <div class="home-products__grid">
 
                 @foreach ($products as $product)
-                    <a href="{{ $product->url() }}" class="product-card">
+                    <a href="{{ $product->cardUrl() }}" class="product-card">
 
                         <div class="product-card__top">
                             <span class="product-card__icon">
@@ -51,7 +51,7 @@
                         </p>
 
                         <span class="product-card__cta">
-                            {{ __t('messages.buy_policy') }}
+                            {{ $product->hasInfo() ? __t('messages.product_page.more') : __t('messages.buy_policy') }}
                             <span class="product-card__arrow">
                                 <i class="bi bi-arrow-right"></i>
                             </span>

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Insurence\PaymentController;
 use App\Http\Controllers\MyPoliciesController;
+use App\Http\Controllers\ProductPageController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\ApiControllers\PropertyInfoController;
 use Illuminate\Support\Facades\App;
@@ -22,6 +23,9 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
 
     // Unified payment route for all insurance products
     Route::get('/payment/{orderId}', [PaymentController::class, 'show'])->name('payment.show');
+
+    // Product info pages (texts / FAQ / rules from the admin panel)
+    Route::get('/products/{product}', [ProductPageController::class, 'show'])->where('product', '[a-z0-9_-]+')->name('product.show');
 
     // "Mening polislarim": phone + SMS code, then the orders placed with that phone
     Route::get('/my-policies', [MyPoliciesController::class, 'index'])->name('my-policies');
