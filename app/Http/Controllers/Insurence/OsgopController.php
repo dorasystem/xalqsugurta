@@ -8,7 +8,6 @@ use App\Http\Requests\Insurence\Osgop\OsgopStoreCompanyApplicant;
 use App\Models\InsuranceTerm;
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\VehicleType;
 use App\Services\OrderService;
 use Carbon\Carbon;
 use App\Services\Provider\ProviderApiTrait;
@@ -23,6 +22,19 @@ final class OsgopController extends Controller
     use ProviderApiTrait;
 
     private const SESSION_KEY = 'osgop';
+
+    /**
+     * The registry (osago/vehicle) and OSGOP number vehicle types differently: registry 1/2 are
+     * passenger cars and 9 is a bus (> 20 seats); in the insurer's OSGOP table 1 is a bus and
+     * 2 a passenger car. Sending the registry id priced cars as buses. Other types are not sold online.
+     */
+    private const OSGOP_TYPES = [1 => 2, 2 => 2, 9 => 1];
+
+    // license.typeCode, as in the insurer's OSGOP samples
+    private const LICENSE_TYPES = [
+        1 => 'ЙЎЛОВЧИЛАРНИ ШАҲАРДА ШАҲАР АТРОФИДА ШАҲАРЛАРАРО МИКРОАВТОБУС ҲАМДА АВТОБУСЛАРДА ТАШИШ',
+        2 => "YO'LOVCHILARNI SHAXAR, SHAXAR ATROFI VA SHAXARLARARO YENGIL AVTOMOBILLARDA TASHISH",
+    ];
 
     public function __construct(private readonly OrderService $orderService) {}
 
@@ -126,18 +138,38 @@ final class OsgopController extends Controller
             return redirect()->route('osgop.index', ['locale' => getCurrentLocale()]);
         }
 
-        return view('pages.insurence.osgop.vehicle', $this->flowViewData());
+        return view('pages.insurence.osgop.vehicle', $this->flowViewData([
+            'vehicleType' => $this->vehicleTypeLabel(session(self::SESSION_KEY . '.vehicle', [])),
+        ]));
     }
 
     public function storeVehicle(Request $request): RedirectResponse
     {
+        $request->merge(['vehicle' => array_merge((array) $request->input('vehicle'), [
+            'gov_number'          => strtoupper(preg_replace('/\s+/', '', (string) $request->input('vehicle.gov_number'))),
+            'tech_passport_seria' => strtoupper(trim((string) $request->input('vehicle.tech_passport_seria'))),
+            'license_seria'       => strtoupper(trim((string) $request->input('vehicle.license_seria'))),
+        ])]);
+
         $request->validate([
             'vehicle.gov_number'           => ['required', 'string'],
             'vehicle.tech_passport_seria'  => ['required', 'string'],
             'vehicle.tech_passport_number' => ['required', 'string'],
+            'vehicle.license_seria'        => ['required', 'regex:/^[A-Z]{2}$/'],
+            'vehicle.license_number'       => ['required', 'digits:7'],
+            'vehicle.license_begin'        => ['required', 'date', 'before_or_equal:today'],
+            'vehicle.license_end'          => ['required', 'date', 'after_or_equal:today'],
+        ], [
+            'vehicle.license_seria.regex'         => __t('messages.flow.license_seria_format'),
+            'vehicle.license_end.after_or_equal'  => __t('messages.flow.license_expired'),
         ]);
 
-        $vehicle = $request->input('vehicle');
+        $input   = $request->input('vehicle');
+        $vehicle = [
+            'gov_number'           => $input['gov_number'],
+            'tech_passport_seria'  => $input['tech_passport_seria'],
+            'tech_passport_number' => $input['tech_passport_number'],
+        ];
 
         try {
             $api = $this->findVehicle(
@@ -148,7 +180,8 @@ final class OsgopController extends Controller
 
             // API ma'lumotlari bilan to'ldiriladi
             $vehicle['model_custom_name'] = $api['modelName']     ?? $api['modelCustomName'] ?? null;
-            $vehicle['vehicle_type_id']   = $api['vehicleTypeId'] ?? null;
+            $vehicle['registry_type_id']  = (int) ($api['vehicleTypeId'] ?? 0);
+            $vehicle['vehicle_type_id']   = self::OSGOP_TYPES[$vehicle['registry_type_id']] ?? null;
             $vehicle['issue_year']        = $api['issueYear']     ?? null;
             $vehicle['number_of_seats']   = $api['seats'] ?? null;
             $vehicle['body_number']       = $api['bodyNumber']    ?? null;
@@ -157,12 +190,13 @@ final class OsgopController extends Controller
 
             $vehicle['is_foreign']        = 0;
 
+            // The registry has no carrier licence: the customer types it in
             $vehicle['license'] = [
-                'seria'     => $api['licenseSeria']     ?? $api['licenseSerial']    ?? null,
-                'number'    => $api['licenseNumber']    ?? $api['licenseNo']        ?? null,
-                'beginDate' => $api['licenseBeginDate'] ?? $api['licenseStartDate'] ?? null,
-                'endDate'   => $api['licenseEndDate']   ?? null,
-                'typeCode'  => $api['licenseTypeCode']  ?? $api['vehicleCategory']  ?? null,
+                'seria'     => $input['license_seria'],
+                'number'    => $input['license_number'],
+                'beginDate' => Carbon::parse($input['license_begin'])->format('Y-m-d'),
+                'endDate'   => Carbon::parse($input['license_end'])->format('Y-m-d'),
+                'typeCode'  => self::LICENSE_TYPES[$vehicle['vehicle_type_id']] ?? null,
             ];
         } catch (ProviderException $e) {
             return back()
@@ -172,6 +206,12 @@ final class OsgopController extends Controller
 
         if (!session(self::SESSION_KEY . '.applicant')) {
             return redirect()->route('osgop.index', ['locale' => getCurrentLocale()]);
+        }
+
+        if (!$vehicle['vehicle_type_id']) {
+            return back()
+                ->withErrors(['vehicle.gov_number' => __t('messages.flow.osgop_type_unsupported')])
+                ->withInput();
         }
 
         // A new vehicle invalidates the old premium
@@ -193,7 +233,7 @@ final class OsgopController extends Controller
 
         return view('pages.insurence.osgop.calculator', $this->flowViewData([
             'terms'       => InsuranceTerm::active()->orderBy('months')->get(),
-            'vehicleType' => VehicleType::where('provider_vehicle_type_id', session(self::SESSION_KEY . '.vehicle.vehicle_type_id'))->first(),
+            'vehicleType' => $this->vehicleTypeLabel(session(self::SESSION_KEY . '.vehicle', [])),
         ]));
     }
 
@@ -332,7 +372,8 @@ final class OsgopController extends Controller
         $typeId = (int) ($vehicle['vehicle_type_id'] ?? 0);
         $seats  = (int) ($vehicle['number_of_seats'] ?? 0);
 
-        if ($typeId < 1 || $seats < 1) {
+        // Sessions from before the type mapping / licence step must go through the vehicle step again
+        if (!in_array($typeId, self::OSGOP_TYPES, true) || $seats < 1 || empty($vehicle['registry_type_id']) || empty($vehicle['license']['number'])) {
             throw new ProviderException(__t('messages.flow.vehicle_incomplete'));
         }
 
@@ -359,6 +400,14 @@ final class OsgopController extends Controller
         $century = in_array($pinfl[0], ['1', '2'], true) ? 1800 : (in_array($pinfl[0], ['3', '4'], true) ? 1900 : 2000);
 
         return sprintf('%04d-%s-%s', $century + (int) substr($pinfl, 5, 2), substr($pinfl, 3, 2), substr($pinfl, 1, 2));
+    }
+
+    /** "Avtobus" / "Yengil avtomobil" for the OSGOP type in the session */
+    private function vehicleTypeLabel(array $vehicle): ?string
+    {
+        return in_array($vehicle['vehicle_type_id'] ?? null, self::OSGOP_TYPES, true)
+            ? __t('messages.flow.osgop_type_' . $vehicle['vehicle_type_id'])
+            : null;
     }
 
     /** The insurer's own message, or "try later" when its service is down */
@@ -435,7 +484,11 @@ final class OsgopController extends Controller
                     __('messages.gov_number')          => $vehicle['gov_number'] ?? null,
                     __t('messages.flow.vehicle')       => $vehicle['model_custom_name'] ?? null,
                     __('messages.tech_passport_series') . ' / ' . __('messages.tech_passport_number') => trim(($vehicle['tech_passport_seria'] ?? '') . ' ' . ($vehicle['tech_passport_number'] ?? '')) ?: null,
+                    __t('messages.flow.vehicle_type')  => $this->vehicleTypeLabel($vehicle),
                     __t('messages.flow.seats')         => $vehicle['number_of_seats'] ?? null,
+                    __t('messages.flow.license')       => !empty($vehicle['license']['number'])
+                        ? $vehicle['license']['seria'] . ' ' . $vehicle['license']['number'] . ' (' . Carbon::parse($vehicle['license']['endDate'])->format('d.m.Y') . ' ' . __t('messages.flow.until') . ')'
+                        : null,
                 ]],
                 ['title' => __t('messages.flow.policy_terms'), 'editUrl' => $calcUrl, 'items' => [
                     __('messages.insurance_sum')       => !empty($calculation['insurance_sum']) ? formatMoney($calculation['insurance_sum']) : null,

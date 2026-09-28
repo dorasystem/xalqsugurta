@@ -324,6 +324,13 @@ trait ProviderApiTrait
             ],
         ];
 
+        // The insurer's samples carry only the owner block that applies; a null one is left out
+        $body['policies'][0]['objects'][0]['vehicle'] = array_filter(
+            $body['policies'][0]['objects'][0]['vehicle'],
+            fn ($value, string $key): bool => $value !== null || !in_array($key, ['ownerOrganization', 'ownerPerson'], true),
+            ARRAY_FILTER_USE_BOTH
+        );
+
         $response = $this->insurerPost(config('provider.submit.osgop'), $body);
 
         $data = $response->json();

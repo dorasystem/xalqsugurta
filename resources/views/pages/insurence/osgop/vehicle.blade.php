@@ -35,10 +35,40 @@
                 <p class="xf-field__error" role="alert">{{ $message }}</p>
             @enderror
 
+            {{-- Carrier licence: the registry does not have it, the insurer needs it --}}
+            <section class="xf-subpanel" aria-labelledby="license_title">
+                <div class="xf-subpanel__head">
+                    <h3 class="xf-subpanel__title" id="license_title">
+                        <i class="bi bi-file-earmark-check"></i> {{ __t('messages.flow.license_title') }}
+                    </h3>
+                </div>
+                <p class="xf-field__help" style="margin: 0">{{ __t('messages.flow.license_help') }}</p>
+                <div class="xf-row" style="--xf-cols: 2">
+                    <x-insurence.field name="vehicle[license_seria]" id="f_license_seria" :label="__t('messages.flow.license_seria')"
+                        :value="old('vehicle.license_seria', $vehicle['license']['seria'] ?? null)"
+                        placeholder="AT" maxlength="2" autocomplete="off" style="text-transform: uppercase" />
+                    <x-insurence.field name="vehicle[license_number]" id="f_license_number" :label="__t('messages.flow.license_number')"
+                        :value="old('vehicle.license_number', $vehicle['license']['number'] ?? null)"
+                        placeholder="1234567" maxlength="7" inputmode="numeric" autocomplete="off" />
+                </div>
+                <div class="xf-row" style="--xf-cols: 2">
+                    <x-insurence.field name="vehicle[license_begin]" id="f_license_begin" type="date" :label="__t('messages.flow.license_begin')"
+                        :value="old('vehicle.license_begin', $vehicle['license']['beginDate'] ?? null)" :max="now()->format('Y-m-d')" />
+                    <x-insurence.field name="vehicle[license_end]" id="f_license_end" type="date" :label="__t('messages.flow.license_end')"
+                        :value="old('vehicle.license_end', $vehicle['license']['endDate'] ?? null)" :min="now()->format('Y-m-d')" />
+                </div>
+                @foreach (['license_seria', 'license_number', 'license_begin', 'license_end'] as $field)
+                    @error('vehicle.' . $field)
+                        <p class="xf-field__error" role="alert">{{ $message }}</p>
+                    @enderror
+                @endforeach
+            </section>
+
             @if (!empty($vehicle['gov_number']))
                 <x-insurence.found
                     :title="trim(($vehicle['model_custom_name'] ?? '') . ', ' . $vehicle['gov_number'], ', ')"
                     :text="collect([
+                        $vehicleType ?? null,
                         !empty($vehicle['issue_year']) ? $vehicle['issue_year'] : null,
                         !empty($vehicle['number_of_seats']) ? $vehicle['number_of_seats'] . ' ' . __('messages.seats') : null,
                     ])->filter()->implode(' · ')"

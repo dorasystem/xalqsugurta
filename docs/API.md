@@ -547,8 +547,11 @@ Tuzilishi OSGOR'ga o'xshaydi (`number`, `sum`, `contractStartDate`, `regionId`, 
 |---|---|
 | `healthLifeDamageSum`, `propertyDamageSum` | Limitlar: sozlamada 40 000 000 va 4 000 000 |
 | `vehicle.techPassport`, `govNumber`, `vehicleTypeId`, `issueYear`, `bodyNumber`, `engineNumber`, `numberOfSeats` | Proxy'dagi `osago/vehicle` javobidan olinadi |
-| `vehicle.license` | Tashuvchi litsenziyasi: `seria`, `number`, `beginDate`, `endDate`, `typeCode` |
-| `vehicle.ownerPerson` yoki `ownerOrganization` | Egasi kimligiga qarab ikkisidan biri to'ldiriladi, ikkinchisi `null` bo'ladi |
+| `vehicle.vehicleTypeId` | **OSGOP jadvali bo'yicha** (1 avtobus, 2 yengil avtomobil), reyestrdagi raqam emas. Moslash: reyestr 1/2 → 2, reyestr 9 → 1; boshqa turlar onlayn sotilmaydi (`OsgopController::OSGOP_TYPES`) |
+| `vehicle.license` | Tashuvchi litsenziyasi: `seria`, `number`, `beginDate`, `endDate` mijoz kiritadi (reyestrda yo'q); `typeCode` sug'urtachi namunasidagi matn (turi bo'yicha) |
+| `vehicle.ownerPerson` yoki `ownerOrganization` | Egasi kimligiga qarab faqat bittasi yuboriladi; ikkinchisi umuman qo'shilmaydi |
+
+> Litsenziyasiz va `ownerPerson: null` bilan yuborilgan so'rovga `{"result": -40000, "result_message": "999.JSON parse error: "}` qaytgan edi. Reyestr turini to'g'ridan-to'g'ri yuborganda yengil avtomobil avtobus tarifida hisoblangan.
 | `vehicle.regionId` | API `0` qaytarsa, arizachining hududi qo'yiladi |
 
 ---

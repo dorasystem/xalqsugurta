@@ -32,7 +32,7 @@
             <x-insurence.found
                 :title="trim(($vehicle['model_custom_name'] ?? '') . ', ' . ($vehicle['gov_number'] ?? ''), ', ')"
                 :text="collect([
-                    $vehicleType?->name,
+                    $vehicleType,
                     !empty($vehicle['number_of_seats']) ? $vehicle['number_of_seats'] . ' ' . __('messages.seats') : null,
                 ])->filter()->implode(' · ')"
             />
