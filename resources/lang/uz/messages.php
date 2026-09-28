@@ -31,6 +31,17 @@ return [
         'in_section' => 'Bo\'limdagi sahifalar',
         'question'   => 'Savolingiz bormi?',
     ],
+    'site_search' => [
+        'title'       => 'Qidiruv',
+        'subtitle'    => 'Sug\'urta turlari, xizmatlar va kompaniya sahifalari',
+        'placeholder' => 'Masalan: OSAGO, polis, litsenziya',
+        'button'      => 'Qidirish',
+        'found'       => 'Topildi: :count',
+        'empty'       => '«:query» bo\'yicha hech narsa topilmadi. Boshqa so\'z bilan urinib ko\'ring yoki bizga qo\'ng\'iroq qiling.',
+        'too_short'   => 'Kamida 2 ta harf kiriting.',
+        'hint'        => 'Sug\'urta turi, xizmat yoki sahifa nomini yozing.',
+        'open'        => 'Qidiruvni ochish',
+    ],
     'claims' => [
         'title'              => 'Sug\'urta hodisasi',
         'subtitle'           => 'Nima bo\'lganini yozing: mutaxassisimiz ko\'rib chiqib, siz bilan bog\'lanadi',

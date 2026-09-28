@@ -89,6 +89,7 @@ Bootstrap 5 + Tailwind CSS 4 hybrid: Bootstrap for grid/layout, Tailwind for vis
 Blade components live under the `x-insurence.*` namespace (`resources/views/components/insurence/`); the old page-header / insurance-sidebar / error-block / stepper components were removed with the last unmigrated pages.
 
 Header/footer (`components/pageComponents/{header,footer}`) keep the old markup and `main.js`; `public/assets/css/site-chrome.css` (loaded after `main.min.css`) restyles them in the flow look. The credit is `components/pageComponents/dora-credit` (DORA, dora.uz, animated SVG mark) in the footer and the mobile menu.
+Search: the header's search button opens a small form (`.site-search`, script at the end of the header partial) that goes to `/{locale}/search` (`SearchController`, view `pages/search`): active products (by name in any locale or description), the service pages (my policies, claims, callback) and published company pages; apostrophe kinds (‘ ’ ʻ `) are treated alike. Strings: `messages.site_search.*` (`messages.search` is an older plain string).
 
 **Unified flow standard** (`public/assets/css/flow.css`, brand color `#393185`). All products (gas balloon, property, KASKO, accident, tourist, OSGOR, OSGOP, OSAGO) and the payment page use it; new pages must too:
 - `x-insurence.flow` — page frame: header, stepper, main slot + `summary` slot. Props: `icon`, `title`, `subtitle`, `steps` (labels), `current` (1-based), `stepUrls`. Shows `$errors->first('error')` as an alert.

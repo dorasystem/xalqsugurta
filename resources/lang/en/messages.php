@@ -31,6 +31,17 @@
             'in_section' => 'In this section',
             'question'   => 'Have a question?',
         ],
+        'site_search' => [
+            'title'       => 'Search',
+            'subtitle'    => 'Insurance products, services and company pages',
+            'placeholder' => 'For example: OSAGO, policy, licence',
+            'button'      => 'Search',
+            'found'       => 'Found: :count',
+            'empty'       => 'Nothing found for “:query”. Try another word or give us a call.',
+            'too_short'   => 'Type at least 2 letters.',
+            'hint'        => 'Type an insurance product, a service or a page name.',
+            'open'        => 'Open search',
+        ],
         'claims' => [
             'title'              => 'Report an insured event',
             'subtitle'           => 'Tell us what happened: a specialist will review it and contact you',

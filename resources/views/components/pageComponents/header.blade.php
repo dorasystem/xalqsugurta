@@ -49,11 +49,24 @@
                         </details>
                     </div>
                     <div class="header-top__right">
-                        <button class="search-open" type="button" aria-label="Открытие поиска">
-                            <svg width="20" height="20">
-                                <use xlink:href="#icon-search"></use>
-                            </svg>
-                        </button>
+                        <div class="site-search">
+                            <button class="search-open" type="button" aria-label="{{ __t('messages.site_search.open') }}"
+                                aria-expanded="false" aria-controls="site_search">
+                                <svg width="20" height="20">
+                                    <use xlink:href="#icon-search"></use>
+                                </svg>
+                            </button>
+                            <form class="site-search__form" id="site_search" role="search" method="GET"
+                                action="{{ route('search', ['locale' => getCurrentLocale()]) }}" hidden>
+                                <input type="search" name="q" required minlength="2" maxlength="100" autocomplete="off"
+                                    placeholder="{{ __t('messages.site_search.placeholder') }}" aria-label="{{ __t('messages.site_search.title') }}">
+                                <button type="submit" aria-label="{{ __t('messages.site_search.button') }}">
+                                    <svg width="18" height="18" aria-hidden="true">
+                                        <use xlink:href="#icon-search"></use>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
                         <details class="lang">
                             <summary class="lang-opener" aria-label="{{ __('messages.select_language') }}">
                                 <span>{{ app()->getLocale() }}</span>
@@ -495,3 +508,23 @@
                 </div>
             </div>
         </div>
+
+<script>
+    // Header search: the button opens a small form; Esc or a click outside closes it
+    (function () {
+        var box = document.querySelector('.site-search');
+        if (!box) return;
+        var button = box.querySelector('.search-open');
+        var form = box.querySelector('.site-search__form');
+
+        function toggle(open) {
+            form.hidden = !open;
+            button.setAttribute('aria-expanded', open ? 'true' : 'false');
+            if (open) form.querySelector('input').focus();
+        }
+
+        button.addEventListener('click', function () { toggle(form.hidden); });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !form.hidden) { toggle(false); button.focus(); } });
+        document.addEventListener('click', function (e) { if (!form.hidden && !box.contains(e.target)) toggle(false); });
+    })();
+</script>
