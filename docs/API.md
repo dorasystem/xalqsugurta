@@ -510,6 +510,12 @@ Javobning `policies[0]` elementidan `insurancePremium`, `insuranceSum`, `insuran
 }
 ```
 
+Sayt yuboradigan body namunadan farqlari:
+- `issueDate` bugungi sana;
+- `checkingAccount` faqat INN qidiruvi hisob raqamini qaytarsa qo'shiladi (`checkingAccount` / `account` / `bankAccount` / `settlementAccount`);
+- `fot` satr sifatida ketadi. Namunada raqam, lekin OSGOP'da namunadagi raqamli maydonlarni API satr talab qildi. OSGOR'da xato bersa, shu maydonni tekshiring;
+- `agencyId` — `Tizim → Sug'urtachi API` (OSGOP bilan bir xil).
+
 Javobdan `contract_id` olinadi. U bo'lmasa, `polis_sery` + `polis_number` ishlatiladi.
 
 ---

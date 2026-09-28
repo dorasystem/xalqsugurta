@@ -63,6 +63,8 @@ class OsgorFlowTest extends TestCase
 
         Http::assertSent(fn ($r) => str_ends_with($r->url(), '/eshop/osgor')
             && $r['policies'][0]['insurancePremium'] === '285500'
+            && $r['policies'][0]['issueDate'] === now()->format('Y-m-d')
+            && !array_key_exists('checkingAccount', $r['insurant']['organization'])
             && $r['contractStartDate'] === $start);
     }
 
@@ -93,6 +95,25 @@ class OsgorFlowTest extends TestCase
         }
 
         $this->assertSame(0, Order::count());
+    }
+
+    public function test_bank_account_from_the_inn_lookup_is_sent(): void
+    {
+        Http::swap(new Factory($this->app['events']));
+        Http::fake([
+            '*/osago/proxy'     => Http::response(['error' => 0, 'result' => [
+                'name' => '"NAMUNA" MCHJ', 'oked' => '86230', 'account' => '20208000000000000001',
+            ]]),
+            '*/eshop/osgorcalc' => Http::response(['result' => 0, 'policies' => [['insurancePremium' => 285500, 'insuranceSum' => 500000000, 'insuranceRate' => 0.0571, 'funeralExpensesSum' => 1020000, 'insuranceTermId' => 4]]]),
+            '*/eshop/osgor'     => Http::response(['result' => 0, 'contract_id' => 778]),
+        ]);
+
+        $this->post('/uz/osgor/applicant', ['inn' => '123456789', 'phone' => '998901234567']);
+        $this->post('/uz/osgor/calculator', ['fot' => 500000000, 'start_date' => now()->addDay()->format('Y-m-d')]);
+        $this->post('/uz/osgor/confirm', ['offerta_agreed' => '1'])->assertRedirect();
+
+        Http::assertSent(fn ($r) => str_ends_with($r->url(), '/eshop/osgor')
+            && $r['insurant']['organization']['checkingAccount'] === '20208000000000000001');
     }
 
     public function test_step_two_needs_an_organization(): void

@@ -74,6 +74,8 @@ final class OsgorController extends BaseInsuranceController
             'phone'              => $request->input('phone'),
             'regionId'           => $org['regionId']            ?? (isset($org['districtSoatoCode']) ? substr($org['districtSoatoCode'], 0, 2) : '10'),
             'ownershipFormId'    => $org['ownershipFormId']     ?? '130',
+            // Bank account, when the INN lookup has it (the insurer's OSGOR sample sends checkingAccount)
+            'checkingAccount'    => $this->personField($org, ['checkingAccount', 'account', 'bankAccount', 'settlementAccount']),
         ]);
 
         return redirect()->route('osgor.getCalculator', ['locale' => getCurrentLocale()]);
@@ -187,10 +189,11 @@ final class OsgorController extends BaseInsuranceController
                     'phone'              => $applicant['phone'],
                     'regionId'           => (string) $applicant['regionId'],
                     'ownershipFormId'    => (string) $applicant['ownershipFormId'],
-                ],
+                ] + (filled($applicant['checkingAccount'] ?? null) ? ['checkingAccount' => $applicant['checkingAccount']] : []),
             ],
             'policies' => [
                 [
+                    'issueDate'          => now()->format('Y-m-d'),
                     'startDate'          => $calculation['start_date'],
                     'endDate'            => $calculation['end_date'],
                     'insuranceSum'       => (string) $effectiveSum,
