@@ -64,15 +64,20 @@
                         <div class="subscription">
                             <h3 class="subscription__title">{{ __('messages.subscription') }}</h3>
                             <span class="subscription__description">{{ __('messages.subscribe_newsletter') }}</span>
-                            <form class="subscription-form">
-                                <input class="subscription-form__input" type="text" name="subscription"
-                                    placeholder="Email">
-                                <button class="subscription-form__button" type="submit" aria-label="Подписаться">
+                            <form class="subscription-form" method="POST" action="{{ route('newsletter.store', ['locale' => getCurrentLocale()]) }}">
+                                @csrf
+                                <input type="text" name="website" value="" tabindex="-1" autocomplete="off" aria-hidden="true" style="position: absolute; left: -9999px">
+                                <input class="subscription-form__input" type="email" name="email" required maxlength="150"
+                                    value="{{ old('email') }}" placeholder="Email" aria-label="Email" autocomplete="email">
+                                <button class="subscription-form__button" type="submit" aria-label="{{ __('messages.subscription') }}">
                                     <svg width="20" height="20">
                                         <use xlink:href="#icon-down"></use>
                                     </svg>
                                 </button>
                             </form>
+                            @error('email', 'newsletter')
+                                <span class="subscription__description" role="alert" style="color: #ffb4b4">{{ $message }}</span>
+                            @enderror
                         </div>
                         <span class="footer-description">{{ __('messages.site_materials_notice') }}</span>
                     </div>

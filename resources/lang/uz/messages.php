@@ -329,6 +329,7 @@ return [
     'work_schedule' => 'Grafik ishlar',
     'subscription' => 'Obuna',
     'subscribe_newsletter' => 'Bizning axborot byulletenimizga obuna bo\'ling barcha yangi voqealardan xabardor bo\'lish uchun',
+    'newsletter_subscribed' => 'Rahmat! Obuna bo\'ldingiz.',
     'site_materials_notice' => '“XALQ SUGU`RTA” sayti materiallaridan foydalanilganda saytga havola bo\'lishi shart',
     'company_address' => 'Toshkent shahri, Mirzo-Ulug\'bek tumani, Lashkarbegi, Hamid Olimjon ko\'chasi, 13 A',
     'work_schedule_time' => 'Dush - Juma dan 09:00 uchun 18:00',

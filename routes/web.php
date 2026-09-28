@@ -6,6 +6,7 @@ use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\ClaimFileController;
 use App\Http\Controllers\InfoPageController;
 use App\Http\Controllers\MyPoliciesController;
+use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\ProductPageController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\ApiControllers\PropertyInfoController;
@@ -37,6 +38,7 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
     Route::post('/claims', [ClaimController::class, 'store'])->middleware('throttle:5,10')->name('claims.store');
     Route::get('/claims/sent/{number}', [ClaimController::class, 'sent'])->name('claims.sent');
     Route::get('/claims/status', [ClaimController::class, 'status'])->middleware('throttle:20,1')->name('claims.status');
+    Route::post('/subscribe', [NewsletterController::class, 'store'])->middleware('throttle:5,10')->name('newsletter.store');
     Route::get('/callback', [CallbackController::class, 'create'])->name('callback');
     Route::post('/callback', [CallbackController::class, 'store'])->middleware('throttle:5,10')->name('callback.store');
 
