@@ -29,10 +29,11 @@ Laravel 12 multi-locale insurance platform. All routes are prefixed by locale: `
 
 ### Insurance Products
 
-Five products, each following a **multi-step PRG (Post-Redirect-Get)** pattern with session-based state:
+Eight products, each following a **multi-step PRG (Post-Redirect-Get)** pattern with session-based state:
 
 | Product | Controller | Session prefix | Steps |
 |---------|------------|----------------|-------|
+| OSAGO (motor liability) | `OsagoController` | `osago.*` | vehicle → owner + applicant → term + drivers → confirm |
 | OSGOP (carrier liability) | `OsgopController` | `osgop.*` | applicant (person or organization) → vehicle → term → confirm |
 | OSGOR (employer liability) | `OsgorController` | `osgor.*` | applicant → calculator → confirm |
 | Accident | `AccidentController` | `accident.*` | applicant → persons → term (calculator route) → confirm |
@@ -85,11 +86,7 @@ Full provider API reference (endpoints, bodies, auth groups, open questions): `d
 
 Bootstrap 5 + Tailwind CSS 4 hybrid: Bootstrap for grid/layout, Tailwind for visual styling. Icons are **Bootstrap Icons** (`bi-*` classes), not FontAwesome.
 
-Blade components under `x-insurence.*` namespace (`resources/views/components/insurence/`):
-- `x-insurence.page-header` — props: `icon` (bi-* class), `title`, `subtitle`
-- `x-insurence.insurance-sidebar` — props: `title`, `description`, `insuranceSum`, `insurancePremium`; JS targets `#sidebar_sum`, `#sidebar_premium`
-- `x-insurence.error-block` — validation error display
-- `x-insurence.multi-step-stepper` — step progress indicator
+Blade components live under the `x-insurence.*` namespace (`resources/views/components/insurence/`); the old page-header / insurance-sidebar / error-block / stepper components were removed with the last unmigrated pages.
 
 **Unified flow standard** (`public/assets/css/flow.css`, brand color `#393185`). All products (gas balloon, property, KASKO, accident, tourist, OSGOR, OSGOP, OSAGO) and the payment page use it; new pages must too:
 - `x-insurence.flow` — page frame: header, stepper, main slot + `summary` slot. Props: `icon`, `title`, `subtitle`, `steps` (labels), `current` (1-based), `stepUrls`. Shows `$errors->first('error')` as an alert.
@@ -291,9 +288,10 @@ The Xalq Sugurta API requires `gender` cast to `int`: `'gender' => (int) $applic
 Always extend `layouts.app`. Use the `x-insurence.*` components — do not duplicate their markup inline.
 
 ```blade
-<x-insurence.page-header icon="bi-fire" :title="__('insurance.gas.title')" :subtitle="__('insurance.gas.subtitle')" />
-<x-insurence.error-block :errors="$errors" />
-<x-insurence.insurance-sidebar ... />
+<x-insurence.flow :icon="$flow['icon']" :title="..." :steps="$flowSteps" :current="2" :stepUrls="$flowUrls">
+    <form class="xf-panel">…<x-insurence.field … /> … <x-insurence.actions … /></form>
+    <x-slot:summary><x-insurence.summary :premium="$premiumTotal" :items="$summaryItems" /></x-slot:summary>
+</x-insurence.flow>
 ```
 
 Always add new translation keys to all three locale files (`en`, `ru`, `uz`) simultaneously.
