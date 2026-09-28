@@ -45,7 +45,7 @@ Hamma so'rovlar HTTP Basic Auth bilan yuboriladi. Loginlar kodda yozilmaydi, ula
 Qo'shimcha sozlamalar:
 - `PROVIDER_BASE_URL`: proxy manzili.
 - `PROVIDER_SENDER_PINFL`: so'rov yuboruvchi xodimning PINFL'i.
-- `PROVIDER_AGENCY_ID`: agentlik raqami, standart qiymati `546`.
+- `PROVIDER_AGENCY_ID`: agentlik raqami, standart qiymati `126` (OSGOP'da tasdiqlangan; sug'urtachi namunasidagi `546` bizning loginga tegishli emas). Admin panelda Tizim → Sug'urtachi API orqali ham o'zgartiriladi.
 
 ## Formatlar va javob kodlari
 

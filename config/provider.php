@@ -6,7 +6,7 @@ return [
     'password'     => env('PROVIDER_PASSWORD'),
     'sender_pinfl' => env('PROVIDER_SENDER_PINFL'),
 
-    'agency_id' => env('PROVIDER_AGENCY_ID', '546'),
+    'agency_id' => env('PROVIDER_AGENCY_ID', '126'),
 
     'calc' => [
         'osgop' => env('PROVIDER_CALC_OSGOP', 'http://online.xalqsugurta.uz/xs/ins/eshop/osgopcalc'),
