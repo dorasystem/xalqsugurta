@@ -189,7 +189,10 @@ class ApiLogResource extends Resource
                             ->state(fn (ApiLog $record): ?string => $record->prettyRequest())
                             ->formatStateUsing(fn (string $state): HtmlString => static::jsonBlock($state))
                             ->copyable()
-                            ->copyableState(fn (ApiLog $record): string => (string) $record->prettyRequest())
+                            ->copyableState(fn (ApiLog $record): string => (string) $record->exactRequest())
+                            ->helperText(fn (ApiLog $record): ?string => $record->requestHasUnicodeEscapes()
+                                ? 'Diqqat: body \\uXXXX escape\'lar bilan yuborilgan (masalan ‘ yoki kirill harflar). Nusxa aynan yuborilgan matnni beradi.'
+                                : ($record->request_raw ? 'Nusxa aynan yuborilgan matnni beradi.' : null))
                             ->placeholder('Bo\'sh'),
                         TextEntry::make('response')
                             ->label('Javob')

@@ -18,7 +18,7 @@ class ApiLog extends Model
     protected $fillable = [
         'order_id', 'product', 'method', 'endpoint', 'url',
         'status', 'result', 'success', 'duration_ms',
-        'request', 'response', 'error',
+        'request', 'request_raw', 'response', 'error',
     ];
 
     protected $casts = [
@@ -59,14 +59,30 @@ class ApiLog extends Model
         };
     }
 
-    /** Response body pretty-printed when it is JSON */
+    /** The body for reading: from the raw text when there is one, so the key order is the one sent */
     public function prettyRequest(): ?string
     {
-        return $this->request === null || $this->request === []
-            ? null
-            : json_encode($this->request, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $data = is_string($this->request_raw) ? json_decode($this->request_raw, true) : null;
+        $data = is_array($data) ? $data : $this->request;
+
+        return $data === null || $data === []
+            ? $this->request_raw
+            : json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
+    /** What the insurer received, byte for byte (older rows only have the decoded JSON) */
+    public function exactRequest(): ?string
+    {
+        return $this->request_raw ?? ($this->request ? json_encode($this->request, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) : null);
+    }
+
+    /** The body was sent with \uXXXX escapes (non-ASCII text) — some insurer endpoints cannot parse them */
+    public function requestHasUnicodeEscapes(): bool
+    {
+        return is_string($this->request_raw) && preg_match('/\\\\u[0-9a-fA-F]{4}/', $this->request_raw) === 1;
+    }
+
+    /** Response body pretty-printed when it is JSON */
     public function prettyResponse(): ?string
     {
         $json = json_decode((string) $this->response, true);

@@ -93,6 +93,7 @@ final class ApiLogger
                 'success'     => $response !== null && $response->successful() && in_array($result, [null, '0', '302'], true),
                 'duration_ms' => $stats ? (int) round($stats->getTransferTime() * 1000) : null,
                 'request'     => $request->data() ?: null,
+                'request_raw' => $request->body() !== '' ? Str::limit($request->body(), self::MAX_RESPONSE) : null,
                 'response'    => $response ? Str::limit($response->body(), self::MAX_RESPONSE) : null,
                 'error'       => $error ? Str::limit($error, 490) : null,
             ]);

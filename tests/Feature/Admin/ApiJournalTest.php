@@ -172,6 +172,23 @@ class ApiJournalTest extends TestCase
         $this->get(ApiLogResource::getUrl('view', ['record' => $log]))->assertOk()->assertSee('productCode');
     }
 
+    public function test_the_exact_body_is_kept_with_its_order_and_escapes(): void
+    {
+        config(['provider.submit.osgop' => 'http://online.xalqsugurta.uz/xs/ins/eshop/osgop']);
+        Http::fake(['*' => Http::response(['result' => -40000, 'result_message' => '999.JSON parse error: '])]);
+
+        // Laravel's default JSON body, as the eshop calls were sent before
+        Http::post('http://online.xalqsugurta.uz/xs/ins/eshop/osgop', ['number' => '1', 'name' => 'ALIYEV O‘G‘LI']);
+
+        $log = ApiLog::sole();
+        $this->assertSame('{"number":"1","name":"ALIYEV O\\u2018G\\u2018LI"}', $log->request_raw);
+        $this->assertSame($log->request_raw, $log->exactRequest());
+        $this->assertTrue($log->requestHasUnicodeEscapes());
+        $this->assertStringContainsString('"name": "ALIYEV O‘G‘LI"', $log->prettyRequest());
+
+        $this->get(ApiLogResource::getUrl('view', ['record' => $log]))->assertOk()->assertSee('escape');
+    }
+
     public function test_flat_request_bodies_keep_their_keys(): void
     {
         $log = ApiLog::create([
