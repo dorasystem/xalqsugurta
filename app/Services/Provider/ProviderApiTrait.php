@@ -501,6 +501,7 @@ trait ProviderApiTrait
 
         if (!$response->successful()) {
             Log::error('Accident Submit HTTP Error', [
+                'url'      => $url,
                 'status'   => $response->status(),
                 'body'     => $body,
                 'response' => $response->body(),
