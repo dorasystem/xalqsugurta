@@ -59,12 +59,18 @@ class NewsletterSubscriberResource extends Resource
 
             NewsletterSubscriber::orderBy('id')->chunk(500, function ($rows) use ($out): void {
                 foreach ($rows as $row) {
-                    fputcsv($out, [$row->email, $row->locale, $row->created_at?->format('d.m.Y H:i')], ';');
+                    fputcsv($out, array_map(self::cell(...), [$row->email, $row->locale, $row->created_at?->format('d.m.Y H:i')]), ';');
                 }
             });
 
             fclose($out);
         }, 'obunachilar-' . now()->format('Y-m-d') . '.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /** Excel runs a cell starting with = + - @ as a formula: prefix it with ' */
+    private static function cell(?string $value): ?string
+    {
+        return $value !== null && preg_match('/^[=+\-@\t\r]/', $value) ? "'" . $value : $value;
     }
 
     public static function getPages(): array

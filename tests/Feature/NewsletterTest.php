@@ -43,6 +43,7 @@ class NewsletterTest extends TestCase
     public function test_admin_lists_and_exports_subscribers(): void
     {
         NewsletterSubscriber::create(['email' => 'one@example.com', 'locale' => 'uz']);
+        NewsletterSubscriber::create(['email' => '=cmd@example.com', 'locale' => 'ru']);
         $this->actingAs(User::factory()->create());
         Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -53,6 +54,8 @@ class NewsletterTest extends TestCase
         $csv = NewsletterSubscriberResource::csv();
         ob_start();
         $csv->sendContent();
-        $this->assertStringContainsString('one@example.com;uz;', ob_get_clean());
+        $out = ob_get_clean();
+        $this->assertStringContainsString('one@example.com;uz;', $out);
+        $this->assertStringContainsString("'=cmd@example.com;ru;", $out);
     }
 }
