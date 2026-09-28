@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Insurence\PaymentController;
+use App\Http\Controllers\MyPoliciesController;
 use App\Http\Controllers\ApiControllers\PropertyInfoController;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,12 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
 
     // Unified payment route for all insurance products
     Route::get('/payment/{orderId}', [PaymentController::class, 'show'])->name('payment.show');
+
+    // "Mening polislarim": phone + SMS code, then the orders placed with that phone
+    Route::get('/my-policies', [MyPoliciesController::class, 'index'])->name('my-policies');
+    Route::post('/my-policies/code', [MyPoliciesController::class, 'sendCode'])->middleware('throttle:10,1')->name('my-policies.send');
+    Route::post('/my-policies/verify', [MyPoliciesController::class, 'verify'])->middleware('throttle:20,1')->name('my-policies.verify');
+    Route::post('/my-policies/logout', [MyPoliciesController::class, 'logout'])->name('my-policies.logout');
 
     require __DIR__ . '/insurence/osago.php';
     require __DIR__ . '/insurence/accident.php';

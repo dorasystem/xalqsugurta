@@ -140,6 +140,11 @@ After order creation: redirect to `route('payment.show', ['locale', 'orderId'])`
 
 - **Insurer API settings in the admin panel** (Tizim → Sug'urtachi API, `Filament/Admin/Pages/ProviderApiSettings`): `App\Services\ProviderSettings` stores `provider.agency_id` (the OSGOP/OSGOR `agencyId`) in `app_settings` and applies it over config at boot; empty = .env. The insurer rejects an agency that is not its own ("The selected agency does not belong to your insurance organization").
 
+### "Mening polislarim" (customer self-service)
+- `MyPoliciesController` (`/{locale}/my-policies`, views `pages/my-policies/{login,list}`): phone → SMS code → every order with that `phone`. `App\Services\PhoneVerification` sends a 6-digit code (stored hashed, 5 min, 5 wrong tries kill it, resend after 60 s, 3 codes per phone / 30 min, 10 per IP / hour). On success the session id is regenerated and `OrderService::SESSION_PHONE` holds the phone for `PHONE_SESSION_MINUTES`; `OrderService::canSeeDetails()` then also opens the payment page details of that phone's orders.
+- SMS: `App\Services\Sms\EskizClient` (notify.eskiz.uz; bearer token cached 25 days, renewed once on 401; throws `SmsException`, never logs the phone or text). Settings in the admin panel, Tizim → SMS xabarlar (`SmsSettings`, password encrypted, `{code}` template must match a template Eskiz approved). `SmsSettings::ready()` false → the page says SMS is unavailable.
+- Policy verification against the insurer's whole database is NOT built: the insurer has not given an API for it.
+
 ### Translations
 Three locales: `en`, `ru`, `uz` in `resources/lang/{locale}/`. Key files: `insurance.php`, `messages.php`. Use `__t()` helper (defined in `app/helpers.php`) instead of `__()` to respect the URL locale.
 

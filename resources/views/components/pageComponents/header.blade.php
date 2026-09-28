@@ -293,7 +293,7 @@
                             </svg>
                             <span>E-POLIS</span>
                         </a>
-                        <a class="btn" href="https://xalqsugurta.uz/@lang('routes.login')">
+                        <a class="btn" href="{{ route('my-policies', ['locale' => getCurrentLocale()]) }}">
                             <svg width="20" height="20">
                                 <use xlink:href="#icon-user"></use>
                             </svg>
@@ -473,10 +473,7 @@
                     </span>
                     <ul class="menu-bar__list">
                         <li class="menu-bar__line">
-                            <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/signin" class="menu-bar__link">{{ __('messages.login') }}</a>
-                        </li>
-                        <li class="menu-bar__line">
-                            <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/signup" class="menu-bar__link">{{ __('messages.register') }}</a>
+                            <a href="{{ route('my-policies', ['locale' => getCurrentLocale()]) }}" class="menu-bar__link">{{ __t('messages.my_policies.title') }}</a>
                         </li>
                     </ul>
                 </div>

@@ -44,6 +44,17 @@ return [
         'cadaster_api_url' => env('IMPEX_CADASTER_API_URL', 'https://impex-insurance.uz/api/fetch-cadaster'),
     ],
 
+    // Eskiz.uz SMS (one-time codes for "Mening polislarim"). Admin panel: Tizim → SMS (App\Services\SmsSettings)
+    'eskiz' => [
+        'enabled'  => env('ESKIZ_ENABLED', false),
+        'base_url' => env('ESKIZ_BASE_URL', 'https://notify.eskiz.uz/api'),
+        'email'    => env('ESKIZ_EMAIL'),
+        'password' => env('ESKIZ_PASSWORD'),
+        'from'     => env('ESKIZ_FROM', '4546'),
+        // Eskiz sends only texts that match a template it has approved; {code} is replaced
+        'template' => env('ESKIZ_TEMPLATE', "Xalq Sug'urta: tasdiqlash kodi {code}"),
+    ],
+
     // Click SHOP API (Prepare/Complete callbacks: /api/prepare, /api/complete). See App\Services\Payments\ClickShopApi
     'click' => [
         'service_id'       => env('CLICK_SERVICE_ID'),

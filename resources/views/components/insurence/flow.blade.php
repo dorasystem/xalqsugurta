@@ -25,7 +25,9 @@
             </a>
         </div>
 
-        <x-insurence.stepper :steps="$steps" :current="$current" :urls="$stepUrls" />
+        @if ($steps)
+            <x-insurence.stepper :steps="$steps" :current="$current" :urls="$stepUrls" />
+        @endif
 
         <div class="xf__grid">
             <div class="xf__main">

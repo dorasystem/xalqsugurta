@@ -1003,3 +1003,73 @@ label.xf-chip {
     outline: 2px solid var(--xf-brand);
     outline-offset: 2px;
 }
+
+/* ─── "Mening polislarim" (pages/my-policies) ─────────────────────────────── */
+.xf-policy-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.xf-policy {
+    padding: 20px 24px;
+    display: grid;
+    gap: 14px;
+}
+
+.xf-policy__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.xf-policy__title {
+    margin: 0;
+    font-size: var(--xf-fs-h2);
+    font-weight: 700;
+    color: var(--xf-ink);
+}
+
+.xf-policy__meta {
+    margin: 4px 0 0;
+    color: var(--xf-muted);
+    font-size: var(--xf-fs-meta);
+}
+
+.xf-policy__status {
+    flex-shrink: 0;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: var(--xf-fs-meta);
+    font-weight: 600;
+    background: var(--xf-tint);
+    color: var(--xf-text);
+}
+.xf-policy__status.is-paid      { background: var(--xf-ok-bg); color: var(--xf-ok); }
+.xf-policy__status.is-new       { background: #fff4e0; color: #9a5b00; }
+.xf-policy__status.is-cancelled,
+.xf-policy__status.is-failed    { background: var(--xf-err-bg); color: var(--xf-err); }
+
+.xf-policy__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 32px;
+    margin: 0;
+}
+.xf-policy__facts dt { font-size: var(--xf-fs-meta); color: var(--xf-muted); font-weight: 500; }
+.xf-policy__facts dd { margin: 2px 0 0; font-weight: 600; color: var(--xf-ink); }
+
+.xf-policy__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+@media (max-width: 575.98px) {
+    .xf-policy { padding: 16px; }
+    .xf-policy__head { flex-direction: column; }
+    .xf-policy__actions .xf-btn { flex: 1 1 100%; justify-content: center; }
+}
