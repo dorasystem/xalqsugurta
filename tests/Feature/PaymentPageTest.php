@@ -50,7 +50,7 @@ class PaymentPageTest extends TestCase
 
     public function test_click_uses_our_merchant_when_the_insurer_gave_no_link(): void
     {
-        config(['services.click.service_id' => '111', 'services.click.merchant_id' => '222']);
+        config(['services.click.service_id' => '111', 'services.click.merchant_id' => '222', 'services.click.secret_key' => 'k']);
         $order = $this->order();
 
         $this->get("/uz/payment/{$order->id}")
