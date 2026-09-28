@@ -62,6 +62,8 @@ All insurance controllers extend `BaseInsuranceController` (`app/Http/Controller
 
 ### Config
 
+Full provider API reference (endpoints, bodies, auth groups, open questions): `docs/API.md`.
+
 `config/provider.php` — all API credentials and URLs (never hardcode, always use `config('provider.*')`):
 - `base_url`, `username`, `password`, `sender_pinfl`, `agency_id`
 - `calc.osgop`, `calc.osgor` — calculator endpoints
