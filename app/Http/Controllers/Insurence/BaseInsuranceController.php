@@ -65,8 +65,8 @@ abstract class BaseInsuranceController extends Controller
             'pinfl'                => $p['currentPinfl']           ?? '',
             'passport_seria'       => strtoupper($r?->input('passport_seria') ?? ''),
             'passport_number'      => $r?->input('passport_number') ?? '',
-            'passport_issue_date'  => $this->personField($p, ['docIssueDate', 'issueDate', 'passportIssueDate', 'dateBegin', 'docGivenDate']),
-            'passport_issued_by'   => $this->personField($p, ['docIssuedBy', 'issuedBy', 'passportIssuedBy', 'docGivePlace', 'givePlace']),
+            'passport_issue_date'  => $this->passportIssue($p, strtoupper((string) $r?->input('passport_seria')) . $r?->input('passport_number'))['date'],
+            'passport_issued_by'   => $this->passportIssue($p, strtoupper((string) $r?->input('passport_seria')) . $r?->input('passport_number'))['by'],
             'birth_date'           => $r?->input('birth_date') ?? ($p['birthDate'] ?? ''),
             'lastname'             => $p['lastNameLatin']   ?? $p['lastName']   ?? '',
             'firstname'            => $p['firstNameLatin']  ?? $p['firstName']  ?? '',
@@ -174,6 +174,23 @@ abstract class BaseInsuranceController extends Controller
         return $e->isUnavailable() ? __t('messages.flow.insurer_unavailable') : $e->getMessage();
     }
 
+    /**
+     * Passport issue date and authority. pinfl-v2 has them in `documents[]` (datebegin,
+     * docgiveplace) for each passport the person has had; take the one that was searched,
+     * else the flat fields other lookups use.
+     */
+    protected function passportIssue(array $person, string $document): array
+    {
+        $doc = collect($person['documents'] ?? [])->first(
+            fn ($d): bool => is_array($d) && strtoupper((string) ($d['document'] ?? '')) === strtoupper($document)
+        ) ?? [];
+
+        return [
+            'date' => trim((string) ($doc['datebegin'] ?? '')) ?: $this->personField($person, ['docIssueDate', 'issueDate', 'startDate', 'passportIssueDate', 'dateBegin', 'docGivenDate']),
+            'by'   => trim((string) ($doc['docgiveplace'] ?? '')) ?: $this->personField($person, ['docIssuedBy', 'issuedBy', 'passportIssuedBy', 'docGivePlace', 'givePlace']),
+        ];
+    }
+
     /** Field that lookup errors are attached to */
     protected function personLookupErrorField(Request $request): string
     {
@@ -276,8 +293,8 @@ abstract class BaseInsuranceController extends Controller
                 'pinfl'               => (string) $person['currentPinfl'],
                 'passport_seria'      => strtoupper($request->input('passport_seria')),
                 'passport_number'     => $request->input('passport_number'),
-                'passport_issue_date' => $this->personField($person, ['docIssueDate', 'issueDate', 'passportIssueDate', 'dateBegin', 'docGivenDate']),
-                'passport_issued_by'  => $this->personField($person, ['docIssuedBy', 'issuedBy', 'passportIssuedBy', 'docGivePlace', 'givePlace']),
+                'passport_issue_date' => $this->passportIssue($person, strtoupper((string) $request->input('passport_seria')) . $request->input('passport_number'))['date'],
+                'passport_issued_by'  => $this->passportIssue($person, strtoupper((string) $request->input('passport_seria')) . $request->input('passport_number'))['by'],
                 'firstname'           => $person['firstNameLatin']  ?? $person['firstName']  ?? '',
                 'lastname'            => $person['lastNameLatin']   ?? $person['lastName']   ?? '',
                 'middlename'          => $person['middleNameLatin'] ?? $person['middleName'] ?? '',

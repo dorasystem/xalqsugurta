@@ -91,4 +91,21 @@ class PersonsProductsTest extends TestCase
             ->post('/uz/accident/persons/add', self::APPLICANT + ['sum_insured' => 2_000_000])
             ->assertSessionHasErrors('sum_insured');
     }
+
+    public function test_person_lookup_takes_passport_issue_data_from_documents(): void
+    {
+        config(['provider.base_url' => 'http://online.xalqsugurta.uz/xs/ins/osago/proxy']);
+        Http::fake(['*/osago/proxy' => Http::response(['error' => 0, 'result' => [
+            'currentPinfl' => '31501991234567', 'lastNameLatin' => 'ALIYEV', 'firstNameLatin' => 'VALI', 'gender' => '1',
+            'documents' => [
+                ['document' => 'AA0000001', 'docgiveplace' => 'ESKI IIB', 'datebegin' => '2010-01-01'],
+                ['document' => 'AB1234567', 'docgiveplace' => 'TOSHKENT IIB', 'datebegin' => '2019-02-01'],
+            ],
+        ]])]);
+
+        $this->postJson('/uz/tourist/find-person', ['passport_seria' => 'ab', 'passport_number' => '1234567', 'pinfl' => '31501991234567'])
+            ->assertOk()
+            ->assertJsonPath('data.passport_issue_date', '2019-02-01')
+            ->assertJsonPath('data.passport_issued_by', 'TOSHKENT IIB');
+    }
 }
