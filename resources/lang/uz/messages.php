@@ -587,7 +587,7 @@ return [
     // Gas Balloon Insurance - Property
     'cadaster_info_title' => 'Kadastr ma\'lumotlari',
     'cadaster_number' => 'Kadastr raqami',
-    'cadaster_format' => 'Format: XX:XX:XX:XX:XX:XXXX',
+    'cadaster_format' => 'Format: XX:XX:XX:XX:XX:XXXX, davomi :XXXX:XXX yoki /XXXX',
     'property_info_title' => 'Mulk ma\'lumotlari',
     'property_full_address' => 'To\'liq manzil',
     'property_name' => 'Mulk nomi',

@@ -588,7 +588,7 @@ return [
     // Gas Balloon Insurance - Property
     'cadaster_info_title' => 'Кадастровые данные',
     'cadaster_number' => 'Кадастровый номер',
-    'cadaster_format' => 'Формат: XX:XX:XX:XX:XX:XXXX',
+    'cadaster_format' => 'Формат: XX:XX:XX:XX:XX:XXXX, далее :XXXX:XXX или /XXXX',
     'property_info_title' => 'Данные об имуществе',
     'property_full_address' => 'Полный адрес',
     'property_name' => 'Название имущества',

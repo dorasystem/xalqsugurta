@@ -34,8 +34,11 @@
                 :label="__('messages.cadaster_number')"
                 :value="$property['cadasterNumber'] ?? null"
                 :help="__('messages.cadaster_format')"
-                placeholder="11:11:10:01:03:0499"
+                placeholder="11:11:11:11:11:1111:2222:333"
+                inputmode="decimal"
+                maxlength="40"
                 autocomplete="off"
+                spellcheck="false"
             >
                 <x-slot:append>
                     <button type="button" id="cad_btn" class="xf-btn xf-btn--soft">
@@ -111,11 +114,54 @@
     function $(id) { return document.getElementById(id); }
     var calc = window.xfCalc;
 
+    // ── Cadaster mask ──────────────────────────────────────────────────────────
+    // XX:XX:XX:XX:XX:XXXX is fixed (the colons are added while typing); after it the number
+    // goes on as :0001:011 or /0001/011. On phones "." "," "-" type "/" (the numeric pad has no "/").
+    var HEAD = [2, 2, 2, 2, 2, 4];
+
+    function formatCadaster(raw) {
+        var head = '', digits = 0, need = HEAD.reduce(function (a, b) { return a + b; }, 0), i = 0;
+
+        for (; i < raw.length && digits < need; i++) {
+            if (!/\d/.test(raw[i])) continue;
+            var group = 0, sum = 0;
+            while (sum + HEAD[group] <= digits) { sum += HEAD[group]; group++; }
+            if (digits > 0 && digits === sum) head += ':';
+            head += raw[i];
+            digits++;
+        }
+
+        if (digits < need) return head;
+
+        var tail = raw.slice(i)
+            .replace(/[.,\-]/g, '/')
+            .replace(/[^0-9:\/]/g, '')
+            .replace(/([:\/])[:\/]+/g, '$1');
+        if (/^\d/.test(tail)) tail = ':' + tail;
+        // 0001 is the 4-digit block, then a new block with the same separator: :0001:011, /0001/011
+        tail = tail.replace(/^([:\/])(\d{4})(\d)/, '$1$2$1$3');
+
+        return head + tail;
+    }
+
+    var cadInput = $('cad_input');
+    cadInput.addEventListener('input', function () {
+        var atEnd = this.selectionStart === this.value.length;
+        var value = formatCadaster(this.value);
+        if (value !== this.value) {
+            this.value = value;
+            if (atEnd) this.setSelectionRange(value.length, value.length);
+        }
+    });
+    cadInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); cadBtn.click(); }
+    });
+
     // ── Cadaster search ────────────────────────────────────────────────────────
     var cadBtn = $('cad_btn');
 
     cadBtn.addEventListener('click', async function () {
-        var cadNum = $('cad_input').value.trim();
+        var cadNum = formatCadaster($('cad_input').value.trim()).replace(/[:\/]$/, '');
         var err    = $('cad_error');
         err.hidden = true;
 
