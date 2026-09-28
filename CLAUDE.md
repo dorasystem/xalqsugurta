@@ -142,7 +142,13 @@ After order creation: redirect to `route('payment.show', ['locale', 'orderId'])`
 
 ### Product info pages
 - `/{locale}/products/{route}` (`ProductPageController`, view `pages/product/show`): texts from `products.content` (`{uz|ru|en: {about, claim, faq: [{q, a}]}}`, edited in ProductResource → each locale tab → "Mahsulot sahifasi") and the rules PDF `rules_{locale}`. `Product::info()` returns only filled parts and passes admin HTML through `Product::safeHtml()` (formatting tags only, no attributes except safe hrefs). A locale with no texts redirects to the application; the home card uses `Product::cardUrl()` (info page when filled, else the application). Insurance terms are the insurer's text — don't write them; the old site's product texts are partly outdated and its FAQ is lorem ipsum.
-- `/sitemap.xml` and `/robots.txt` come from `SeoController` (products on sale × uz/ru/en, hreflang; payment and my-policies pages disallowed). They use APP_URL.
+- `/sitemap.xml` and `/robots.txt` come from `SeoController` (products on sale and published company pages × uz/ru/en, hreflang; payment and my-policies pages disallowed). They use APP_URL.
+
+### Company / disclosure pages (moved from the old site)
+- `/{locale}/info/{key}` (`InfoPageController`, view `pages/info/show`): `info_pages` rows (`InfoPage`, title/body per locale, falling back to ru then uz; body cleaned by `App\Support\SafeHtml`, shared with `Product::safeHtml()`). Edited in the admin panel, Katalog → Kompaniya sahifalari (`InfoPageResource`).
+- `InfoPage::SOURCES` lists the old xalqsugurta.uz pages (key → section, old path; most paths from `resources/lang/{l}/routes.php`). The header/footer use `InfoPage::link('key')`: our page when published, else the old site, so nothing breaks while staff check the imported text.
+- `php artisan site:import-old-pages [--only=a,b] [--download] [--force]` fetches them (`App\Services\Site\OldSitePage` keeps `.template-content` as plain HTML: headings, lists, links; drops images, icons and the side menu). New pages are unpublished; existing ones are skipped unless `--force`. `--download` copies `/uploads/...` documents to the public disk (`info-pages/`) and links `/storage/...`.
+- Prod: nginx mounts the `app_storage` volume read-only and the deploy runs `storage:link`, so public-disk files (rules PDFs, page documents) are served.
 
 ### Claims and call-back requests (Murojaatlar)
 - The insurer has no API for them: they are stored and handled by staff in the admin panel (group "Murojaatlar": `ClaimResource`, `CallbackRequestResource`, navigation badges = new ones).

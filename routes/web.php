@@ -4,6 +4,7 @@ use App\Http\Controllers\Insurence\PaymentController;
 use App\Http\Controllers\CallbackController;
 use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\ClaimFileController;
+use App\Http\Controllers\InfoPageController;
 use App\Http\Controllers\MyPoliciesController;
 use App\Http\Controllers\ProductPageController;
 use App\Http\Controllers\SeoController;
@@ -28,6 +29,7 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
     Route::get('/payment/{orderId}', [PaymentController::class, 'show'])->name('payment.show');
 
     // Product info pages (texts / FAQ / rules from the admin panel)
+    Route::get('/info/{key}', [InfoPageController::class, 'show'])->where('key', '[a-z0-9-]+')->name('info.show');
     Route::get('/products/{product}', [ProductPageController::class, 'show'])->where('product', '[a-z0-9_-]+')->name('product.show');
 
     // Insured-event reports and call-back requests (handled in the admin panel: Murojaatlar)

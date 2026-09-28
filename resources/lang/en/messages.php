@@ -22,6 +22,15 @@
             'online'  => 'Online in 5 minutes',
             'more'    => 'Learn more',
         ],
+        'info_page' => [
+            'sections' => [
+                'about'        => 'About the company',
+                'shareholders' => 'Shareholders and investors',
+                'useful'       => 'Useful information',
+            ],
+            'in_section' => 'In this section',
+            'question'   => 'Have a question?',
+        ],
         'claims' => [
             'title'              => 'Report an insured event',
             'subtitle'           => 'Tell us what happened: a specialist will review it and contact you',

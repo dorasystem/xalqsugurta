@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\InfoPage;
 use App\Models\Product;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 
-/** sitemap.xml and robots.txt, built from the products on sale */
+/** sitemap.xml and robots.txt, built from the products on sale and the published company pages */
 final class SeoController extends Controller
 {
     private const LOCALES = ['uz', 'ru', 'en'];
@@ -25,6 +26,10 @@ final class SeoController extends Controller
             if (Route::has($slug . '.index')) {
                 $pages[] = [$slug . '.index', [], 'weekly', '0.8'];
             }
+        }
+
+        foreach (InfoPage::publishedKeys() as $key) {
+            $pages[] = ['info.show', ['key' => $key], 'monthly', '0.5'];
         }
 
         $xml = view('seo.sitemap', ['pages' => $pages, 'locales' => self::LOCALES])->render();

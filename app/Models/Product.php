@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Services\ProductSettings;
+use App\Support\SafeHtml;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Route;
@@ -28,8 +29,7 @@ class Product extends Model
         'content'   => 'array',
     ];
 
-    /** Tags an admin may use in the info page texts; everything else is stripped on output */
-    private const SAFE_TAGS = '<p><br><strong><b><em><i><u><s><ul><ol><li><h2><h3><h4><blockquote><a><table><thead><tbody><tr><th><td>';
+
 
     protected static function booted(): void
     {
@@ -135,28 +135,10 @@ class Product extends Model
         return $this->hasInfo() && Route::has('product.show') ? $this->infoUrl() : $this->url();
     }
 
-    /**
-     * Admin HTML reduced to formatting tags, with every attribute removed except a safe href
-     * (no scripts, event handlers, styles or javascript: links); null when nothing is left.
-     */
+    /** Admin HTML reduced to formatting tags (see App\Support\SafeHtml) */
     public static function safeHtml(?string $html): ?string
     {
-        if (blank($html)) {
-            return null;
-        }
-
-        $html = preg_replace('#<(script|style)\b[^>]*>.*?</\1\s*>#is', '', $html);
-        $html = strip_tags($html, self::SAFE_TAGS);
-        $html = preg_replace_callback('/<(\w+)\b[^>]*>/', function (array $m): string {
-            $tag = strtolower($m[1]);
-            if ($tag === 'a' && preg_match('/\bhref\s*=\s*["\']?(https?:\/\/[^"\'\s>]+|\/[^"\'\s>]*|mailto:[^"\'\s>]+|tel:[^"\'\s>]+)/i', $m[0], $href)) {
-                return '<a href="' . e($href[1]) . '" rel="noopener" target="_blank">';
-            }
-
-            return '<' . $tag . '>';
-        }, $html);
-
-        return trim(strip_tags($html)) === '' ? null : trim($html);
+        return SafeHtml::clean($html);
     }
 
     public function url(): string

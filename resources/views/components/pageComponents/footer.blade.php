@@ -8,10 +8,10 @@
 
                         <ul class="footer-menu">
                             <li class="footer-menu__item"> {{-- Kompaniya haqida --}}
-                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/about" class="footer-menu__link">{{ __('messages.about_company') }}</a>
+                                <a href="{{ \App\Models\InfoPage::link('about') }}" class="footer-menu__link">{{ __('messages.about_company') }}</a>
                             </li>
                             <li class="footer-menu__item">{{-- Aktsiyadorlari va investorlari --}}
-                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/{{ __('routes.shareholders') }}" class="footer-menu__link">{{ __('messages.shareholders') }}</a>
+                                <a href="{{ \App\Models\InfoPage::link('affiliates') }}" class="footer-menu__link">{{ __('messages.shareholders') }}</a>
                             </li>
                             <li class="footer-menu__item">{{-- Sug'urta --}}
                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/{{ __('routes.insurance') }}" class="footer-menu__link">{{ __('messages.insurance') }}</a>
@@ -32,7 +32,7 @@
                                 <a href="{{ route('callback', ['locale' => getCurrentLocale()]) }}" class="footer-menu__link">{{ __t('messages.callback.title') }}</a>
                             </li>
                             <li class="footer-menu__item">{{-- Foydali ma'lumotlar --}}
-                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/{{ __('routes.useful_info') }}" class="footer-menu__link">{{ __('messages.useful_info') }}</a>
+                                <a href="{{ \App\Models\InfoPage::link('useful-information') }}" class="footer-menu__link">{{ __('messages.useful_info') }}</a>
                             </li>
                         </ul>
                     </div>

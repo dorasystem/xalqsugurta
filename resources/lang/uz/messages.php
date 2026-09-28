@@ -22,6 +22,15 @@ return [
         'online'  => 'Onlayn, 5 daqiqada',
         'more'    => 'Batafsil',
     ],
+    'info_page' => [
+        'sections' => [
+            'about'        => 'Kompaniya haqida',
+            'shareholders' => 'Aksiyadorlar va investorlar',
+            'useful'       => 'Foydali ma\'lumotlar',
+        ],
+        'in_section' => 'Bo\'limdagi sahifalar',
+        'question'   => 'Savolingiz bormi?',
+    ],
     'claims' => [
         'title'              => 'Sug\'urta hodisasi',
         'subtitle'           => 'Nima bo\'lganini yozing: mutaxassisimiz ko\'rib chiqib, siz bilan bog\'lanadi',
