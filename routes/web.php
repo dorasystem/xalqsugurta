@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Insurence\PaymentController;
 use App\Http\Controllers\MyPoliciesController;
+use App\Http\Controllers\SeoController;
 use App\Http\Controllers\ApiControllers\PropertyInfoController;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +42,10 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
 Route::post('fetch-cadaster', [PropertyInfoController::class, 'fetchPropertyInfo']);
 Route::get('/get-regions', [ReferenceController::class, 'getRegions'])->name('get-regions');
 Route::get('/get-districts', [ReferenceController::class, 'getDistricts'])->name('get-districts');
+
+// Search engines: products on sale in every locale; payment and "my policies" pages are private
+Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');
+Route::get('/robots.txt', [SeoController::class, 'robots'])->name('robots');
 
 // Default route (redirects to Russian)
 Route::get('/', function () {

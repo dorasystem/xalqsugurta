@@ -21,7 +21,7 @@ return [
     'affiliates' => 'affiliates',
     'stocks' => 'stocks',
     'dividend' => 'dividends',
-    'essential-facts' => 'essential-facts',
+    'essential-facts' => 'essential-fact',
     'useful-information' => 'useful-information',
     'login' => 'signin',
     'useful-information' => 'useful-information',

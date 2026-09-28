@@ -2,7 +2,7 @@
             <div class="footer__wrapper">
                 <div class="footer-top">
                     <div class="footer-column">
-                        <a href="index.htm" class="header-logo" aria-label="Логотип">
+                        <a href="{{ route('home', ['locale' => getCurrentLocale()]) }}" class="header-logo" aria-label="Логотип">
                             <img src="{{ asset('assets/img/logo-footer.svg') }}" alt="logo">
                         </a>
 
@@ -30,7 +30,7 @@
                         <ul class="footer-contacts">
                             <li class="footer-contacts__block">
                                 <h3 class="footer-contacts__title">{{ __('messages.footer_phone') }}:</h3>
-                                <a href="tel:+(+998 71) 202-19-66" class="footer-contacts__text">(+998 71)
+                                <a href="tel:+998712021966" class="footer-contacts__text">(+998 71)
                                     202-19-66</a>
                             </li>
                             <li class="footer-contacts__block">
