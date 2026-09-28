@@ -96,14 +96,16 @@ class ProviderErrorsTest extends TestCase
                 $this->insurerPost('http://insurer.test/eshop/osgop', $body);
             }
         };
-        $api->send(['representativeName' => 'ALIYEV VALI O‘G‘LI', 'position' => 'Директор', 'address' => 'uy: 1/2']);
+        $api->send(['representativeName' => 'ALIYEV VALI O‘G‘LI', 'position' => 'Директор', 'address' => 'Ko’cha 1/2', 'nested' => ['x' => 'Gʻ`ʼ', 'n' => 5]]);
 
         Http::assertSent(function ($request) {
             $raw = $request->body();
 
-            return str_contains($raw, '"ALIYEV VALI O‘G‘LI"')
+            return str_contains($raw, '"ALIYEV VALI O\'G\'LI"')
+                && str_contains($raw, '"Ko\'cha 1/2"')
+                && str_contains($raw, '"x":"G\'\'\'"')
+                && str_contains($raw, '"n":5')
                 && str_contains($raw, '"Директор"')
-                && str_contains($raw, '"uy: 1/2"')
                 && !str_contains($raw, '\\u')
                 && $request->hasHeader('Content-Type', 'application/json')
                 && $request['position'] === 'Директор';

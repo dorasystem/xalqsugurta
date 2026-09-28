@@ -71,7 +71,7 @@ trait ProviderApiTrait
 
         // Plain UTF-8 like the insurer's Postman samples: with PHP's default Д / \/ escapes
         // the eshop endpoints answer "999.JSON parse error" (names like O‘G‘LI, Cyrillic typeCode)
-        $json = json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        $json = json_encode(self::plainApostrophes($body), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
 
         try {
             $response = Http::timeout($timeout)
@@ -101,6 +101,21 @@ trait ProviderApiTrait
         }
 
         return $response;
+    }
+
+    /**
+     * Uzbek Latin from the registries uses typographic apostrophes (O‘G‘LI, ko‘chasi); the insurer's
+     * own samples use the plain one (MAS'ULIYATI). Every string value gets ‘ ’ ʻ ʼ ` → '.
+     */
+    protected static function plainApostrophes(array $data): array
+    {
+        array_walk_recursive($data, function (&$value): void {
+            if (is_string($value)) {
+                $value = str_replace(['‘', '’', 'ʻ', 'ʼ', '`'], "'", $value);
+            }
+        });
+
+        return $data;
     }
 
     // =========================
