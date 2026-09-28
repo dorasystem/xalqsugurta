@@ -24,15 +24,18 @@ final class OsgopController extends Controller
     private const SESSION_KEY = 'osgop';
 
     /**
-     * The registry (osago/vehicle) and OSGOP number vehicle types differently: registry 1/2 are
-     * passenger cars and 9 is a bus (> 20 seats); in the insurer's OSGOP table 1 is a bus and
-     * 2 a passenger car. Sending the registry id priced cars as buses. Other types are not sold online.
+     * OSGOP vehicle types sold online (the insurer's VEHICLETYPEID table: 1 bus, 2 passenger car,
+     * 7 minibus). The registry (osago/vehicle) numbers types differently — see osgopType().
      */
-    private const OSGOP_TYPES = [1 => 2, 2 => 2, 9 => 1];
+    private const OSGOP_TYPES = [1, 2, 7];
+
+    /** Registry type 9 ("bus and minibus") with more seats than this is a bus, otherwise a minibus */
+    private const MINIBUS_MAX_SEATS = 20;
 
     // license.typeCode, as in the insurer's OSGOP samples
     private const LICENSE_TYPES = [
         1 => 'ЙЎЛОВЧИЛАРНИ ШАҲАРДА ШАҲАР АТРОФИДА ШАҲАРЛАРАРО МИКРОАВТОБУС ҲАМДА АВТОБУСЛАРДА ТАШИШ',
+        7 => 'ЙЎЛОВЧИЛАРНИ ШАҲАРДА ШАҲАР АТРОФИДА ШАҲАРЛАРАРО МИКРОАВТОБУС ҲАМДА АВТОБУСЛАРДА ТАШИШ',
         2 => "YO'LOVCHILARNI SHAXAR, SHAXAR ATROFI VA SHAXARLARARO YENGIL AVTOMOBILLARDA TASHISH",
     ];
 
@@ -181,9 +184,9 @@ final class OsgopController extends Controller
             // API ma'lumotlari bilan to'ldiriladi
             $vehicle['model_custom_name'] = $api['modelName']     ?? $api['modelCustomName'] ?? null;
             $vehicle['registry_type_id']  = (int) ($api['vehicleTypeId'] ?? 0);
-            $vehicle['vehicle_type_id']   = self::OSGOP_TYPES[$vehicle['registry_type_id']] ?? null;
             $vehicle['issue_year']        = $api['issueYear']     ?? null;
             $vehicle['number_of_seats']   = $api['seats'] ?? null;
+            $vehicle['vehicle_type_id']   = self::osgopType($vehicle['registry_type_id'], (int) $vehicle['number_of_seats']);
             $vehicle['body_number']       = $api['bodyNumber']    ?? null;
             $vehicle['engine_number']     = $api['engineNumber']  ?? null;
             $vehicle['region_id']         = $api['regionId']      ?? null;
@@ -402,7 +405,21 @@ final class OsgopController extends Controller
         return sprintf('%04d-%s-%s', $century + (int) substr($pinfl, 5, 2), substr($pinfl, 3, 2), substr($pinfl, 1, 2));
     }
 
-    /** "Avtobus" / "Yengil avtomobil" for the OSGOP type in the session */
+    /**
+     * Registry type → OSGOP type. The registry numbers passenger cars 1/2 and puts buses and
+     * minibuses together under 9; sending the registry id as is priced a car as a bus.
+     * Anything else (trucks, …) is not sold online: null.
+     */
+    private static function osgopType(int $registryType, int $seats): ?int
+    {
+        return match ($registryType) {
+            1, 2    => 2,
+            9       => $seats > self::MINIBUS_MAX_SEATS ? 1 : 7,
+            default => null,
+        };
+    }
+
+    /** "Avtobus" / "Yengil avtomobil" / "Mikroavtobus" for the OSGOP type in the session */
     private function vehicleTypeLabel(array $vehicle): ?string
     {
         return in_array($vehicle['vehicle_type_id'] ?? null, self::OSGOP_TYPES, true)

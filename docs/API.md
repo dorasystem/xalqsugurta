@@ -548,7 +548,8 @@ Tuzilishi OSGOR'ga o'xshaydi (`number`, `sum`, `contractStartDate`, `regionId`, 
 | `healthLifeDamageSum`, `propertyDamageSum` | Limitlar: sozlamada 40 000 000 va 4 000 000. **Satr** bo'lishi shart (`"40000000"`): raqam yuborilsa `422 … must be a string` qaytadi, namunada raqam bo'lsa ham |
 | `agencyId` | `PROVIDER_AGENCY_ID`. Login egasining tashkilotiga tegishli bo'lishi kerak, aks holda `The selected agency does not belong to your insurance organization` |
 | `vehicle.techPassport`, `govNumber`, `vehicleTypeId`, `issueYear`, `bodyNumber`, `engineNumber`, `numberOfSeats` | Proxy'dagi `osago/vehicle` javobidan olinadi |
-| `vehicle.vehicleTypeId` | **OSGOP jadvali bo'yicha** (1 avtobus, 2 yengil avtomobil), reyestrdagi raqam emas. Moslash: reyestr 1/2 → 2, reyestr 9 → 1; boshqa turlar onlayn sotilmaydi (`OsgopController::OSGOP_TYPES`) |
+| `vehicle.vehicleTypeId` | **OSGOP jadvali bo'yicha** (sug'urtachining VEHICLETYPEID ro'yxati: 1 avtobus, 2 yengil avtomobil, 7 mikroavtobus, …), reyestrdagi raqam emas. Moslash (`OsgopController::osgopType()`): reyestr 1/2 → 2; reyestr 9 (avtobus va mikroavtobus) → 20 o'rindiqdan ko'p bo'lsa 1, aks holda 7; boshqa turlar onlayn sotilmaydi. 20 chegarasi loyihadagi reyestr turi nomidan olingan, sug'urtachi tasdiqlamagan |
+| `insuranceTermId` | Sug'urtachi jadvali: 4 = 1 yil, 8 = 9 oy, 3 = 6 oy, 7 = 3 oy (`insurance_terms` jadvali bilan bir xil) |
 | `vehicle.license` | Tashuvchi litsenziyasi: `seria`, `number`, `beginDate`, `endDate` mijoz kiritadi (reyestrda yo'q); `typeCode` sug'urtachi namunasidagi matn (turi bo'yicha) |
 | `vehicle.ownerPerson` yoki `ownerOrganization` | Egasi kimligiga qarab faqat bittasi yuboriladi; ikkinchisi umuman qo'shilmaydi |
 

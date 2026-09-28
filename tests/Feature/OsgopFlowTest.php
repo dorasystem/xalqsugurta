@@ -34,7 +34,7 @@ class OsgopFlowTest extends TestCase
                 ]]),
                 str_contains($param, 'inn')           => Http::response(['error' => 0, 'result' => ['name' => '"YO\'LOVCHI" MCHJ', 'regionId' => 10]]),
                 str_contains($param, 'osago/vehicle') => Http::response(['error' => 0, 'result' => [
-                    'modelName' => 'ISUZU', 'vehicleTypeId' => $this->registryType, 'seats' => 30, 'issueYear' => 2020,
+                    'modelName' => 'ISUZU', 'vehicleTypeId' => $this->registryType, 'seats' => $this->seats, 'issueYear' => 2020,
                 ]]),
                 str_ends_with($request->url(), '/osgopcalc') => Http::response(['result' => 0, 'policies' => [[
                     'insurancePremium' => 30 * 10_000, 'insuranceSum' => 40_000_000,
@@ -47,6 +47,8 @@ class OsgopFlowTest extends TestCase
 
     /** Registry vehicleTypeId returned by the fake osago/vehicle lookup (9 = bus > 20 seats) */
     private int $registryType = 9;
+
+    private int $seats = 30;
 
     private function vehicleInput(array $extra = []): array
     {
@@ -154,5 +156,20 @@ class OsgopFlowTest extends TestCase
         $this->post('/uz/osgop/store-vehicle', ['vehicle' => $this->vehicleInput()])
             ->assertSessionHasErrors(['vehicle.gov_number' => __t('messages.flow.osgop_type_unsupported')]);
         $this->assertNull(session('osgop.vehicle'));
+    }
+
+    public function test_registry_bus_type_splits_into_bus_and_minibus_by_seats(): void
+    {
+        $this->seats = 16;
+        $this->post('/uz/osgop/store-applicant-company', ['inn' => '123456789', 'phone' => '998901234567']);
+        $this->post('/uz/osgop/store-vehicle', ['vehicle' => $this->vehicleInput()]);
+
+        $this->assertSame(7, session('osgop.vehicle.vehicle_type_id'));
+        $this->assertStringContainsString('МИКРОАВТОБУС', session('osgop.vehicle.license.typeCode'));
+        $this->get('/uz/osgop/get-calculator')->assertSee(__t('messages.flow.osgop_type_7'));
+
+        $this->seats = 21;
+        $this->post('/uz/osgop/store-vehicle', ['vehicle' => $this->vehicleInput()]);
+        $this->assertSame(1, session('osgop.vehicle.vehicle_type_id'));
     }
 }
