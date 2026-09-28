@@ -18,7 +18,7 @@ trait CadasterFlow
             return null;
         }
 
-        return ($object['vidText'] ?: $object['tipText'] ?: $object['cadasterNumber'])
+        return (($object['vidText'] ?? '') ?: ($object['tipText'] ?? '') ?: $object['cadasterNumber'])
             . (!empty($object['objectArea']) ? ', ' . $object['objectArea'] . ' m²' : '');
     }
 

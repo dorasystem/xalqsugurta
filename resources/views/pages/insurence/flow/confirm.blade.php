@@ -47,6 +47,7 @@
                     :title="$block['title']"
                     :editUrl="$block['editUrl'] ?? null"
                     :items="$block['items']"
+                    :wide="$block['wide'] ?? false"
                 />
             @endforeach
 

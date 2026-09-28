@@ -73,7 +73,7 @@ trait PersonsFlow
                 'period'    => [__t('messages.flow.period'), $period],
             ],
             'confirmBlocks' => [
-                ['title' => __t('messages.flow.persons'), 'editUrl' => $personsUrl, 'items' => $personRows],
+                ['title' => __t('messages.flow.persons'), 'editUrl' => $personsUrl, 'items' => $personRows, 'wide' => true],
                 ['title' => __t('messages.flow.policy_terms'), 'editUrl' => $termUrl, 'items' => [
                     __t('messages.flow.total_sum')   => formatMoney($totalSum),
                     __t('messages.flow.period')      => $period,
