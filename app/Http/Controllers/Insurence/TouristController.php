@@ -289,8 +289,9 @@ final class TouristController extends BaseInsuranceController
                 'pinfl'     => $p['pinfl'],
                 'seria'     => $p['passport_seria'],
                 'number'    => $p['passport_number'],
-                'issueDate' => $p['passport_issue_date'] ?? '',
-                'issuedBy'  => $p['passport_issued_by']  ?? '',
+                // Same placeholders as accident when the lookup returns no passport issue data
+                'issueDate' => ($p['passport_issue_date'] ?? '') ?: now()->format('Y-m-d'),
+                'issuedBy'  => ($p['passport_issued_by']  ?? '') ?: 'Not specified',
             ],
             'fullName' => [
                 'firstname'  => $p['firstname'],

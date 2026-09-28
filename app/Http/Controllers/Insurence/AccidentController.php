@@ -304,9 +304,10 @@ final class AccidentController extends BaseInsuranceController
                 'pinfl'     => $p['pinfl'],
                 'seria'     => $p['passport_seria'],
                 'number'    => $p['passport_number'],
-                // Unknown values go as null: '' fails date parsing and 0 is not a valid district
-                'issueDate' => $this->isoDate($p['passport_issue_date'] ?? null),
-                'issuedBy'  => ($p['passport_issued_by']  ?? '') ?: null,
+                // pinfl-v2 returns no passport issue data; the sale API needs both fields, so use the
+                // same placeholders Xalq Sug'urta accepted for OSAGO ("Not specified" + today)
+                'issueDate' => $this->isoDate($p['passport_issue_date'] ?? null) ?? now()->format('Y-m-d'),
+                'issuedBy'  => ($p['passport_issued_by'] ?? '') ?: 'Not specified',
             ],
             'fullName' => [
                 'firstname'  => $p['firstname'],
