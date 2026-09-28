@@ -85,7 +85,7 @@ final class OsgopController extends Controller
             $person = $this->findPersonByPinfl($pinfl, $seria . $request->input('passport_number'));
         } catch (ProviderException $e) {
             return back()
-                ->withErrors(['passport_seria' => __('messages.person_not_found')])
+                ->withErrors(['passport_seria' => $e->isUnavailable() ? __t('messages.flow.registry_unavailable') : __('messages.person_not_found')])
                 ->withInput();
         }
 

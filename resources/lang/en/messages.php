@@ -98,6 +98,7 @@
             'policy_pending_text'  => 'This usually takes a minute or two. The page refreshes by itself.',
             'details_private'      => 'The policy link and personal data are shown only on the device the application was made from.',
             'cancelled_text'       => 'The payment was cancelled. You can make a new application.',
+            'registry_unavailable' => 'The government database is not responding right now. Please try again a little later.',
             'owner'                  => 'Owner',
             'owner_title'            => 'Vehicle owner',
             'owner_subtitle'         => 'The owner\'s passport and PINFL from the registration certificate. Details are loaded from the database.',

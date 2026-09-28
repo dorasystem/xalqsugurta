@@ -72,7 +72,7 @@ final class OsagoController extends BaseInsuranceController
         try {
             $api = $this->findVehicle($request->input('tech_passport_seria'), $request->input('tech_passport_number'), $govNumber);
         } catch (ProviderException $e) {
-            return back()->withErrors(['gov_number' => __('messages.vehicle_not_found')])->withInput();
+            return back()->withErrors(['gov_number' => $this->lookupErrorMessage($e, __('messages.vehicle_not_found'))])->withInput();
         }
 
         if (empty($api['vehicleTypeId'])) {
@@ -139,14 +139,22 @@ final class OsagoController extends BaseInsuranceController
             'email'            => ['nullable', 'email', 'max:100'],
         ]);
 
-        $owner = $this->lookupOsagoPerson($this->passportInput($request, 'owner'));
+        try {
+            $owner = $this->lookupOsagoPerson($this->passportInput($request, 'owner'));
+        } catch (ProviderException $e) {
+            return back()->withErrors(['owner_pinfl' => $this->lookupErrorMessage($e)])->withInput();
+        }
         if (!$owner) {
             return back()->withErrors(['owner_pinfl' => __('messages.person_not_found')])->withInput();
         }
 
         $applicant = $owner;
         if (!$isOwner) {
-            $applicant = $this->lookupOsagoPerson($this->passportInput($request, 'applicant'));
+            try {
+                $applicant = $this->lookupOsagoPerson($this->passportInput($request, 'applicant'));
+            } catch (ProviderException $e) {
+                return back()->withErrors(['applicant_pinfl' => $this->lookupErrorMessage($e)])->withInput();
+            }
             if (!$applicant) {
                 return back()->withErrors(['applicant_pinfl' => __('messages.person_not_found')])->withInput();
             }
@@ -205,11 +213,15 @@ final class OsagoController extends BaseInsuranceController
             return $back(__t('messages.flow.person_exists'));
         }
 
-        $person = $this->lookupOsagoPerson([
-            'passport_seria'  => $request->input('driver_seria'),
-            'passport_number' => $request->input('driver_number'),
-            'pinfl'           => $request->input('driver_pinfl'),
-        ]);
+        try {
+            $person = $this->lookupOsagoPerson([
+                'passport_seria'  => $request->input('driver_seria'),
+                'passport_number' => $request->input('driver_number'),
+                'pinfl'           => $request->input('driver_pinfl'),
+            ]);
+        } catch (ProviderException $e) {
+            return $back($this->lookupErrorMessage($e));
+        }
         if (!$person) {
             return $back(__('messages.person_not_found'));
         }
@@ -217,7 +229,7 @@ final class OsagoController extends BaseInsuranceController
         try {
             $summary = $this->findDriverLicense($person['pinfl'], $person['passport_seria'] . $person['passport_number']);
         } catch (ProviderException $e) {
-            return $back(__t('messages.flow.driver_not_found'));
+            return $back($this->lookupErrorMessage($e, __t('messages.flow.driver_not_found')));
         }
 
         $license = $summary['DriverInfo'] ?? $summary['driverInfo'] ?? $summary;
@@ -463,7 +475,7 @@ final class OsagoController extends BaseInsuranceController
 
     /**
      * Person from the registry by passport + PINFL, in the shape the OSAGO body needs,
-     * or null when not found. Passport issue data comes from the matching entry of
+     * or null when not found (throws ProviderException when the registry is down). Passport issue data comes from the matching entry of
      * `documents` (pinfl-v2), else from the flat fields.
      */
     private function lookupOsagoPerson(array $input): ?array
@@ -475,6 +487,11 @@ final class OsagoController extends BaseInsuranceController
         try {
             $person = $this->findPersonByPinfl($pinfl, $seria . $number);
         } catch (ProviderException $e) {
+            // An outage is not "not found": the caller tells the user to try later
+            if ($e->isUnavailable()) {
+                throw $e;
+            }
+
             return null;
         }
 

@@ -15,6 +15,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\HtmlString;
 
 /** Read-only journal of requests to the insurer's API (written by App\Services\ApiLogger) */
 class ApiLogResource extends Resource
@@ -182,21 +183,29 @@ class ApiLogResource extends Resource
                     ->description('Postman\'da tekshirish uchun nusxa oling. Login va parol saqlanmaydi.')
                     ->columnSpan(['lg' => 2])
                     ->schema([
+                        // A string state: an array state makes Filament list the values and drop the keys
                         TextEntry::make('request')
                             ->label('So\'rov (body)')
-                            ->formatStateUsing(fn ($state): string => json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '—')
+                            ->state(fn (ApiLog $record): ?string => $record->prettyRequest())
+                            ->formatStateUsing(fn (string $state): HtmlString => static::jsonBlock($state))
                             ->copyable()
-                            ->copyableState(fn (ApiLog $record): string => json_encode($record->request, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '')
-                            ->placeholder('Bo\'sh')
-                            ->extraAttributes(['class' => 'xs-json']),
+                            ->copyableState(fn (ApiLog $record): string => (string) $record->prettyRequest())
+                            ->placeholder('Bo\'sh'),
                         TextEntry::make('response')
                             ->label('Javob')
                             ->state(fn (ApiLog $record): ?string => $record->prettyResponse())
+                            ->formatStateUsing(fn (string $state): HtmlString => static::jsonBlock($state))
                             ->copyable()
-                            ->placeholder('Javob kelmadi')
-                            ->extraAttributes(['class' => 'xs-json']),
+                            ->copyableState(fn (ApiLog $record): string => (string) $record->prettyResponse())
+                            ->placeholder('Javob kelmadi'),
                     ]),
             ]);
+    }
+
+    /** JSON in its own <pre>: whitespace from Filament's template stays outside it */
+    public static function jsonBlock(string $json): HtmlString
+    {
+        return new HtmlString('<pre class="xs-json">' . e($json) . '</pre>');
     }
 
     public static function getEloquentQuery(): Builder

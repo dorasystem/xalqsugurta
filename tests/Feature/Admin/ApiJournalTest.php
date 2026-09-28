@@ -172,6 +172,22 @@ class ApiJournalTest extends TestCase
         $this->get(ApiLogResource::getUrl('view', ['record' => $log]))->assertOk()->assertSee('productCode');
     }
 
+    public function test_flat_request_bodies_keep_their_keys(): void
+    {
+        $log = ApiLog::create([
+            'method' => 'POST', 'endpoint' => 'osago/proxy · pinfl-v2', 'url' => 'http://online.xalqsugurta.uz/xs/ins/osago/proxy',
+            'status' => 200, 'result' => '503', 'success' => false,
+            'request' => ['pinfl' => '11111111111111', 'document' => 'AA0000000', 'isConsent' => 'Y'],
+            'response' => '{"error":503,"error_message":"down"}',
+        ]);
+
+        $this->get(ApiLogResource::getUrl('view', ['record' => $log]))
+            ->assertOk()
+            ->assertSee('&quot;pinfl&quot;: &quot;11111111111111&quot;', false)
+            ->assertSee('&quot;isConsent&quot;: &quot;Y&quot;', false)
+            ->assertSee('<pre class="xs-json">', false);
+    }
+
     public function test_attention_widget_lists_problems(): void
     {
         $this->paidGasOrder();

@@ -2,6 +2,7 @@
 
 namespace App\Services\Provider;
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Exceptions\ProviderException;
@@ -10,29 +11,32 @@ trait ProviderApiTrait
 {
     protected function providerRequest(string $method, string $param, array $body = []): array
     {
-        $response = Http::timeout(10)
-            ->retry(3, 500)
-            ->withBasicAuth(
-                config('provider.username'),
-                config('provider.password')
-            )
-            ->withHeaders([
-                'mtd' => strtoupper($method),
-                'param' => $param,
-                'Content-Type' => 'application/json'
-            ])
-            ->send($method, config('provider.base_url'), [
-                'json' => $body
-            ]);
+        // Bodies hold passport data and are kept in the admin "API jurnali" (ApiLogger), not in the app log
+        try {
+            $response = Http::timeout(10)
+                ->retry(3, 500, throw: false)
+                ->withBasicAuth(
+                    config('provider.username'),
+                    config('provider.password')
+                )
+                ->withHeaders([
+                    'mtd' => strtoupper($method),
+                    'param' => $param,
+                    'Content-Type' => 'application/json'
+                ])
+                ->send($method, config('provider.base_url'), [
+                    'json' => $body
+                ]);
+        } catch (ConnectionException $e) {
+            Log::error('Provider connection error', ['param' => $param, 'message' => $e->getMessage()]);
+
+            throw new ProviderException('Provider service unavailable.', 503, $e);
+        }
 
         if (!$response->successful()) {
-            Log::error('Provider HTTP Error', [
-                'param' => $param,
-                'body' => $body,
-                'response' => $response->body()
-            ]);
+            Log::error('Provider HTTP Error', ['param' => $param, 'status' => $response->status()]);
 
-            throw new ProviderException('Provider service unavailable.');
+            throw new ProviderException('Provider service unavailable.', 503);
         }
 
         $data = $response->json();
@@ -40,12 +44,14 @@ trait ProviderApiTrait
         if (isset($data['error']) && $data['error'] != 0) {
             Log::warning('Provider Business Error', [
                 'param' => $param,
-                'body' => $body,
-                'response' => $data
+                'error' => $data['error'],
+                'error_message' => $data['error_message'] ?? null,
             ]);
 
+            // The provider's own code: 503 = the registry behind it is down
             throw new ProviderException(
-                $data['error_message'] ?? 'Provider business error.'
+                $data['error_message'] ?? 'Provider business error.',
+                is_numeric($data['error']) ? (int) $data['error'] : 0
             );
         }
 

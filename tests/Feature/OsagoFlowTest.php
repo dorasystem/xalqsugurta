@@ -15,6 +15,7 @@ class OsagoFlowTest extends TestCase
     private const OWNER     = '31501991234567';
     private const APPLICANT = '42002881234567';
     private const DRIVER    = '31203851234567';
+    private const DOWN      = '30101901234567'; // the registry answers 503 for this one
 
     /** Vehicle returned by the registry; tests change it before the lookup */
     private array $vehicle = [
@@ -46,6 +47,7 @@ class OsagoFlowTest extends TestCase
             $pinfl = $request->data()['pinfl'] ?? null;
 
             return match (true) {
+                str_contains($param, 'pinfl-v2') && $pinfl === self::DOWN => Http::response(['error' => 503, 'error_message' => 'Provider error']),
                 str_contains($param, 'pinfl-v2')       => isset($people[$pinfl])
                     ? Http::response(['error' => 0, 'result' => $people[$pinfl] + ['currentPinfl' => $pinfl]])
                     : Http::response(['error' => 1, 'error_message' => 'not found']),
@@ -225,6 +227,20 @@ class OsagoFlowTest extends TestCase
         $this->vehicleStep();
         $this->post('/uz/osago/owner', ['owner_seria' => 'AB', 'owner_number' => '1234567', 'owner_pinfl' => '30000000000000', 'applicant_is_owner' => '1', 'phone' => '901234567'])
             ->assertSessionHasErrors('owner_pinfl');
+    }
+
+    public function test_registry_outage_is_not_reported_as_not_found(): void
+    {
+        $this->vehicleStep();
+
+        $this->post('/uz/osago/owner', [
+            'owner_seria' => 'AB', 'owner_number' => '1234567', 'owner_pinfl' => self::DOWN,
+            'applicant_is_owner' => '1', 'phone' => '901234567',
+        ])->assertSessionHasErrors(['owner_pinfl' => __t('messages.flow.registry_unavailable')]);
+
+        $this->ownerStep();
+        $this->post('/uz/osago/drivers', ['driver_seria' => 'AD', 'driver_number' => '1112223', 'driver_pinfl' => self::DOWN])
+            ->assertSessionHasErrors(['driver_pinfl' => __t('messages.flow.registry_unavailable')]);
     }
 
     public function test_a_new_vehicle_resets_the_owner_and_price(): void

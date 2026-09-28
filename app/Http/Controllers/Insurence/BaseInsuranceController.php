@@ -160,6 +160,14 @@ abstract class BaseInsuranceController extends Controller
         return '';
     }
 
+    /** "Not found", or "the registry is down, try later" when the provider reports an outage */
+    protected function lookupErrorMessage(ProviderException $e, ?string $notFound = null): string
+    {
+        return $e->isUnavailable()
+            ? __t('messages.flow.registry_unavailable')
+            : ($notFound ?? __('messages.person_not_found'));
+    }
+
     /** Field that lookup errors are attached to */
     protected function personLookupErrorField(Request $request): string
     {
@@ -223,7 +231,7 @@ abstract class BaseInsuranceController extends Controller
         try {
             $person = $this->lookupPerson($request);
         } catch (ProviderException $e) {
-            return back()->withErrors([$errorField => __('messages.person_not_found')])->withInput();
+            return back()->withErrors([$errorField => $this->lookupErrorMessage($e)])->withInput();
         }
 
         if (empty($person['currentPinfl'] ?? null)) {
@@ -249,7 +257,7 @@ abstract class BaseInsuranceController extends Controller
         try {
             $person = $this->lookupPerson($request);
         } catch (ProviderException $e) {
-            return response()->json(['success' => false, 'message' => __('messages.person_not_found')], 422);
+            return response()->json(['success' => false, 'message' => $this->lookupErrorMessage($e)], 422);
         }
 
         if (empty($person['currentPinfl'] ?? null)) {

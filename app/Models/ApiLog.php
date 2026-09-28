@@ -60,6 +60,13 @@ class ApiLog extends Model
     }
 
     /** Response body pretty-printed when it is JSON */
+    public function prettyRequest(): ?string
+    {
+        return $this->request === null || $this->request === []
+            ? null
+            : json_encode($this->request, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+
     public function prettyResponse(): ?string
     {
         $json = json_decode((string) $this->response, true);

@@ -98,6 +98,7 @@ return [
         'policy_pending_text'  => 'Odatda bir-ikki daqiqa oladi. Sahifa o\'zi yangilanadi.',
         'details_private'      => 'Polis havolasi va shaxsiy ma\'lumotlar faqat ariza topshirilgan qurilmada ko\'rinadi.',
         'cancelled_text'       => 'To\'lov bekor qilindi. Yangi ariza topshirishingiz mumkin.',
+        'registry_unavailable' => 'Davlat ma\'lumotlar bazasi hozir javob bermayapti. Birozdan keyin qayta urinib ko\'ring.',
         'owner'                  => 'Egasi',
         'owner_title'            => 'Transport egasi',
         'owner_subtitle'         => 'Texpasportdagi egasining pasporti va JShShIR. Ma\'lumotlar bazadan olinadi.',
