@@ -1,13 +1,9 @@
 <?php
 
-use App\Http\Controllers\ApiControllers\DriverInfoController;
 use App\Http\Controllers\Insurence\PaymentController;
 use App\Http\Controllers\ApiControllers\PropertyInfoController;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ApiControllers\PersonInfoController;
-use App\Http\Controllers\ApiControllers\VehicleInfoController;
-use App\Http\Controllers\ApiControllers\CompanyController;
 use App\Http\Controllers\ApiControllers\ReferenceController;
 use App\Models\Order;
 use App\Models\Product;
@@ -35,12 +31,7 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
     require __DIR__ . '/insurence/tourist.php';
 });
 
-Route::post('/get-vehicle-info', [VehicleInfoController::class, 'getVehicleInfo']);
-Route::post('/get-person-info', [PersonInfoController::class, 'getPersonInfo']);
-Route::post('/get-person-info-by-birthdate', [PersonInfoController::class, 'getPersonInfoByBirthdate']);
-Route::post('/get-driver-info', [DriverInfoController::class, 'getDriverInfo']);
 Route::post('fetch-cadaster', [PropertyInfoController::class, 'fetchPropertyInfo']);
-Route::post('/get-company-info', [CompanyController::class, 'getCompanyInfo'])->name('get-company-info');
 Route::get('/get-regions', [ReferenceController::class, 'getRegions'])->name('get-regions');
 Route::get('/get-districts', [ReferenceController::class, 'getDistricts'])->name('get-districts');
 

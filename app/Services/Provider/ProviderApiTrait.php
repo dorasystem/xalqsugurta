@@ -117,6 +117,24 @@ trait ProviderApiTrait
     }
 
     // =========================
+    // DRIVER LICENSE (OSAGO limited drivers)
+    // =========================
+    public function findDriverLicense(string $pinfl, string $document): array
+    {
+        return $this->providerRequest(
+            'POST',
+            '/api/provider/driver-summary-v2',
+            [
+                'transactionId' => now()->timestamp,
+                'isConsent' => 'Y',
+                'senderPinfl' => config('provider.sender_pinfl'),
+                'document' => $document,
+                'pinfl' => $pinfl
+            ]
+        );
+    }
+
+    // =========================
     // CALCULATE (direct URL, extensible per product)
     // =========================
     protected function calcRequest(string $url, array $body): array

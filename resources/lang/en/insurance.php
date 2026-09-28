@@ -143,8 +143,8 @@ return [
 
     'osago' => [
         'product_name' => 'OSAGO Insurance',
-        'page_title' => 'MTPL - Application Details',
-        'subtitle' => 'Review and confirm application details',
+        'page_title' => 'MTPL — motor insurance',
+        'subtitle' => 'Compulsory motor third-party liability insurance',
         'applicant_info' => 'Applicant Information',
         'owner_info' => 'Vehicle Owner Information',
         'vehicle_info' => 'Vehicle Information',

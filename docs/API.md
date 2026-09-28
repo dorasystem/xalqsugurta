@@ -560,7 +560,19 @@ Tuzilishi OSGOR'ga o'xshaydi (`number`, `sum`, `contractStartDate`, `regionId`, 
 - **Auth:** OSAGO
 - **Timeout:** 10 s, 3 marta qayta urinish
 
-Body'ning asosiy bloklari: `vehicle`, `owner`, `applicant`, `details`, `drivers`, `cost`. Javob muvaffaqiyatli hisoblanishi uchun HTTP 200, `response.error = 0` bo'lishi va `response.result.policies[0].uuid` (yoki `contractUuid`) kelishi kerak. OSAGO sahifasi hali yangi standartga o'tkazilmagan.
+Body'ning asosiy bloklari: `vehicle`, `owner`, `applicant`, `details`, `drivers`, `cost`. Javobda `result = 0` va `UUID` bo'lsa muvaffaqiyatli hisoblanadi; `amount`, `payme_url`, `click_url` ham keladi. Xatoda `result_message` qaytadi.
+
+Body'ni `OsagoController::applicationBody()` yig'adi:
+
+| Maydon | Qayerdan |
+|--------|----------|
+| `vehicle.*` (`typeId`, `govNumber`, `techPassport`, `bodyNumber`, `engineNumber`, `issueYear`, `modelCustomName`) | Proxy'dagi `osago/vehicle` javobi (sessiyada) |
+| `vehicle.regionId` | Ariza beruvchining hududi |
+| `owner.person`, `applicant.person` | `pinfl-v2`; pasport kim va qachon bergani `documents[]` dagi mos yozuvdan (`docgiveplace`, `datebegin`) |
+| `drivers[]` | `pinfl-v2` + `driver-summary-v2` (`DriverInfo.licenseSeria`, `licenseNumber`, `issueDate`); 5 tagacha |
+| `cost.insurancePremium` | `OsagoPriceCalculator`: 80 mln × ТБ (turi) × КТ (01/10 = 1.2) × КБО (cheklanmagan 2 / cheklangan 1) / 100 |
+| `cost.contractTermConclusionId` | `1` (12 oy; boshqa muddat sotuvda yo'q) |
+| `cost.useTerritoryId` | Raqam 01 yoki 10 bilan boshlansa `1`, aks holda `2` |
 
 ---
 

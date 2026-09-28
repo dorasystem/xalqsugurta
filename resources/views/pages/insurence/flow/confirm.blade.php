@@ -5,7 +5,8 @@
     Shared confirm step. Expects from the controller's flow trait:
     $flow, $flowSteps, $flowUrls (last = this page), $applicant, $applicantName,
     $confirmBlocks ([title, editUrl, items]), $premiumTotal, $summaryItems, $product;
-    optional $applicantTitle / $applicantReview (label => value) replace the person block
+    optional $applicantTitle / $applicantReview (label => value) replace the person block,
+    $applicantEditUrl when the applicant is not on step 1 (OSAGO)
 --}}
 @php
     $locale      = getCurrentLocale();
@@ -34,7 +35,7 @@
             {{-- Person by default; organization products (OSGOR) pass their own $applicantTitle / $applicantReview --}}
             <x-insurence.review
                 :title="$applicantTitle ?? __t('messages.flow.applicant')"
-                :editUrl="route($flow['key'] . '.index', ['locale' => $locale])"
+                :editUrl="$applicantEditUrl ?? route($flow['key'] . '.index', ['locale' => $locale])"
                 :items="$applicantReview ?? [
                     __('messages.full_name')                                              => $applicantName,
                     __('insurance.passport.series') . ' / ' . __('insurance.passport.number') => $applicant['passport_seria'] . ' ' . $applicant['passport_number'],

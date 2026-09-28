@@ -96,7 +96,7 @@ class Product extends Model
     {
         $locale = getCurrentLocale();
         $slug   = trim((string) $this->route, '/');
-        $name   = $slug === 'osago' ? 'osago.main' : $slug . '.index';
+        $name   = $slug . '.index';
 
         if ($slug !== '' && Route::has($name)) {
             return route($name, ['locale' => $locale], false);

@@ -144,8 +144,8 @@ return [
 
     'osago' => [
         'product_name' => 'OSAGO sug\'urtasi',
-        'page_title' => 'OSAGO - Ariza ma\'lumotlari',
-        'subtitle' => 'Ariza ma\'lumotlarini tekshirib, tasdiqlang',
+        'page_title' => 'OSAGO — avtomobil sug\'urtasi',
+        'subtitle' => 'Transport egalarining majburiy fuqarolik javobgarligi',
         'applicant_info' => 'Ariza Beruvchi Ma\'lumotlari',
         'owner_info' => 'Avtomobil egasi ma\'lumotlari',
         'vehicle_info' => 'Avtomobil ma\'lumotlari',
