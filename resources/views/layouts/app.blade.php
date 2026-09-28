@@ -366,29 +366,20 @@
 
         @include('components.toasts.all')
 
-        <ul class="social social--fixed">
-            <li class="social__item">
-                <a href="#" class="social__link" target="_blank" aria-label="Instagram">
-                    <svg width="20" height="20">
-                        <use xlink:href="#icon-instagram"></use>
-                    </svg>
-                </a>
-            </li>
-            <li class="social__item">
-                <a href="#" class="social__link" target="_blank" aria-label="facebook">
-                    <svg width="20" height="20">
-                        <use xlink:href="#icon-facebook"></use>
-                    </svg>
-                </a>
-            </li>
-            <li class="social__item">
-                <a href="#" class="social__link" target="_blank" aria-label="telegram">
-                    <svg width="20" height="20">
-                        <use xlink:href="#icon-telegram"></use>
-                    </svg>
-                </a>
-            </li>
-        </ul>
+        @php($socialLinks = \App\Services\SiteSettings::social())
+        @if ($socialLinks)
+            <ul class="social social--fixed">
+                @foreach ($socialLinks as $network => $url)
+                    <li class="social__item">
+                        <a href="{{ $url }}" class="social__link" target="_blank" rel="noopener" aria-label="{{ \App\Services\SiteSettings::SOCIAL[$network] }}">
+                            <svg width="20" height="20">
+                                <use xlink:href="#icon-{{ $network }}"></use>
+                            </svg>
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        @endif
         <button class="sos" type="button" aria-label="sos">
             <svg width="20" height="20">
                 <use xlink:href="#icon-sos"></use>

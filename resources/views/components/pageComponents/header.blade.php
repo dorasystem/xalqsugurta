@@ -410,21 +410,13 @@
                 </div>
                 <div class="menu__footer">
                     <div class="social">
-                        <a href="#" class="social__item" target="_blank" aria-label="Instagram">
-                            <svg width="20" height="20">
-                                <use xlink:href="#icon-instagram"></use>
-                            </svg>
-                        </a>
-                        <a href="#" class="social__item" target="_blank" aria-label="facebook">
-                            <svg width="20" height="20">
-                                <use xlink:href="#icon-facebook"></use>
-                            </svg>
-                        </a>
-                        <a href="#" class="social__item" target="_blank" aria-label="telegram">
-                            <svg width="20" height="20">
-                                <use xlink:href="#icon-telegram"></use>
-                            </svg>
-                        </a>
+                        @foreach (\App\Services\SiteSettings::social() as $network => $url)
+                            <a href="{{ $url }}" class="social__item" target="_blank" rel="noopener" aria-label="{{ \App\Services\SiteSettings::SOCIAL[$network] }}">
+                                <svg width="20" height="20">
+                                    <use xlink:href="#icon-{{ $network }}"></use>
+                                </svg>
+                            </a>
+                        @endforeach
                     </div>
                     <a class="copyright-logo" href="https://alex-software.ru/" target="_blank"
                         rel="nofollow noopener" aria-label="Разработано Alex software">
@@ -505,7 +497,7 @@
                     </div>
                     <ul class="menu-bar__list">
                         <li class="menu-bar__line">
-                            <a href="#" class="menu-bar__link">{{ __('messages.company_address') }}</a>
+                            <span class="menu-bar__link">{{ __('messages.company_address') }}</span>
                         </li>
                     </ul>
                 </div>
@@ -531,7 +523,7 @@
                     </div>
                     <ul class="menu-bar__list">
                         <li class="menu-bar__line">
-                            <a href="#" class="menu-bar__link">{{ __('messages.work_schedule_time') }}</a>
+                            <span class="menu-bar__link">{{ __('messages.work_schedule_time') }}</span>
                         </li>
                     </ul>
                 </div>
