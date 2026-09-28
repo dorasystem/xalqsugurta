@@ -212,6 +212,8 @@
             'owner_subtitle'         => 'The owner\'s passport and PINFL from the registration certificate. Details are loaded from the database.',
             'owner_by_registry'      => 'Owner per registration: :name',
             'applicant_is_owner'     => 'The applicant is the vehicle owner',
+            'owner_type'             => 'Vehicle owner',
+            'owner_org_note'         => 'The organization is also the applicant. Its name and address come from the state registry by TIN.',
             'email_optional'         => 'Email (optional)',
             'drivers'                => 'Drivers',
             'drivers_unlimited'      => 'Unlimited',

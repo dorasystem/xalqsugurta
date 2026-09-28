@@ -587,6 +587,18 @@ Body'ni `OsagoController::applicationBody()` yig'adi:
 | `cost.contractTermConclusionId` | `1` (12 oy; boshqa muddat sotuvda yo'q) |
 | `cost.useTerritoryId` | Raqam 01 yoki 10 bilan boshlansa `1`, aks holda `2` |
 
+**Yuridik shaxs (egasi tashkilot).** Admin panelda Tizim → Sug'urtachi API → "Yuridik shaxslarga sotish" (yoki `OSAGO_LEGAL_ENTITIES=true`) yoqilganda sotiladi; standart holatda o'chiq. Sug'urtachi bunday body namunasini bermagan, shuning uchun sayt jismoniy shaxs holatining ko'zgusini yuboradi:
+
+| Maydon | Qiymat |
+|--------|--------|
+| `owner.organization.inn` | Kiritilgan INN (`/api/provider/inn` bo'yicha tekshiriladi) |
+| `owner.person.*`, `applicant.person.*` | Bo'sh satrlar |
+| `owner.applicantIsOwner` | `"true"` — tashkilot ariza beruvchi ham |
+| `applicant.organization` | `{phoneNumber, inn, name}` (nom INN qidiruvidan) |
+| `vehicle.regionId` | INN javobidagi `regionId`, bo'lmasa SOATO'ning birinchi 2 raqami, bo'lmasa `10` |
+
+Yoqqandan keyin bitta sinov sotuvini qilib, API jurnalida javobni tekshirish kerak; sug'urtachi boshqa shakl so'rasa `OsagoController::applicationBody()` o'zgartiriladi.
+
 ---
 
 ## Tashqi servislar

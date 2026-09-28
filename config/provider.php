@@ -8,6 +8,12 @@ return [
 
     'agency_id' => env('PROVIDER_AGENCY_ID', '126'),
 
+    // OSAGO for vehicles owned by an organization (owner.organization.inn). Off until a test
+    // sale goes through: the insurer has not given a sample body for it. Admin: Tizim → Sug'urtachi API
+    'osago' => [
+        'legal_entities' => (bool) env('OSAGO_LEGAL_ENTITIES', false),
+    ],
+
     'calc' => [
         'osgop' => env('PROVIDER_CALC_OSGOP', 'http://online.xalqsugurta.uz/xs/ins/eshop/osgopcalc'),
         'osgor' => env('PROVIDER_CALC_OSGOR', 'http://online.xalqsugurta.uz/xs/ins/eshop/osgorcalc'),

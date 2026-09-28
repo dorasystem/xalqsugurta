@@ -212,6 +212,8 @@ return [
         'owner_subtitle'         => 'Texpasportdagi egasining pasporti va JShShIR. Ma\'lumotlar bazadan olinadi.',
         'owner_by_registry'      => 'Texpasport bo\'yicha egasi: :name',
         'applicant_is_owner'     => 'Ariza beruvchi — transport egasining o\'zi',
+        'owner_type'             => 'Transport egasi',
+        'owner_org_note'         => 'Tashkilot ariza beruvchi ham hisoblanadi. Nomi va manzili INN bo\'yicha davlat bazasidan olinadi.',
         'email_optional'         => 'Email (ixtiyoriy)',
         'drivers'                => 'Haydovchilar',
         'drivers_unlimited'      => 'Cheklanmagan',

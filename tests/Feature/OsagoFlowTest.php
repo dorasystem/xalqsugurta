@@ -16,6 +16,7 @@ class OsagoFlowTest extends TestCase
     private const APPLICANT = '42002881234567';
     private const DRIVER    = '31203851234567';
     private const DOWN      = '30101901234567'; // the registry answers 503 for this one
+    private const INN       = '300000001';
 
     /** Vehicle returned by the registry; tests change it before the lookup */
     private array $vehicle = [
@@ -55,6 +56,9 @@ class OsagoFlowTest extends TestCase
                     ? Http::response(['error' => 0, 'result' => ['DriverInfo' => ['licenseSeria' => 'AF', 'licenseNumber' => '7654321', 'issueDate' => '2015-05-10T00:00:00']]])
                     : Http::response(['error' => 1, 'error_message' => 'no licence']),
                 str_contains($param, 'osago/vehicle')  => Http::response(['error' => 0, 'result' => $this->vehicle]),
+                str_ends_with($param, '/provider/inn')  => ($request->data()['inn'] ?? null) === self::INN
+                    ? Http::response(['error' => 0, 'result' => ['name' => 'TEST LOGISTIKA MCHJ', 'address' => 'Test ko\'chasi 5', 'districtSoatoCode' => '1726262']])
+                    : Http::response(['error' => 1, 'error_message' => 'not found']),
                 str_ends_with($request->url(), '/doraosago/create') => $this->submitFails
                     ? Http::response(['result' => 1, 'result_message' => 'Polis allaqachon mavjud'])
                     : Http::response(['result' => 0, 'UUID' => 'osago-uuid-1', 'amount' => $request->data()['cost']['insurancePremium'], 'payme_url' => 'https://checkout.example/pay']),
@@ -265,5 +269,65 @@ class OsagoFlowTest extends TestCase
         $this->post('/get-vehicle-info')->assertNotFound();
         $this->post('/get-driver-info')->assertNotFound();
         $this->get('/api/get-person-info')->assertNotFound();
+    }
+
+    // ─── Legal entities (switched on in the admin panel) ──────────────────────
+
+    public function test_organization_owner_is_refused_while_switched_off(): void
+    {
+        $this->vehicleStep();
+        $this->get('/uz/osago/owner')->assertOk()->assertDontSee('value="organization"', false);
+
+        $this->post('/uz/osago/owner', ['owner_type' => 'organization', 'owner_inn' => self::INN, 'phone' => '901234567'])
+            ->assertSessionHasErrors(['owner_seria', 'owner_pinfl']);
+
+        Http::assertNotSent(fn (Request $r) => str_ends_with($r->header('param')[0] ?? '', '/provider/inn'));
+    }
+
+    public function test_organization_owner_flow(): void
+    {
+        config(['provider.osago.legal_entities' => true]);
+        $this->vehicle = array_merge($this->vehicle, ['pinfl' => '', 'owner' => 'TEST LOGISTIKA MCHJ', 'inn' => self::INN]);
+
+        $this->vehicleStep();
+        $this->get('/uz/osago/owner')->assertOk()
+            ->assertSee('value="organization"', false)
+            ->assertSee('value="' . self::INN . '"', false);
+
+        $this->post('/uz/osago/owner', ['owner_type' => 'organization', 'owner_inn' => '300000009', 'phone' => '901234567'])
+            ->assertSessionHasErrors('owner_inn');
+        $this->post('/uz/osago/owner', ['owner_type' => 'organization', 'owner_inn' => self::INN, 'phone' => '90 123 45 67', 'email' => 'buh@example.com'])
+            ->assertRedirect(route('osago.getTerms', ['locale' => 'uz']));
+
+        $this->post('/uz/osago/terms', ['start_date' => now()->addDay()->format('Y-m-d'), 'driver_limit' => 'unlimited']);
+        $this->get('/uz/osago/confirm')->assertOk()->assertSee('TEST LOGISTIKA MCHJ')->assertSee(self::INN);
+
+        $this->post('/uz/osago/store-application', ['offerta_agreed' => '1'])->assertRedirect();
+
+        $body = $this->submittedBody();
+        $this->assertSame(self::INN, $body['owner']['organization']['inn']);
+        $this->assertSame('', $body['owner']['person']['passportData']['pinfl']);
+        $this->assertSame('true', $body['owner']['applicantIsOwner']);
+        $this->assertSame(['phoneNumber' => '998901234567', 'inn' => self::INN, 'name' => 'TEST LOGISTIKA MCHJ'], $body['applicant']['organization']);
+        $this->assertSame('', $body['applicant']['person']['fullName']['lastname']);
+        $this->assertSame('buh@example.com', $body['applicant']['email']);
+        $this->assertSame(17, $body['vehicle']['regionId']);
+        $this->assertSame(384_000, $body['cost']['insurancePremium']);
+
+        $this->assertSame('TEST LOGISTIKA MCHJ', Order::sole()->client_name);
+    }
+
+    public function test_switching_off_stops_an_organization_sale_in_progress(): void
+    {
+        config(['provider.osago.legal_entities' => true]);
+        $this->vehicleStep();
+        $this->post('/uz/osago/owner', ['owner_type' => 'organization', 'owner_inn' => self::INN, 'phone' => '901234567']);
+        $this->post('/uz/osago/terms', ['start_date' => now()->addDay()->format('Y-m-d'), 'driver_limit' => 'unlimited']);
+
+        config(['provider.osago.legal_entities' => false]);
+
+        $this->post('/uz/osago/store-application', ['offerta_agreed' => '1'])
+            ->assertRedirect(route('osago.getOwner', ['locale' => 'uz']));
+        $this->assertSame(0, Order::count());
     }
 }

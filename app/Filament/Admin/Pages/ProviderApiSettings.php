@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Pages;
 use App\Services\ProviderSettings;
 use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
@@ -47,6 +48,14 @@ class ProviderApiSettings extends Page
                             ->numeric()
                             ->placeholder(fn (): string => '.env: ' . (ProviderSettings::envValue('provider.agency_id') ?? '—'))
                             ->helperText('Sug\'urta kompaniyasi beradi. Noto\'g\'ri bo\'lsa, API "The selected agency does not belong to your insurance organization" deb javob beradi.'),
+                    ]),
+
+                Section::make('OSAGO')
+                    ->icon('heroicon-o-truck')
+                    ->schema([
+                        Toggle::make('provider.osago_legal_entities')
+                            ->label('Yuridik shaxslarga sotish')
+                            ->helperText('Egasi tashkilot bo\'lgan avtomobil uchun polis (INN bo\'yicha). Sug\'urtachi bunday body namunasini bermagan: yoqqandan keyin bitta sinov sotuvini qilib, API jurnalida javobni tekshiring.'),
                     ]),
             ]);
     }

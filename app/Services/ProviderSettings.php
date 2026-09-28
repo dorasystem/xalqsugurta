@@ -18,8 +18,12 @@ final class ProviderSettings
 
     /** Setting key => config path */
     public const FIELDS = [
-        'provider.agency_id' => 'provider.agency_id',
+        'provider.agency_id'            => 'provider.agency_id',
+        'provider.osago_legal_entities' => 'provider.osago.legal_entities',
     ];
+
+    /** On/off fields: saved as '1' / '0', so "off" overrides an .env "on" */
+    public const SWITCHES = ['provider.osago_legal_entities'];
 
     /** Config values before the panel's override (.env; env() is null once config is cached) */
     private static array $fallback = [];
@@ -32,7 +36,7 @@ final class ProviderSettings
         }
 
         foreach (self::stored() as $key => $value) {
-            config([self::FIELDS[$key] => $value]);
+            config([self::FIELDS[$key] => in_array($key, self::SWITCHES, true) ? $value === '1' : $value]);
         }
     }
 
@@ -43,7 +47,8 @@ final class ProviderSettings
         $values = [];
 
         foreach (array_keys(self::FIELDS) as $key) {
-            data_set($values, $key, $stored[$key] ?? null);
+            $value = $stored[$key] ?? null;
+            data_set($values, $key, in_array($key, self::SWITCHES, true) ? ($value === null ? (bool) self::envValue($key) : $value === '1') : $value);
         }
 
         return $values;
@@ -53,8 +58,11 @@ final class ProviderSettings
     {
         foreach (array_keys(self::FIELDS) as $key) {
             $value = data_get($values, $key);
+            $value = in_array($key, self::SWITCHES, true)
+                ? ($value === null ? null : ((bool) $value ? '1' : '0'))
+                : (blank($value) ? null : trim((string) $value));
 
-            AppSetting::updateOrCreate(['key' => $key], ['value' => blank($value) ? null : trim((string) $value)]);
+            AppSetting::updateOrCreate(['key' => $key], ['value' => $value]);
         }
 
         Cache::forget(self::CACHE_KEY);

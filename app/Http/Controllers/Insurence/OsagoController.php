@@ -91,6 +91,7 @@ final class OsagoController extends BaseInsuranceController
             'engine_number'            => (string) ($api['engineNumber'] ?? ''),
             'owner_name'               => (string) ($api['owner'] ?? ''),
             'owner_pinfl'              => (string) ($api['pinfl'] ?? ''),
+            'owner_inn'                => $this->personField($api, ['inn', 'ownerInn', 'organizationInn']),
             'division'                 => (string) ($api['division'] ?? ''),
         ];
 
@@ -126,6 +127,11 @@ final class OsagoController extends BaseInsuranceController
         }
 
         $request->merge(['phone' => $this->cleanPhone($request->input('phone'))]);
+
+        if (self::legalEntitiesOn() && $request->input('owner_type') === 'organization') {
+            return $this->storeOrganizationOwner($request);
+        }
+
         $isOwner = $request->boolean('applicant_is_owner');
 
         $request->validate([
@@ -168,6 +174,59 @@ final class OsagoController extends BaseInsuranceController
         $this->putSess('applicant', $applicant);
 
         return redirect()->route('osago.getTerms', ['locale' => getCurrentLocale()]);
+    }
+
+    /** Legal-entity OSAGO is sold only when switched on in the admin panel (Tizim → Sug'urtachi API) */
+    public static function legalEntitiesOn(): bool
+    {
+        return (bool) config('provider.osago.legal_entities');
+    }
+
+    /** Owner is an organization (by INN); it is also the applicant */
+    private function storeOrganizationOwner(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'owner_inn' => ['required', 'digits:9'],
+            'phone'     => ['required', 'regex:/^998[0-9]{9}$/'],
+            'email'     => ['nullable', 'email', 'max:100'],
+        ]);
+
+        try {
+            $org = $this->findOrganizationByInn($request->input('owner_inn'));
+        } catch (ProviderException $e) {
+            return back()->withErrors(['owner_inn' => $this->lookupErrorMessage($e, __('messages.company_not_found'))])->withInput();
+        }
+
+        if (empty($org['name'] ?? null)) {
+            return back()->withErrors(['owner_inn' => __('messages.company_not_found')])->withInput();
+        }
+
+        $soato  = (string) ($org['districtSoatoCode'] ?? $org['soato'] ?? '');
+        $region = (int) ($this->personField($org, ['regionId', 'region_id']) ?: substr($soato, 0, 2)) ?: 10;
+
+        $owner = [
+            'type'      => 'organization',
+            'inn'       => $request->input('owner_inn'),
+            'name'      => (string) $org['name'],
+            'address'   => (string) ($org['address'] ?? ''),
+            'region_id' => $region,
+        ];
+
+        $this->putSess('owner', $owner);
+        $this->putSess('applicant', $owner + [
+            'phone'    => $request->input('phone'),
+            'email'    => (string) $request->input('email'),
+            'is_owner' => true,
+        ]);
+
+        Log::info('OSAGO organization owner found');
+
+        return redirect()->route('osago.getTerms', ['locale' => getCurrentLocale()]);
+    }
+
+    private static function isOrganization(array $party): bool
+    {
+        return ($party['type'] ?? 'person') === 'organization';
     }
 
     // ─── Step 3: Term + drivers ───────────────────────────────────────────────
@@ -309,6 +368,11 @@ final class OsagoController extends BaseInsuranceController
             return redirect()->route('osago.index', ['locale' => getCurrentLocale()]);
         }
 
+        // Switched off after the owner step: the organization cannot be sold to any more
+        if (self::isOrganization($owner) && !self::legalEntitiesOn()) {
+            return redirect()->route('osago.getOwner', ['locale' => getCurrentLocale()]);
+        }
+
         $request->validate(['offerta_agreed' => $this->offertaRule()], [
             'offerta_agreed.required' => __('messages.offerta_required'),
             'offerta_agreed.accepted' => __('messages.offerta_required'),
@@ -380,6 +444,8 @@ final class OsagoController extends BaseInsuranceController
 
     private function applicationBody(array $vehicle, array $owner, array $applicant, array $terms, array $drivers, int $premium): array
     {
+        $organization = self::isOrganization($owner);
+
         return [
             'vehicle' => [
                 'govNumber'       => $vehicle['gov_number'],
@@ -396,26 +462,30 @@ final class OsagoController extends BaseInsuranceController
                 'terrainId'       => 2,
                 'typeId'          => $vehicle['type_id'],
             ],
+            // An organization owner fills owner.organization / applicant.organization and leaves
+            // the person blocks empty — the mirror of the person case (no insurer sample for it yet)
             'owner' => [
-                'organization'     => ['inn' => null],
+                'organization'     => ['inn' => $organization ? $owner['inn'] : null],
                 'person'           => [
-                    'passportData' => $this->passportData($owner),
-                    'birthDate'    => $owner['birth_date'],
-                    'fullName'     => $this->fullName($owner),
+                    'passportData' => $this->passportData($organization ? [] : $owner),
+                    'birthDate'    => $owner['birth_date'] ?? '',
+                    'fullName'     => $this->fullName($organization ? [] : $owner),
                 ],
                 'applicantIsOwner' => $applicant['is_owner'] ? 'true' : 'false',
             ],
             'applicant' => [
                 'person' => [
-                    'passportData' => $this->passportData($applicant),
-                    'phoneNumber'  => $applicant['phone'],
-                    'birthDate'    => $applicant['birth_date'],
-                    'fullName'     => $this->fullName($applicant),
-                    'gender'       => $applicant['gender'],
-                    'districtId'   => $applicant['district_id'],
-                    'regionId'     => $applicant['region_id'],
+                    'passportData' => $this->passportData($organization ? [] : $applicant),
+                    'phoneNumber'  => $organization ? '' : $applicant['phone'],
+                    'birthDate'    => $applicant['birth_date'] ?? '',
+                    'fullName'     => $this->fullName($organization ? [] : $applicant),
+                    'gender'       => $applicant['gender'] ?? '',
+                    'districtId'   => $applicant['district_id'] ?? '',
+                    'regionId'     => $organization ? '' : $applicant['region_id'],
                 ],
-                'organization'  => ['phoneNumber' => '', 'inn' => '', 'name' => ''],
+                'organization'  => $organization
+                    ? ['phoneNumber' => $applicant['phone'], 'inn' => $applicant['inn'], 'name' => $applicant['name']]
+                    : ['phoneNumber' => '', 'inn' => '', 'name' => ''],
                 'citizenshipId' => 1,
                 'address'       => $applicant['address'],
                 'email'         => $applicant['email'],
@@ -451,23 +521,24 @@ final class OsagoController extends BaseInsuranceController
         ];
     }
 
+    /** Empty strings for an organization (no person) */
     private function passportData(array $person): array
     {
         return [
-            'pinfl'     => $person['pinfl'],
-            'seria'     => $person['passport_seria'],
-            'number'    => $person['passport_number'],
-            'issuedBy'  => $person['passport_issued_by'],
-            'issueDate' => $person['passport_issue_date'],
+            'pinfl'     => $person['pinfl'] ?? '',
+            'seria'     => $person['passport_seria'] ?? '',
+            'number'    => $person['passport_number'] ?? '',
+            'issuedBy'  => $person['passport_issued_by'] ?? '',
+            'issueDate' => $person['passport_issue_date'] ?? '',
         ];
     }
 
     private function fullName(array $person): array
     {
         return [
-            'firstname'  => $person['firstname'],
-            'lastname'   => $person['lastname'],
-            'middlename' => $person['middlename'],
+            'firstname'  => $person['firstname'] ?? '',
+            'lastname'   => $person['lastname'] ?? '',
+            'middlename' => $person['middlename'] ?? '',
         ];
     }
 
@@ -570,7 +641,8 @@ final class OsagoController extends BaseInsuranceController
         $applicant = $this->sess('applicant', []);
         $terms     = $this->sess('terms', []);
 
-        $name    = fn (array $p): ?string => $p ? trim($p['lastname'] . ' ' . $p['firstname'] . ' ' . $p['middlename']) : null;
+        $name    = fn (array $p): ?string => $p ? (self::isOrganization($p) ? $p['name'] : trim($p['lastname'] . ' ' . $p['firstname'] . ' ' . $p['middlename'])) : null;
+        $orgOwner = self::isOrganization($owner);
         $car     = $vehicle ? trim($vehicle['model'] . ', ' . $vehicle['gov_number'], ', ') : null;
         $period  = $terms ? Carbon::parse($terms['start_date'])->format('d.m.Y') . ' – ' . Carbon::parse($terms['end_date'])->format('d.m.Y') : null;
         $premium = $terms['premium'] ?? null;
@@ -613,9 +685,10 @@ final class OsagoController extends BaseInsuranceController
             ],
             'applicantTitle'   => __t('messages.flow.applicant'),
             'applicantEditUrl' => $ownerUrl,
+            'legalEntities'    => self::legalEntitiesOn(),
             'applicantReview'  => $applicant ? [
-                __('messages.full_name')    => $name($applicant),
-                __t('messages.flow.pinfl')  => $applicant['pinfl'],
+                ($orgOwner ? __t('messages.flow.organization') : __('messages.full_name')) => $name($applicant),
+                ($orgOwner ? __('messages.inn') : __t('messages.flow.pinfl'))        => $orgOwner ? $applicant['inn'] : $applicant['pinfl'],
                 __('messages.phone_number') => formatPhone($applicant['phone']),
                 __('messages.email')        => $applicant['email'] ?: null,
             ] : [],
@@ -626,7 +699,10 @@ final class OsagoController extends BaseInsuranceController
                     __t('messages.flow.vehicle_type')     => $typeLabel,
                     __('messages.tech_passport_series') . ' / ' . __('messages.tech_passport_number') => $vehicle ? $vehicle['tech_passport_seria'] . ' ' . $vehicle['tech_passport_number'] : null,
                 ]],
-                ['title' => __t('messages.flow.owner'), 'editUrl' => $ownerUrl, 'items' => [
+                ['title' => __t('messages.flow.owner'), 'editUrl' => $ownerUrl, 'items' => $orgOwner ? [
+                    __t('messages.flow.organization') => $owner['name'],
+                    __('messages.inn')          => $owner['inn'],
+                ] : [
                     __('messages.full_name')   => $name($owner),
                     __t('messages.flow.pinfl') => $owner['pinfl'] ?? null,
                 ]],
