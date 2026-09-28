@@ -18,7 +18,7 @@ trait CadasterFlow
 
     /**
      * XX:XX:XX:XX:XX:XXXX, then any number of blocks after ":" or "/" — both
-     * 11:11:11:11:11:1111:2222:333 and 11:11:11:11:11:1111/2222 are real numbers.
+     * both XX:XX:XX:XX:XX:XXXX:XXXX:XXX and XX:XX:XX:XX:XX:XXXX/XXXX occur.
      * The page masks the input the same way (cadaster/property.blade.php, formatCadaster()).
      */
     protected function cadasterRule(): array

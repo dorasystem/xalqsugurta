@@ -34,7 +34,7 @@
                 :label="__('messages.cadaster_number')"
                 :value="$property['cadasterNumber'] ?? null"
                 :help="__('messages.cadaster_format')"
-                placeholder="11:11:11:11:11:1111:2222:333"
+                placeholder="XX:XX:XX:XX:XX:XXXX:XXXX:XXX"
                 inputmode="decimal"
                 maxlength="40"
                 autocomplete="off"
