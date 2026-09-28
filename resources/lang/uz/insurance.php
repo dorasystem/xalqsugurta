@@ -206,6 +206,8 @@ return [
     ],
 
     'osgor' => [
+
+        'subtitle' => 'Ish beruvchining xodimlar oldidagi fuqarolik javobgarligini majburiy sug\'urta qilish',
         'page_title' => 'OSGOR - Ish beruvchilarning majburiy sug\'urtasi',
         'product_name' => 'OSGOR - Ish beruvchilarning majburiy sug\'urtasi',
         'title' => 'OSGOR Sug\'urtasi',

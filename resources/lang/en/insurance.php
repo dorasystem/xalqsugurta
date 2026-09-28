@@ -205,6 +205,8 @@ return [
         ],
 
     'osgor' => [
+
+        'subtitle' => 'Compulsory insurance of the employer\'s civil liability to employees',
         'page_title' => 'OSGOR - Mandatory Employer Liability Insurance',
         'product_name' => 'OSGOR - Mandatory Employer Liability Insurance',
         'title' => 'OSGOR Insurance',

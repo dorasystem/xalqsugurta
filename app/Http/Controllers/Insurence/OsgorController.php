@@ -11,9 +11,19 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * OSGOR (employer liability): organization by INN → salary fund + start date → confirm → payment.
+ * The premium comes from the insurer's calculator (eshop/osgorcalc) and is always recalculated
+ * on the server; the browser only sends the salary fund and the start date.
+ */
 final class OsgorController extends BaseInsuranceController
 {
     private const SESSION_KEY = 'osgor';
+
+    private const FLOW = [
+        'key'  => self::SESSION_KEY,
+        'icon' => 'bi-person-badge',
+    ];
 
     public function __construct(OrderService $orderService)
     {
@@ -29,24 +39,24 @@ final class OsgorController extends BaseInsuranceController
 
     public function index(): View
     {
-        return view('pages.insurence.osgor.main', ['product' => $this->getProduct()]);
+        return view('pages.insurence.osgor.organization', $this->flowViewData());
     }
 
     public function storeApplicant(Request $request): RedirectResponse
     {
+        $request->merge(['phone' => $this->cleanPhone($request->input('phone'))]);
+
         $request->validate([
-            'inn'            => ['required', 'digits:9'],
-            'offerta_agreed' => $this->offertaRule(),
+            'inn'   => ['required', 'digits:9'],
+            'phone' => ['required', 'regex:/^998[0-9]{9}$/'],
         ], [
-            'inn.required'            => __('messages.inn_required'),
-            'inn.digits'              => __('messages.inn_invalid'),
-            'offerta_agreed.required' => __('messages.offerta_required'),
-            'offerta_agreed.accepted' => __('messages.offerta_required'),
+            'inn.required' => __('messages.inn_required'),
+            'inn.digits'   => __('messages.inn_invalid'),
         ]);
 
         try {
             $org = $this->findOrganizationByInn($request->input('inn'));
-        } catch (ProviderException $e) {
+        } catch (ProviderException) {
             return back()->withErrors(['inn' => __('messages.company_not_found')])->withInput();
         }
 
@@ -61,7 +71,7 @@ final class OsgorController extends BaseInsuranceController
             'address'            => $org['address']             ?? '',
             'oked'               => $org['oked']                ?? '',
             'position'           => $org['position']            ?? 'Direktor',
-            'phone'              => $this->cleanPhone($org['phone'] ?? ''),
+            'phone'              => $request->input('phone'),
             'regionId'           => $org['regionId']            ?? (isset($org['districtSoatoCode']) ? substr($org['districtSoatoCode'], 0, 2) : '10'),
             'ownershipFormId'    => $org['ownershipFormId']     ?? '130',
         ]);
@@ -73,22 +83,17 @@ final class OsgorController extends BaseInsuranceController
 
     public function getCalculator(): View|RedirectResponse
     {
-        $applicant = $this->sess('applicant');
-        if (!$applicant) {
+        if (!$this->sess('applicant')) {
             return redirect()->route('osgor.index', ['locale' => getCurrentLocale()]);
         }
 
-        $calculation = $this->sess('calculation', []);
-
-        return view('pages.insurence.osgor.calculator', compact('applicant', 'calculation'));
+        return view('pages.insurence.osgor.calculator', $this->flowViewData());
     }
 
+    /** AJAX: live premium while the salary fund is typed */
     public function calculate(Request $request): JsonResponse
     {
-        $request->validate([
-            'fot'        => ['required', 'numeric', 'min:1'],
-            'start_date' => ['required', 'date', 'after_or_equal:today'],
-        ]);
+        $request->validate($this->calculationRules());
 
         $applicant = $this->sess('applicant');
         if (!$applicant) {
@@ -96,52 +101,30 @@ final class OsgorController extends BaseInsuranceController
         }
 
         try {
-            $result = $this->calculateOsgor($applicant['oked'], (float) $request->input('fot'));
+            $calculation = $this->calculation($applicant, (float) $request->input('fot'), $request->input('start_date'));
         } catch (ProviderException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
 
-        $startDate = $request->input('start_date');
-        $endDate   = Carbon::parse($startDate)->addYear()->subDay()->format('Y-m-d');
-
-        return response()->json([
-            'success' => true,
-            'data'    => [
-                'insurance_premium'   => $result['insurancePremium']  ?? $result['premium']          ?? 0,
-                'insurance_sum'       => $result['insuranceSum']       ?? $result['sumInsured']       ?? 0,
-                'insurance_rate'      => $result['insuranceRate']      ?? $result['rate']             ?? 0,
-                'funeral_expenses_sum' => $result['funeralExpensesSum'] ?? 0,
-                'insurance_term_id'   => $result['insuranceTermId']    ?? 4,
-                'start_date'          => $startDate,
-                'end_date'            => $endDate,
-                'raw'                 => $result,
-            ],
-        ]);
+        return response()->json(['success' => true, 'data' => $calculation]);
     }
 
     public function storeCalculation(Request $request): RedirectResponse
     {
-        $request->validate([
-            'fot'                 => ['required', 'numeric', 'min:1'],
-            'start_date'          => ['required', 'date'],
-            'end_date'            => ['required', 'date'],
-            'insurance_premium'   => ['required', 'numeric'],
-            'insurance_sum'       => ['required', 'numeric'],
-            'insurance_rate'      => ['required', 'numeric'],
-            'funeral_expenses_sum' => ['required', 'numeric'],
-            'insurance_term_id'   => ['required', 'integer'],
-        ]);
+        $applicant = $this->sess('applicant');
+        if (!$applicant) {
+            return redirect()->route('osgor.index', ['locale' => getCurrentLocale()]);
+        }
 
-        $this->putSess('calculation', [
-            'fot'                 => (float) $request->input('fot'),
-            'start_date'          => $request->input('start_date'),
-            'end_date'            => $request->input('end_date'),
-            'insurance_premium'   => (float) $request->input('insurance_premium'),
-            'insurance_sum'       => (float) $request->input('insurance_sum'),
-            'insurance_rate'      => (float) $request->input('insurance_rate'),
-            'funeral_expenses_sum' => (float) $request->input('funeral_expenses_sum'),
-            'insurance_term_id'   => (int)   $request->input('insurance_term_id'),
-        ]);
+        $request->validate($this->calculationRules());
+
+        try {
+            $calculation = $this->calculation($applicant, (float) $request->input('fot'), $request->input('start_date'));
+        } catch (ProviderException $e) {
+            return back()->withErrors(['fot' => $e->getMessage()])->withInput();
+        }
+
+        $this->putSess('calculation', $calculation);
 
         return redirect()->route('osgor.getConfirm', ['locale' => getCurrentLocale()]);
     }
@@ -150,18 +133,24 @@ final class OsgorController extends BaseInsuranceController
 
     public function getConfirm(): View|RedirectResponse
     {
-        $applicant   = $this->sess('applicant');
-        $calculation = $this->sess('calculation');
-
-        if (!$applicant || !$calculation) {
+        if (!$this->sess('applicant') || !$this->sess('calculation')) {
             return redirect()->route('osgor.index', ['locale' => getCurrentLocale()]);
         }
 
-        return view('pages.insurence.osgor.confirm', compact('applicant', 'calculation'));
+        return view('pages.insurence.flow.confirm', $this->flowViewData([
+            'product' => $this->getProduct(),
+        ]));
     }
 
     public function storeApplication(Request $request): RedirectResponse
     {
+        $request->validate([
+            'offerta_agreed' => $this->offertaRule(),
+        ], [
+            'offerta_agreed.required' => __('messages.offerta_required'),
+            'offerta_agreed.accepted' => __('messages.offerta_required'),
+        ]);
+
         $applicant   = $this->sess('applicant');
         $calculation = $this->sess('calculation');
 
@@ -217,16 +206,13 @@ final class OsgorController extends BaseInsuranceController
         try {
             $apiResponse = $this->submitOsgor($body);
         } catch (ProviderException $e) {
-            return redirect()->route('osgor.getCalculator', ['locale' => getCurrentLocale()])
+            return redirect()->route('osgor.getConfirm', ['locale' => getCurrentLocale()])
                 ->withErrors(['error' => $e->getMessage()]);
         }
 
         $insuranceId = $apiResponse['contract_id']
             ?? (($apiResponse['polis_sery'] ?? '') . ($apiResponse['polis_number'] ?? '') ?: null)
             ?? ($apiResponse['id'] ?? uniqid('osgor_'));
-
-        $paymeUrl = $apiResponse['payme_url'] ?? null;
-        $clickUrl = $apiResponse['click_url'] ?? null;
 
         Log::info('OSGOR order created', ['insurance_id' => $insuranceId]);
 
@@ -237,11 +223,88 @@ final class OsgorController extends BaseInsuranceController
             'phone'                    => $applicant['phone'],
             'insurances_data'          => ['applicant' => $applicant, 'calculation' => $calculation],
             'insurances_response_data' => $apiResponse,
-            'payme_url'                => $paymeUrl,
-            'click_url'                => $clickUrl,
+            'payme_url'                => $apiResponse['payme_url'] ?? null,
+            'click_url'                => $apiResponse['click_url'] ?? null,
             'contractStartDate'        => $calculation['start_date'],
             'contractEndDate'          => $calculation['end_date'],
             'insuranceProductName'     => __('insurance.osgor.product_name'),
         ], self::SESSION_KEY);
+    }
+
+    // ─── Private ──────────────────────────────────────────────────────────────
+
+    private function calculationRules(): array
+    {
+        return [
+            'fot'        => ['required', 'numeric', 'min:1'],
+            'start_date' => ['required', 'date', 'after_or_equal:today'],
+        ];
+    }
+
+    /** Premium and terms from the insurer's calculator, for the policy period starting on $startDate (one year) */
+    private function calculation(array $applicant, float $fot, string $startDate): array
+    {
+        $result = $this->calculateOsgor($applicant['oked'], $fot);
+
+        return [
+            'fot'                  => $fot,
+            'start_date'           => Carbon::parse($startDate)->format('Y-m-d'),
+            'end_date'             => Carbon::parse($startDate)->addYear()->subDay()->format('Y-m-d'),
+            'insurance_premium'    => (float) ($result['insurancePremium']   ?? $result['premium']    ?? 0),
+            'insurance_sum'        => (float) ($result['insuranceSum']       ?? $result['sumInsured'] ?? 0),
+            'insurance_rate'       => (float) ($result['insuranceRate']      ?? $result['rate']       ?? 0),
+            'funeral_expenses_sum' => (float) ($result['funeralExpensesSum'] ?? 0),
+            'insurance_term_id'    => (int)   ($result['insuranceTermId']    ?? 4),
+        ];
+    }
+
+    /** View data in the unified flow shape (pages/insurence/flow/confirm + osgor views) */
+    private function flowViewData(array $extra = []): array
+    {
+        $locale      = getCurrentLocale();
+        $applicant   = $this->sess('applicant');
+        $calculation = $this->sess('calculation', []);
+
+        $period = !empty($calculation['start_date'])
+            ? Carbon::parse($calculation['start_date'])->format('d.m.Y') . ' – ' . Carbon::parse($calculation['end_date'])->format('d.m.Y')
+            : null;
+        $premium = !empty($calculation['insurance_premium']) ? (int) round($calculation['insurance_premium']) : null;
+        $orgUrl  = route('osgor.index', ['locale' => $locale]);
+        $calcUrl = route('osgor.getCalculator', ['locale' => $locale]);
+
+        return array_merge([
+            'flow'            => self::FLOW,
+            'applicant'       => $applicant,
+            'calculation'     => $calculation,
+            'premiumTotal'    => $premium,
+            'flowSteps'       => [
+                __t('messages.flow.organization'),
+                __t('messages.flow.fot_title'),
+                __t('messages.confirm_details'),
+                __t('messages.flow.payment'),
+            ],
+            'flowUrls'        => [$orgUrl, $calcUrl, route('osgor.getConfirm', ['locale' => $locale])],
+            'summaryItems'    => [
+                'applicant' => [__t('messages.flow.organization'), $applicant['name'] ?? null],
+                'sum'       => [__t('messages.fond_oplaty_truda'), !empty($calculation['fot']) ? formatMoney($calculation['fot']) : null],
+                'period'    => [__t('messages.flow.period'), $period],
+            ],
+            'applicantTitle'  => __t('messages.flow.organization'),
+            'applicantReview' => $applicant ? [
+                __t('messages.organization_name')   => $applicant['name'],
+                __t('messages.inn')                 => $applicant['inn'],
+                __t('messages.representative_name') => $applicant['representativeName'] ?: null,
+                __t('messages.oked')                => $applicant['oked'] ?: null,
+                __('messages.phone_number')         => formatPhone($applicant['phone']),
+            ] : [],
+            'confirmBlocks'   => [
+                ['title' => __t('messages.flow.policy_terms'), 'editUrl' => $calcUrl, 'items' => [
+                    __t('messages.fond_oplaty_truda')   => !empty($calculation['fot']) ? formatMoney($calculation['fot']) : null,
+                    __t('messages.insurance_rate')      => isset($calculation['insurance_rate']) ? rtrim(rtrim((string) $calculation['insurance_rate'], '0'), '.') . '%' : null,
+                    __t('messages.flow.period')         => $period,
+                    __('messages.insurance_premium')    => $premium ? formatMoney($premium) : null,
+                ]],
+            ],
+        ], $extra);
     }
 }
