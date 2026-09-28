@@ -60,14 +60,15 @@ Route::get('/icons', function () {
     return view('icons');
 })->name('icons');
 
-// Debug route (remove in production)
-Route::get('/debug-session', function () {
-    return view('debug-session');
-})->name('debug.session');
+// Developer helpers: they print session data and change an order, so they exist only locally
+if (app()->isLocal()) {
+    Route::get('/debug-session', function () {
+        return view('debug-session');
+    })->name('debug.session');
 
-Route::get('/test', function () {
-
-    $order = Order::query()->find(9);
-    $order?->update(['status' => Order::STATUS_NEW]);
-    return $order;
-})->name('test');
+    Route::get('/test', function () {
+        $order = Order::query()->find(9);
+        $order?->update(['status' => Order::STATUS_NEW]);
+        return $order;
+    })->name('test');
+}

@@ -103,4 +103,14 @@ class PaymentPageTest extends TestCase
 
         $this->assertContains($order->id, session(OrderService::SESSION_ORDERS));
     }
+
+    public function test_developer_routes_are_not_public(): void
+    {
+        $order = $this->order();
+        $order->update(['status' => Order::STATUS_PAID]);
+
+        $this->get('/debug-session')->assertNotFound();
+        $this->get('/test')->assertNotFound();
+        $this->assertSame(Order::STATUS_PAID, $order->fresh()->status);
+    }
 }
