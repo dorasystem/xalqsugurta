@@ -993,3 +993,13 @@
     color: var(--xf-text);
     line-height: 1.5;
 }
+
+/* Chips that wrap a radio input (OSGOP term) */
+label.xf-chip {
+    cursor: pointer;
+}
+
+.xf-chip:has(input:focus-visible) {
+    outline: 2px solid var(--xf-brand);
+    outline-offset: 2px;
+}

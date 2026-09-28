@@ -33,7 +33,7 @@ Five products, each following a **multi-step PRG (Post-Redirect-Get)** pattern w
 
 | Product | Controller | Session prefix | Steps |
 |---------|------------|----------------|-------|
-| OSGOP (carrier liability) | `OsgopController` | `osgop.*` | applicant → vehicle → calculate → confirm |
+| OSGOP (carrier liability) | `OsgopController` | `osgop.*` | applicant (person or organization) → vehicle → term → confirm |
 | OSGOR (employer liability) | `OsgorController` | `osgor.*` | applicant → calculator → confirm |
 | Accident | `AccidentController` | `accident.*` | applicant → persons → term (calculator route) → confirm |
 | Tourist | `TouristController` | `tourist.*` | same as Accident (product code 203) |
@@ -54,7 +54,7 @@ All insurance controllers extend `BaseInsuranceController` (`app/Http/Controller
 - `providerRequest(method, param, body)` — base HTTP call with Basic Auth, throws `ProviderException` on error
 - `calcRequest(url, body)` — checks `result === 0`, returns `$data['policies'][0]`
 - `findPersonByPinfl(pinfl, document)` — person lookup by PINFL + passport (used by all migrated flows)
-- `findPersonByPassport(document, birthDate)` — legacy passport + birth date lookup (only old tourist/OSGOP pages)
+- `findPersonByPassport(document, birthDate)` — legacy passport + birth date lookup (no longer used by any product flow)
 - `findOrganizationByInn(inn)` — organization lookup
 - `submitXalqSugurta(body)` — unified Gas + Property submission (accepts result=302)
 - `submitOsgop`, `submitOsgor`, `submitAccident(body, ?url)` — product-specific submissions; `calculatePersonsInsurance(productCode, sum, start, termMonths)` — accident/tourist calculator
@@ -89,7 +89,7 @@ Blade components under `x-insurence.*` namespace (`resources/views/components/in
 - `x-insurence.error-block` — validation error display
 - `x-insurence.multi-step-stepper` — step progress indicator
 
-**Unified flow standard** (`public/assets/css/flow.css`, brand color `#393185`). Gas balloon, property, KASKO, accident, tourist, OSGOR and the payment page are migrated; other products still use the older components above and should move to these:
+**Unified flow standard** (`public/assets/css/flow.css`, brand color `#393185`). Gas balloon, property, KASKO, accident, tourist, OSGOR, OSGOP and the payment page are migrated (only OSAGO is left); other products still use the older components above and should move to these:
 - `x-insurence.flow` — page frame: header, stepper, main slot + `summary` slot. Props: `icon`, `title`, `subtitle`, `steps` (labels), `current` (1-based), `stepUrls`. Shows `$errors->first('error')` as an alert.
 - `x-insurence.field` — label + input + help/inline error. Props: `name`, `label`, `type`, `value`, `help`, `id`; extra attributes go to the `<input>`; optional `append` slot.
 - `x-insurence.found` — green "found in database" block (`title`, `text`); JS updates `[data-found="title|text"]`.
@@ -160,7 +160,7 @@ final class FooController extends BaseInsuranceController
 
 Use `sess()`, `putSess()`, `clearSess()` — never access `session()` directly in insurance controllers.
 
-**OSGOP is the exception** — it does not extend `BaseInsuranceController` (uses its own `cleanPhone()` and manages session with `self::SESSION_KEY` directly). Do not refactor this.
+**OSGOP is the exception** — it does not extend `BaseInsuranceController` (uses its own `cleanPhone()` and manages session with `self::SESSION_KEY` directly). Do not refactor this. It still uses the unified views: its own `flowViewData()` feeds `osgop/{applicant,vehicle,calculator}` and `flow/confirm`. The premium is computed from the vehicle type and seats of the registry vehicle in the session (`calculation()`), never from request values, and recalculated in `storeCalculation()`.
 
 Controllers must be `final` unless designed for inheritance.
 

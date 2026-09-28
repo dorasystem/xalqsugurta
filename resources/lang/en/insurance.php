@@ -218,6 +218,8 @@ return [
     ],
 
     'osgop' => [
+
+        'subtitle' => 'Compulsory insurance of the carrier\'s civil liability for passenger transport',
         'page_title' => 'OSGOP - Mandatory Carrier Liability Insurance',
         'product_name' => 'OSGOP - Mandatory Carrier Liability Insurance',
         'title' => 'OSGOP Insurance',

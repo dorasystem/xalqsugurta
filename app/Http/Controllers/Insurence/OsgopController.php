@@ -26,15 +26,12 @@ final class OsgopController extends Controller
 
     public function __construct(private readonly OrderService $orderService) {}
 
-    // ─── Index ────────────────────────────────────────────────────────────────
+    // ─── Step 1: Applicant (person or organization) ─────────────────────────
 
     public function index(): View
     {
-        $product = Product::where('route', 'osgop')->first();
-        return view('pages.insurence.osgop.index', compact('product'));
+        return view('pages.insurence.osgop.applicant', $this->flowViewData());
     }
-
-    // ─── Applicant: Company ───────────────────────────────────────────────────
 
     public function storeCompanyApplicant(OsgopStoreCompanyApplicant $request): RedirectResponse
     {
@@ -52,7 +49,7 @@ final class OsgopController extends Controller
                 ->withInput();
         }
 
-        session([self::SESSION_KEY . '.applicant_raw' => [
+        session([self::SESSION_KEY . '.applicant' => [
             'type'         => 'organization',
             'organization' => [
                 'inn'                => $request->input('inn'),
@@ -61,7 +58,7 @@ final class OsgopController extends Controller
                 'address'            => $org['address']             ?? '',
                 'oked'               => $org['oked']                ?? '',
                 'position'           => $org['position']            ?? 'Direktor',
-                'phone'              => $this->cleanPhone($org['phone'] ?? ''),
+                'phone'              => $this->cleanPhone($request->input('phone')),
                 'regionId'           => $org['regionId']            ?? (isset($org['districtSoatoCode']) ? substr($org['districtSoatoCode'], 0, 2) : ''),
                 'ownershipFormId'    => $org['ownershipFormId']     ?? '130',
             ],
@@ -70,46 +67,49 @@ final class OsgopController extends Controller
         return redirect()->route('osgop.getVehicle', ['locale' => getCurrentLocale()]);
     }
 
-    // ─── Applicant: Individual ────────────────────────────────────────────────
-
     public function storeIndividualApplicant(Request $request): RedirectResponse
     {
+        $request->merge(['phone' => $this->cleanPhone($request->input('phone'))]);
+
         $request->validate([
             'passport_seria'  => ['required', 'string', 'max:4'],
             'passport_number' => ['required', 'digits:7'],
-            'birth_date'      => ['required', 'date', 'before:today'],
-            'phone'           => ['required', 'string', 'min:9', 'max:20'],
-            'offerta_agreed'  => ['required', 'accepted'],
-        ], [
-            'offerta_agreed.required' => __('messages.offerta_required'),
-            'offerta_agreed.accepted' => __('messages.offerta_required'),
+            'pinfl'           => ['required', 'digits:14'],
+            'phone'           => ['required', 'regex:/^998[0-9]{9}$/'],
         ]);
 
+        $seria = strtoupper($request->input('passport_seria'));
+        $pinfl = $request->input('pinfl');
+
         try {
-            $person = $this->findPersonByPassport(
-                strtoupper($request->input('passport_seria')) . $request->input('passport_number'),
-                $request->input('birth_date')
-            );
+            $person = $this->findPersonByPinfl($pinfl, $seria . $request->input('passport_number'));
         } catch (ProviderException $e) {
             return back()
                 ->withErrors(['passport_seria' => __('messages.person_not_found')])
                 ->withInput();
         }
 
-        session([self::SESSION_KEY . '.applicant_raw' => [
+        if (empty($person['lastNameLatin'] ?? $person['lastName'] ?? null)) {
+            return back()
+                ->withErrors(['passport_seria' => __('messages.person_not_found')])
+                ->withInput();
+        }
+
+        session([self::SESSION_KEY . '.applicant' => [
             'type'   => 'person',
             'person' => [
-                'passport_seria'  => strtoupper($request->input('passport_seria')),
+                'passport_seria'  => $seria,
                 'passport_number' => $request->input('passport_number'),
-                'birth_date'      => $request->input('birth_date'),
-                'pinfl'           => $person['currentPinfl']           ?? '',
+                'birth_date'      => $this->birthDate($person, $pinfl),
+                'pinfl'           => $person['currentPinfl']    ?? $pinfl,
                 'lastname'        => $person['lastNameLatin']   ?? $person['lastName']   ?? '',
                 'firstname'       => $person['firstNameLatin']  ?? $person['firstName']  ?? '',
                 'middlename'      => $person['middleNameLatin'] ?? $person['middleName'] ?? '',
-                'gender'          => ($person['gender']) == '1' ? 'm' : 'f', // API da 1 = erkak, 2 = ayol
+                // API: 1 = male, 2 = female; the PINFL's first digit is odd for men
+                'gender'          => ((string) ($person['gender'] ?? (int) $pinfl[0] % 2)) === '1' ? 'm' : 'f',
                 'address'         => $person['address']         ?? '',
                 'region_id'       => $person['regionId']        ?? '',
-                'phone'           => $this->cleanPhone($request->input('phone')),
+                'phone'           => $request->input('phone'),
                 'resident_type'   => '1',
                 'country_id'      => '210',
             ],
@@ -118,45 +118,15 @@ final class OsgopController extends Controller
         return redirect()->route('osgop.getVehicle', ['locale' => getCurrentLocale()]);
     }
 
-    // ─── Applicant: Confirm ───────────────────────────────────────────────────
-
-    public function getApplicant(): View|RedirectResponse
-    {
-        $applicant = session(self::SESSION_KEY . '.applicant_raw');
-        if (!$applicant) {
-            return redirect()->route('osgop.index', ['locale' => getCurrentLocale()]);
-        }
-
-        return view('pages.insurence.osgop.applicant_confirm', compact('applicant'));
-    }
-
-    public function confirmApplicant(): RedirectResponse
-    {
-        $applicant = session(self::SESSION_KEY . '.applicant_raw');
-        if (!$applicant) {
-            return redirect()->route('osgop.index', ['locale' => getCurrentLocale()]);
-        }
-
-        session([self::SESSION_KEY . '.applicant' => $applicant]);
-        session()->forget(self::SESSION_KEY . '.applicant_raw');
-
-        return redirect()->route('osgop.getVehicle', ['locale' => getCurrentLocale()]);
-    }
-
-    // ─── Vehicle ──────────────────────────────────────────────────────────────
+    // ─── Step 2: Vehicle ──────────────────────────────────────────────────────
 
     public function getVehicle(): View|RedirectResponse
     {
-        $applicant = session(self::SESSION_KEY . '.applicant_raw')
-            ?? session(self::SESSION_KEY . '.applicant');
-
-        if (!$applicant) {
+        if (!session(self::SESSION_KEY . '.applicant')) {
             return redirect()->route('osgop.index', ['locale' => getCurrentLocale()]);
         }
 
-        $vehicle = session(self::SESSION_KEY . '.vehicle', []);
-
-        return view('pages.insurence.osgop.vehicle', compact('vehicle', 'applicant'));
+        return view('pages.insurence.osgop.vehicle', $this->flowViewData());
     }
 
     public function storeVehicle(Request $request): RedirectResponse
@@ -200,12 +170,12 @@ final class OsgopController extends Controller
                 ->withInput();
         }
 
-        // Promote applicant_raw → applicant (company path skips confirmApplicant)
-        if ($raw = session(self::SESSION_KEY . '.applicant_raw')) {
-            session([self::SESSION_KEY . '.applicant' => $raw]);
-            session()->forget(self::SESSION_KEY . '.applicant_raw');
+        if (!session(self::SESSION_KEY . '.applicant')) {
+            return redirect()->route('osgop.index', ['locale' => getCurrentLocale()]);
         }
 
+        // A new vehicle invalidates the old premium
+        session()->forget(self::SESSION_KEY . '.calculation');
         session([self::SESSION_KEY . '.vehicle' => $vehicle]);
 
         Log::info('OSGOP vehicle saved', ['gov' => $vehicle['gov_number']]);
@@ -213,7 +183,7 @@ final class OsgopController extends Controller
         return redirect()->route('osgop.getCalculator', ['locale' => getCurrentLocale()]);
     }
 
-    // ─── Calculator ───────────────────────────────────────────────────────────
+    // ─── Step 3: Calculator ───────────────────────────────────────────────────
 
     public function getCalculator(): View|RedirectResponse
     {
@@ -221,61 +191,75 @@ final class OsgopController extends Controller
             return redirect()->route('osgop.index', ['locale' => getCurrentLocale()]);
         }
 
-        $applicant    = session(self::SESSION_KEY . '.applicant');
-        $vehicle      = session(self::SESSION_KEY . '.vehicle');
-        $terms        = InsuranceTerm::active()->orderBy('months')->get();
-        $vehicleTypes = VehicleType::active()->orderBy('provider_vehicle_type_id')->get();
-
-        return view('pages.insurence.osgop.calculator', compact('applicant', 'vehicle', 'terms', 'vehicleTypes'));
+        return view('pages.insurence.osgop.calculator', $this->flowViewData([
+            'terms'       => InsuranceTerm::active()->orderBy('months')->get(),
+            'vehicleType' => VehicleType::where('provider_vehicle_type_id', session(self::SESSION_KEY . '.vehicle.vehicle_type_id'))->first(),
+        ]));
     }
 
+    /** AJAX: premium preview for the chosen term */
     public function calculate(Request $request): JsonResponse
     {
-        $request->validate([
-            'insurance_term_id' => ['required', 'integer', 'exists:insurance_terms,provider_term_id'],
-            'vehicle_type_id'   => ['required', 'integer', 'exists:vehicle_types,provider_vehicle_type_id'],
-            'number_of_seats'   => ['required', 'integer', 'min:1'],
-            'start_date'        => ['required', 'date', 'after_or_equal:today'],
-        ]);
+        $request->validate($this->calculationRules());
 
-        try {
-            $result = $this->calculateOsgop(
-                (int) $request->input('insurance_term_id'),
-                (int) $request->input('vehicle_type_id'),
-                (int) $request->input('number_of_seats'),
-            );
-        } catch (ProviderException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 422);
+        $vehicle = session(self::SESSION_KEY . '.vehicle');
+        if (!$vehicle) {
+            return response()->json(['success' => false, 'message' => __('messages.error_occurred')], 422);
         }
 
-        $term = InsuranceTerm::query()->where('provider_term_id', $request->input('insurance_term_id'))
-            ->first();
+        try {
+            $calculation = $this->calculation($vehicle, (int) $request->input('insurance_term_id'), $request->input('start_date'));
+        } catch (ProviderException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
 
-        $startDate = $request->input('start_date');
-        $endDate   = Carbon::parse($startDate)
-            ->addMonths($term?->months ?? 12)
-            ->subDay()
-            ->format('Y-m-d');
+        return response()->json(['success' => true, 'data' => $calculation]);
+    }
 
-        session([self::SESSION_KEY . '.calculation' => [
-            'insurance_term_id'  => $request->input('insurance_term_id'),
-            'start_date'         => $startDate,
-            'end_date'           => $endDate,
-            'insurance_premium'  => $result['insurancePremium'] ?? $result['premium'] ?? 0,
-            'insurance_sum'      => $result['insuranceSum']     ?? $result['sumInsured'] ?? 0,
-            'raw'                => $result,
-        ]]);
+    public function storeCalculation(Request $request): RedirectResponse
+    {
+        $vehicle = session(self::SESSION_KEY . '.vehicle');
+        if (!session(self::SESSION_KEY . '.applicant') || !$vehicle) {
+            return redirect()->route('osgop.index', ['locale' => getCurrentLocale()]);
+        }
 
-        return response()->json(['success' => true, 'data' => $result]);
+        $request->validate($this->calculationRules());
+
+        try {
+            $calculation = $this->calculation($vehicle, (int) $request->input('insurance_term_id'), $request->input('start_date'));
+        } catch (ProviderException $e) {
+            return back()->withErrors(['insurance_term_id' => $e->getMessage()])->withInput();
+        }
+
+        session([self::SESSION_KEY . '.calculation' => $calculation]);
+
+        return redirect()->route('osgop.getConfirm', ['locale' => getCurrentLocale()]);
+    }
+
+    // ─── Step 4: Confirm ──────────────────────────────────────────────────────
+
+    public function getConfirm(): View|RedirectResponse
+    {
+        if (!session(self::SESSION_KEY . '.applicant') || !session(self::SESSION_KEY . '.vehicle') || !session(self::SESSION_KEY . '.calculation')) {
+            return redirect()->route('osgop.index', ['locale' => getCurrentLocale()]);
+        }
+
+        return view('pages.insurence.flow.confirm', $this->flowViewData([
+            'product' => Product::where('route', self::SESSION_KEY)->first(),
+        ]));
     }
 
     // ─── Store Application ────────────────────────────────────────────────────
 
     public function storeApplication(Request $request): RedirectResponse
     {
+        $request->validate([
+            'offerta_agreed' => ['required', 'accepted'],
+        ], [
+            'offerta_agreed.required' => __('messages.offerta_required'),
+            'offerta_agreed.accepted' => __('messages.offerta_required'),
+        ]);
+
         $applicant   = session(self::SESSION_KEY . '.applicant');
         $vehicle     = session(self::SESSION_KEY . '.vehicle');
         $calculation = session(self::SESSION_KEY . '.calculation');
@@ -288,7 +272,7 @@ final class OsgopController extends Controller
         try {
             $apiResponse = $this->submitOsgop($applicant, $vehicle, $calculation);
         } catch (ProviderException $e) {
-            return redirect()->route('osgop.getCalculator', ['locale' => getCurrentLocale()])
+            return redirect()->route('osgop.getConfirm', ['locale' => getCurrentLocale()])
                 ->withErrors(['error' => $e->getMessage()]);
         }
 
@@ -330,26 +314,129 @@ final class OsgopController extends Controller
 
     // ─── Helpers ──────────────────────────────────────────────────────────────
 
-    private function cleanPhone(string $phone): string
+    private function calculationRules(): array
     {
-        // Faqat raqamlarni qoldiramiz
-        $phone = preg_replace('/\D/', '', $phone);
+        return [
+            'insurance_term_id' => ['required', 'integer', 'exists:insurance_terms,provider_term_id'],
+            'start_date'        => ['required', 'date', 'after_or_equal:today'],
+        ];
+    }
 
-        // 00998 bilan boshlangan bo‘lsa → 998 ga o‘tkazamiz
+    /**
+     * Premium from the insurer's calculator. Vehicle type and seats always come from the
+     * vehicle found in the registry (session), never from the request: they set the price,
+     * and submitOsgop() sends the same vehicle.
+     */
+    private function calculation(array $vehicle, int $termId, string $startDate): array
+    {
+        $typeId = (int) ($vehicle['vehicle_type_id'] ?? 0);
+        $seats  = (int) ($vehicle['number_of_seats'] ?? 0);
+
+        if ($typeId < 1 || $seats < 1) {
+            throw new ProviderException(__t('messages.flow.vehicle_incomplete'));
+        }
+
+        $result = $this->calculateOsgop($termId, $typeId, $seats);
+        $months = InsuranceTerm::where('provider_term_id', $termId)->value('months') ?? 12;
+
+        return [
+            'insurance_term_id' => $termId,
+            'start_date'        => Carbon::parse($startDate)->format('Y-m-d'),
+            'end_date'          => Carbon::parse($startDate)->addMonths($months)->subDay()->format('Y-m-d'),
+            'insurance_premium' => $result['insurancePremium'] ?? $result['premium'] ?? 0,
+            'insurance_sum'     => $result['insuranceSum']     ?? $result['sumInsured'] ?? 0,
+            'raw'               => $result,
+        ];
+    }
+
+    /** Y-m-d from the API's birthDate, else from the PINFL (digits 2–7 = DDMMYY, first digit = century) */
+    private function birthDate(array $person, string $pinfl): string
+    {
+        if (!empty($person['birthDate'])) {
+            return Carbon::parse(str_replace('.', '-', $person['birthDate']))->format('Y-m-d');
+        }
+
+        $century = in_array($pinfl[0], ['1', '2'], true) ? 1800 : (in_array($pinfl[0], ['3', '4'], true) ? 1900 : 2000);
+
+        return sprintf('%04d-%s-%s', $century + (int) substr($pinfl, 5, 2), substr($pinfl, 3, 2), substr($pinfl, 1, 2));
+    }
+
+    /** Digits only, 998XXXXXXXXX when it can be; the caller validates the result */
+    private function cleanPhone(?string $phone): string
+    {
+        $phone = preg_replace('/\D/', '', (string) $phone);
+
         if (str_starts_with($phone, '00998')) {
             $phone = substr($phone, 2);
         }
 
-        // Agar 9 ta raqam bo‘lsa (masalan 901234567)
-        if (strlen($phone) === 9) {
-            $phone = '998' . $phone;
-        }
+        return strlen($phone) === 9 ? '998' . $phone : $phone;
+    }
 
-        // Agar 998 bilan boshlanmasa va 12 ta bo‘lmasa — xato
-        if (!str_starts_with($phone, '998') || strlen($phone) !== 12) {
-            throw new \InvalidArgumentException('Telefon raqam noto‘g‘ri formatda.');
-        }
+    /** View data in the unified flow shape (osgop views + pages/insurence/flow/confirm) */
+    private function flowViewData(array $extra = []): array
+    {
+        $locale      = getCurrentLocale();
+        $applicant   = session(self::SESSION_KEY . '.applicant');
+        $vehicle     = session(self::SESSION_KEY . '.vehicle', []);
+        $calculation = session(self::SESSION_KEY . '.calculation', []);
 
-        return $phone;
+        $isOrg   = ($applicant['type'] ?? null) === 'organization';
+        $who     = $isOrg ? ($applicant['organization'] ?? []) : ($applicant['person'] ?? []);
+        $name    = $isOrg ? ($who['name'] ?? null) : (trim(($who['lastname'] ?? '') . ' ' . ($who['firstname'] ?? '') . ' ' . ($who['middlename'] ?? '')) ?: null);
+        $car     = $vehicle ? trim(($vehicle['model_custom_name'] ?? '') . ', ' . ($vehicle['gov_number'] ?? ''), ', ') : null;
+        $period  = !empty($calculation['start_date'])
+            ? Carbon::parse($calculation['start_date'])->format('d.m.Y') . ' – ' . Carbon::parse($calculation['end_date'])->format('d.m.Y')
+            : null;
+        $premium = !empty($calculation['insurance_premium']) ? (int) round($calculation['insurance_premium']) : null;
+
+        $vehicleUrl = route('osgop.getVehicle', ['locale' => $locale]);
+        $calcUrl    = route('osgop.getCalculator', ['locale' => $locale]);
+
+        return array_merge([
+            'flow'            => ['key' => self::SESSION_KEY, 'icon' => 'bi-bus-front'],
+            'applicant'       => $applicant,
+            'vehicle'         => $vehicle,
+            'calculation'     => $calculation,
+            'premiumTotal'    => $premium,
+            'flowSteps'       => [
+                __t('messages.flow.applicant'),
+                __t('messages.flow.vehicle'),
+                __t('messages.flow.term'),
+                __t('messages.confirm_details'),
+                __t('messages.flow.payment'),
+            ],
+            'flowUrls'        => [route('osgop.index', ['locale' => $locale]), $vehicleUrl, $calcUrl, route('osgop.getConfirm', ['locale' => $locale])],
+            'summaryItems'    => [
+                'applicant' => [__t('messages.flow.applicant'), $name],
+                'object'    => [__t('messages.flow.vehicle'), $car],
+                'sum'       => [__('messages.insurance_sum'), !empty($calculation['insurance_sum']) ? formatMoney($calculation['insurance_sum']) : null],
+                'period'    => [__t('messages.flow.period'), $period],
+            ],
+            'applicantTitle'  => $isOrg ? __t('messages.flow.organization') : __t('messages.flow.applicant'),
+            'applicantReview' => $applicant ? ($isOrg ? [
+                __t('messages.organization_name') => $who['name'] ?? null,
+                __t('messages.inn')               => $who['inn'] ?? null,
+                __('messages.phone_number')       => !empty($who['phone']) ? formatPhone($who['phone']) : null,
+            ] : [
+                __('messages.full_name')          => $name,
+                __('insurance.passport.series') . ' / ' . __('insurance.passport.number') => ($who['passport_seria'] ?? '') . ' ' . ($who['passport_number'] ?? ''),
+                __t('messages.flow.pinfl')        => $who['pinfl'] ?? null,
+                __('messages.phone_number')       => !empty($who['phone']) ? formatPhone($who['phone']) : null,
+            ]) : [],
+            'confirmBlocks'   => [
+                ['title' => __t('messages.flow.vehicle'), 'editUrl' => $vehicleUrl, 'items' => [
+                    __('messages.gov_number')          => $vehicle['gov_number'] ?? null,
+                    __t('messages.flow.vehicle')       => $vehicle['model_custom_name'] ?? null,
+                    __('messages.tech_passport_series') . ' / ' . __('messages.tech_passport_number') => trim(($vehicle['tech_passport_seria'] ?? '') . ' ' . ($vehicle['tech_passport_number'] ?? '')) ?: null,
+                    __t('messages.flow.seats')         => $vehicle['number_of_seats'] ?? null,
+                ]],
+                ['title' => __t('messages.flow.policy_terms'), 'editUrl' => $calcUrl, 'items' => [
+                    __('messages.insurance_sum')       => !empty($calculation['insurance_sum']) ? formatMoney($calculation['insurance_sum']) : null,
+                    __t('messages.flow.period')        => $period,
+                    __('messages.insurance_premium')   => $premium ? formatMoney($premium) : null,
+                ]],
+            ],
+        ], $extra);
     }
 }

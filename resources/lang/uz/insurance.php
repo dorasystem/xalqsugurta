@@ -219,6 +219,8 @@ return [
     ],
 
     'osgop' => [
+
+        'subtitle' => 'Yo\'lovchi tashishda tashuvchining fuqarolik javobgarligini majburiy sug\'urta qilish',
         'page_title' => 'OSGOP - Tashuvchilarning majburiy sug\'urtasi',
         'product_name' => 'OSGOP - Tashuvchilarning majburiy sug\'urtasi',
         'title' => 'OSGOP Sug\'urtasi',
