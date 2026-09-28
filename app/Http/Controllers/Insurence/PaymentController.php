@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Insurence;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\OrderService;
+use App\Services\PaymentSettings;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -36,11 +37,12 @@ final class PaymentController extends Controller
             'state'       => $state,
             'showDetails' => $this->orderService->canSeeDetails($order),
             'response'    => $order->insurances_response_data ?? [],
-            // The insurer's own Click link when it gave one, else our Click merchant (needs CLICK_SERVICE_ID + CLICK_MERCHANT_ID)
+            // The insurer's own Click link when it gave one, else our Click merchant when it is set up in the panel
             'clickUrl'    => $order->click_url
-                ?: (config('services.click.service_id') && config('services.click.merchant_id')
-                    ? route('payment.click', ['id' => $order->id])
-                    : null),
+                ?: (PaymentSettings::clickReady() ? route('payment.click', ['id' => $order->id]) : null),
+            // The insurer's own Payme link when it gave one, else ours unless switched off in the panel
+            'paymeUrl'    => $order->payme_url
+                ?: (PaymentSettings::paymeEnabled() ? route('payment.payme', ['id' => $order->id]) : null),
         ]);
     }
 }

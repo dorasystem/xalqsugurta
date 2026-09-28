@@ -76,6 +76,7 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make('Savdo'),
                 NavigationGroup::make('Nazorat'),
                 NavigationGroup::make('Katalog'),
+                NavigationGroup::make('Tizim'),
             ])
             ->navigationItems([
                 NavigationItem::make('Saytni ochish')

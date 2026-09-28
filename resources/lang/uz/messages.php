@@ -68,6 +68,7 @@ return [
         'amount_range_uzs'     => ':min dan :max so\'mgacha',
         'person_fill'          => 'Pasport seriyasi, raqami va JSHSHIRni to\'liq kiriting.',
         'application'          => 'Ariza',
+        'pay_unavailable'      => 'To\'lov tizimlari vaqtincha ishlamayapti. Iltimos, (+998 71) 202-19-66 raqamiga qo\'ng\'iroq qiling.',
         'applicant_type'       => 'Arizachi turi',
         'person_tab'           => 'Jismoniy shaxs',
         'company_tab'          => 'Yuridik shaxs',

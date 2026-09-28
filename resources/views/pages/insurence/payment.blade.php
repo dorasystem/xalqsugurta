@@ -51,12 +51,13 @@
 
                 <div class="xf-panel__body">
                     <div class="xf-pay">
-                        <a class="xf-pay__method" rel="noopener"
-                           href="{{ $order->payme_url ?: route('payment.payme', ['id' => $order->id]) }}">
-                            <img src="{{ asset('images/tolovTizimi/payme.svg') }}" alt="" width="84" height="28">
-                            <span class="xf-pay__name">Payme <small>{{ __t('messages.flow.pay_cards') }}</small></span>
-                            <i class="bi bi-chevron-right" aria-hidden="true"></i>
-                        </a>
+                        @if ($paymeUrl)
+                            <a class="xf-pay__method" rel="noopener" href="{{ $paymeUrl }}">
+                                <img src="{{ asset('images/tolovTizimi/payme.svg') }}" alt="" width="84" height="28">
+                                <span class="xf-pay__name">Payme <small>{{ __t('messages.flow.pay_cards') }}</small></span>
+                                <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                            </a>
+                        @endif
 
                         @if ($clickUrl)
                             <a class="xf-pay__method" rel="noopener" href="{{ $clickUrl }}">
@@ -66,6 +67,13 @@
                             </a>
                         @endif
                     </div>
+
+                    @if (!$paymeUrl && !$clickUrl)
+                        <div class="xf-alert" role="alert">
+                            <i class="bi bi-exclamation-circle"></i>
+                            <span>{{ __t('messages.flow.pay_unavailable') }}</span>
+                        </div>
+                    @endif
 
                     <p class="xf-note">
                         <i class="bi bi-info-circle"></i>

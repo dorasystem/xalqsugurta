@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Payments\Click;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Services\PaymentSettings;
 use App\Services\Payments\ClickShopApi;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -22,9 +23,10 @@ class ClickController extends Controller
     {
         $order = Order::findOrFail($request->id);
 
+        abort_unless(PaymentSettings::clickReady(), 503, 'Click is not configured');
+
         $serviceId  = config('services.click.service_id');
         $merchantId = config('services.click.merchant_id');
-        abort_if(!$serviceId || !$merchantId, 503, 'Click is not configured');
 
         $query = http_build_query(array_filter([
             'service_id'        => $serviceId,

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\ApiLogger;
+use App\Services\PaymentSettings;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\URL;
 
@@ -23,6 +24,9 @@ class AppServiceProvider extends ServiceProvider
     {
         // Admin panel "API jurnali": every request to the insurer's API
         ApiLogger::register();
+
+        // Admin panel "To'lov tizimlari": saved Click / Payme settings override .env
+        PaymentSettings::apply();
 
         if (config('app.env') === 'production') {
             URL::forceScheme('https');

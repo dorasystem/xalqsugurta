@@ -68,6 +68,7 @@
             'amount_range_uzs'     => 'from :min to :max UZS',
             'person_fill'          => 'Fill in the passport series, number and PINFL.',
             'application'          => 'Application',
+            'pay_unavailable'      => 'Online payment is temporarily unavailable. Please call (+998 71) 202-19-66.',
             'applicant_type'       => 'Applicant type',
             'person_tab'           => 'Individual',
             'company_tab'          => 'Organization',
