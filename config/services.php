@@ -44,6 +44,14 @@ return [
         'cadaster_api_url' => env('IMPEX_CADASTER_API_URL', 'https://impex-insurance.uz/api/fetch-cadaster'),
     ],
 
+    // Click SHOP API (Prepare/Complete callbacks: /api/prepare, /api/complete). See App\Services\Payments\ClickShopApi
+    'click' => [
+        'service_id'       => env('CLICK_SERVICE_ID'),
+        'merchant_id'      => env('CLICK_MERCHANT_ID'),
+        'merchant_user_id' => env('CLICK_MERCHANT_USER_ID'),
+        'secret_key'       => env('CLICK_SECRET_KEY'),
+    ],
+
     'payme' => [
         'merchant_id' => env('PAYME_MERCHANT_ID'),
         'kassa_id' => env('PAYME_KASSA_ID', '68f7581688f28864c066266f'),

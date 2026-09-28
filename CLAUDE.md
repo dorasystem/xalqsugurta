@@ -128,6 +128,8 @@ Note: controllers override `gender` to `'1'`/`'2'` (int string) for API calls af
 
 ### Payment Flow
 After order creation: redirect to `route('payment.show', ['locale', 'orderId'])`. Order statuses: `new`, `pending`, `paid`, `cancelled`, `failed`.
+- **Click** (`routes/api.php`: `/api/prepare`, `/api/complete`): `App\Services\Payments\ClickShopApi` implements the SHOP API — MD5 `sign_string` check with `CLICK_SECRET_KEY` (every request is rejected with -1 while it is empty), amount check, idempotent Prepare, error codes -1…-9 (docs.click.uz/en/shop-api). A `click_uzs` row is one transaction; its id is `merchant_prepare_id`. A successful Complete marks the order paid and requests the gas/property/KASKO policy after the response (`dispatch(...)->afterResponse()`), since PerformTransactionRequest can outlast Click's timeout. `tests/Feature/ClickShopApiTest` mirrors Click's 15 Postman scenarios.
+- **Payme** (`PaymeController::PerformTransaction`) requests the policy synchronously via `ConfirmPayment::confirmXalqSugurtaPayment()`.
 
 ### Translations
 Three locales: `en`, `ru`, `uz` in `resources/lang/{locale}/`. Key files: `insurance.php`, `messages.php`. Use `__t()` helper (defined in `app/helpers.php`) instead of `__()` to respect the URL locale.
