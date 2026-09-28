@@ -3,11 +3,14 @@
 namespace App\Filament\Admin\Resources;
 
 use App\Filament\Admin\Resources\OrderResource\Pages;
+use App\Filament\Admin\Resources\OrderResource\RelationManagers\ApiLogsRelationManager;
+use App\Models\ApiLog;
 use App\Models\Order;
 use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\ViewEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -323,9 +326,19 @@ class OrderResource extends Resource
                             ]),
                     ]),
 
+                Grid::make(1)
+                    ->columnSpan(['lg' => 1])
+                    ->schema([
+                Section::make('Jarayon')
+                    ->icon('heroicon-o-queue-list')
+                    ->schema([
+                        ViewEntry::make('timeline')
+                            ->hiddenLabel()
+                            ->view('filament.admin.order-timeline'),
+                    ]),
+
                 Section::make('To\'lov')
                     ->icon('heroicon-o-banknotes')
-                    ->columnSpan(['lg' => 1])
                     ->schema([
                         TextEntry::make('amount')
                             ->label('Summa')
@@ -353,7 +366,65 @@ class OrderResource extends Resource
                             ->label('Oxirgi o\'zgarish')
                             ->dateTime('d.m.Y H:i'),
                     ]),
+                    ]),
             ]);
+    }
+
+    /**
+     * Steps of the order for the "Jarayon" block: application → contract → payment → policy.
+     * Each step: [state (ok|fail|wait|todo), title, detail, time].
+     */
+    public static function timeline(Order $order): array
+    {
+        $logs      = $order->apiLogs()->get(['id', 'endpoint', 'status', 'result', 'success', 'created_at', 'duration_ms']);
+        $perform   = $logs->filter(fn (ApiLog $l) => str_contains($l->endpoint, 'PerformTransaction'));
+        $contract  = $logs->reject(fn (ApiLog $l) => str_contains($l->endpoint, 'PerformTransaction'))->first();
+        $paid      = $order->status === Order::STATUS_PAID;
+        $hasPolicy = !empty($order->insurances_response_data['download_url']);
+
+        $steps = [
+            ['ok', 'Ariza to\'ldirildi', $order->insuranceProductName ?: $order->product_name, $order->created_at],
+            $contract
+                ? [$contract->success ? 'ok' : 'fail', 'Shartnoma yaratildi', $contract->endpoint . ' · ' . $contract->outcome(), $contract->created_at]
+                : [$order->insurance_id ? 'ok' : 'todo', 'Shartnoma yaratildi', $order->insurance_id ? 'ID ' . $order->insurance_id : null, null],
+            match ($order->status) {
+                Order::STATUS_PAID                        => ['ok', 'To\'lov qabul qilindi', static::paymentLabel($order->payment_type) . ' · ' . formatMoney($order->amount), null],
+                Order::STATUS_CANCELLED, Order::STATUS_FAILED => ['fail', 'To\'lov', Order::statusLabel($order->status), null],
+                default                                   => ['wait', 'To\'lov kutilmoqda', formatMoney($order->amount), null],
+            },
+        ];
+
+        if (in_array($order->product_key, Order::POLICY_AFTER_PAYMENT, true)) {
+            $last    = $perform->first();
+            $steps[] = match (true) {
+                $hasPolicy       => ['ok', 'Polis chiqarildi', trim(($order->insurances_response_data['polis_sery'] ?? '') . ' ' . ($order->insurances_response_data['polis_number'] ?? '')) ?: null, $last?->created_at],
+                $last !== null   => ['fail', 'Polis chiqmadi', 'PerformTransaction · ' . $last->outcome() . ($perform->count() > 1 ? ' · ' . $perform->count() . ' urinish' : ''), $last->created_at],
+                $paid            => ['fail', 'Polis chiqmadi', 'PerformTransaction yuborilmagan', null],
+                default          => ['todo', 'Polis chiqariladi', 'To\'lovdan keyin', null],
+            };
+        } else {
+            $steps[] = $paid
+                ? ['ok', 'Polis', $order->insurance_id ? 'ID ' . $order->insurance_id : null, null]
+                : ['todo', 'Polis', 'To\'lovdan keyin', null];
+        }
+
+        return $steps;
+    }
+
+    private static function paymentLabel(?string $type): string
+    {
+        return match ($type) {
+            Order::PAYMENT_PAYME => 'Payme',
+            Order::PAYMENT_CLICK => 'Click',
+            default              => (string) ($type ?: 'To\'lov'),
+        };
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            ApiLogsRelationManager::class,
+        ];
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────

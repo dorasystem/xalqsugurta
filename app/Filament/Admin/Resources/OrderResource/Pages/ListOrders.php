@@ -38,6 +38,12 @@ class ListOrders extends ListRecords
                 ->badgeColor('warning')
                 ->modifyQueryUsing(fn (Builder $query) => $query->whereIn('status', [Order::STATUS_NEW, Order::STATUS_PENDING])),
 
+            'no_policy' => Tab::make('Polis chiqmagan')
+                ->icon('heroicon-m-exclamation-triangle')
+                ->badge(Order::awaitingPolicy()->count() ?: null)
+                ->badgeColor('danger')
+                ->modifyQueryUsing(fn (Builder $query) => $query->awaitingPolicy()),
+
             'failed' => Tab::make('Bekor / xato')
                 ->icon('heroicon-m-x-circle')
                 ->badge($count([Order::STATUS_CANCELLED, Order::STATUS_FAILED]))

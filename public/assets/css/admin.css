@@ -137,3 +137,95 @@
     max-height: 480px;
     overflow: auto;
 }
+
+/* ─── Order card: "Jarayon" timeline (resources/views/filament/admin/order-timeline) ── */
+.xs-timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+.xs-timeline__step {
+    display: grid;
+    grid-template-columns: 1.75rem 1fr auto;
+    gap: 0.75rem;
+    position: relative;
+    padding: 0.55rem 0;
+}
+.xs-timeline__step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: calc(0.875rem - 0.5px);
+    top: 2.35rem;
+    bottom: -0.55rem;
+    width: 1px;
+    background: #e3e1ef;
+}
+.xs-timeline__dot {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: #eeedf5;
+    color: #8d88b8;
+    z-index: 1;
+}
+.xs-timeline__step.is-ok .xs-timeline__dot { background: #dff3e8; color: #17663f; }
+.xs-timeline__step.is-fail .xs-timeline__dot { background: #fde4e8; color: #9b1f36; }
+.xs-timeline__step.is-wait .xs-timeline__dot { background: #fff2d6; color: #7a4f00; }
+.xs-timeline__body { display: flex; flex-direction: column; min-width: 0; }
+.xs-timeline__body b { font-size: 0.875rem; font-weight: 600; }
+.xs-timeline__step.is-todo .xs-timeline__body b { color: #6b6889; font-weight: 500; }
+.xs-timeline__body span,
+.xs-timeline__step time {
+    font-size: 0.78rem;
+    color: #6b6889;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+.xs-timeline__step.is-fail .xs-timeline__body span { color: #9b1f36; }
+.dark .xs-timeline__step:not(:last-child)::after { background: rgba(255, 255, 255, 0.1); }
+.dark .xs-timeline__dot { background: rgba(255, 255, 255, 0.08); }
+.dark .xs-timeline__body span, .dark .xs-timeline__step time { color: #a6a2c4; }
+
+/* Failed rows in the API journal */
+.fi-ta-row.xs-row-failed { background: #fff7f8; }
+.dark .fi-ta-row.xs-row-failed { background: rgba(214, 61, 86, 0.08); }
+
+/* Dashboard "Diqqat talab qiladi" (resources/views/filament/admin/attention-widget) */
+.xs-attention { display: flex; flex-direction: column; }
+.xs-attention__item {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #eeedf5;
+    color: inherit;
+    text-decoration: none;
+}
+.xs-attention__item:last-child { border-bottom: 0; }
+.xs-attention__item:hover b { color: var(--xs-brand); }
+.xs-attention__icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.xs-attention__icon svg { width: 1.2rem; height: 1.2rem; }
+.xs-attention__icon.is-danger { background: #fde4e8; color: #9b1f36; }
+.xs-attention__icon.is-warning { background: #fff2d6; color: #7a4f00; }
+.xs-attention__icon.is-ok { background: #dff3e8; color: #17663f; }
+.xs-attention__text { display: flex; flex-direction: column; min-width: 0; flex-grow: 1; }
+.xs-attention__text b { font-size: 0.9rem; font-weight: 600; }
+.xs-attention__text span { font-size: 0.8rem; color: #6b6889; }
+.xs-attention__count { font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.dark .xs-attention__item { border-color: rgba(255, 255, 255, 0.08); }
+.dark .xs-attention__text span { color: #a6a2c4; }

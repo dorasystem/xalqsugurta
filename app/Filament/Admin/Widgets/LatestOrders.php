@@ -10,11 +10,11 @@ use Filament\Widgets\TableWidget;
 
 class LatestOrders extends TableWidget
 {
-    protected static ?int $sort = 4;
+    protected static ?int $sort = 5;
 
     protected static ?string $heading = 'So\'nggi buyurtmalar';
 
-    protected int | string | array $columnSpan = 'full';
+    protected int | string | array $columnSpan = ['md' => 2, 'xl' => 2];
 
     public function table(Table $table): Table
     {

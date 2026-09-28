@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Order extends Model
 {
@@ -67,6 +69,37 @@ class Order extends Model
         self::STATUS_CANCELLED => 'danger',
         self::STATUS_FAILED    => 'danger',
     ];
+
+    /** Products whose policy is issued by PerformTransactionRequest after payment */
+    public const POLICY_AFTER_PAYMENT = ['gas', 'property', 'kasko'];
+
+    public function apiLogs(): HasMany
+    {
+        return $this->hasMany(ApiLog::class)->latest('id');
+    }
+
+    /** Product key saved by createOrderAndRedirect() ("gas", "kasko", …) */
+    public function getProductKeyAttribute(): ?string
+    {
+        return $this->insurances_data['_product_key'] ?? null;
+    }
+
+    /** True when the policy is issued after payment and has not arrived yet */
+    public function awaitsPolicy(): bool
+    {
+        return $this->status === self::STATUS_PAID
+            && in_array($this->product_key, self::POLICY_AFTER_PAYMENT, true)
+            && empty($this->insurances_response_data['download_url']);
+    }
+
+    /** Paid gas / property / KASKO orders still without a policy download link */
+    public function scopeAwaitingPolicy(Builder $query): Builder
+    {
+        return $query
+            ->where('status', self::STATUS_PAID)
+            ->whereIn('insurances_data->_product_key', self::POLICY_AFTER_PAYMENT)
+            ->whereNull('insurances_response_data->download_url');
+    }
 
     public static function statusLabel(?string $status): string
     {

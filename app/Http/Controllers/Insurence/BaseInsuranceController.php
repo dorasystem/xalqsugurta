@@ -6,6 +6,7 @@ use App\Exceptions\ProviderException;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Product;
+use App\Services\ApiLogger;
 use App\Services\OrderService;
 use App\Services\Provider\ProviderApiTrait;
 use Carbon\Carbon;
@@ -290,6 +291,9 @@ abstract class BaseInsuranceController extends Controller
         $order = $this->orderService->createOrder(array_merge([
             'status' => Order::STATUS_NEW,
         ], $data));
+
+        // The contract submit ran before the order existed; link its API log rows now
+        ApiLogger::attachToOrder($order);
 
         $this->clearSess();
 

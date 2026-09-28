@@ -8,7 +8,7 @@ use Filament\Widgets\ChartWidget;
 
 class ProductSalesChart extends ChartWidget
 {
-    protected static ?int $sort = 3;
+    protected static ?int $sort = 4;
 
     protected ?string $heading = 'Mahsulotlar bo\'yicha';
 

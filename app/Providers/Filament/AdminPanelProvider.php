@@ -74,6 +74,7 @@ class AdminPanelProvider extends PanelProvider
             ->maxContentWidth(Width::Full)
             ->navigationGroups([
                 NavigationGroup::make('Savdo'),
+                NavigationGroup::make('Nazorat'),
                 NavigationGroup::make('Katalog'),
             ])
             ->navigationItems([
