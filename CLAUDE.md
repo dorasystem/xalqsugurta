@@ -129,6 +129,7 @@ Note: controllers override `gender` to `'1'`/`'2'` (int string) for API calls af
 
 ### Payment Flow
 After order creation: redirect to `route('payment.show', ['locale', 'orderId'])`. Order statuses: `new`, `pending`, `paid`, `cancelled`, `failed`.
+- The payment page (`PaymentController::show`, view `pages/insurence/payment`, unified flow design) has four states: `pay`, `policy_pending` (paid, policy not issued yet — reloads every 15 s), `paid`, `cancelled`. Order ids are sequential, so the phone, period and policy links are shown only when `OrderService::canSeeDetails()` passes: the order id is in the session list `OrderService::SESSION_ORDERS` (filled by `createOrder()`) or an admin is signed in.
 - **Click** (`routes/api.php`: `/api/prepare`, `/api/complete`): `App\Services\Payments\ClickShopApi` implements the SHOP API — MD5 `sign_string` check with `CLICK_SECRET_KEY` (every request is rejected with -1 while it is empty), amount check, idempotent Prepare, error codes -1…-9 (docs.click.uz/en/shop-api). A `click_uzs` row is one transaction; its id is `merchant_prepare_id`. A successful Complete marks the order paid and requests the gas/property/KASKO policy after the response (`dispatch(...)->afterResponse()`), since PerformTransactionRequest can outlast Click's timeout. `tests/Feature/ClickShopApiTest` mirrors Click's 15 Postman scenarios.
 - **Payme** (`PaymeController::PerformTransaction`) requests the policy synchronously via `ConfirmPayment::confirmXalqSugurtaPayment()`.
 

@@ -7,12 +7,15 @@ use Illuminate\Support\Facades\DB;
 
 final class OrderService
 {
+    /** Session key with the ids of orders created in this browser */
+    public const SESSION_ORDERS = 'my_orders';
+
     /**
      * Create a new order
      */
     public function createOrder(array $data): Order
     {
-        return DB::transaction(function () use ($data) {
+        $order = DB::transaction(function () use ($data) {
             return Order::create([
                 'product_name' => $data['product_name'] ?? 'MOL-MULK Sug\'urta',
                 'amount' => $data['amount'] ?? 0,
@@ -30,6 +33,24 @@ final class OrderService
                 'insuranceProductName' => $data['insuranceProductName'] ?? null,
             ]);
         });
+
+        // The payment page shows the phone and the policy links only to the browser that made the order
+        if (request()->hasSession()) {
+            request()->session()->push(self::SESSION_ORDERS, $order->id);
+        }
+
+        return $order;
+    }
+
+    /** True when this visitor may see the order's personal data (its creator or a signed-in admin) */
+    public function canSeeDetails(Order $order): bool
+    {
+        if (auth()->check()) {
+            return true;
+        }
+
+        return request()->hasSession()
+            && in_array($order->id, (array) request()->session()->get(self::SESSION_ORDERS, []), false);
     }
 
     /**
