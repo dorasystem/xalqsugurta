@@ -64,16 +64,16 @@ abstract class BaseInsuranceController extends Controller
             'pinfl'                => $p['currentPinfl']           ?? '',
             'passport_seria'       => strtoupper($r?->input('passport_seria') ?? ''),
             'passport_number'      => $r?->input('passport_number') ?? '',
-            'passport_issue_date'  => $p['docIssueDate'] ?? $p['issueDate'] ?? '',
-            'passport_issued_by'   => $p['docIssuedBy']  ?? $p['issuedBy']  ?? '',
+            'passport_issue_date'  => $this->personField($p, ['docIssueDate', 'issueDate', 'passportIssueDate', 'dateBegin', 'docGivenDate']),
+            'passport_issued_by'   => $this->personField($p, ['docIssuedBy', 'issuedBy', 'passportIssuedBy', 'docGivePlace', 'givePlace']),
             'birth_date'           => $r?->input('birth_date') ?? ($p['birthDate'] ?? ''),
             'lastname'             => $p['lastNameLatin']   ?? $p['lastName']   ?? '',
             'firstname'            => $p['firstNameLatin']  ?? $p['firstName']  ?? '',
             'middlename'           => $p['middleNameLatin'] ?? $p['middleName'] ?? '',
             'gender'               => ($p['gender'] ?? '') == '1' ? 'm' : 'f',
-            'address'              => $p['address']  ?? '',
-            'region_id'            => (int) ($p['regionId']   ?? 10),
-            'district_id'          => (int) ($p['districtId'] ?? 0),
+            'address'              => $this->personField($p, ['address', 'permanentAddress', 'fullAddress']),
+            'region_id'            => (int) ($this->personField($p, ['regionId', 'region_id', 'regionCode']) ?: 10),
+            'district_id'          => (int) $this->personField($p, ['districtId', 'district_id', 'districtCode']),
             'phone'                => $this->cleanPhone($p['phone'] ?? $r?->input('phone') ?? ''),
             'resident_type'        => 1,
             'country_id'           => 210,
@@ -130,12 +130,33 @@ abstract class BaseInsuranceController extends Controller
             ? $this->findPersonByPinfl($pinfl, $document)
             : $this->findPersonByPassport($document, (string) $request->input('birth_date'));
 
+        // Field names only (no personal data) — to map pinfl-v2 fields if they differ
+        \Illuminate\Support\Facades\Log::info('Person lookup response fields', [
+            'method' => $pinfl !== '' ? 'pinfl-v2' : 'passport-birth-date-v2',
+            'keys'   => array_keys($person),
+        ]);
+
         // pinfl-v2 may not echo the PINFL back under the same key
         if ($pinfl !== '') {
             $person['currentPinfl'] ??= $person['pinfl'] ?? $pinfl;
         }
 
         return $person;
+    }
+
+    /**
+     * First non-empty value among the given keys. The pinfl-v2 and
+     * passport-birth-date-v2 responses do not always use the same field names.
+     */
+    protected function personField(array $person, array $keys): string
+    {
+        foreach ($keys as $key) {
+            if (filled($person[$key] ?? null) && !is_array($person[$key])) {
+                return trim((string) $person[$key]);
+            }
+        }
+
+        return '';
     }
 
     /** Field that lookup errors are attached to */
@@ -240,16 +261,16 @@ abstract class BaseInsuranceController extends Controller
                 'pinfl'               => (string) $person['currentPinfl'],
                 'passport_seria'      => strtoupper($request->input('passport_seria')),
                 'passport_number'     => $request->input('passport_number'),
-                'passport_issue_date' => $person['docIssueDate'] ?? $person['issueDate'] ?? '',
-                'passport_issued_by'  => $person['docIssuedBy']  ?? $person['issuedBy']  ?? '',
+                'passport_issue_date' => $this->personField($person, ['docIssueDate', 'issueDate', 'passportIssueDate', 'dateBegin', 'docGivenDate']),
+                'passport_issued_by'  => $this->personField($person, ['docIssuedBy', 'issuedBy', 'passportIssuedBy', 'docGivePlace', 'givePlace']),
                 'firstname'           => $person['firstNameLatin']  ?? $person['firstName']  ?? '',
                 'lastname'            => $person['lastNameLatin']   ?? $person['lastName']   ?? '',
                 'middlename'          => $person['middleNameLatin'] ?? $person['middleName'] ?? '',
                 'birth_date'          => $this->personBirthDate($person, $request),
                 'gender'              => $this->personGender($person) === '1' ? 'm' : 'f',
-                'address'             => $person['address']    ?? '',
-                'region_id'           => (int) ($person['regionId']   ?? 10),
-                'district_id'         => (int) ($person['districtId'] ?? 0),
+                'address'             => $this->personField($person, ['address', 'permanentAddress', 'fullAddress']),
+                'region_id'           => (int) ($this->personField($person, ['regionId', 'region_id', 'regionCode']) ?: 10),
+                'district_id'         => (int) $this->personField($person, ['districtId', 'district_id', 'districtCode']),
                 'phone'               => $this->cleanPhone($person['phone'] ?? ''),
                 'resident_type'       => 1,
                 'country_id'          => 210,

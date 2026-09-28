@@ -280,6 +280,20 @@ final class AccidentController extends BaseInsuranceController
 
     // ─── Private: Build API body ──────────────────────────────────────────────
 
+    /** Y-m-d as the sale API expects; accepts DD.MM.YYYY from lookups. Empty → null. */
+    private function isoDate(?string $date): ?string
+    {
+        if (blank($date)) {
+            return null;
+        }
+
+        try {
+            return Carbon::parse(str_replace('.', '-', $date))->format('Y-m-d');
+        } catch (\Carbon\Exceptions\InvalidFormatException) {
+            return null;
+        }
+    }
+
     private function buildAccidentApiBody(array $applicant, array $persons, array $calculation): array
     {
         $applicantPhone = $applicant['phone'] ?? '';
@@ -290,19 +304,20 @@ final class AccidentController extends BaseInsuranceController
                 'pinfl'     => $p['pinfl'],
                 'seria'     => $p['passport_seria'],
                 'number'    => $p['passport_number'],
-                'issueDate' => $p['passport_issue_date'] ?? '',
-                'issuedBy'  => $p['passport_issued_by']  ?? '',
+                // Unknown values go as null: '' fails date parsing and 0 is not a valid district
+                'issueDate' => $this->isoDate($p['passport_issue_date'] ?? null),
+                'issuedBy'  => ($p['passport_issued_by']  ?? '') ?: null,
             ],
             'fullName' => [
                 'firstname'  => $p['firstname'],
                 'lastname'   => $p['lastname'],
                 'middlename' => $p['middlename'] ?? '',
             ],
-            'birthDate'  => $p['birth_date'],
+            'birthDate'  => $this->isoDate($p['birth_date'] ?? null),
             'address'    => $p['address'],
             'countryId'  => 210,
-            'regionId'   => (int) ($p['region_id']   ?? 10),
-            'districtId' => (int) ($p['district_id'] ?? 0),
+            'regionId'   => (int) ($p['region_id'] ?? 0) ?: 10,
+            'districtId' => (int) ($p['district_id'] ?? 0) ?: null,
             'phone'      => $p['phone'] ?: $applicantPhone,
         ];
 
