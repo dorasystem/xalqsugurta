@@ -397,13 +397,14 @@ trait ProviderApiTrait
     }
 
     // =========================
-    // ACCIDENT CALCULATE
+    // ACCIDENT / TOURIST CALCULATE (website/accident/calc)
     // =========================
     /**
-     * The calculator rejects requests without a policy period ("Ошибка даты начало страхования").
-     * $startDate is Y-m-d; defaults to tomorrow. $termMonths comes from the product settings.
+     * Premium for one person of an accident-type product ('202' accident, '203' tourist).
+     * The calculator rejects requests without a policy period ("Ошибка даты начало страхования"):
+     * $startDate is Y-m-d (defaults to tomorrow), $termMonths comes from the product settings.
      */
-    public function calculateAccident(int $sumInsured, ?string $startDate = null, int $termMonths = 12): array
+    public function calculatePersonsInsurance(string $productCode, int $sumInsured, ?string $startDate = null, int $termMonths = 12): array
     {
         $start = \Carbon\Carbon::parse($startDate ?? now()->addDay())->startOfDay();
 
@@ -413,7 +414,7 @@ trait ProviderApiTrait
             ->withBasicAuth(config('provider.username'), config('provider.password'))
             ->post($url, [
                 'details' => [
-                    'productCode' => '202',
+                    'productCode' => $productCode,
                     'startDate'   => $start->format('Y-m-d'),
                     'endDate'     => $start->copy()->addMonths($termMonths)->subDay()->format('Y-m-d'),
                 ],
@@ -422,8 +423,9 @@ trait ProviderApiTrait
 
         if (!$response->successful()) {
             Log::error('Accident Calc HTTP Error', [
-                'sumInsured' => $sumInsured,
-                'response'   => $response->body(),
+                'productCode' => $productCode,
+                'sumInsured'  => $sumInsured,
+                'response'    => $response->body(),
             ]);
             throw new ProviderException('Accident calculation service unavailable.');
         }
@@ -432,8 +434,9 @@ trait ProviderApiTrait
 
         if (($data['result'] ?? -1) !== 0) {
             Log::warning('Accident Calc Business Error', [
-                'sumInsured' => $sumInsured,
-                'response'   => $data,
+                'productCode' => $productCode,
+                'sumInsured'  => $sumInsured,
+                'response'    => $data,
             ]);
             throw new ProviderException($data['result_message'] ?? 'Accident calculation error.');
         }
@@ -442,56 +445,12 @@ trait ProviderApiTrait
     }
 
     // =========================
-    // TOURIST CALCULATE
-    // =========================
-    /**
-     * The calculator rejects requests without a policy period ("Ошибка даты начало страхования").
-     * $startDate is Y-m-d; defaults to tomorrow, the term is one year.
-     */
-    public function calculateTourist(int $sumInsured, ?string $startDate = null): array
-    {
-        $start = \Carbon\Carbon::parse($startDate ?? now()->addDay())->startOfDay();
-
-        $url = 'http://online.xalqsugurta.uz/xs/ins/website/accident/calc';
-
-        $response = Http::timeout(15)
-            ->withBasicAuth(config('provider.username'), config('provider.password'))
-            ->post($url, [
-                'details' => [
-                    'productCode' => '203',
-                    'startDate'   => $start->format('Y-m-d'),
-                    'endDate'     => $start->copy()->addYear()->subDay()->format('Y-m-d'),
-                ],
-                'persons' => [['sumInsured' => (string) $sumInsured]],
-            ]);
-
-        if (!$response->successful()) {
-            Log::error('Tourist Calc HTTP Error', [
-                'sumInsured' => $sumInsured,
-                'response'   => $response->body(),
-            ]);
-            throw new ProviderException('Tourist calculation service unavailable.');
-        }
-
-        $data = $response->json();
-
-        if (($data['result'] ?? -1) !== 0) {
-            Log::warning('Tourist Calc Business Error', [
-                'sumInsured' => $sumInsured,
-                'response'   => $data,
-            ]);
-            throw new ProviderException($data['result_message'] ?? 'Tourist calculation error.');
-        }
-
-        return $data;
-    }
-
-    // =========================
     // ACCIDENT SUBMIT
     // =========================
-    public function submitAccident(array $body): array
+    /** Sale of an accident-type product; $url defaults to provider.submit.accident (tourist has its own key) */
+    public function submitAccident(array $body, ?string $url = null): array
     {
-        $url = config('provider.submit.accident');
+        $url ??= config('provider.submit.accident');
 
         $response = Http::timeout(30)
             ->withBasicAuth(config('provider.username'), config('provider.password'))

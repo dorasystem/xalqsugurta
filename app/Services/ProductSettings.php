@@ -6,6 +6,7 @@ use App\Http\Controllers\Insurence\AccidentController;
 use App\Http\Controllers\Insurence\GasBallonController;
 use App\Http\Controllers\Insurence\KaskoController;
 use App\Http\Controllers\Insurence\PropertyController;
+use App\Http\Controllers\Insurence\TouristController;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -23,6 +24,7 @@ final class ProductSettings
         'property' => PropertyController::class,
         'kasko'    => KaskoController::class,
         'accident' => AccidentController::class,
+        'tourist'  => TouristController::class,
     ];
 
     /** Keys the admin can override, with their labels in the (Uzbek-only) admin panel */

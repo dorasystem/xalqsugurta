@@ -36,6 +36,7 @@ Five products, each following a **multi-step PRG (Post-Redirect-Get)** pattern w
 | OSGOP (carrier liability) | `OsgopController` | `osgop.*` | applicant → vehicle → calculate → confirm |
 | OSGOR (employer liability) | `OsgorController` | `osgor.*` | applicant → calculator → confirm |
 | Accident | `AccidentController` | `accident.*` | applicant → persons → term (calculator route) → confirm |
+| Tourist | `TouristController` | `tourist.*` | same as Accident (product code 203) |
 | Property | `PropertyController` | `property.*` | applicant → property → confirm |
 | Gas Balloon | `GasBallonController` | `gas.*` | applicant → property → confirm |
 | KASKO | `KaskoController` | `kasko.*` | applicant → vehicle → confirm |
@@ -56,7 +57,7 @@ All insurance controllers extend `BaseInsuranceController` (`app/Http/Controller
 - `findPersonByPassport(document, birthDate)` — legacy passport + birth date lookup (only old tourist/OSGOP pages)
 - `findOrganizationByInn(inn)` — organization lookup
 - `submitXalqSugurta(body)` — unified Gas + Property submission (accepts result=302)
-- `submitOsgop`, `submitOsgor`, `submitAccident` — product-specific submissions
+- `submitOsgop`, `submitOsgor`, `submitAccident(body, ?url)` — product-specific submissions; `calculatePersonsInsurance(productCode, sum, start, termMonths)` — accident/tourist calculator
 
 **`app/Services/OrderService.php`** — creates/updates `Order` records in DB.
 
@@ -88,7 +89,7 @@ Blade components under `x-insurence.*` namespace (`resources/views/components/in
 - `x-insurence.error-block` — validation error display
 - `x-insurence.multi-step-stepper` — step progress indicator
 
-**Unified flow standard** (`public/assets/css/flow.css`, brand color `#393185`). Gas balloon, property, KASKO and accident are migrated; other products still use the older components above and should move to these:
+**Unified flow standard** (`public/assets/css/flow.css`, brand color `#393185`). Gas balloon, property, KASKO, accident and tourist are migrated; other products still use the older components above and should move to these:
 - `x-insurence.flow` — page frame: header, stepper, main slot + `summary` slot. Props: `icon`, `title`, `subtitle`, `steps` (labels), `current` (1-based), `stepUrls`. Shows `$errors->first('error')` as an alert.
 - `x-insurence.field` — label + input + help/inline error. Props: `name`, `label`, `type`, `value`, `help`, `id`; extra attributes go to the `<input>`; optional `append` slot.
 - `x-insurence.found` — green "found in database" block (`title`, `text`); JS updates `[data-found="title|text"]`.
@@ -98,7 +99,7 @@ Blade components under `x-insurence.*` namespace (`resources/views/components/in
 - "applicant → object + sum → confirm" products share `pages/insurence/flow/{applicant,confirm}` and the `Concerns\InsuranceFlow` trait (`flowViewData()`, `premiumFor()`). Each controller defines a `FLOW` constant (key, icon, rate, rateLabel, min, max, default, presets, optional step, objectKey, objectStep, objectTitle) and implements `objectLabel()` / `objectReview()` for its insured object.
 - Step 2 pages: gas/property use `cadaster/property` + `Concerns\CadasterFlow` (adds `cadasterRoute`); KASKO uses `kasko/vehicle`. Both include `flow/partials/sum-dates` and `flow/partials/calc-script` (`window.xfCalc.reveal(label)` after the object lookup). The slider `step` must divide `value - min`, or the browser snaps the amount (KASKO uses step 1 mln).
 - Person lookup: `BaseInsuranceController::applicantFromRequest()` (step 1) and `findPerson()` (AJAX) take passport + `pinfl` (14 digits); `birth_date` is still accepted for unmigrated pages. Birth date comes from the API's `birthDate`, else is decoded from the PINFL (digits 2–7 = DDMMYY, first digit = century/gender).
-- Accident uses `Concerns\PersonsFlow` (applicant → persons → term → confirm) with views `persons/{persons,term}`; premiums per person come from the provider calculator. Tourist can adopt the same trait (routes and controller are identical apart from productCode).
+- Accident and tourist extend the abstract `PersonsInsuranceController` (uses `Concerns\PersonsFlow`: applicant → persons → term → confirm, views `persons/{persons,term}`); the subclasses only define FLOW, the session key and `productCode()` (202 / 203). Premiums per person come from `ProviderApiTrait::calculatePersonsInsurance()`; the sale goes to `provider.submit.{key}` via `submitAccident()`.
 - `flow/confirm` renders `$confirmBlocks` ([title, editUrl, items]) and `$premiumTotal` supplied by the flow trait.
 - **Admin-configurable numbers**: `products.settings` (JSON) overrides FLOW per product — rate, min_premium, min/max/default/step, presets, term_months, start_offset (0 today / 1 tomorrow), max_start_days. `App\Services\ProductSettings` merges (`merge()`/`effective()`), validates admin input (`clean()`, cross-checks step vs default/presets) and holds `premium()`, `startDateRules()`, `endDate()`. Controllers read `$this->flow()` (trait `Concerns\ConfigurableFlow`, pulled in by InsuranceFlow/PersonsFlow) — never `self::FLOW` directly; FLOW constants are `public` so ProductSettings can read the built-in defaults. Supported products: `ProductSettings::CONTROLLERS`.
 - Offerta checkbox lives on the confirm step (validated in `storeApplication`), not step 1.
