@@ -551,6 +551,8 @@ Tuzilishi OSGOR'ga o'xshaydi (`number`, `sum`, `contractStartDate`, `regionId`, 
 | `vehicle.license` | Tashuvchi litsenziyasi: `seria`, `number`, `beginDate`, `endDate` mijoz kiritadi (reyestrda yo'q); `typeCode` sug'urtachi namunasidagi matn (turi bo'yicha) |
 | `vehicle.ownerPerson` yoki `ownerOrganization` | Egasi kimligiga qarab faqat bittasi yuboriladi; ikkinchisi umuman qo'shilmaydi |
 
+> Body oddiy UTF-8 da yuboriladi (`JSON_UNESCAPED_UNICODE`), Postman namunasidagidek. PHP'ning standart `\u2018` / `\u0414` escape'lari bilan ham xuddi shu `999.JSON parse error` qaytgan (`O‘G‘LI` kabi ismlar). API jurnali body'ni MySQL JSON ustunida saqlaydi, shuning uchun u yerda escape'lar va kalitlar tartibi ko'rinmaydi.
+>
 > Litsenziyasiz va `ownerPerson: null` bilan yuborilgan so'rovga `{"result": -40000, "result_message": "999.JSON parse error: "}` qaytgan edi. Reyestr turini to'g'ridan-to'g'ri yuborganda yengil avtomobil avtobus tarifida hisoblangan.
 | `vehicle.regionId` | API `0` qaytarsa, arizachining hududi qo'yiladi |
 

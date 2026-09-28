@@ -83,4 +83,30 @@ class ProviderErrorsTest extends TestCase
 
         $this->assertSame(['result' => 0], $this->api->post('http://insurer.test/ok'));
     }
+
+    public function test_insurer_bodies_are_plain_utf8_like_the_postman_samples(): void
+    {
+        Http::fake(['*' => Http::response(['result' => 0])]);
+
+        $api = new class {
+            use ProviderApiTrait;
+
+            public function send(array $body): void
+            {
+                $this->insurerPost('http://insurer.test/eshop/osgop', $body);
+            }
+        };
+        $api->send(['representativeName' => 'ALIYEV VALI O‘G‘LI', 'position' => 'Директор', 'address' => 'uy: 1/2']);
+
+        Http::assertSent(function ($request) {
+            $raw = $request->body();
+
+            return str_contains($raw, '"ALIYEV VALI O‘G‘LI"')
+                && str_contains($raw, '"Директор"')
+                && str_contains($raw, '"uy: 1/2"')
+                && !str_contains($raw, '\\u')
+                && $request->hasHeader('Content-Type', 'application/json')
+                && $request['position'] === 'Директор';
+        });
+    }
 }

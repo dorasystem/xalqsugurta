@@ -69,11 +69,16 @@ trait ProviderApiTrait
     {
         [$user, $password] = $auth ?? [config('provider.username'), config('provider.password')];
 
+        // Plain UTF-8 like the insurer's Postman samples: with PHP's default Д / \/ escapes
+        // the eshop endpoints answer "999.JSON parse error" (names like O‘G‘LI, Cyrillic typeCode)
+        $json = json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+
         try {
             $response = Http::timeout($timeout)
                 ->retry($retries, 500, throw: false)
                 ->withBasicAuth((string) $user, (string) $password)
-                ->post($url, $body);
+                ->withBody($json, 'application/json')
+                ->post($url);
         } catch (ConnectionException $e) {
             Log::error('Insurer connection error', ['url' => $url, 'message' => $e->getMessage()]);
 
