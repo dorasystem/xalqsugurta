@@ -4,8 +4,8 @@
 @php
     $hasVehicle = !empty($vehicle['regnumber']);
     $amount     = (int) old('insurance_amount', $calculation['insurance_amount'] ?? $flow['default']);
-    $startDate  = old('payment_start_date', $calculation['payment_start_date'] ?? now()->format('Y-m-d'));
-    $premiumOf  = fn (int $sum): int => (int) round($sum * $flow['rate'] / 100);
+    $startDate  = old('payment_start_date', $calculation['payment_start_date'] ?? $flow['start_min']);
+    $premiumOf  = fn (int $sum): int => \App\Services\ProductSettings::premium($flow, $sum);
 
     // Validation errors on the hidden vehicle fields are shown under the search row
     $vehicleError = collect(['regnumber', 'tp_seria', 'tp_number', 'brand', 'model', 'year', 'body_number', 'engine_number', 'vehicle_type'])

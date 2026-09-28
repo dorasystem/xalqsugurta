@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 // OSGOP (Обязательное Страхование Гражданской Ответственности Перевозчиков)
 
-Route::group(['prefix' => 'osgop'], function () {
+Route::group(['prefix' => 'osgop', 'middleware' => 'product.on-sale:osgop'], function () {
 
     // ── Index ─────────────────────────────────────────────────────────────────
     Route::get('/', [OsgopController::class, 'index'])->name('osgop.index');

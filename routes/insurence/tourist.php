@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 // Tourist (Mehmonxona turistlari) accident insurance routes
 
-Route::group(['prefix' => 'tourist'], function () {
+Route::group(['prefix' => 'tourist', 'middleware' => 'product.on-sale:tourist'], function () {
 
     // Step 1: Applicant
     Route::get('/',                            [TouristController::class, 'index'])->name('tourist.index');

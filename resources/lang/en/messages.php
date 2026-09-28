@@ -12,6 +12,7 @@
         'products_subtitle' => 'Choose the right insurance for you — fast, simple and fully online',
         'osago_desc' => 'Compulsory civil liability insurance for vehicle owners',
         'buy_policy' => 'Get a policy',
+        'product_unavailable' => 'This product is not on sale right now.',
         'flow' => [
             'all_products'         => 'All products',
             'step_of'              => 'Step :current of :total',
@@ -34,7 +35,7 @@
             'property_subtitle'    => 'Enter the cadastral number and choose the sum insured.',
             'cadaster_hint'        => 'Find the property by its cadastral number first, then choose the sum.',
             'amount_range'         => 'from :min mln to :max mln UZS',
-            'term_auto'            => 'Automatic: 1 year',
+            'term_auto'            => 'Automatic: :months months',
             'mln'                  => 'mln',
             'check_title'          => 'Check your details',
             'check_subtitle'       => 'Is everything correct? If not, press "Edit".',

@@ -12,12 +12,17 @@ use Carbon\Carbon;
  * Premiums come from the provider calculator per person, so there is no fixed rate.
  * The using controller defines a FLOW constant:
  *   key, icon, min, max, step, default, presets (sum insured per person, UZS)
+ * Sums, presets and term can be overridden per product in the admin panel;
+ * always read them through $this->flow(), never FLOW directly.
  */
 trait PersonsFlow
 {
+    use ConfigurableFlow;
+
     protected function flowViewData(array $extra = []): array
     {
-        $key         = static::FLOW['key'];
+        $flow        = $this->flow();
+        $key         = $flow['key'];
         $locale      = getCurrentLocale();
         $applicant   = $this->sess('applicant');
         $persons     = $this->sess('persons', []);
@@ -46,7 +51,7 @@ trait PersonsFlow
         }
 
         return array_merge([
-            'flow'          => static::FLOW + ['rateLabel' => null],
+            'flow'          => $flow + ['rateLabel' => null],
             'applicant'     => $applicant,
             'persons'       => $persons,
             'calculation'   => $calculation,

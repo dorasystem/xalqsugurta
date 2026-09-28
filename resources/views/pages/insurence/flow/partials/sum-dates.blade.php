@@ -16,7 +16,7 @@
                         @endforeach
                     </div>
                     <span class="xf-amount" id="amt_display">{{ formatMoney($amount) }}</span>
-                    <input type="range" id="amt_slider" class="xf-range" min="{{ $flow['min'] }}" max="{{ $flow['max'] }}" step="{{ $flow['step'] ?? 5000000 }}"
+                    <input type="range" id="amt_slider" class="xf-range" min="{{ $flow['min'] }}" max="{{ $flow['max'] }}" step="{{ $flow['step'] }}"
                            value="{{ $amount }}" aria-labelledby="amt_label">
                     <input type="hidden" name="insurance_amount" id="h_insurance_amount" value="{{ $amount }}">
                     @error('insurance_amount')
@@ -33,7 +33,8 @@
                         type="date"
                         :label="__('messages.start_date')"
                         :value="$startDate"
-                        :min="now()->format('Y-m-d')"
+                        :min="$flow['start_min']"
+                        :max="$flow['start_max']"
                         required
                     />
                     <x-insurence.field
@@ -42,7 +43,7 @@
                         type="date"
                         :label="__('messages.end_date')"
                         :value="$calculation['payment_end_date'] ?? null"
-                        :help="__t('messages.flow.term_auto')"
+                        :help="__t('messages.flow.term_auto', ['months' => $flow['term_months']])"
                         readonly
                         tabindex="-1"
                     />

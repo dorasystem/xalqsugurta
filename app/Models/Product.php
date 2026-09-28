@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Services\ProductSettings;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Route;
 
 class Product extends Model
@@ -15,11 +17,56 @@ class Product extends Model
         'offerta_uz', 'offerta_ru', 'offerta_en',
         'is_active',
         'sort_order',
+        'settings',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'settings'  => 'array',
     ];
+
+    protected static function booted(): void
+    {
+        static::updated(fn (Product $product) => $product->recordSettingChanges());
+    }
+
+    public function settingChanges(): HasMany
+    {
+        return $this->hasMany(ProductSettingChange::class)->latest();
+    }
+
+    /**
+     * Writes one history row per changed setting key and for the on-sale switch.
+     * Runs in the "updated" event, where getOriginal() still holds the previous values.
+     */
+    public function recordSettingChanges(): void
+    {
+        $changes = [];
+
+        if ($this->wasChanged('is_active')) {
+            $changes['is_active'] = [$this->getOriginal('is_active'), $this->is_active];
+        }
+
+        if ($this->wasChanged('settings')) {
+            $old = $this->getOriginal('settings') ?? [];
+            $new = $this->settings ?? [];
+
+            foreach (array_keys(ProductSettings::LABELS) as $key) {
+                if (($old[$key] ?? null) != ($new[$key] ?? null)) {
+                    $changes[$key] = [$old[$key] ?? null, $new[$key] ?? null];
+                }
+            }
+        }
+
+        foreach ($changes as $key => [$from, $to]) {
+            $this->settingChanges()->create([
+                'user_id'   => auth()->id(),
+                'field'     => $key,
+                'old_value' => ProductSettings::display($key, $from),
+                'new_value' => ProductSettings::display($key, $to),
+            ]);
+        }
+    }
 
     /** Product route => category key (messages.product_categories.*) */
     public const CATEGORIES = [

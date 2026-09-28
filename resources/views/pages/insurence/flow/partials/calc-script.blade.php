@@ -2,17 +2,20 @@
     JS for the sum-dates partial + summary sidebar. Defines window.xfCalc:
       xfCalc.reveal(objectLabel) — call once the insured object is found:
         shows the sum section, enables #submit_btn, fills the summary.
-    Expects: $flow (rate in %)
+    Expects: $flow (rate in %, min_premium, term_months)
 --}}
 <script>
 window.xfCalc = (function () {
-    var RATE     = {{ $flow['rate'] / 100 }};
+    var RATE        = {{ $flow['rate'] / 100 }};
+    var MIN_PREMIUM = {{ (int) $flow['min_premium'] }};
+    var TERM_MONTHS = {{ (int) $flow['term_months'] }};
     var CURRENCY = @json(__t('messages.currency'));
 
     function $(id) { return document.getElementById(id); }
     function money(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ' + CURRENCY; }
     function dmy(d) { return ('0' + d.getDate()).slice(-2) + '.' + ('0' + (d.getMonth() + 1)).slice(-2) + '.' + d.getFullYear(); }
     function revealed() { return !$('calc_section').hidden; }
+    function premiumOf(sum) { return Math.max(Math.round(sum * RATE), MIN_PREMIUM); }
 
     function setSummary(key, text) {
         document.querySelectorAll('[data-summary="' + key + '"]').forEach(function (el) {
@@ -36,10 +39,10 @@ window.xfCalc = (function () {
         if (!revealed()) return;
 
         var premium = $('sidebar_premium');
-        premium.textContent = money(val * RATE);
+        premium.textContent = money(premiumOf(val));
         premium.classList.remove('is-empty');
         setSummary('sum', money(val));
-        setSummary('total', money(val * RATE));
+        setSummary('total', money(premiumOf(val)));
     }
 
     slider.addEventListener('input', function () { setAmount(this.value); });
@@ -47,13 +50,13 @@ window.xfCalc = (function () {
         chip.addEventListener('click', function () { setAmount(this.dataset.amount); });
     });
 
-    // ── Start date → end date (1 year) ─────────────────────────────────────────
+    // ── Start date → end date (term from the product settings) ────────────────
     function updateDates() {
         var start = $('start_date').value;
         if (!start) return;
         var s = new Date(start + 'T00:00:00');
         var e = new Date(s);
-        e.setFullYear(e.getFullYear() + 1);
+        e.setMonth(e.getMonth() + TERM_MONTHS);
         e.setDate(e.getDate() - 1);
         $('end_date').value = e.getFullYear() + '-' + ('0' + (e.getMonth() + 1)).slice(-2) + '-' + ('0' + e.getDate()).slice(-2);
         if (revealed()) setSummary('period', dmy(s) + ' – ' + dmy(e));

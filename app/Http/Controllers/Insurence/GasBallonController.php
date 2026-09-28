@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Insurence;
 use App\Exceptions\ProviderException;
 use App\Http\Controllers\Insurence\Concerns\CadasterFlow;
 use App\Services\OrderService;
+use App\Services\ProductSettings;
 use App\Services\PropertyService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -19,7 +20,7 @@ final class GasBallonController extends BaseInsuranceController
 
     private const SESSION_KEY = 'gas';
 
-    protected const FLOW = [
+    public const FLOW = [
         'key'           => self::SESSION_KEY,
         'icon'          => 'bi-fire',
         'rate'          => 0.5,
@@ -79,10 +80,12 @@ final class GasBallonController extends BaseInsuranceController
 
     public function storeProperty(Request $request): RedirectResponse
     {
+        $flow = $this->flow();
+
         $request->validate([
             'cadaster_number'    => ['required', 'string'],
-            'insurance_amount'   => ['required', 'integer', 'min:' . self::FLOW['min'], 'max:' . self::FLOW['max']],
-            'payment_start_date' => ['required', 'date', 'after_or_equal:today'],
+            'insurance_amount'   => ['required', 'integer', 'min:' . $flow['min'], 'max:' . $flow['max']],
+            'payment_start_date' => ProductSettings::startDateRules($flow),
         ]);
 
         if (!$this->sess('applicant')) {
@@ -92,7 +95,7 @@ final class GasBallonController extends BaseInsuranceController
         $insuranceAmount = (int) $request->input('insurance_amount');
         $premium         = $this->premiumFor($insuranceAmount);
         $startDate       = $request->input('payment_start_date');
-        $endDate         = Carbon::parse($startDate)->addYear()->subDay()->format('Y-m-d');
+        $endDate         = ProductSettings::endDate($flow, $startDate);
 
         $districtId = (int) $request->input('prop_district_id', 0);
         $regionId   = $districtId > 0 ? (int) floor($districtId / 100) : 10;

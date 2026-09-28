@@ -4,8 +4,8 @@
 @php
     $hasProperty = !empty($property['cadasterNumber']);
     $amount      = (int) old('insurance_amount', $calculation['insurance_amount'] ?? $flow['default']);
-    $startDate   = old('payment_start_date', $calculation['payment_start_date'] ?? now()->format('Y-m-d'));
-    $premiumOf   = fn (int $sum): int => (int) round($sum * $flow['rate'] / 100);
+    $startDate   = old('payment_start_date', $calculation['payment_start_date'] ?? $flow['start_min']);
+    $premiumOf   = fn (int $sum): int => \App\Services\ProductSettings::premium($flow, $sum);
 @endphp
 
 @section('content')

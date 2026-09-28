@@ -401,9 +401,9 @@ trait ProviderApiTrait
     // =========================
     /**
      * The calculator rejects requests without a policy period ("Ошибка даты начало страхования").
-     * $startDate is Y-m-d; defaults to tomorrow, the term is one year.
+     * $startDate is Y-m-d; defaults to tomorrow. $termMonths comes from the product settings.
      */
-    public function calculateAccident(int $sumInsured, ?string $startDate = null): array
+    public function calculateAccident(int $sumInsured, ?string $startDate = null, int $termMonths = 12): array
     {
         $start = \Carbon\Carbon::parse($startDate ?? now()->addDay())->startOfDay();
 
@@ -415,7 +415,7 @@ trait ProviderApiTrait
                 'details' => [
                     'productCode' => '202',
                     'startDate'   => $start->format('Y-m-d'),
-                    'endDate'     => $start->copy()->addYear()->subDay()->format('Y-m-d'),
+                    'endDate'     => $start->copy()->addMonths($termMonths)->subDay()->format('Y-m-d'),
                 ],
                 'persons' => [['sumInsured' => (string) $sumInsured]],
             ]);

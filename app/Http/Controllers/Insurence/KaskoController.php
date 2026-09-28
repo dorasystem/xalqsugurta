@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Insurence;
 use App\Exceptions\ProviderException;
 use App\Http\Controllers\Insurence\Concerns\InsuranceFlow;
 use App\Services\OrderService;
+use App\Services\ProductSettings;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -18,7 +19,7 @@ final class KaskoController extends BaseInsuranceController
 
     private const SESSION_KEY = 'kasko';
 
-    protected const FLOW = [
+    public const FLOW = [
         'key'         => self::SESSION_KEY,
         'icon'        => 'bi-car-front-fill',
         'rate'        => 3,
@@ -76,6 +77,8 @@ final class KaskoController extends BaseInsuranceController
 
     public function storeVehicle(Request $request): RedirectResponse
     {
+        $flow = $this->flow();
+
         $request->validate([
             'regnumber'          => ['required', 'string'],
             'tp_seria'           => ['required', 'string', 'max:3'],
@@ -86,8 +89,8 @@ final class KaskoController extends BaseInsuranceController
             'body_number'        => ['required', 'string'],
             'engine_number'      => ['required', 'string'],
             'vehicle_type'       => ['required', 'integer'],
-            'insurance_amount'   => ['required', 'integer', 'min:' . self::FLOW['min'], 'max:' . self::FLOW['max']],
-            'payment_start_date' => ['required', 'date', 'after_or_equal:today'],
+            'insurance_amount'   => ['required', 'integer', 'min:' . $flow['min'], 'max:' . $flow['max']],
+            'payment_start_date' => ProductSettings::startDateRules($flow),
         ]);
 
         if (!$this->sess('applicant')) {
@@ -97,7 +100,7 @@ final class KaskoController extends BaseInsuranceController
         $insuranceAmount = (int) $request->input('insurance_amount');
         $premium         = $this->premiumFor($insuranceAmount);
         $startDate       = $request->input('payment_start_date');
-        $endDate         = Carbon::parse($startDate)->addYear()->subDay()->format('Y-m-d');
+        $endDate         = ProductSettings::endDate($flow, $startDate);
 
         $this->putSess('vehicle', [
             'regnumber'     => strtoupper($request->input('regnumber')),

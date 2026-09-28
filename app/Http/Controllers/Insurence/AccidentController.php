@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Insurence;
 use App\Exceptions\ProviderException;
 use App\Http\Controllers\Insurence\Concerns\PersonsFlow;
 use App\Services\OrderService;
+use App\Services\ProductSettings;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -19,7 +20,7 @@ final class AccidentController extends BaseInsuranceController
     private const SESSION_KEY = 'accident';
 
     /** Sum insured per person (UZS); premium comes from the provider calculator */
-    protected const FLOW = [
+    public const FLOW = [
         'key'     => self::SESSION_KEY,
         'icon'    => 'bi-heart-pulse-fill',
         'min'     => 50_000,
@@ -73,11 +74,15 @@ final class AccidentController extends BaseInsuranceController
     public function calculatePremium(Request $request): JsonResponse
     {
         $request->validate([
-            'sum_insured' => ['required', 'integer', 'min:' . self::FLOW['min'], 'max:' . self::FLOW['max']],
+            'sum_insured' => ['required', 'integer', 'min:' . $this->flow()['min'], 'max:' . $this->flow()['max']],
         ]);
 
         try {
-            $result = $this->calculateAccident((int) $request->input('sum_insured'), $this->sess('calculation.start_date'));
+            $result = $this->calculateAccident(
+                (int) $request->input('sum_insured'),
+                $this->sess('calculation.start_date') ?? $this->flow()['start_min'],
+                $this->flow()['term_months'],
+            );
         } catch (ProviderException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
@@ -100,7 +105,7 @@ final class AccidentController extends BaseInsuranceController
             'birth_date'      => ['required', 'date', 'before:today'],
             'firstname'       => ['required', 'string'],
             'lastname'        => ['required', 'string'],
-            'sum_insured'     => ['required', 'integer', 'min:' . self::FLOW['min'], 'max:' . self::FLOW['max']],
+            'sum_insured'     => ['required', 'integer', 'min:' . $this->flow()['min'], 'max:' . $this->flow()['max']],
         ]);
 
         $persons = $this->sess('persons', []);
@@ -111,7 +116,11 @@ final class AccidentController extends BaseInsuranceController
         $sumInsured = (int) $request->input('sum_insured');
 
         try {
-            $calcResult = $this->calculateAccident($sumInsured, $this->sess('calculation.start_date'));
+            $calcResult = $this->calculateAccident(
+                $sumInsured,
+                $this->sess('calculation.start_date') ?? $this->flow()['start_min'],
+                $this->flow()['term_months'],
+            );
             $premium    = (int) ($calcResult['persons'][0]['insurancePremium'] ?? $calcResult['cost']['insurancePremium'] ?? 0);
         } catch (ProviderException $e) {
             return back()->withErrors(['sum_insured' => $e->getMessage()])->withInput();
@@ -184,7 +193,7 @@ final class AccidentController extends BaseInsuranceController
     public function storeCalculation(Request $request): RedirectResponse
     {
         $request->validate([
-            'start_date' => ['required', 'date', 'after_or_equal:today'],
+            'start_date' => ProductSettings::startDateRules($this->flow()),
         ]);
 
         $applicant = $this->sess('applicant');
@@ -195,7 +204,7 @@ final class AccidentController extends BaseInsuranceController
         }
 
         $startDate    = $request->input('start_date');
-        $endDate      = Carbon::parse($startDate)->addYear()->subDay()->format('Y-m-d');
+        $endDate      = ProductSettings::endDate($this->flow(), $startDate);
         $totalSum     = array_sum(array_column($persons, 'sum_insured'));
         $totalPremium = array_sum(array_column($persons, 'insurance_premium'));
 

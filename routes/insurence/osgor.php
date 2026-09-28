@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 // OSGOR — Mandatory Employer Liability Insurance
 
-Route::group(['prefix' => 'osgor'], function () {
+Route::group(['prefix' => 'osgor', 'middleware' => 'product.on-sale:osgor'], function () {
 
     // Step 1: Organization search
     Route::get('/',                [OsgorController::class, 'index'])->name('osgor.index');

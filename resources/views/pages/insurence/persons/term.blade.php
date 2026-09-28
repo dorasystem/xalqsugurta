@@ -1,10 +1,10 @@
 @extends('layouts.app')
 @section('title', __('insurance.' . $flow['key'] . '.page_title'))
 
-{{-- Step 3 of the persons flow: policy start date (term is fixed at 1 year) --}}
+{{-- Step 3 of the persons flow: policy start date (term length comes from the product settings) --}}
 @php
     $locale    = getCurrentLocale();
-    $startDate = old('start_date', $calculation['start_date'] ?? now()->addDay()->format('Y-m-d'));
+    $startDate = old('start_date', $calculation['start_date'] ?? $flow['start_min']);
 @endphp
 
 @section('content')
@@ -32,7 +32,8 @@
                     type="date"
                     :label="__('messages.start_date')"
                     :value="$startDate"
-                    :min="now()->format('Y-m-d')"
+                    :min="$flow['start_min']"
+                    :max="$flow['start_max']"
                     required
                 />
                 <x-insurence.field
@@ -41,7 +42,7 @@
                     type="date"
                     :label="__('messages.end_date')"
                     :value="$calculation['end_date'] ?? null"
-                    :help="__t('messages.flow.term_auto')"
+                    :help="__t('messages.flow.term_auto', ['months' => $flow['term_months']])"
                     readonly
                     tabindex="-1"
                 />
@@ -71,13 +72,14 @@
 (function () {
     var start = document.getElementById('start_date');
     var end   = document.getElementById('end_date');
+    var TERM_MONTHS = {{ (int) $flow['term_months'] }};
 
     function pad(n) { return ('0' + n).slice(-2); }
 
     function update() {
         if (!start.value) return;
         var d = new Date(start.value + 'T00:00:00');
-        d.setFullYear(d.getFullYear() + 1);
+        d.setMonth(d.getMonth() + TERM_MONTHS);
         d.setDate(d.getDate() - 1);
         end.value = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 

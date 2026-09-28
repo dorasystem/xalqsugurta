@@ -100,6 +100,7 @@ Blade components under `x-insurence.*` namespace (`resources/views/components/in
 - Person lookup: `BaseInsuranceController::applicantFromRequest()` (step 1) and `findPerson()` (AJAX) take passport + `pinfl` (14 digits); `birth_date` is still accepted for unmigrated pages. Birth date comes from the API's `birthDate`, else is decoded from the PINFL (digits 2–7 = DDMMYY, first digit = century/gender).
 - Accident uses `Concerns\PersonsFlow` (applicant → persons → term → confirm) with views `persons/{persons,term}`; premiums per person come from the provider calculator. Tourist can adopt the same trait (routes and controller are identical apart from productCode).
 - `flow/confirm` renders `$confirmBlocks` ([title, editUrl, items]) and `$premiumTotal` supplied by the flow trait.
+- **Admin-configurable numbers**: `products.settings` (JSON) overrides FLOW per product — rate, min_premium, min/max/default/step, presets, term_months, start_offset (0 today / 1 tomorrow), max_start_days. `App\Services\ProductSettings` merges (`merge()`/`effective()`), validates admin input (`clean()`, cross-checks step vs default/presets) and holds `premium()`, `startDateRules()`, `endDate()`. Controllers read `$this->flow()` (trait `Concerns\ConfigurableFlow`, pulled in by InsuranceFlow/PersonsFlow) — never `self::FLOW` directly; FLOW constants are `public` so ProductSettings can read the built-in defaults. Supported products: `ProductSettings::CONTROLLERS`.
 - Offerta checkbox lives on the confirm step (validated in `storeApplication`), not step 1.
 - Helpers: `formatMoney($uzs)` → `250 000 so'm`, `formatPhone($p)` → `+998 90 123 45 67`. Flow strings are under `messages.flow.*`.
 
@@ -109,14 +110,14 @@ Blade components under `x-insurence.*` namespace (`resources/views/components/in
 - Access: `User` implements `FilamentUser`; `canAccessPanel()` allows emails in `ADMIN_EMAILS` (comma-separated, `config('app.admin_emails')`), or every user when it is empty. Without this Filament returns 403 whenever `APP_ENV` is not `local`.
 - Dashboard (`Filament/Admin/Pages/Dashboard`, 3 columns): `OrdersStatsOverview`, `RevenueChart`, `ProductSalesChart`, `LatestOrders` widgets. Date grouping is done in PHP so it works on MySQL and SQLite.
 - `OrderResource::columns()` is shared by the list page and `LatestOrders`. Status labels/colors come from `Order::STATUS_LABELS` / `Order::statusColor()`; `Order::client_name` and `Order::applicant` read the applicant from `insurances_data` (person, organization, or OSGOP's nested shape).
-- `ProductResource` form uses UZ/RU/EN tabs; `route` options come from `Product::CATEGORIES`.
+- `ProductResource` form uses UZ/RU/EN tabs; `route` options come from `Product::CATEGORIES`. "Narx va chegaralar" section edits `settings.*` (saved through `ProductResource::withCleanSettings()`); `SettingChangesRelationManager` lists `product_setting_changes`, written by `Product::recordSettingChanges()` on every settings / `is_active` change.
+- `is_active` ("Sotuvda") hides the card and closes the product's routes via the `product.on-sale:{route}` middleware (`EnsureProductOnSale`); the OSAGO payment page stays open.
 
-### Premium Rates (client-side calculation)
-- Accident: 0.3% of sum_insured per person
+### Premium Rates (built-in defaults; admins can change them per product)
 - Property: 0.2% of insurance_amount
 - Gas Balloon: 0.5% of insurance_amount
 - KASKO: 3% of insurance_amount
-- OSGOR/OSGOP: calculated by API
+- Accident, OSGOR/OSGOP: calculated by API
 
 ### normalizePerson() output fields
 `pinfl`, `passport_seria`, `passport_number`, `birth_date`, `lastname`, `firstname`, `middlename`, `gender` (m/f), `address`, `region_id`, `district_id`, `phone`, `resident_type=1`, `country_id=210`

@@ -12,6 +12,7 @@ return [
     'products_subtitle' => 'O\'zingizga mos sug\'urtani tanlang — tez, qulay va to\'liq onlayn',
     'osago_desc' => 'Transport vositalari egalarining fuqarolik javobgarligini majburiy sug\'urta qilish',
     'buy_policy' => 'Polis olish',
+    'product_unavailable' => 'Bu mahsulot hozircha sotuvda emas.',
     'flow' => [
         'all_products'         => 'Barcha mahsulotlar',
         'step_of'              => ':current-qadam, jami :total ta',
@@ -34,7 +35,7 @@ return [
         'property_subtitle'    => 'Kadastr raqamini kiriting va sug\'urta summasini tanlang.',
         'cadaster_hint'        => 'Avval kadastr raqami bo\'yicha mulkni toping, shundan so\'ng summa tanlanadi.',
         'amount_range'         => ':min mln dan :max mln so\'mgacha',
-        'term_auto'            => 'Avtomatik: 1 yil',
+        'term_auto'            => 'Avtomatik: :months oy',
         'mln'                  => 'mln',
         'check_title'          => 'Ma\'lumotlarni tekshiring',
         'check_subtitle'       => 'Hammasi to\'g\'rimi? Xato bo\'lsa, "O\'zgartirish" tugmasini bosing.',
