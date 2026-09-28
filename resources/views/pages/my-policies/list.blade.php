@@ -53,6 +53,11 @@
                         <i class="bi bi-patch-check"></i> {{ __('messages.verify_policy') }}
                     </a>
                 @endif
+                @if ($status === 'paid')
+                    <a class="xf-btn xf-btn--soft" href="{{ route('claims.create', ['locale' => $locale, 'order' => $order->id]) }}">
+                        <i class="bi bi-life-preserver"></i> {{ __t('messages.claims.my_policy_link') }}
+                    </a>
+                @endif
                 <a class="xf-btn {{ $status === 'new' ? 'xf-btn--primary' : 'xf-btn--ghost' }}"
                    href="{{ route('payment.show', ['locale' => $locale, 'orderId' => $order->id]) }}">
                     @if ($status === 'new')

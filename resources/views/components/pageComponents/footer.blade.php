@@ -19,6 +19,18 @@
                             <li class="footer-menu__item">{{-- Matbuot - markazi --}}
                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/{{ __('routes.news') }}" class="footer-menu__link">{{ __('messages.press_center') }}</a>
                             </li>
+                            <li class="footer-menu__item">
+                                <a href="{{ route('my-policies', ['locale' => getCurrentLocale()]) }}" class="footer-menu__link">{{ __t('messages.my_policies.title') }}</a>
+                            </li>
+                            <li class="footer-menu__item">
+                                <a href="{{ route('claims.create', ['locale' => getCurrentLocale()]) }}" class="footer-menu__link">{{ __t('messages.claims.title') }}</a>
+                            </li>
+                            <li class="footer-menu__item">
+                                <a href="{{ route('claims.status', ['locale' => getCurrentLocale()]) }}" class="footer-menu__link">{{ __t('messages.claims.check_status') }}</a>
+                            </li>
+                            <li class="footer-menu__item">
+                                <a href="{{ route('callback', ['locale' => getCurrentLocale()]) }}" class="footer-menu__link">{{ __t('messages.callback.title') }}</a>
+                            </li>
                             <li class="footer-menu__item">{{-- Foydali ma'lumotlar --}}
                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/{{ __('routes.useful_info') }}" class="footer-menu__link">{{ __('messages.useful_info') }}</a>
                             </li>

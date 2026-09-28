@@ -1137,3 +1137,29 @@ label.xf-chip {
 @media (max-width: 991px) {
     .xf-summary.xf-product-aside { order: -1; }
 }
+
+/* ─── Selects, textareas, file inputs (claims, callback) ──────────────────── */
+select.xf-input {
+    appearance: none;
+    height: auto;              /* the site-wide select style sets a taller fixed height */
+    min-height: 0;
+    padding-top: 11px;
+    padding-bottom: 11px;
+    line-height: 1.2;
+    padding-right: 36px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23393185' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+}
+textarea.xf-input { min-height: 110px; resize: vertical; line-height: 1.5; }
+.xf-file {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border: 1.5px dashed var(--xf-line);
+    border-radius: 12px;
+    background: var(--xf-tint-2);
+    color: var(--xf-text);
+    font-size: var(--xf-fs-body);
+}
+.xf-file:focus-visible { outline: 2px solid var(--xf-brand); outline-offset: 2px; }

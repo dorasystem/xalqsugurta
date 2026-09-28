@@ -475,6 +475,12 @@
                         <li class="menu-bar__line">
                             <a href="{{ route('my-policies', ['locale' => getCurrentLocale()]) }}" class="menu-bar__link">{{ __t('messages.my_policies.title') }}</a>
                         </li>
+                        <li class="menu-bar__line">
+                            <a href="{{ route('claims.create', ['locale' => getCurrentLocale()]) }}" class="menu-bar__link">{{ __t('messages.claims.title') }}</a>
+                        </li>
+                        <li class="menu-bar__line">
+                            <a href="{{ route('callback', ['locale' => getCurrentLocale()]) }}" class="menu-bar__link">{{ __t('messages.callback.title') }}</a>
+                        </li>
                     </ul>
                 </div>
                 <div class="menu-bar__block">

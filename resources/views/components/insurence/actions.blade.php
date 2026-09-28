@@ -3,6 +3,7 @@
     'submit',
     'total'   => null,   // int (UZS); shown in the mobile sticky bar
     'form'    => null,   // id of the form the submit button belongs to
+    'payment' => true,   // false on forms that sell nothing (claims, call-back): no "to pay" total
 ])
 
 <div class="xf-actions">
@@ -14,10 +15,12 @@
         <span></span>
     @endif
 
-    <div class="xf-actions__total">
-        <small>{{ __t('messages.flow.to_pay') }}</small>
-        <b data-summary="total">{{ $total ? formatMoney($total) : '—' }}</b>
-    </div>
+    @if ($payment)
+        <div class="xf-actions__total">
+            <small>{{ __t('messages.flow.to_pay') }}</small>
+            <b data-summary="total">{{ $total ? formatMoney($total) : '—' }}</b>
+        </div>
+    @endif
 
     <button type="submit" @if ($form) form="{{ $form }}" @endif {{ $attributes->class('xf-btn xf-btn--primary') }}>
         {{ $submit }} <i class="bi bi-arrow-right"></i>

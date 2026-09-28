@@ -33,7 +33,7 @@
                 <x-insurence.field name="code" :label="__t('messages.my_policies.code_label')"
                     inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="••••••" autofocus />
             </div>
-            <x-insurence.actions :submit="__t('messages.my_policies.sign_in')" />
+            <x-insurence.actions :payment="false" :submit="__t('messages.my_policies.sign_in')" />
         </form>
 
         <div class="xf-policy-links">
@@ -62,7 +62,7 @@
                 <x-insurence.field name="phone" type="tel" :label="__('messages.phone_number')"
                     :help="__t('messages.flow.phone_help')" inputmode="tel" placeholder="+998 90 123 45 67" autocomplete="tel" />
             </div>
-            <x-insurence.actions :submit="__t('messages.my_policies.send_code')" />
+            <x-insurence.actions :payment="false" :submit="__t('messages.my_policies.send_code')" />
         </form>
     @endif
 

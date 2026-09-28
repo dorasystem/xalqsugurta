@@ -54,6 +54,10 @@
                 </a>
             </div>
 
+            <ul class="xf-summary__list xf-product-docs">
+                <li><a href="{{ route('claims.create', ['locale' => $locale, 'product' => $product->route]) }}"><i class="bi bi-life-preserver"></i> {{ __t('messages.claims.title') }}</a></li>
+            </ul>
+
             @if ($rules || $offerta)
                 <ul class="xf-summary__list xf-product-docs">
                     @if ($rules)
