@@ -930,4 +930,17 @@ return [
             ['q' => 'Qanday to‘lash mumkin?', 'a' => 'Bank kartasi bilan Payme yoki Click orqali, to‘lov sahifasining o‘zida.'],
         ],
     ],
+
+    // Error pages (resources/views/errors)
+    'error_page' => [
+        'home'  => 'Bosh sahifa',
+        'back'  => 'Orqaga',
+        'help'  => 'Yordam kerakmi? Qo‘ng‘iroq qiling',
+        '403'   => ['title' => 'Kirish yopiq',             'text' => 'Bu sahifani ko‘rish uchun ruxsat yo‘q.'],
+        '404'   => ['title' => 'Sahifa topilmadi',         'text' => 'Havola eskirgan yoki manzilda xato bor. Bosh sahifadan kerakli bo‘limni toping.'],
+        '419'   => ['title' => 'Sahifa eskirdi',           'text' => 'Sahifa uzoq vaqt ochiq turdi. Uni yangilab, qaytadan urinib ko‘ring.'],
+        '429'   => ['title' => 'Juda ko‘p so‘rov',         'text' => 'Bir necha daqiqa kutib, qaytadan urinib ko‘ring.'],
+        '500'   => ['title' => 'Nimadir noto‘g‘ri ketdi',  'text' => 'Xatolik haqida bilamiz va tuzatyapmiz. Birozdan keyin qaytadan urinib ko‘ring.'],
+        '503'   => ['title' => 'Texnik ishlar',            'text' => 'Sayt qisqa vaqtga yangilanmoqda. Birozdan keyin qaytib keling.'],
+    ],
 ];

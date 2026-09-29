@@ -931,4 +931,17 @@
             ['q' => 'How can I pay?', 'a' => 'By bank card through Payme or Click, right on the payment page.'],
         ],
     ],
+
+    // Error pages (resources/views/errors)
+    'error_page' => [
+        'home'  => 'Home page',
+        'back'  => 'Go back',
+        'help'  => 'Need help? Call us',
+        '403'   => ['title' => 'Access denied',          'text' => 'You do not have permission to view this page.'],
+        '404'   => ['title' => 'Page not found',         'text' => 'The link is out of date or the address has a typo. Find what you need from the home page.'],
+        '419'   => ['title' => 'Page expired',           'text' => 'The page was open for too long. Refresh it and try again.'],
+        '429'   => ['title' => 'Too many requests',      'text' => 'Please wait a few minutes and try again.'],
+        '500'   => ['title' => 'Something went wrong',   'text' => 'We know about the error and are fixing it. Please try again a little later.'],
+        '503'   => ['title' => 'Maintenance',            'text' => 'The site is being updated for a short while. Please come back soon.'],
+    ],
 ];
