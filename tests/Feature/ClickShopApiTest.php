@@ -216,10 +216,11 @@ class ClickShopApiTest extends TestCase
         $this->assertSame(0, $response['error']);
     }
 
-    public function test_products_without_a_confirmation_step_are_not_sent_to_the_insurer(): void
+    public function test_osago_is_not_sent_while_the_ersp_url_is_empty(): void
     {
         Http::fake();
-        $order     = $this->order(['insurances_data' => ['_product_key' => 'osago']]);
+        config(['services.insurance.osago.payment_url' => null]);
+        $order     = $this->order(['insurances_data' => ['_product_key' => 'osago'], 'insurances_response_data' => ['UUID' => 'u-1']]);
         $prepareId = $this->prepare($order)['merchant_prepare_id'];
 
         $this->assertSame(0, $this->complete($order, $prepareId)['error']);

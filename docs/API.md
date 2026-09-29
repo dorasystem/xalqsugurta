@@ -629,6 +629,39 @@ Yoqqandan keyin bitta sinov sotuvini qilib, API jurnalida javobni tekshirish ker
 
 ---
 
+### OSAGO to'lovini tasdiqlash (ERSP)
+
+Saytning o'z Payme / Click kassasi orqali to'langan OSAGO polisi ERSP'ga (e-osgo) tasdiqlanadi. Polis oldin `/api/v3/contract` yoki `/api/v3/add-polis` orqali qo'shilgan bo'lishi kerak (buni `doraosago/create` qiladi).
+
+- **Manzil:** admin panel, Tizim → Sug'urtachi API → "To'lovni tasdiqlash manzili (ERSP)" yoki `INSURANCE_OSAGO_PAYMENT_URL`. Bo'sh bo'lsa so'rov yuborilmaydi, buyurtma "To'lov tasdiqlanmagan" ro'yxatida qoladi.
+- **Auth:** `INSURANCE_OSAGO_PAYMENT_TOKEN` bo'lsa Bearer, aks holda OSAGO login/parol (Basic).
+- **Muvaffaqiyat:** HTTP 2xx va `error` (yoki `result`) 0.
+
+```json
+{
+  "polisUuid": "6b4e1638-7d92-45c2-be8c-c1d650820d9c",
+  "paidAt": "2026-09-29 10:10:10",
+  "insurancePremium": "192000",
+  "startDate": "2026-10-01",
+  "endDate": "2027-09-30",
+  "agencyId": "17",
+  "transactionId": "…uuid…"
+}
+```
+
+| Maydon | Qayerdan |
+|---|---|
+| `polisUuid` | `doraosago/create` javobidagi `UUID` |
+| `paidAt` | Click `completed_at` yoki Payme `perform_time`, bo'lmasa tasdiqlash vaqti |
+| `insurancePremium` | Buyurtma summasi |
+| `startDate`, `endDate` | Shartnoma muddati |
+| `agencyId` | Admin panel yoki `INSURANCE_OSAGO_AGENCY_ID` (ERSP agentlar ma'lumotnomasi); bo'sh bo'lsa yuborilmaydi |
+| `transactionId` | Sayt yaratadigan UUID; qayta urinishlarda o'zgarmaydi |
+
+`comission`, `currencyId`, `paidExchangeRate`, `paidSumInForeignCurrency` yuborilmaydi (so'mda to'lov). Kod: `App\Services\OsagoPaymentService`.
+
+**Ochiq savollar:** usulning aniq manzili (e-osgo'ga to'g'ridan-to'g'rimi yoki sug'urtachi proxy'si orqalimi), auth va sayt uchun `agencyId`.
+
 ## Tashqi servislar
 
 | Servis | Manzil | Izoh |

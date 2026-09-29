@@ -5,6 +5,8 @@ namespace App\Filament\Admin\Resources\OrderResource\Pages;
 use App\Filament\Admin\Resources\OrderResource;
 use App\Models\Order;
 use App\Services\EshopPaymentService;
+use App\Services\InsurerConfirmation;
+use App\Services\OsagoPaymentService;
 use App\Services\XalqPolicyService;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -65,11 +67,15 @@ class ViewOrder extends ViewRecord
                 ->visible(fn (Order $record): bool => $record->awaitsPaymentConfirmation())
                 ->requiresConfirmation()
                 ->modalHeading('To\'lovni sug\'urtachiga tasdiqlash')
-                ->modalDescription(fn (Order $record): string => 'Xalq Sug\'urta\'ga eshop/payment so\'rovi shartnoma ID '
-                    . (app(EshopPaymentService::class)->body($record)['contract_id'] ?? '—') . ' bilan yuboriladi. Mijozdan pul qayta yechilmaydi.')
+                ->modalDescription(fn (Order $record): string => ($record->product_key === 'osago'
+                    ? (app(OsagoPaymentService::class)->configured()
+                        ? 'ERSP\'ga polis ' . app(OsagoPaymentService::class)->body($record)['polisUuid'] . ' to\'lovi tasdig\'i yuboriladi.'
+                        : 'OSAGO to\'lov tasdig\'i manzili kiritilmagan (Tizim → Sug\'urtachi API). Avval uni kiriting.')
+                    : 'Xalq Sug\'urta\'ga eshop/payment so\'rovi shartnoma ID ' . (app(EshopPaymentService::class)->body($record)['contract_id'] ?? '—') . ' bilan yuboriladi.')
+                    . ' Mijozdan pul qayta yechilmaydi.')
                 ->modalSubmitActionLabel('Yuborish')
-                ->action(function (Order $record, EshopPaymentService $eshop): void {
-                    if ($eshop->confirm($record)) {
+                ->action(function (Order $record, InsurerConfirmation $insurer): void {
+                    if ($insurer->send($record)) {
                         Notification::make()
                             ->title('To\'lov tasdiqlandi')
                             ->success()
@@ -77,7 +83,7 @@ class ViewOrder extends ViewRecord
                     } else {
                         Notification::make()
                             ->title('To\'lov tasdiqlanmadi')
-                            ->body('Xalq Sug\'urta so\'rovni qabul qilmadi yoki shartnoma ID yo\'q. Javobni pastdagi "API so\'rovlari" jadvalida ko\'ring.')
+                            ->body('So\'rov qabul qilinmadi, shartnoma ID yoki manzil yo\'q. Javobni pastdagi "API so\'rovlari" jadvalida ko\'ring.')
                             ->danger()
                             ->persistent()
                             ->send();

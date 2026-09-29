@@ -86,6 +86,11 @@ return [
             'password' => env('INSURANCE_OSAGO_PASSWORD'),
             'timeout' => env('INSURANCE_OSAGO_TIMEOUT', 10),
             'retries' => env('INSURANCE_OSAGO_RETRIES', 3),
+            // ERSP payment confirmation after a payment through the site's own Payme / Click
+            // (admin: Tizim → Sug'urtachi API). Empty = nothing is sent. With a token: Bearer, else the OSAGO login
+            'payment_url'   => env('INSURANCE_OSAGO_PAYMENT_URL'),
+            'payment_token' => env('INSURANCE_OSAGO_PAYMENT_TOKEN'),
+            'agency_id'     => env('INSURANCE_OSAGO_AGENCY_ID'),
         ],
         'accident' => [
             'endpoint' => env('INSURANCE_ACCIDENT_ENDPOINT', 'https://impex-insurance.uz/api/contract/add'),

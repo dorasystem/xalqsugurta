@@ -7,20 +7,21 @@ use App\Models\Order;
 /**
  * What the insurer must hear after a payment through the site's own Payme / Click:
  * gas / property / KASKO → PerformTransactionRequest (issues the policy),
- * OSGOP / OSGOR / accident / tourist → eshop/payment.
+ * OSGOP / OSGOR / accident / tourist → eshop/payment, OSAGO → ERSP payment confirmation.
  */
 final class InsurerConfirmation
 {
     public function __construct(
         private readonly XalqPolicyService $policies,
         private readonly EshopPaymentService $eshop,
+        private readonly OsagoPaymentService $osago,
     ) {}
 
     public function send(Order $order): bool
     {
         return match (true) {
             $order->awaitsPolicy()              => $this->policies->retry($order),
-            $order->awaitsPaymentConfirmation() => $this->eshop->confirm($order),
+            $order->awaitsPaymentConfirmation() => $order->product_key === 'osago' ? $this->osago->confirm($order) : $this->eshop->confirm($order),
             default                             => false,
         };
     }

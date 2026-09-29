@@ -115,6 +115,7 @@ final class ApiLogger
             config('provider.base_url'),
             config('provider.xalq.base_url'),
             config('services.insurance.osago.endpoint'),
+            config('services.insurance.osago.payment_url'),
             ...array_values((array) config('provider.calc')),
             ...array_values((array) config('provider.submit')),
         ])->filter()->map(fn ($u) => parse_url((string) $u, PHP_URL_HOST))->filter()->push('online.xalqsugurta.uz')->unique()->all();

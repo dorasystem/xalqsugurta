@@ -377,9 +377,15 @@ class OrderResource extends Resource
     public static function timeline(Order $order): array
     {
         $logs      = $order->apiLogs()->get(['id', 'endpoint', 'status', 'result', 'success', 'created_at', 'duration_ms']);
-        $afterPay  = fn (ApiLog $l) => str_contains($l->endpoint, 'PerformTransaction') || str_contains($l->endpoint, 'eshop/payment');
+        // eshop/payment, or for OSAGO the path of the configured ERSP confirmation URL
+        $confirmAt = $order->product_key === 'osago'
+            ? trim((string) parse_url((string) config('services.insurance.osago.payment_url'), PHP_URL_PATH), '/')
+            : 'eshop/payment';
+        $isConfirm = fn (ApiLog $l) => $confirmAt !== '' && str_contains($l->endpoint, basename($confirmAt));
+        $afterPay  = fn (ApiLog $l) => str_contains($l->endpoint, 'PerformTransaction') || $isConfirm($l);
         $perform   = $logs->filter(fn (ApiLog $l) => str_contains($l->endpoint, 'PerformTransaction'));
-        $confirms  = $logs->filter(fn (ApiLog $l) => str_contains($l->endpoint, 'eshop/payment'));
+        $confirms  = $logs->filter($isConfirm);
+        $confirmLabel = $order->product_key === 'osago' ? 'ERSP' : 'eshop/payment';
         $contract  = $logs->reject($afterPay)->first();
         $paid      = $order->status === Order::STATUS_PAID;
         $hasPolicy = !empty($order->insurances_response_data['download_url']);
@@ -404,13 +410,14 @@ class OrderResource extends Resource
                 $paid            => ['fail', 'Polis chiqmadi', 'PerformTransaction yuborilmagan', null],
                 default          => ['todo', 'Polis chiqariladi', 'To\'lovdan keyin', null],
             };
-        } elseif (in_array($order->product_key, Order::ESHOP_PAYMENT_CONFIRM, true) && ($paid || $confirms->isNotEmpty())) {
+        } elseif (in_array($order->product_key, Order::PAYMENT_CONFIRM, true) && ($paid || $confirms->isNotEmpty())) {
             $last    = $confirms->first();
             $steps[] = match (true) {
                 !empty($order->insurances_response_data['payment_confirmed_at'])
-                                 => ['ok', 'To\'lov sug\'urtachiga tasdiqlandi', 'eshop/payment', $last?->created_at],
-                $last !== null   => ['fail', 'To\'lov tasdiqlanmadi', 'eshop/payment · ' . $last->outcome() . ($confirms->count() > 1 ? ' · ' . $confirms->count() . ' urinish' : ''), $last->created_at],
-                default          => ['fail', 'To\'lov tasdiqlanmadi', 'eshop/payment yuborilmagan', null],
+                                 => ['ok', 'To\'lov sug\'urtachiga tasdiqlandi', $confirmLabel, $last?->created_at],
+                $last !== null   => ['fail', 'To\'lov tasdiqlanmadi', $confirmLabel . ' · ' . $last->outcome() . ($confirms->count() > 1 ? ' · ' . $confirms->count() . ' urinish' : ''), $last->created_at],
+                $confirmAt === '' => ['fail', 'To\'lov tasdiqlanmadi', 'ERSP manzili kiritilmagan (Tizim → Sug\'urtachi API)', null],
+                default          => ['fail', 'To\'lov tasdiqlanmadi', $confirmLabel . ' yuborilmagan', null],
             };
         } else {
             $steps[] = $paid

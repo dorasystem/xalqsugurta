@@ -56,6 +56,20 @@ class ProviderApiSettings extends Page
                         Toggle::make('provider.osago_legal_entities')
                             ->label('Yuridik shaxslarga sotish')
                             ->helperText('Egasi tashkilot bo\'lgan avtomobil uchun polis (INN bo\'yicha). Sug\'urtachi bunday body namunasini bermagan: yoqqandan keyin bitta sinov sotuvini qilib, API jurnalida javobni tekshiring.'),
+
+                        TextInput::make('provider.osago_payment_url')
+                            ->label('To\'lovni tasdiqlash manzili (ERSP)')
+                            ->url()
+                            ->regex('#^https?://#')
+                            ->maxLength(255)
+                            ->placeholder(fn (): string => '.env: ' . (ProviderSettings::envValue('provider.osago_payment_url') ?? '—'))
+                            ->helperText('Saytning Payme / Click kassasi orqali to\'langan OSAGO shu manzilga yuboriladi (polisUuid, paidAt, insurancePremium, startDate, endDate, agencyId, transactionId). Bo\'sh bo\'lsa hech narsa yuborilmaydi, buyurtma "To\'lov tasdiqlanmagan" ro\'yxatida qoladi.'),
+
+                        TextInput::make('provider.osago_agency_id')
+                            ->label('ERSP agentlik ID (agencyId)')
+                            ->maxLength(20)
+                            ->placeholder(fn (): string => '.env: ' . (ProviderSettings::envValue('provider.osago_agency_id') ?? '—'))
+                            ->helperText('ERSP agentlar ma\'lumotnomasidagi ID. Bo\'sh bo\'lsa yuborilmaydi.'),
                     ]),
             ]);
     }

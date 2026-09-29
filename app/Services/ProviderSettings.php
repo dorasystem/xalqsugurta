@@ -20,6 +20,8 @@ final class ProviderSettings
     public const FIELDS = [
         'provider.agency_id'            => 'provider.agency_id',
         'provider.osago_legal_entities' => 'provider.osago.legal_entities',
+        'provider.osago_payment_url'    => 'services.insurance.osago.payment_url',
+        'provider.osago_agency_id'      => 'services.insurance.osago.agency_id',
     ];
 
     /** On/off fields: saved as '1' / '0', so "off" overrides an .env "on" */

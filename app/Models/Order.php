@@ -77,6 +77,9 @@ class Order extends Model
     /** eshop contracts: a payment through the site's own Payme / Click is confirmed with eshop/payment */
     public const ESHOP_PAYMENT_CONFIRM = ['osgop', 'osgor', 'accident', 'tourist'];
 
+    /** Every product whose payment through the site's cashbox is confirmed to the insurer (OSAGO: ERSP) */
+    public const PAYMENT_CONFIRM = [...self::ESHOP_PAYMENT_CONFIRM, 'osago'];
+
     public function apiLogs(): HasMany
     {
         return $this->hasMany(ApiLog::class)->latest('id');
@@ -117,11 +120,11 @@ class Order extends Model
             ->whereNull('insurances_response_data->download_url');
     }
 
-    /** True when a paid eshop contract has not been confirmed to the insurer yet */
+    /** True when a paid eshop / OSAGO contract has not been confirmed to the insurer yet */
     public function awaitsPaymentConfirmation(): bool
     {
         return $this->status === self::STATUS_PAID
-            && in_array($this->product_key, self::ESHOP_PAYMENT_CONFIRM, true)
+            && in_array($this->product_key, self::PAYMENT_CONFIRM, true)
             && empty($this->insurances_response_data['payment_confirmed_at']);
     }
 
@@ -131,12 +134,12 @@ class Order extends Model
         return $this->awaitsPolicy() || $this->awaitsPaymentConfirmation();
     }
 
-    /** Paid eshop contracts whose payment the insurer has not confirmed */
+    /** Paid eshop / OSAGO contracts whose payment the insurer has not confirmed */
     public function scopeAwaitingPaymentConfirmation(Builder $query): Builder
     {
         return $query
             ->where('status', self::STATUS_PAID)
-            ->whereIn('product_key', self::ESHOP_PAYMENT_CONFIRM)
+            ->whereIn('product_key', self::PAYMENT_CONFIRM)
             ->whereNull('insurances_response_data->payment_confirmed_at');
     }
 
