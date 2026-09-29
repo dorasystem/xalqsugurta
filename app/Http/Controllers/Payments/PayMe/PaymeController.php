@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Payments\PayMe;
 
 use App\Models\Order;
+use App\Services\InsurerConfirmation;
 use App\Models\Transaction;
 use App\Traits\ConfirmPayment;
 use Illuminate\Http\Request;
@@ -272,13 +273,15 @@ class PaymeController extends Controller
                 $completed_order = Order::where('id', $transaction->order_id)->first();
                 $completed_order->status = Order::STATUS_PAID;
 
-                // Call PerformTransactionRequest for Xalq Sugurta products (gas, property, kasko)
-                $xalqProductKeys = ['gas', 'property', 'kasko'];
-                $productKey = $completed_order->insurances_data['_product_key'] ?? null;
-
-                $this->confirmXalqSugurtaPayment($completed_order, $productKey);
-
                 $completed_order->update();
+
+                // Policy request (gas, property, KASKO) or eshop payment confirmation, after Payme has its answer
+                if ($completed_order->product_key === null) {
+                    // Old orders saved without _product_key: detected by their response data
+                    $this->confirmXalqSugurtaPayment($completed_order, null);
+                } else {
+                    InsurerConfirmation::afterResponse($completed_order);
+                }
 
                 // Return JSON-RPC 2.0 format response
                 $response = [

@@ -377,8 +377,10 @@ class OrderResource extends Resource
     public static function timeline(Order $order): array
     {
         $logs      = $order->apiLogs()->get(['id', 'endpoint', 'status', 'result', 'success', 'created_at', 'duration_ms']);
+        $afterPay  = fn (ApiLog $l) => str_contains($l->endpoint, 'PerformTransaction') || str_contains($l->endpoint, 'eshop/payment');
         $perform   = $logs->filter(fn (ApiLog $l) => str_contains($l->endpoint, 'PerformTransaction'));
-        $contract  = $logs->reject(fn (ApiLog $l) => str_contains($l->endpoint, 'PerformTransaction'))->first();
+        $confirms  = $logs->filter(fn (ApiLog $l) => str_contains($l->endpoint, 'eshop/payment'));
+        $contract  = $logs->reject($afterPay)->first();
         $paid      = $order->status === Order::STATUS_PAID;
         $hasPolicy = !empty($order->insurances_response_data['download_url']);
 
@@ -401,6 +403,14 @@ class OrderResource extends Resource
                 $last !== null   => ['fail', 'Polis chiqmadi', 'PerformTransaction · ' . $last->outcome() . ($perform->count() > 1 ? ' · ' . $perform->count() . ' urinish' : ''), $last->created_at],
                 $paid            => ['fail', 'Polis chiqmadi', 'PerformTransaction yuborilmagan', null],
                 default          => ['todo', 'Polis chiqariladi', 'To\'lovdan keyin', null],
+            };
+        } elseif (in_array($order->product_key, Order::ESHOP_PAYMENT_CONFIRM, true) && ($paid || $confirms->isNotEmpty())) {
+            $last    = $confirms->first();
+            $steps[] = match (true) {
+                !empty($order->insurances_response_data['payment_confirmed_at'])
+                                 => ['ok', 'To\'lov sug\'urtachiga tasdiqlandi', 'eshop/payment', $last?->created_at],
+                $last !== null   => ['fail', 'To\'lov tasdiqlanmadi', 'eshop/payment · ' . $last->outcome() . ($confirms->count() > 1 ? ' · ' . $confirms->count() . ' urinish' : ''), $last->created_at],
+                default          => ['fail', 'To\'lov tasdiqlanmadi', 'eshop/payment yuborilmagan', null],
             };
         } else {
             $steps[] = $paid

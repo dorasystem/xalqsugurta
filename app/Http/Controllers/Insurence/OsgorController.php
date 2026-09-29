@@ -224,7 +224,7 @@ final class OsgorController extends BaseInsuranceController
             'amount'                   => $apiResponse['amount'] ?? $calculation['insurance_premium'],
             'insurance_id'             => (string) $insuranceId,
             'phone'                    => $applicant['phone'],
-            'insurances_data'          => ['applicant' => $applicant, 'calculation' => $calculation],
+            'insurances_data'          => ['applicant' => $applicant, 'calculation' => $calculation, 'contract_number' => $body['number']],
             'insurances_response_data' => $apiResponse,
             'payme_url'                => $apiResponse['payme_url'] ?? null,
             'click_url'                => $apiResponse['click_url'] ?? null,

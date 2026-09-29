@@ -73,6 +73,9 @@ class Order extends Model
     /** Products whose policy is issued by PerformTransactionRequest after payment */
     public const POLICY_AFTER_PAYMENT = ['gas', 'property', 'kasko'];
 
+    /** eshop contracts: a payment through the site's own Payme / Click is confirmed with eshop/payment */
+    public const ESHOP_PAYMENT_CONFIRM = ['osgop', 'osgor', 'accident', 'tourist'];
+
     public function apiLogs(): HasMany
     {
         return $this->hasMany(ApiLog::class)->latest('id');
@@ -99,6 +102,37 @@ class Order extends Model
             ->where('status', self::STATUS_PAID)
             ->whereIn('insurances_data->_product_key', self::POLICY_AFTER_PAYMENT)
             ->whereNull('insurances_response_data->download_url');
+    }
+
+    /** True when a paid eshop contract has not been confirmed to the insurer yet */
+    public function awaitsPaymentConfirmation(): bool
+    {
+        return $this->status === self::STATUS_PAID
+            && in_array($this->product_key, self::ESHOP_PAYMENT_CONFIRM, true)
+            && empty($this->insurances_response_data['payment_confirmed_at']);
+    }
+
+    /** Paid, but the insurer still owes the policy or has not been told about the payment */
+    public function awaitsInsurer(): bool
+    {
+        return $this->awaitsPolicy() || $this->awaitsPaymentConfirmation();
+    }
+
+    /** Paid eshop contracts whose payment the insurer has not confirmed */
+    public function scopeAwaitingPaymentConfirmation(Builder $query): Builder
+    {
+        return $query
+            ->where('status', self::STATUS_PAID)
+            ->whereIn('insurances_data->_product_key', self::ESHOP_PAYMENT_CONFIRM)
+            ->whereNull('insurances_response_data->payment_confirmed_at');
+    }
+
+    /** awaitingPolicy() or awaitingPaymentConfirmation() */
+    public function scopeAwaitingInsurer(Builder $query): Builder
+    {
+        return $query->where(fn (Builder $q) => $q
+            ->where(fn (Builder $q) => $q->awaitingPolicy())
+            ->orWhere(fn (Builder $q) => $q->awaitingPaymentConfirmation()));
     }
 
     public static function statusLabel(?string $status): string

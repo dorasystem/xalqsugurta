@@ -259,7 +259,7 @@ trait ProviderApiTrait
         $vehicleRegionId = (string) (($vehicle['region_id'] ?? 0) ?: $regionId);
 
         $body = [
-            'number'            => date('dmy') . '-' . now()->timestamp,
+            'number'            => $calculation['contract_number'] ?? date('dmy') . '-' . now()->timestamp,
             'sum'               => (string) ($calculation['insurance_sum'] ?? 0),
             'contractStartDate' => $calculation['start_date'],
             'contractEndDate'   => $calculation['end_date'],
@@ -443,6 +443,25 @@ trait ProviderApiTrait
         if (($data['result'] ?? -1) !== 0) {
             Log::warning('OSGOR Submit Business Error', ['response' => $data]);
             throw new ProviderException($data['result_message'] ?? $data['message'] ?? 'OSGOR submit error.');
+        }
+
+        return $data;
+    }
+
+    // =========================
+    // ESHOP PAYMENT CONFIRMATION (eshop/payment)
+    // =========================
+    /**
+     * Tells the insurer that an eshop contract was paid through the site's own Payme / Click.
+     * Body: contract_date, contract_id, contract_number, e_date, payment_date, s_date (DD.MM.YYYY).
+     */
+    public function confirmEshopPayment(array $body): array
+    {
+        $data = $this->insurerPost(config('provider.payment.eshop'), $body, timeout: 60, retries: 3)->json() ?? [];
+
+        if (($data['result'] ?? -1) !== 0) {
+            Log::warning('Eshop payment confirmation rejected', ['contract_id' => $body['contract_id'] ?? null, 'result' => $data['result'] ?? null]);
+            throw new ProviderException($data['result_message'] ?? $data['message'] ?? 'Payment confirmation error.');
         }
 
         return $data;

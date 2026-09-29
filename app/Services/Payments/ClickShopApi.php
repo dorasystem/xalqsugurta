@@ -4,7 +4,7 @@ namespace App\Services\Payments;
 
 use App\Models\ClickUz;
 use App\Models\Order;
-use App\Services\XalqPolicyService;
+use App\Services\InsurerConfirmation;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -126,12 +126,9 @@ final class ClickShopApi
 
         Log::info('Click payment completed', ['order_id' => $order->id, 'click_trans_id' => $transaction->click_trans_id]);
 
-        // Ask the insurer for the policy after Click has its answer: PerformTransactionRequest
-        // can take up to a minute with retries, longer than Click waits for Complete
-        if ($order->awaitsPolicy()) {
-            $orderId = $order->id;
-            dispatch(fn () => app(XalqPolicyService::class)->retry(Order::findOrFail($orderId)))->afterResponse();
-        }
+        // Tell the insurer after Click has its answer (policy request / eshop payment confirmation):
+        // with retries it can take up to a minute, longer than Click waits for Complete
+        InsurerConfirmation::afterResponse($order);
 
         return $base + $confirm + $this->error(self::OK);
     }

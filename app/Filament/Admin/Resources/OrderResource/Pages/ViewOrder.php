@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources\OrderResource\Pages;
 
 use App\Filament\Admin\Resources\OrderResource;
 use App\Models\Order;
+use App\Services\EshopPaymentService;
 use App\Services\XalqPolicyService;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
@@ -49,6 +50,34 @@ class ViewOrder extends ViewRecord
                         Notification::make()
                             ->title('Polis chiqmadi')
                             ->body('Xalq Sug\'urta so\'rovni qabul qilmadi. Javobni pastdagi "API so\'rovlari" jadvalida ko\'ring.')
+                            ->danger()
+                            ->persistent()
+                            ->send();
+                    }
+
+                    $this->refreshFormData(['insurances_response_data']);
+                }),
+
+            Action::make('confirmPayment')
+                ->label('To\'lovni tasdiqlash')
+                ->icon('heroicon-o-check-badge')
+                ->color('primary')
+                ->visible(fn (Order $record): bool => $record->awaitsPaymentConfirmation())
+                ->requiresConfirmation()
+                ->modalHeading('To\'lovni sug\'urtachiga tasdiqlash')
+                ->modalDescription(fn (Order $record): string => 'Xalq Sug\'urta\'ga eshop/payment so\'rovi shartnoma ID '
+                    . (app(EshopPaymentService::class)->body($record)['contract_id'] ?? '—') . ' bilan yuboriladi. Mijozdan pul qayta yechilmaydi.')
+                ->modalSubmitActionLabel('Yuborish')
+                ->action(function (Order $record, EshopPaymentService $eshop): void {
+                    if ($eshop->confirm($record)) {
+                        Notification::make()
+                            ->title('To\'lov tasdiqlandi')
+                            ->success()
+                            ->send();
+                    } else {
+                        Notification::make()
+                            ->title('To\'lov tasdiqlanmadi')
+                            ->body('Xalq Sug\'urta so\'rovni qabul qilmadi yoki shartnoma ID yo\'q. Javobni pastdagi "API so\'rovlari" jadvalida ko\'ring.')
                             ->danger()
                             ->persistent()
                             ->send();

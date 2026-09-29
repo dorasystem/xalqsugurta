@@ -44,6 +44,12 @@ class ListOrders extends ListRecords
                 ->badgeColor('danger')
                 ->modifyQueryUsing(fn (Builder $query) => $query->awaitingPolicy()),
 
+            'unconfirmed' => Tab::make('To\'lov tasdiqlanmagan')
+                ->icon('heroicon-m-exclamation-circle')
+                ->badge(Order::awaitingPaymentConfirmation()->count() ?: null)
+                ->badgeColor('danger')
+                ->modifyQueryUsing(fn (Builder $query) => $query->awaitingPaymentConfirmation()),
+
             'failed' => Tab::make('Bekor / xato')
                 ->icon('heroicon-m-x-circle')
                 ->badge($count([Order::STATUS_CANCELLED, Order::STATUS_FAILED]))

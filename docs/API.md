@@ -328,6 +328,34 @@ Payme yoki Click to'lov muvaffaqiyatli bo'lganini xabar qilgandan keyin chaqiril
 
 `contract_number` uchun avval `polis_sery-polis_number` olinadi. U bo'lmasa, Initiate'da yuborilgan raqam ishlatiladi. `download_url` buyurtmaga saqlanadi va mijozga polisni yuklab olish havolasi sifatida ko'rsatiladi.
 
+### eshop/payment (to'lovni tasdiqlash)
+
+`POST http://online.xalqsugurta.uz/xs/ins/eshop/payment` (`config('provider.payment.eshop')`)
+
+- **Auth:** eshop (provider username/password)
+- **Timeout:** 60 s, 3 marta qayta urinish
+- **Muvaffaqiyat:** `result` 0
+
+eshop shartnomalari (OSGOP, OSGOR, baxtsiz hodisa, turist) saytning o'z Payme / Click kassasi orqali to'langanda (sug'urtachi `payme_url` / `click_url` bermagan bo'lsa) chaqiriladi. Body `PerformTransactionRequest` bilan bir xil:
+
+```json
+{
+  "contract_date": "01.09.2026",
+  "contract_id": 123456,
+  "contract_number": "123-D",
+  "e_date": "31.08.2027",
+  "payment_date": "01.09.2026",
+  "s_date": "01.09.2026"
+}
+```
+
+- `contract_id` — sotuv javobidagi `contract_id`; bo'lmasa so'rov yuborilmaydi.
+- `contract_number` — javobdagi `contract_number` / `number` / `polis_sery-polis_number`, bo'lmasa sotuvda yuborilgan `number` (OSGOP, OSGOR), keyin `insurance_id`.
+- `contract_date` — buyurtma yaratilgan kun; `s_date` / `e_date` — shartnoma muddati; `payment_date` — bugun.
+- Javob namunasi hali berilmagan: `download_url`, `polis_sery`, `polis_number` kelsa buyurtmaga saqlanadi.
+
+Kod: `App\Services\EshopPaymentService`, chaqiruvchi `App\Services\InsurerConfirmation` (Payme `PerformTransaction` va Click `Complete` dan keyin, javob yuborilgach). Admin: buyurtma kartasida "To'lovni tasdiqlash", ro'yxatda "To'lov tasdiqlanmagan" tab.
+
 ### PolicyIssuanceRequest
 
 `POST http://online.xalqsugurta.uz/xs/ins/unv/gazballonsayt/PolicyIssuanceRequest`

@@ -134,6 +134,73 @@ class ApiJournalTest extends TestCase
         $this->assertSame(3, $order->apiLogs()->count(), 'Each retry attempt is its own row');
     }
 
+    private function paidOsgopOrder(array $response = ['result' => 0, 'contract_id' => 771100]): Order
+    {
+        return Order::create([
+            'product_name'             => 'OSGOP',
+            'amount'                   => 180000,
+            'status'                   => Order::STATUS_PAID,
+            'payment_type'             => Order::PAYMENT_PAYME,
+            'insurance_id'             => '771100',
+            'phone'                    => '998901234567',
+            'insurances_data'          => ['_product_key' => 'osgop', 'calculation' => ['contract_number' => '290926-1790000001']],
+            'insurances_response_data' => $response,
+            'contractStartDate'        => '2026-10-01',
+            'contractEndDate'          => '2027-09-30',
+        ]);
+    }
+
+    public function test_confirm_payment_sends_eshop_payment(): void
+    {
+        Http::fake(['*/eshop/payment' => Http::response(['result' => 0])]);
+        $order = $this->paidOsgopOrder();
+
+        $this->assertSame(1, Order::awaitingPaymentConfirmation()->count());
+        $this->assertSame(1, Order::awaitingInsurer()->count());
+
+        Livewire::test(ViewOrder::class, ['record' => $order->getRouteKey()])
+            ->assertActionHidden('retryPolicy')
+            ->assertActionVisible('confirmPayment')
+            ->callAction('confirmPayment')
+            ->assertNotified('To\'lov tasdiqlandi');
+
+        $request = Http::recorded()[0][0];
+        $this->assertStringEndsWith('/xs/ins/eshop/payment', $request->url());
+        $this->assertSame(['contract_date', 'contract_id', 'contract_number', 'e_date', 'payment_date', 's_date'], array_keys($request->data()));
+        $this->assertSame('290926-1790000001', $request->data()['contract_number']);
+
+        $order->refresh();
+        $this->assertFalse($order->awaitsPaymentConfirmation());
+        $this->assertSame(0, Order::awaitingInsurer()->count());
+        $this->assertSame('eshop/payment', $order->apiLogs()->first()->endpoint);
+        $this->assertSame('ok', OrderResource::timeline($order)[3][0]);
+    }
+
+    public function test_confirm_payment_reports_a_rejection(): void
+    {
+        Http::fake(['*/eshop/payment' => Http::response(['result' => 7, 'result_message' => 'Contract not found'])]);
+        $order = $this->paidOsgopOrder();
+
+        Livewire::test(ViewOrder::class, ['record' => $order->getRouteKey()])
+            ->callAction('confirmPayment')
+            ->assertNotified('To\'lov tasdiqlanmadi');
+
+        $this->assertTrue($order->fresh()->awaitsPaymentConfirmation());
+        $this->assertSame('fail', OrderResource::timeline($order->fresh())[3][0]);
+    }
+
+    public function test_confirm_payment_needs_a_contract_id(): void
+    {
+        Http::fake();
+        $order = $this->paidOsgopOrder(['result' => 0, 'UUID' => 'abc']);
+
+        Livewire::test(ViewOrder::class, ['record' => $order->getRouteKey()])
+            ->callAction('confirmPayment')
+            ->assertNotified('To\'lov tasdiqlanmadi');
+
+        Http::assertNothingSent();
+    }
+
     public function test_retry_is_hidden_once_the_policy_exists(): void
     {
         $order = $this->paidGasOrder(['contract_id' => 1, 'download_url' => 'https://example.com/p.pdf']);

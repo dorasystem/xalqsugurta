@@ -39,6 +39,18 @@ class AttentionWidget extends Widget
             ];
         }
 
+        $unconfirmed = Order::awaitingPaymentConfirmation()->where('created_at', '>=', now()->subDays(30))->count();
+        if ($unconfirmed > 0) {
+            $items[] = [
+                'tone'  => 'danger',
+                'icon'  => 'shield',
+                'title' => 'To\'lov sug\'urtachiga tasdiqlanmagan',
+                'text'  => 'Buyurtmani ochib "To\'lovni tasdiqlash" tugmasini bosing',
+                'count' => $unconfirmed,
+                'url'   => OrderResource::getUrl('index', ['tab' => 'unconfirmed']),
+            ];
+        }
+
         $failed = ApiLog::failed()->whereDate('created_at', today());
         $failedCount = (clone $failed)->count();
         if ($failedCount > 0) {

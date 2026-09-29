@@ -312,6 +312,9 @@ final class OsgopController extends Controller
                 ->withErrors(['error' => __('messages.error_occurred')]);
         }
 
+        // Kept with the order: eshop/payment needs it when the payment goes through the site's Payme / Click
+        $calculation['contract_number'] = date('dmy') . '-' . now()->timestamp;
+
         try {
             $apiResponse = $this->submitOsgop($applicant, $vehicle, $calculation);
         } catch (ProviderException $e) {

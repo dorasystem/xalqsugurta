@@ -157,6 +157,25 @@ class ClickShopApiTest extends TestCase
         $this->assertSame(Order::STATUS_PAID, $order->fresh()->status);
     }
 
+    public function test_complete_confirms_an_eshop_contract_to_the_insurer(): void
+    {
+        Http::fake(['*/eshop/payment' => Http::response(['result' => 0, 'result_message' => 'OK'])]);
+        $order = $this->order([
+            'product_name'             => 'OSGOR',
+            'insurance_id'             => '553311',
+            'insurances_data'          => ['_product_key' => 'osgor', 'contract_number' => '290926-1790000000'],
+            'insurances_response_data' => ['result' => 0, 'contract_id' => 553311],
+        ]);
+
+        $this->complete($order, $this->prepare($order)['merchant_prepare_id']);
+
+        $body = Http::recorded()[0][0]->data();
+        $this->assertSame(553311, $body['contract_id']);
+        $this->assertSame('290926-1790000000', $body['contract_number']);
+        $this->assertSame(['01.10.2026', '30.09.2027'], [$body['s_date'], $body['e_date']]);
+        $this->assertFalse($order->fresh()->awaitsPaymentConfirmation());
+    }
+
     // ─── Group 4: merchant_prepare_id ─────────────────────────────────────────
 
     public function test_complete_rejects_an_unknown_prepare_id(): void
@@ -197,10 +216,10 @@ class ClickShopApiTest extends TestCase
         $this->assertSame(0, $response['error']);
     }
 
-    public function test_products_without_a_policy_step_are_not_sent_to_the_insurer(): void
+    public function test_products_without_a_confirmation_step_are_not_sent_to_the_insurer(): void
     {
         Http::fake();
-        $order     = $this->order(['insurances_data' => ['_product_key' => 'accident']]);
+        $order     = $this->order(['insurances_data' => ['_product_key' => 'osago']]);
         $prepareId = $this->prepare($order)['merchant_prepare_id'];
 
         $this->assertSame(0, $this->complete($order, $prepareId)['error']);

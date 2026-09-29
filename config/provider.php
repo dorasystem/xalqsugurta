@@ -26,6 +26,12 @@ return [
         'tourist'  => env('PROVIDER_SUBMIT_TOURIST',  'http://online.xalqsugurta.uz/xs/ins/website/accident/sale'),
     ],
 
+    // Payment confirmation for eshop contracts paid through the site's own Payme / Click
+    // (the insurer gave no payme_url / click_url for them): same body as PerformTransactionRequest
+    'payment' => [
+        'eshop' => env('PROVIDER_ESHOP_PAYMENT', 'http://online.xalqsugurta.uz/xs/ins/eshop/payment'),
+    ],
+
     'osgop' => [
         'health_life_damage_sum' => env('OSGOP_HEALTH_LIFE_DAMAGE_SUM', 40000000),
         'property_damage_sum'    => env('OSGOP_PROPERTY_DAMAGE_SUM', 4000000),
