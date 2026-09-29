@@ -51,7 +51,7 @@ class AttentionWidget extends Widget
             ];
         }
 
-        $failed = ApiLog::failed()->whereDate('created_at', today());
+        $failed = ApiLog::failed()->where('created_at', '>=', today());
         $failedCount = (clone $failed)->count();
         if ($failedCount > 0) {
             $last = (clone $failed)->latest('id')->first();

@@ -70,6 +70,10 @@ class AdminPanelProvider extends PanelProvider
             )
 
             // ─── Layout ───────────────────────────────────────────────────────
+            // SPA: pages swap without a full reload (no custom <script> in the admin views)
+            ->spa()
+            ->unsavedChangesAlerts()
+            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
             ->sidebarCollapsibleOnDesktop()
             ->maxContentWidth(Width::Full)
             ->navigationGroups([

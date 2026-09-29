@@ -45,7 +45,7 @@ class OrderResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $count = Order::query()->whereDate('created_at', today())->count();
+        $count = Order::query()->where('created_at', '>=', today())->count();
 
         return $count > 0 ? (string) $count : null;
     }
@@ -193,8 +193,8 @@ class OrderResource extends Resource
                         DatePicker::make('until')->label('Gacha')->native(false)->displayFormat('d.m.Y'),
                     ])
                     ->query(fn (Builder $query, array $data): Builder => $query
-                        ->when($data['from'] ?? null, fn (Builder $q, $date) => $q->whereDate('created_at', '>=', $date))
-                        ->when($data['until'] ?? null, fn (Builder $q, $date) => $q->whereDate('created_at', '<=', $date)))
+                        ->when($data['from'] ?? null, fn (Builder $q, $date) => $q->where('created_at', '>=', Carbon::parse($date)->startOfDay()))
+                        ->when($data['until'] ?? null, fn (Builder $q, $date) => $q->where('created_at', '<', Carbon::parse($date)->addDay()->startOfDay())))
                     ->indicateUsing(function (array $data): ?string {
                         $from  = $data['from'] ?? null;
                         $until = $data['until'] ?? null;

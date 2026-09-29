@@ -24,7 +24,7 @@ class ListApiLogs extends ListRecords
 
             'failed' => Tab::make('Xatolar')
                 ->icon('heroicon-m-exclamation-triangle')
-                ->badge(ApiLog::failed()->whereDate('created_at', '>=', today()->subDays(6))->count() ?: null)
+                ->badge(ApiLog::failed()->where('created_at', '>=', today()->subDays(6))->count() ?: null)
                 ->badgeColor('danger')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('success', false)),
         ];

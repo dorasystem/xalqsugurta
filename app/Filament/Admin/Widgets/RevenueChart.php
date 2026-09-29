@@ -37,8 +37,9 @@ class RevenueChart extends ChartWidget
         $byDay = Order::query()
             ->where('status', Order::STATUS_PAID)
             ->where('created_at', '>=', $start)
-            ->get(['created_at', 'amount'])
-            ->groupBy(fn (Order $o) => $o->created_at->toDateString());
+            ->selectRaw('DATE(created_at) as day, SUM(amount) as total')
+            ->groupBy('day')
+            ->pluck('total', 'day');
 
         $labels = [];
         $values = [];
@@ -46,7 +47,7 @@ class RevenueChart extends ChartWidget
         for ($i = 0; $i < $days; $i++) {
             $date     = $start->addDays($i);
             $labels[] = $date->format('d.m');
-            $values[] = (float) ($byDay->get($date->toDateString())?->sum('amount') ?? 0);
+            $values[] = (float) ($byDay->get($date->toDateString()) ?? 0);
         }
 
         return [

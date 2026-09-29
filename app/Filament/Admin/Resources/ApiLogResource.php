@@ -15,6 +15,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\HtmlString;
 
 /** Read-only journal of requests to the insurer's API (written by App\Services\ApiLogger) */
@@ -43,7 +44,7 @@ class ApiLogResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        $count = ApiLog::failed()->whereDate('created_at', today())->count();
+        $count = ApiLog::failed()->where('created_at', '>=', today())->count();
 
         return $count > 0 ? (string) $count : null;
     }
@@ -103,9 +104,21 @@ class ApiLogResource extends Resource
         ]));
     }
 
+    /**
+     * List rows without the bodies (request / response can be tens of KB each): only the first
+     * characters of the response, which outcome() reads to tell an HTML error page.
+     */
+    public static function lightQuery(Builder $query): Builder
+    {
+        return $query
+            ->select(['id', 'order_id', 'product', 'method', 'endpoint', 'status', 'result', 'success', 'duration_ms', 'created_at'])
+            ->selectRaw('SUBSTR(response, 1, 20) as response');
+    }
+
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => static::lightQuery($query))
             ->columns(static::columns())
             ->filters([
                 TernaryFilter::make('success')
@@ -119,11 +132,11 @@ class ApiLogResource extends Resource
 
                 SelectFilter::make('endpoint')
                     ->label('Endpoint')
-                    ->options(fn (): array => ApiLog::query()
+                    ->options(fn (): array => Cache::remember('api_logs.endpoints', 600, fn () => ApiLog::query()
                         ->distinct()
                         ->orderBy('endpoint')
                         ->pluck('endpoint', 'endpoint')
-                        ->all()),
+                        ->all())),
             ])
             ->recordActions([
                 ViewAction::make()->label('Ochish'),
@@ -209,11 +222,6 @@ class ApiLogResource extends Resource
     public static function jsonBlock(string $json): HtmlString
     {
         return new HtmlString('<pre class="xs-json">' . e($json) . '</pre>');
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()->with('order');
     }
 
     public static function getPages(): array

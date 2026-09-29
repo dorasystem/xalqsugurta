@@ -23,6 +23,7 @@ class Order extends Model
         'payme_url',
         'click_url',
         'status',
+        'product_key',
         'contractStartDate',
         'contractEndDate',
         'insuranceProductName',
@@ -81,10 +82,22 @@ class Order extends Model
         return $this->hasMany(ApiLog::class)->latest('id');
     }
 
-    /** Product key saved by createOrderAndRedirect() ("gas", "kasko", …) */
-    public function getProductKeyAttribute(): ?string
+    /** product_key (indexed) follows insurances_data._product_key, which every flow writes */
+    protected static function booted(): void
     {
-        return $this->insurances_data['_product_key'] ?? null;
+        static::saving(function (Order $order): void {
+            $key = $order->insurances_data['_product_key'] ?? null;
+
+            if (is_string($key) && $key !== '') {
+                $order->attributes['product_key'] = substr($key, 0, 30);
+            }
+        });
+    }
+
+    /** Product key saved by createOrderAndRedirect() ("gas", "kasko", …) */
+    public function getProductKeyAttribute(?string $value): ?string
+    {
+        return $value ?? $this->insurances_data['_product_key'] ?? null;
     }
 
     /** True when the policy is issued after payment and has not arrived yet */
@@ -100,7 +113,7 @@ class Order extends Model
     {
         return $query
             ->where('status', self::STATUS_PAID)
-            ->whereIn('insurances_data->_product_key', self::POLICY_AFTER_PAYMENT)
+            ->whereIn('product_key', self::POLICY_AFTER_PAYMENT)
             ->whereNull('insurances_response_data->download_url');
     }
 
@@ -123,7 +136,7 @@ class Order extends Model
     {
         return $query
             ->where('status', self::STATUS_PAID)
-            ->whereIn('insurances_data->_product_key', self::ESHOP_PAYMENT_CONFIRM)
+            ->whereIn('product_key', self::ESHOP_PAYMENT_CONFIRM)
             ->whereNull('insurances_response_data->payment_confirmed_at');
     }
 

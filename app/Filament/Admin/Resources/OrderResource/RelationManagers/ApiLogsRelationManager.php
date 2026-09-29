@@ -7,6 +7,7 @@ use App\Models\ApiLog;
 use Filament\Actions\Action;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 /** Requests to the insurer's API made for this order (contract, payment confirmation) */
 class ApiLogsRelationManager extends RelationManager
@@ -23,6 +24,7 @@ class ApiLogsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => ApiLogResource::lightQuery($query))
             ->columns(ApiLogResource::columns(withOrder: false))
             ->recordActions([
                 Action::make('open')

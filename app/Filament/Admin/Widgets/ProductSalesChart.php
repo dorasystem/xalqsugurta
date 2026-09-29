@@ -24,9 +24,11 @@ class ProductSalesChart extends ChartWidget
         $rows = Order::query()
             ->where('status', Order::STATUS_PAID)
             ->where('created_at', '>=', CarbonImmutable::today()->subDays(29))
-            ->get(['insuranceProductName', 'product_name'])
-            ->countBy(fn (Order $o) => $o->insuranceProductName ?: $o->product_name ?: '—')
-            ->sortDesc();
+            ->selectRaw("COALESCE(NULLIF(insuranceProductName, ''), NULLIF(product_name, ''), '—') as name, COUNT(*) as n")
+            ->groupBy('name')
+            ->orderByDesc('n')
+            ->pluck('n', 'name')
+            ->map(fn ($n) => (int) $n);
 
         return [
             'datasets' => [[
