@@ -10,6 +10,7 @@ use Filament\Pages\Page;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
@@ -48,6 +49,16 @@ class SiteSettingsPage extends Page
                         ->regex('#^https://#')
                         ->maxLength(255)
                         ->placeholder('https://…'))->values()->all()),
+
+                Section::make('Bosh sahifa raqamlari')
+                    ->icon('heroicon-o-chart-bar')
+                    ->description('Bosh sahifadagi "50+ filial" kabi raqamlar. Faqat tasdiqlangan ma\'lumot yozing. Qiymati bo\'sh qatorni sayt ko\'rsatmaydi.')
+                    ->schema(collect(range(1, SiteSettings::STATS))->map(fn (int $i) => Grid::make(4)->schema([
+                        TextInput::make('site.stats.' . $i . '.value')->label($i . '. Qiymat')->maxLength(12)->placeholder('50+'),
+                        TextInput::make('site.stats.' . $i . '.label_uz')->label('Matn (UZ)')->maxLength(60),
+                        TextInput::make('site.stats.' . $i . '.label_ru')->label('Matn (RU)')->maxLength(60),
+                        TextInput::make('site.stats.' . $i . '.label_en')->label('Matn (EN)')->maxLength(60),
+                    ]))->all()),
             ]);
     }
 

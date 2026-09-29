@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Insurence\PaymentController;
 use App\Http\Controllers\CallbackController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\ClaimFileController;
 use App\Http\Controllers\InfoPageController;
@@ -19,13 +20,7 @@ use App\Models\Product;
 
 // Language routes
 Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], function () {
-    Route::get('/', function ($locale) {
-        App::setLocale($locale);
-
-        $products = Product::where('is_active', true)->orderBy('sort_order')->get();
-
-        return view('welcome', compact('products'));
-    })->name('home');
+    Route::get('/', [HomeController::class, 'index'])->name('home');
 
     // Unified payment route for all insurance products
     Route::get('/payment/{orderId}', [PaymentController::class, 'show'])->name('payment.show');

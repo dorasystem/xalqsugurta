@@ -23,11 +23,11 @@
 
         <div class="xf-panel__body">
             <div class="xf-row" style="--xf-cols: 3">
-                <x-insurence.field name="gov_number" :label="__('messages.gov_number')" :value="$vehicle['gov_number'] ?? null"
+                <x-insurence.field name="gov_number" :label="__('messages.gov_number')" :value="$vehicle['gov_number'] ?? $prefill['gov_number'] ?? null"
                     placeholder="01A123BC" maxlength="10" autocomplete="off" style="text-transform: uppercase" />
-                <x-insurence.field name="tech_passport_seria" :label="__('messages.tech_passport_series')" :value="$vehicle['tech_passport_seria'] ?? null"
+                <x-insurence.field name="tech_passport_seria" :label="__('messages.tech_passport_series')" :value="$vehicle['tech_passport_seria'] ?? $prefill['tech_passport_seria'] ?? null"
                     placeholder="AAF" maxlength="3" autocomplete="off" style="text-transform: uppercase" />
-                <x-insurence.field name="tech_passport_number" :label="__('messages.tech_passport_number')" :value="$vehicle['tech_passport_number'] ?? null"
+                <x-insurence.field name="tech_passport_number" :label="__('messages.tech_passport_number')" :value="$vehicle['tech_passport_number'] ?? $prefill['tech_passport_number'] ?? null"
                     placeholder="1234567" maxlength="7" inputmode="numeric" autocomplete="off" />
             </div>
 

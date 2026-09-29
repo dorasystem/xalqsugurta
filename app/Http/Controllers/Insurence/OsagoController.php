@@ -45,9 +45,16 @@ final class OsagoController extends BaseInsuranceController
 
     // ─── Step 1: Vehicle ──────────────────────────────────────────────────────
 
-    public function index(): View
+    public function index(Request $request): View
     {
-        return view('pages.insurence.osago.vehicle', $this->flowViewData());
+        // The home page quick form sends the plate and tech passport here; the customer checks them and goes on
+        $prefill = [
+            'gov_number'           => substr(strtoupper(preg_replace('/[^A-Za-z0-9]/', '', (string) $request->query('gov_number'))), 0, 10),
+            'tech_passport_seria'  => substr(strtoupper(preg_replace('/[^A-Za-z]/', '', (string) $request->query('tech_passport_seria'))), 0, 3),
+            'tech_passport_number' => substr(preg_replace('/\D/', '', (string) $request->query('tech_passport_number')), 0, 7),
+        ];
+
+        return view('pages.insurence.osago.vehicle', $this->flowViewData(['prefill' => array_filter($prefill)]));
     }
 
     public function storeVehicle(Request $request): RedirectResponse
