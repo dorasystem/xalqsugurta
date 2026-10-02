@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 // Property insurance routes
 
-Route::group(['prefix' => 'property'], function () {
+Route::group(['prefix' => 'property', 'middleware' => 'product.on-sale:property'], function () {
 
     // Step 1: Applicant
     Route::get('/',             [PropertyController::class, 'index'])->name('property.index');

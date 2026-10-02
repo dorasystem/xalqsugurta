@@ -2,6 +2,8 @@
 
 namespace App\Services\Provider;
 
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Exceptions\ProviderException;
@@ -10,29 +12,32 @@ trait ProviderApiTrait
 {
     protected function providerRequest(string $method, string $param, array $body = []): array
     {
-        $response = Http::timeout(10)
-            ->retry(3, 500)
-            ->withBasicAuth(
-                config('provider.username'),
-                config('provider.password')
-            )
-            ->withHeaders([
-                'mtd' => strtoupper($method),
-                'param' => $param,
-                'Content-Type' => 'application/json'
-            ])
-            ->send($method, config('provider.base_url'), [
-                'json' => $body
-            ]);
+        // Bodies hold passport data and are kept in the admin "API jurnali" (ApiLogger), not in the app log
+        try {
+            $response = Http::timeout(10)
+                ->retry(3, 500, throw: false)
+                ->withBasicAuth(
+                    config('provider.username'),
+                    config('provider.password')
+                )
+                ->withHeaders([
+                    'mtd' => strtoupper($method),
+                    'param' => $param,
+                    'Content-Type' => 'application/json'
+                ])
+                ->send($method, config('provider.base_url'), [
+                    'json' => $body
+                ]);
+        } catch (ConnectionException $e) {
+            Log::error('Provider connection error', ['param' => $param, 'message' => $e->getMessage()]);
+
+            throw new ProviderException('Provider service unavailable.', 503, $e);
+        }
 
         if (!$response->successful()) {
-            Log::error('Provider HTTP Error', [
-                'param' => $param,
-                'body' => $body,
-                'response' => $response->body()
-            ]);
+            Log::error('Provider HTTP Error', ['param' => $param, 'status' => $response->status()]);
 
-            throw new ProviderException('Provider service unavailable.');
+            throw new ProviderException('Provider service unavailable.', 503);
         }
 
         $data = $response->json();
@@ -40,16 +45,77 @@ trait ProviderApiTrait
         if (isset($data['error']) && $data['error'] != 0) {
             Log::warning('Provider Business Error', [
                 'param' => $param,
-                'body' => $body,
-                'response' => $data
+                'error' => $data['error'],
+                'error_message' => $data['error_message'] ?? null,
             ]);
 
+            // The provider's own code: 503 = the registry behind it is down
             throw new ProviderException(
-                $data['error_message'] ?? 'Provider business error.'
+                $data['error_message'] ?? 'Provider business error.',
+                is_numeric($data['error']) ? (int) $data['error'] : 0
             );
         }
 
         return $data['result'] ?? $data;
+    }
+
+    /**
+     * POST to one of the insurer's own endpoints (calculators, sales). A timeout or a 5xx
+     * becomes a ProviderException with code 503 (isUnavailable()); another HTTP error carries
+     * the API's result_message and its status code. Bodies stay out of the app log: they are
+     * in the admin "API jurnali".
+     */
+    protected function insurerPost(string $url, array $body, int $timeout = 30, int $retries = 1, ?array $auth = null): Response
+    {
+        [$user, $password] = $auth ?? [config('provider.username'), config('provider.password')];
+
+        // Plain UTF-8 like the insurer's Postman samples: with PHP's default Д / \/ escapes
+        // the eshop endpoints answer "999.JSON parse error" (names like O‘G‘LI, Cyrillic typeCode)
+        $json = json_encode(self::plainApostrophes($body), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+
+        try {
+            $response = Http::timeout($timeout)
+                ->retry($retries, 500, throw: false)
+                ->withBasicAuth((string) $user, (string) $password)
+                ->withBody($json, 'application/json')
+                ->post($url);
+        } catch (ConnectionException $e) {
+            Log::error('Insurer connection error', ['url' => $url, 'message' => $e->getMessage()]);
+
+            throw new ProviderException('Insurer service unavailable.', 503, $e);
+        }
+
+        if (!$response->successful()) {
+            Log::error('Insurer HTTP error', ['url' => $url, 'status' => $response->status()]);
+
+            if ($response->serverError()) {
+                throw new ProviderException('Insurer service unavailable.', 503);
+            }
+
+            $data = $response->json() ?? [];
+
+            throw new ProviderException(
+                $data['result_message'] ?? $data['message'] ?? __('messages.error_occurred') . ' (HTTP ' . $response->status() . ')',
+                $response->status()
+            );
+        }
+
+        return $response;
+    }
+
+    /**
+     * Uzbek Latin from the registries uses typographic apostrophes (O‘G‘LI, ko‘chasi); the insurer's
+     * own samples use the plain one (MAS'ULIYATI). Every string value gets ‘ ’ ʻ ʼ ` → '.
+     */
+    protected static function plainApostrophes(array $data): array
+    {
+        array_walk_recursive($data, function (&$value): void {
+            if (is_string($value)) {
+                $value = str_replace(['‘', '’', 'ʻ', 'ʼ', '`'], "'", $value);
+            }
+        });
+
+        return $data;
     }
 
     // =========================
@@ -117,27 +183,29 @@ trait ProviderApiTrait
     }
 
     // =========================
+    // DRIVER LICENSE (OSAGO limited drivers)
+    // =========================
+    public function findDriverLicense(string $pinfl, string $document): array
+    {
+        return $this->providerRequest(
+            'POST',
+            '/api/provider/driver-summary-v2',
+            [
+                'transactionId' => now()->timestamp,
+                'isConsent' => 'Y',
+                'senderPinfl' => config('provider.sender_pinfl'),
+                'document' => $document,
+                'pinfl' => $pinfl
+            ]
+        );
+    }
+
+    // =========================
     // CALCULATE (direct URL, extensible per product)
     // =========================
     protected function calcRequest(string $url, array $body): array
     {
-        $response = Http::timeout(15)
-            ->retry(3, 500)
-            ->withBasicAuth(
-                config('provider.username'),
-                config('provider.password')
-            )
-            ->post($url, $body);
-
-        if (!$response->successful()) {
-            Log::error('Calc HTTP Error', [
-                'url'      => $url,
-                'body'     => $body,
-                'response' => $response->body(),
-            ]);
-
-            throw new ProviderException('Calculation service unavailable.');
-        }
+        $response = $this->insurerPost($url, $body, 15, retries: 3);
 
         $data = $response->json();
 
@@ -145,7 +213,6 @@ trait ProviderApiTrait
         if (($data['result'] ?? -1) !== 0) {
             Log::warning('Calc Business Error', [
                 'url'      => $url,
-                'body'     => $body,
                 'response' => $data,
             ]);
 
@@ -192,7 +259,7 @@ trait ProviderApiTrait
         $vehicleRegionId = (string) (($vehicle['region_id'] ?? 0) ?: $regionId);
 
         $body = [
-            'number'            => date('dmy') . '-' . now()->timestamp,
+            'number'            => $calculation['contract_number'] ?? date('dmy') . '-' . now()->timestamp,
             'sum'               => (string) ($calculation['insurance_sum'] ?? 0),
             'contractStartDate' => $calculation['start_date'],
             'contractEndDate'   => $calculation['end_date'],
@@ -209,8 +276,9 @@ trait ProviderApiTrait
                     'insuranceRate'      => (string) ($raw['insuranceRate'] ?? $raw['rate'] ?? '0'),
                     'insurancePremium'   => (string) ($calculation['insurance_premium'] ?? 0),
                     'insuranceTermId'    => (int) $calculation['insurance_term_id'],
-                    'healthLifeDamageSum' => (int) config('provider.osgop.health_life_damage_sum'),
-                    'propertyDamageSum'  => (int) config('provider.osgop.property_damage_sum'),
+                    // Strings: the API rejects numbers here ("must be a string"), though its sample had numbers
+                    'healthLifeDamageSum' => (string) (int) config('provider.osgop.health_life_damage_sum'),
+                    'propertyDamageSum'  => (string) (int) config('provider.osgop.property_damage_sum'),
                     'objects'            => [
                         [
                             'vehicle' => [
@@ -277,28 +345,19 @@ trait ProviderApiTrait
             ],
         ];
 
-        $response = Http::timeout(30)
-            ->withBasicAuth(
-                config('provider.username'),
-                config('provider.password')
-            )
-            ->post(config('provider.submit.osgop'), $body);
+        // The insurer's samples carry only the owner block that applies; a null one is left out
+        $body['policies'][0]['objects'][0]['vehicle'] = array_filter(
+            $body['policies'][0]['objects'][0]['vehicle'],
+            fn ($value, string $key): bool => $value !== null || !in_array($key, ['ownerOrganization', 'ownerPerson'], true),
+            ARRAY_FILTER_USE_BOTH
+        );
 
-        if (!$response->successful()) {
-            Log::error('OSGOP Submit HTTP Error', [
-                'body'     => $body,
-                'response' => $response->body(),
-            ]);
-            throw new ProviderException('OSGOP submit service unavailable.');
-        }
+        $response = $this->insurerPost(config('provider.submit.osgop'), $body);
 
         $data = $response->json();
 
         if (($data['result'] ?? -1) !== 0) {
-            Log::warning('OSGOP Submit Business Error', [
-                'body'     => $body,
-                'response' => $data,
-            ]);
+            Log::warning('OSGOP Submit Business Error', ['response' => $data]);
             throw new ProviderException($data['result_message'] ?? $data['message'] ?? 'OSGOP submit error.');
         }
 
@@ -377,19 +436,12 @@ trait ProviderApiTrait
     // =========================
     public function submitOsgor(array $body): array
     {
-        $response = Http::timeout(30)
-            ->withBasicAuth(config('provider.username'), config('provider.password'))
-            ->post(config('provider.submit.osgor'), $body);
-
-        if (!$response->successful()) {
-            Log::error('OSGOR Submit HTTP Error', ['body' => $body, 'response' => $response->body()]);
-            throw new ProviderException('OSGOR submit service unavailable.');
-        }
+        $response = $this->insurerPost(config('provider.submit.osgor'), $body);
 
         $data = $response->json();
 
         if (($data['result'] ?? -1) !== 0) {
-            Log::warning('OSGOR Submit Business Error', ['body' => $body, 'response' => $data]);
+            Log::warning('OSGOR Submit Business Error', ['response' => $data]);
             throw new ProviderException($data['result_message'] ?? $data['message'] ?? 'OSGOR submit error.');
         }
 
@@ -397,33 +449,54 @@ trait ProviderApiTrait
     }
 
     // =========================
-    // ACCIDENT CALCULATE
+    // ESHOP PAYMENT CONFIRMATION (eshop/payment)
     // =========================
-    public function calculateAccident(int $sumInsured): array
+    /**
+     * Tells the insurer that an eshop contract was paid through the site's own Payme / Click.
+     * Body: contract_date, contract_id, contract_number, e_date, payment_date, s_date (DD.MM.YYYY).
+     */
+    public function confirmEshopPayment(array $body): array
     {
+        $data = $this->insurerPost(config('provider.payment.eshop'), $body, timeout: 60, retries: 3)->json() ?? [];
+
+        if (($data['result'] ?? -1) !== 0) {
+            Log::warning('Eshop payment confirmation rejected', ['contract_id' => $body['contract_id'] ?? null, 'result' => $data['result'] ?? null]);
+            throw new ProviderException($data['result_message'] ?? $data['message'] ?? 'Payment confirmation error.');
+        }
+
+        return $data;
+    }
+
+    // =========================
+    // ACCIDENT / TOURIST CALCULATE (website/accident/calc)
+    // =========================
+    /**
+     * Premium for one person of an accident-type product ('202' accident, '203' tourist).
+     * The calculator rejects requests without a policy period ("Ошибка даты начало страхования"):
+     * $startDate is Y-m-d (defaults to tomorrow), $termMonths comes from the product settings.
+     */
+    public function calculatePersonsInsurance(string $productCode, int $sumInsured, ?string $startDate = null, int $termMonths = 12): array
+    {
+        $start = \Carbon\Carbon::parse($startDate ?? now()->addDay())->startOfDay();
+
         $url = 'http://online.xalqsugurta.uz/xs/ins/website/accident/calc';
 
-        $response = Http::timeout(15)
-            ->withBasicAuth(config('provider.username'), config('provider.password'))
-            ->post($url, [
-                'details' => ['productCode' => '202'],
-                'persons' => [['sumInsured' => (string) $sumInsured]],
-            ]);
-
-        if (!$response->successful()) {
-            Log::error('Accident Calc HTTP Error', [
-                'sumInsured' => $sumInsured,
-                'response'   => $response->body(),
-            ]);
-            throw new ProviderException('Accident calculation service unavailable.');
-        }
+        $response = $this->insurerPost($url, [
+            'details' => [
+                'productCode' => $productCode,
+                'startDate'   => $start->format('Y-m-d'),
+                'endDate'     => $start->copy()->addMonths($termMonths)->subDay()->format('Y-m-d'),
+            ],
+            'persons' => [['sumInsured' => (string) $sumInsured]],
+        ], 15);
 
         $data = $response->json();
 
         if (($data['result'] ?? -1) !== 0) {
             Log::warning('Accident Calc Business Error', [
-                'sumInsured' => $sumInsured,
-                'response'   => $data,
+                'productCode' => $productCode,
+                'sumInsured'  => $sumInsured,
+                'response'    => $data,
             ]);
             throw new ProviderException($data['result_message'] ?? 'Accident calculation error.');
         }
@@ -432,61 +505,21 @@ trait ProviderApiTrait
     }
 
     // =========================
-    // TOURIST CALCULATE
-    // =========================
-    public function calculateTourist(int $sumInsured): array
-    {
-        $url = 'http://online.xalqsugurta.uz/xs/ins/website/accident/calc';
-
-        $response = Http::timeout(15)
-            ->withBasicAuth(config('provider.username'), config('provider.password'))
-            ->post($url, [
-                'details' => ['productCode' => '203'],
-                'persons' => [['sumInsured' => (string) $sumInsured]],
-            ]);
-
-        if (!$response->successful()) {
-            Log::error('Tourist Calc HTTP Error', [
-                'sumInsured' => $sumInsured,
-                'response'   => $response->body(),
-            ]);
-            throw new ProviderException('Tourist calculation service unavailable.');
-        }
-
-        $data = $response->json();
-
-        if (($data['result'] ?? -1) !== 0) {
-            Log::warning('Tourist Calc Business Error', [
-                'sumInsured' => $sumInsured,
-                'response'   => $data,
-            ]);
-            throw new ProviderException($data['result_message'] ?? 'Tourist calculation error.');
-        }
-
-        return $data;
-    }
-
-    // =========================
     // ACCIDENT SUBMIT
     // =========================
-    public function submitAccident(array $body): array
+    /** Sale of an accident-type product; $url defaults to provider.submit.accident (tourist has its own key) */
+    public function submitAccident(array $body, ?string $url = null): array
     {
-        $url = config('provider.submit.accident');
+        $url ??= config('provider.submit.accident');
 
-        $response = Http::timeout(30)
-            ->withBasicAuth(config('provider.username'), config('provider.password'))
-            ->post($url, $body);
-
-        if (!$response->successful()) {
-            Log::error('Accident Submit HTTP Error', ['body' => $body, 'response' => $response->body()]);
-            throw new ProviderException('Accident submit service unavailable.');
-        }
+        // A rejected sale usually explains itself in result_message; insurerPost() shows that
+        $response = $this->insurerPost($url, $body);
 
         $data = $response->json() ?? [];
 
         // Only check result if the API returns it (some endpoints return contract data directly)
         if (isset($data['result']) && $data['result'] !== 0) {
-            Log::warning('Accident Submit Business Error', ['body' => $body, 'response' => $data]);
+            Log::warning('Accident Submit Business Error', ['response' => $data]);
             throw new ProviderException($data['result_message'] ?? $data['message'] ?? 'Accident submit error.');
         }
 
@@ -502,20 +535,13 @@ trait ProviderApiTrait
     {
         $url = config('provider.xalq.base_url') . '/InitiateTransactionRequest';
 
-        $response = Http::timeout(30)
-            ->withBasicAuth(config('provider.xalq.username'), config('provider.xalq.password'))
-            ->post($url, $body);
-
-        if (!$response->successful()) {
-            Log::error('Xalq Sugurta Submit HTTP Error', ['body' => $body, 'response' => $response->body()]);
-            throw new ProviderException('Insurance submit service unavailable.');
-        }
+        $response = $this->insurerPost($url, $body, auth: [config('provider.xalq.username'), config('provider.xalq.password')]);
 
         $data = $response->json();
 
         $result = $data['result'] ?? null;
         if ($result !== null && $result !== 0 && $result !== 302) {
-            Log::warning('Xalq Sugurta Submit Business Error', ['body' => $body, 'response' => $data]);
+            Log::warning('Xalq Sugurta Submit Business Error', ['response' => $data]);
             throw new ProviderException($data['result_message'] ?? $data['message'] ?? 'Insurance submit error.');
         }
 

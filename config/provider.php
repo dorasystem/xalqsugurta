@@ -6,7 +6,13 @@ return [
     'password'     => env('PROVIDER_PASSWORD'),
     'sender_pinfl' => env('PROVIDER_SENDER_PINFL'),
 
-    'agency_id' => env('PROVIDER_AGENCY_ID', '546'),
+    'agency_id' => env('PROVIDER_AGENCY_ID', '126'),
+
+    // OSAGO for vehicles owned by an organization (owner.organization.inn). Off until a test
+    // sale goes through: the insurer has not given a sample body for it. Admin: Tizim → Sug'urtachi API
+    'osago' => [
+        'legal_entities' => (bool) env('OSAGO_LEGAL_ENTITIES', false),
+    ],
 
     'calc' => [
         'osgop' => env('PROVIDER_CALC_OSGOP', 'http://online.xalqsugurta.uz/xs/ins/eshop/osgopcalc'),
@@ -18,6 +24,12 @@ return [
         'osgor'    => env('PROVIDER_SUBMIT_OSGOR',    'http://online.xalqsugurta.uz/xs/ins/eshop/osgor'),
         'accident' => env('PROVIDER_SUBMIT_ACCIDENT', 'http://online.xalqsugurta.uz/xs/ins/website/accident/sale'),
         'tourist'  => env('PROVIDER_SUBMIT_TOURIST',  'http://online.xalqsugurta.uz/xs/ins/website/accident/sale'),
+    ],
+
+    // Payment confirmation for eshop contracts paid through the site's own Payme / Click
+    // (the insurer gave no payme_url / click_url for them): same body as PerformTransactionRequest
+    'payment' => [
+        'eshop' => env('PROVIDER_ESHOP_PAYMENT', 'http://online.xalqsugurta.uz/xs/ins/eshop/payment'),
     ],
 
     'osgop' => [

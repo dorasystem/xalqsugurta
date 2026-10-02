@@ -3,7 +3,7 @@
 use App\Http\Controllers\Insurence\KaskoController;
 use Illuminate\Support\Facades\Route;
 
-Route::group(['prefix' => 'kasko'], function () {
+Route::group(['prefix' => 'kasko', 'middleware' => 'product.on-sale:kasko'], function () {
 
     // Step 1: Applicant
     Route::get('/',          [KaskoController::class, 'index'])->name('kasko.index');

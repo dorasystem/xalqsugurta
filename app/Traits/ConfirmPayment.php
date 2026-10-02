@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use App\Models\Order;
+use App\Services\ApiLogger;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -63,15 +64,17 @@ trait ConfirmPayment
 
     /**
      * Send PerformTransactionRequest to Xalq Sugurta API.
+     * Returns true when the insurer confirmed and the policy data was saved to the order.
+     * Also called from the admin panel ("Polisni qayta so'rash") via XalqPolicyService.
      */
-    protected function sendXalqPerformTransactionRequest(Order $order, string $productKey): void
+    protected function sendXalqPerformTransactionRequest(Order $order, string $productKey): bool
     {
         try {
             $requestData = $this->buildXalqPerformTransactionRequestData($order);
 
             if ($requestData['contract_id'] === null) {
                 Log::error("Xalq Sugurta [{$productKey}]: contract_id missing for order #{$order->id}, skipping PerformTransactionRequest.");
-                return;
+                return false;
             }
 
             Log::info("Xalq Sugurta [{$productKey}]: Calling PerformTransactionRequest", [
@@ -83,10 +86,11 @@ trait ConfirmPayment
             $username = config('provider.xalq.username');
             $password = config('provider.xalq.password');
 
-            $response = Http::withBasicAuth($username, $password)
+            // Tie the API log rows to this order (the admin order card shows them)
+            $response = ApiLogger::forOrder($order, $productKey, fn () => Http::withBasicAuth($username, $password)
                 ->timeout(60)
-                ->retry(3, 1000)
-                ->post($url, $requestData);
+                ->retry(3, 1000, throw: false)   // a 4xx/5xx reaches the "failed" branch with its body
+                ->post($url, $requestData));
 
             $responseData = $response->json() ?? [];
 
@@ -107,6 +111,8 @@ trait ConfirmPayment
                         'polis_check'      => $responseData['polis_check']  ?? null,
                     ]),
                 ]);
+
+                return true;
             } else {
                 Log::error("Xalq Sugurta [{$productKey}]: PerformTransactionRequest failed", [
                     'order_id' => $order->id,
@@ -120,6 +126,8 @@ trait ConfirmPayment
                 'error' => $e->getMessage(),
             ]);
         }
+
+        return false;
     }
 
     /**
@@ -152,7 +160,8 @@ trait ConfirmPayment
 
         return [
             'contract_date' => $startDate,
-            'contract_id' => (int) $contractId,
+            // null (not 0) when missing, so the caller skips the request instead of confirming contract 0
+            'contract_id' => $contractId !== null ? (int) $contractId : null,
             'contract_number' => $contractNumber,
             'e_date' => $endDate,
             'payment_date' => now()->format('d.m.Y'),

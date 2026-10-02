@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 // Accident (Baxtsiz hodisa) insurance routes
 
-Route::group(['prefix' => 'accident'], function () {
+Route::group(['prefix' => 'accident', 'middleware' => 'product.on-sale:accident'], function () {
 
     // Step 1: Applicant
     Route::get('/',                            [AccidentController::class, 'index'])->name('accident.index');

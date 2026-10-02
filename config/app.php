@@ -16,6 +16,16 @@ return [
     'name' => env('APP_NAME', 'Laravel'),
 
     /*
+    | Admin panel (/admin) access list: comma-separated emails in ADMIN_EMAILS.
+    | Empty = any user in the users table may log in.
+    */
+
+    'admin_emails' => array_values(array_filter(array_map(
+        fn (string $email) => strtolower(trim($email)),
+        explode(',', (string) env('ADMIN_EMAILS', ''))
+    ))),
+
+    /*
     |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------

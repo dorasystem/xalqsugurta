@@ -11,11 +11,19 @@ class OsgopStoreCompanyApplicant extends FormRequest
         return true;
     }
 
+    /** "+998 90 123 45 67" → "998901234567" before the rules run */
+    protected function prepareForValidation(): void
+    {
+        $digits = preg_replace('/\D/', '', (string) $this->input('phone'));
+
+        $this->merge(['phone' => strlen($digits) === 9 ? '998' . $digits : $digits]);
+    }
+
     public function rules(): array
     {
         return [
-            'inn'            => ['required', 'digits:9'],
-            'offerta_agreed' => ['required', 'accepted'],
+            'inn'   => ['required', 'digits:9'],
+            'phone' => ['required', 'regex:/^998[0-9]{9}$/'],
         ];
     }
 
@@ -24,8 +32,6 @@ class OsgopStoreCompanyApplicant extends FormRequest
         return [
             'inn.required'            => __('messages.inn_required'),
             'inn.digits'              => __('messages.inn_must_be_9_digits'),
-            'offerta_agreed.required' => __('messages.offerta_required'),
-            'offerta_agreed.accepted' => __('messages.offerta_required'),
         ];
     }
 

@@ -7,12 +7,21 @@ use Illuminate\Support\Facades\DB;
 
 final class OrderService
 {
+    /** Session key with the ids of orders created in this browser */
+    public const SESSION_ORDERS = 'my_orders';
+
+    /** Phone proved by an SMS code ("Mening polislarim"): ['phone' => 998…, 'until' => timestamp] */
+    public const SESSION_PHONE = 'my_policies.verified';
+
+    /** How long a verified phone stays signed in */
+    public const PHONE_SESSION_MINUTES = 60;
+
     /**
      * Create a new order
      */
     public function createOrder(array $data): Order
     {
-        return DB::transaction(function () use ($data) {
+        $order = DB::transaction(function () use ($data) {
             return Order::create([
                 'product_name' => $data['product_name'] ?? 'MOL-MULK Sug\'urta',
                 'amount' => $data['amount'] ?? 0,
@@ -30,6 +39,41 @@ final class OrderService
                 'insuranceProductName' => $data['insuranceProductName'] ?? null,
             ]);
         });
+
+        // The payment page shows the phone and the policy links only to the browser that made the order
+        if (request()->hasSession()) {
+            request()->session()->push(self::SESSION_ORDERS, $order->id);
+        }
+
+        return $order;
+    }
+
+    /**
+     * True when this visitor may see the order's personal data: its creator, a visitor who
+     * proved the order's phone by SMS, or a signed-in admin
+     */
+    public function canSeeDetails(Order $order): bool
+    {
+        if (auth()->check()) {
+            return true;
+        }
+
+        if (!request()->hasSession()) {
+            return false;
+        }
+
+        return in_array($order->id, (array) request()->session()->get(self::SESSION_ORDERS, []), false)
+            || ($order->phone !== null && $order->phone === $this->verifiedPhone());
+    }
+
+    /** The phone this session proved by SMS, while it is still valid */
+    public function verifiedPhone(): ?string
+    {
+        $verified = request()->hasSession() ? request()->session()->get(self::SESSION_PHONE) : null;
+
+        return is_array($verified) && ($verified['until'] ?? 0) > now()->timestamp
+            ? ($verified['phone'] ?? null)
+            : null;
     }
 
     /**
