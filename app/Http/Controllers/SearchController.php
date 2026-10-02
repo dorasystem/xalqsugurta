@@ -53,7 +53,11 @@ final class SearchController extends Controller
             }
         }
 
-        foreach (InfoPage::where('is_published', true)->orderBy('section')->orderBy('sort_order')->get() as $page) {
+        // publishedKeys() is cached and empty until info_pages exists, so search works before that migration
+        $infoKeys = InfoPage::publishedKeys();
+        $infoPages = $infoKeys === [] ? [] : InfoPage::whereIn('key', $infoKeys)->orderBy('section')->orderBy('sort_order')->get();
+
+        foreach ($infoPages as $page) {
             $body = $page->body($locale);
             $text = $body !== null ? trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($body), ENT_QUOTES | ENT_HTML5, 'UTF-8'))) : null;
 

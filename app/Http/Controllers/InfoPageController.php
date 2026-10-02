@@ -10,6 +10,8 @@ final class InfoPageController extends Controller
 {
     public function show(string $locale, string $key): View
     {
+        abort_unless(in_array($key, InfoPage::publishedKeys(), true), 404);
+
         $page = InfoPage::where('key', $key)->where('is_published', true)->firstOrFail();
 
         $siblings = InfoPage::where('section', $page->section)

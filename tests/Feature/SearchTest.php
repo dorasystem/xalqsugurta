@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\InfoPage;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class SearchTest extends TestCase
@@ -40,6 +42,17 @@ class SearchTest extends TestCase
         $this->get('/uz/search')->assertOk()->assertDontSee('Topildi');
         $this->get('/uz/search?q=a')->assertOk()->assertSee('Kamida 2 ta harf')->assertDontSee('Topildi');
         $this->get('/ru/search?q=zzzz')->assertOk()->assertSee('Найдено: 0')->assertSee('ничего не найдено');
+    }
+
+    public function test_works_before_the_info_pages_migration(): void
+    {
+        // Production ran the branch before migrating: a query must not 500 on the missing table
+        Schema::drop('info_pages');
+        Cache::flush();
+
+        $this->get('/uz/search?q=kasko')->assertOk()->assertSee('KASKO');
+        $this->get('/uz/search?q=zzzz')->assertOk();
+        $this->get('/uz/info/licenses')->assertNotFound();
     }
 
     public function test_header_has_the_search_form(): void
