@@ -44,6 +44,25 @@ return [
         'cadaster_api_url' => env('IMPEX_CADASTER_API_URL', 'https://impex-insurance.uz/api/fetch-cadaster'),
     ],
 
+    // Eskiz.uz SMS (one-time codes for "Mening polislarim"). Admin panel: Tizim → SMS (App\Services\SmsSettings)
+    'eskiz' => [
+        'enabled'  => env('ESKIZ_ENABLED', false),
+        'base_url' => env('ESKIZ_BASE_URL', 'https://notify.eskiz.uz/api'),
+        'email'    => env('ESKIZ_EMAIL'),
+        'password' => env('ESKIZ_PASSWORD'),
+        'from'     => env('ESKIZ_FROM', '4546'),
+        // Eskiz sends only texts that match a template it has approved; {code} is replaced
+        'template' => env('ESKIZ_TEMPLATE', "Xalq Sug'urta: tasdiqlash kodi {code}"),
+    ],
+
+    // Click SHOP API (Prepare/Complete callbacks: /api/prepare, /api/complete). See App\Services\Payments\ClickShopApi
+    'click' => [
+        'service_id'       => env('CLICK_SERVICE_ID'),
+        'merchant_id'      => env('CLICK_MERCHANT_ID'),
+        'merchant_user_id' => env('CLICK_MERCHANT_USER_ID'),
+        'secret_key'       => env('CLICK_SECRET_KEY'),
+    ],
+
     'payme' => [
         'merchant_id' => env('PAYME_MERCHANT_ID'),
         'kassa_id' => env('PAYME_KASSA_ID', '68f7581688f28864c066266f'),
@@ -67,6 +86,11 @@ return [
             'password' => env('INSURANCE_OSAGO_PASSWORD'),
             'timeout' => env('INSURANCE_OSAGO_TIMEOUT', 10),
             'retries' => env('INSURANCE_OSAGO_RETRIES', 3),
+            // ERSP payment confirmation after a payment through the site's own Payme / Click
+            // (admin: Tizim → Sug'urtachi API). Empty = nothing is sent. With a token: Bearer, else the OSAGO login
+            'payment_url'   => env('INSURANCE_OSAGO_PAYMENT_URL'),
+            'payment_token' => env('INSURANCE_OSAGO_PAYMENT_TOKEN'),
+            'agency_id'     => env('INSURANCE_OSAGO_AGENCY_ID'),
         ],
         'accident' => [
             'endpoint' => env('INSURANCE_ACCIDENT_ENDPOINT', 'https://impex-insurance.uz/api/contract/add'),

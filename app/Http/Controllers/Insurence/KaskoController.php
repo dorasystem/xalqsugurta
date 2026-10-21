@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Insurence;
 
 use App\Exceptions\ProviderException;
+use App\Http\Controllers\Insurence\Concerns\InsuranceFlow;
 use App\Services\OrderService;
+use App\Services\ProductSettings;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -13,7 +15,24 @@ use Illuminate\View\View;
 
 final class KaskoController extends BaseInsuranceController
 {
+    use InsuranceFlow;
+
     private const SESSION_KEY = 'kasko';
+
+    public const FLOW = [
+        'key'         => self::SESSION_KEY,
+        'icon'        => 'bi-car-front-fill',
+        'rate'        => 3,
+        'rateLabel'   => '3',
+        'min'         => 1_000_000,
+        'max'         => 500_000_000,
+        'step'        => 1_000_000,   // slider step must divide (value - min), or the browser snaps 100M to 101M
+        'default'     => 100_000_000,
+        'presets'     => [50_000_000, 100_000_000, 200_000_000, 300_000_000],
+        'objectKey'   => 'vehicle',
+        'objectStep'  => 'getVehicle',
+        'objectTitle' => 'messages.flow.vehicle',
+    ];
 
     public function __construct(OrderService $orderService)
     {
@@ -29,42 +48,17 @@ final class KaskoController extends BaseInsuranceController
 
     public function index(): View
     {
-        return view('pages.insurence.kasko.main', ['product' => $this->getProduct()]);
+        return view('pages.insurence.flow.applicant', $this->flowViewData());
     }
 
     public function storeApplicant(Request $request): RedirectResponse
     {
-        $request->validate([
-            'passport_seria'  => ['required', 'string', 'max:4'],
-            'passport_number' => ['required', 'digits:7'],
-            'birth_date'      => ['required', 'date', 'before:today'],
-            'phone'           => ['required', 'string', 'min:9', 'max:20'],
-            'offerta_agreed'  => $this->offertaRule(),
-        ], [
-            'offerta_agreed.required' => __('messages.offerta_required'),
-            'offerta_agreed.accepted' => __('messages.offerta_required'),
-        ]);
-
-        try {
-            $person = $this->findPersonByPassport(
-                strtoupper($request->input('passport_seria')) . $request->input('passport_number'),
-                $request->input('birth_date')
-            );
-        } catch (ProviderException $e) {
-            return back()->withErrors(['passport_seria' => __('messages.person_not_found')])->withInput();
+        $applicant = $this->applicantFromRequest($request);
+        if ($applicant instanceof RedirectResponse) {
+            return $applicant;
         }
 
-        if (empty($person['currentPinfl'] ?? null)) {
-            return back()->withErrors(['passport_seria' => __('messages.person_not_found')])->withInput();
-        }
-
-        $this->putSess('applicant', array_merge($this->normalizePerson($person, $request), [
-            'passport_seria'  => strtoupper($request->input('passport_seria')),
-            'passport_number' => $request->input('passport_number'),
-            'birth_date'      => $request->input('birth_date'),
-            'phone'           => $this->cleanPhone($request->input('phone')),
-            'gender'          => ($person['gender'] ?? '') == '1' ? '1' : '2',
-        ]));
+        $this->putSess('applicant', $applicant);
 
         return redirect()->route('kasko.getVehicle', ['locale' => getCurrentLocale()]);
     }
@@ -78,14 +72,13 @@ final class KaskoController extends BaseInsuranceController
             return redirect()->route('kasko.index', ['locale' => getCurrentLocale()]);
         }
 
-        $vehicle     = $this->sess('vehicle', []);
-        $calculation = $this->sess('calculation', []);
-
-        return view('pages.insurence.kasko.vehicle', compact('applicant', 'vehicle', 'calculation'));
+        return view('pages.insurence.kasko.vehicle', $this->flowViewData());
     }
 
     public function storeVehicle(Request $request): RedirectResponse
     {
+        $flow = $this->flow();
+
         $request->validate([
             'regnumber'          => ['required', 'string'],
             'tp_seria'           => ['required', 'string', 'max:3'],
@@ -96,8 +89,8 @@ final class KaskoController extends BaseInsuranceController
             'body_number'        => ['required', 'string'],
             'engine_number'      => ['required', 'string'],
             'vehicle_type'       => ['required', 'integer'],
-            'insurance_amount'   => ['required', 'integer', 'min:1000000'],
-            'payment_start_date' => ['required', 'date', 'after_or_equal:today'],
+            'insurance_amount'   => ['required', 'integer', 'min:' . $flow['min'], 'max:' . $flow['max']],
+            'payment_start_date' => ProductSettings::startDateRules($flow),
         ]);
 
         if (!$this->sess('applicant')) {
@@ -105,9 +98,9 @@ final class KaskoController extends BaseInsuranceController
         }
 
         $insuranceAmount = (int) $request->input('insurance_amount');
-        $premium         = (int) round($insuranceAmount * 3 / 100);
+        $premium         = $this->premiumFor($insuranceAmount);
         $startDate       = $request->input('payment_start_date');
-        $endDate         = Carbon::parse($startDate)->addYear()->subDay()->format('Y-m-d');
+        $endDate         = ProductSettings::endDate($flow, $startDate);
 
         $this->putSess('vehicle', [
             'regnumber'     => strtoupper($request->input('regnumber')),
@@ -143,11 +136,20 @@ final class KaskoController extends BaseInsuranceController
             return redirect()->route('kasko.index', ['locale' => getCurrentLocale()]);
         }
 
-        return view('pages.insurence.kasko.confirm', compact('applicant', 'vehicle', 'calculation'));
+        return view('pages.insurence.flow.confirm', $this->flowViewData([
+            'product' => $this->getProduct(),
+        ]));
     }
 
     public function storeApplication(Request $request): RedirectResponse
     {
+        $request->validate([
+            'offerta_agreed' => $this->offertaRule(),
+        ], [
+            'offerta_agreed.required' => __('messages.offerta_required'),
+            'offerta_agreed.accepted' => __('messages.offerta_required'),
+        ]);
+
         $applicant   = $this->sess('applicant');
         $vehicle     = $this->sess('vehicle');
         $calculation = $this->sess('calculation');
@@ -163,12 +165,15 @@ final class KaskoController extends BaseInsuranceController
             $apiResponse = $this->submitXalqSugurta($apiBody);
         } catch (ProviderException $e) {
             return redirect()->route('kasko.getConfirm', ['locale' => getCurrentLocale()])
-                ->withErrors(['error' => $e->getMessage()]);
+                ->withErrors(['error' => $this->providerErrorMessage($e)]);
         }
 
-        $insuranceId = $apiResponse['contract_id']
-            ?? $apiResponse['polis_sery'] . ($apiResponse['polis_number'] ?? '')
-            ?: ($apiResponse['id'] ?? uniqid('kasko_'));
+        // Same order as gas/property: polis number, then API id, then a local fallback
+        $insuranceId = null;
+        if (isset($apiResponse['polis_sery'], $apiResponse['polis_number'])) {
+            $insuranceId = $apiResponse['polis_sery'] . $apiResponse['polis_number'];
+        }
+        $insuranceId ??= $apiResponse['contract_id'] ?? $apiResponse['id'] ?? uniqid('kasko_');
 
         $paymeUrl = $apiResponse['payme_url'] ?? null;
         $clickUrl = $apiResponse['click_url'] ?? null;
@@ -213,7 +218,7 @@ final class KaskoController extends BaseInsuranceController
                 strtoupper($request->input('gov_number'))
             );
         } catch (ProviderException $e) {
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+            return response()->json(['success' => false, 'message' => $this->providerErrorMessage($e)], 422);
         }
 
         return response()->json([
@@ -230,6 +235,30 @@ final class KaskoController extends BaseInsuranceController
                 'vehicle_type'  => $api['vehicleTypeId']   ?? 2,
             ],
         ]);
+    }
+
+    // ─── Flow: insured object = vehicle ───────────────────────────────────────
+
+    protected function objectLabel(array $object): ?string
+    {
+        if (empty($object['regnumber'])) {
+            return null;
+        }
+
+        return trim(($object['brand'] ?? '') . ' ' . ($object['model'] ?? '')) . ', ' . $object['regnumber'];
+    }
+
+    protected function objectReview(array $object): array
+    {
+        return [
+            __('insurance.kasko.brand_model')   => trim(($object['brand'] ?? '') . ' ' . ($object['model'] ?? '')),
+            __('insurance.kasko.gov_number')    => $object['regnumber'] ?? null,
+            __('insurance.kasko.year')          => $object['year'] ?? null,
+            __('insurance.kasko.tp_seria') . ' / ' . __('insurance.kasko.tp_number')
+                                                => trim(($object['tp_seria'] ?? '') . ' ' . ($object['tp_number'] ?? '')),
+            __('insurance.kasko.body_number')   => $object['body_number'] ?? null,
+            __('insurance.kasko.engine_number') => $object['engine_number'] ?? null,
+        ];
     }
 
     // ─── Private helpers ──────────────────────────────────────────────────────

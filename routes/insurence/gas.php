@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 // Gas Balloon insurance routes
 
-Route::group(['prefix' => 'gas'], function () {
+Route::group(['prefix' => 'gas', 'middleware' => 'product.on-sale:gas'], function () {
 
     // Step 1: Applicant
     Route::get('/',              [GasBallonController::class, 'index'])->name('gas.index');

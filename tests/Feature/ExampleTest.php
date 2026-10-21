@@ -2,18 +2,18 @@
 
 namespace Tests\Feature;
 
-// use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
-    /**
-     * A basic test example.
-     */
+    use RefreshDatabase;
+
+    /** The bare domain sends visitors to the Uzbek home page, which renders */
     public function test_the_application_returns_a_successful_response(): void
     {
-        $response = $this->get('/');
+        $this->get('/')->assertRedirect(route('home', ['locale' => 'uz']));
 
-        $response->assertStatus(200);
+        $this->get('/uz')->assertOk();
     }
 }

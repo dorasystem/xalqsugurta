@@ -144,8 +144,8 @@ return [
 
     'osago' => [
         'product_name' => 'OSAGO sug\'urtasi',
-        'page_title' => 'OSAGO - Ariza ma\'lumotlari',
-        'subtitle' => 'Ariza ma\'lumotlarini tekshirib, tasdiqlang',
+        'page_title' => 'OSAGO — avtomobil sug\'urtasi',
+        'subtitle' => 'Transport egalarining majburiy fuqarolik javobgarligi',
         'applicant_info' => 'Ariza Beruvchi Ma\'lumotlari',
         'owner_info' => 'Avtomobil egasi ma\'lumotlari',
         'vehicle_info' => 'Avtomobil ma\'lumotlari',
@@ -206,6 +206,8 @@ return [
     ],
 
     'osgor' => [
+
+        'subtitle' => 'Ish beruvchining xodimlar oldidagi fuqarolik javobgarligini majburiy sug\'urta qilish',
         'page_title' => 'OSGOR - Ish beruvchilarning majburiy sug\'urtasi',
         'product_name' => 'OSGOR - Ish beruvchilarning majburiy sug\'urtasi',
         'title' => 'OSGOR Sug\'urtasi',
@@ -217,6 +219,8 @@ return [
     ],
 
     'osgop' => [
+
+        'subtitle' => 'Yo\'lovchi tashishda tashuvchining fuqarolik javobgarligini majburiy sug\'urta qilish',
         'page_title' => 'OSGOP - Tashuvchilarning majburiy sug\'urtasi',
         'product_name' => 'OSGOP - Tashuvchilarning majburiy sug\'urtasi',
         'title' => 'OSGOP Sug\'urtasi',

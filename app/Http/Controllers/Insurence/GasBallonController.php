@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Insurence;
 
 use App\Exceptions\ProviderException;
+use App\Http\Controllers\Insurence\Concerns\CadasterFlow;
 use App\Services\OrderService;
+use App\Services\ProductSettings;
 use App\Services\PropertyService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -14,7 +16,24 @@ use Illuminate\View\View;
 
 final class GasBallonController extends BaseInsuranceController
 {
+    use CadasterFlow;
+
     private const SESSION_KEY = 'gas';
+
+    public const FLOW = [
+        'key'           => self::SESSION_KEY,
+        'icon'          => 'bi-fire',
+        'rate'          => 0.5,
+        'rateLabel'     => '0,5',
+        'min'           => 5_000_000,
+        'max'           => 500_000_000,
+        'default'       => 50_000_000,
+        'presets'       => [10_000_000, 50_000_000, 100_000_000, 250_000_000],
+        'cadasterRoute' => 'fetch.cadaster.gas',
+        'objectKey'     => 'property',
+        'objectStep'    => 'getProperty',
+        'objectTitle'   => 'messages.flow.property',
+    ];
 
     public function __construct(
         private readonly PropertyService $propertyService,
@@ -32,42 +51,17 @@ final class GasBallonController extends BaseInsuranceController
 
     public function index(): View
     {
-        return view('pages.insurence.gas.main', ['product' => $this->getProduct()]);
+        return view('pages.insurence.flow.applicant', $this->flowViewData());
     }
 
     public function storeApplicant(Request $request): RedirectResponse
     {
-        $request->validate([
-            'passport_seria'  => ['required', 'string', 'max:4'],
-            'passport_number' => ['required', 'digits:7'],
-            'birth_date'      => ['required', 'date', 'before:today'],
-            'phone'           => ['required', 'string', 'min:9', 'max:20'],
-            'offerta_agreed'  => $this->offertaRule(),
-        ], [
-            'offerta_agreed.required' => __('messages.offerta_required'),
-            'offerta_agreed.accepted' => __('messages.offerta_required'),
-        ]);
-
-        try {
-            $person = $this->findPersonByPassport(
-                strtoupper($request->input('passport_seria')) . $request->input('passport_number'),
-                $request->input('birth_date')
-            );
-        } catch (ProviderException $e) {
-            return back()->withErrors(['passport_seria' => __('messages.person_not_found')])->withInput();
+        $applicant = $this->applicantFromRequest($request);
+        if ($applicant instanceof RedirectResponse) {
+            return $applicant;
         }
 
-        if (empty($person['currentPinfl'] ?? null)) {
-            return back()->withErrors(['passport_seria' => __('messages.person_not_found')])->withInput();
-        }
-
-        $this->putSess('applicant', array_merge($this->normalizePerson($person, $request), [
-            'passport_seria'  => strtoupper($request->input('passport_seria')),
-            'passport_number' => $request->input('passport_number'),
-            'birth_date'      => $request->input('birth_date'),
-            'phone'           => $this->cleanPhone($request->input('phone')),
-            'gender'          => ($person['gender'] ?? '') == '1' ? '1' : '2',
-        ]));
+        $this->putSess('applicant', $applicant);
 
         return redirect()->route('gas.getProperty', ['locale' => getCurrentLocale()]);
     }
@@ -81,28 +75,27 @@ final class GasBallonController extends BaseInsuranceController
             return redirect()->route('gas.index', ['locale' => getCurrentLocale()]);
         }
 
-        $property    = $this->sess('property', []);
-        $calculation = $this->sess('calculation', []);
-
-        return view('pages.insurence.gas.property', compact('applicant', 'property', 'calculation'));
+        return view('pages.insurence.cadaster.property', $this->flowViewData());
     }
 
     public function storeProperty(Request $request): RedirectResponse
     {
+        $flow = $this->flow();
+
         $request->validate([
-            'cadaster_number'    => ['required', 'string'],
-            'insurance_amount'   => ['required', 'integer', 'min:5000000', 'max:500000000'],
-            'payment_start_date' => ['required', 'date', 'after_or_equal:today'],
-        ]);
+            'cadaster_number'    => $this->cadasterRule(),
+            'insurance_amount'   => ['required', 'integer', 'min:' . $flow['min'], 'max:' . $flow['max']],
+            'payment_start_date' => ProductSettings::startDateRules($flow),
+        ], $this->cadasterMessages('cadaster_number'));
 
         if (!$this->sess('applicant')) {
             return redirect()->route('gas.index', ['locale' => getCurrentLocale()]);
         }
 
         $insuranceAmount = (int) $request->input('insurance_amount');
-        $premium         = (int) round($insuranceAmount * 0.5 / 100);
+        $premium         = $this->premiumFor($insuranceAmount);
         $startDate       = $request->input('payment_start_date');
-        $endDate         = Carbon::parse($startDate)->addYear()->subDay()->format('Y-m-d');
+        $endDate         = ProductSettings::endDate($flow, $startDate);
 
         $districtId = (int) $request->input('prop_district_id', 0);
         $regionId   = $districtId > 0 ? (int) floor($districtId / 100) : 10;
@@ -133,17 +126,7 @@ final class GasBallonController extends BaseInsuranceController
 
     public function fetchCadaster(Request $request): JsonResponse
     {
-        $request->validate([
-            'cadasterNumber' => ['required', 'string'],
-        ]);
-
-        $result = $this->propertyService->fetchPropertyByCadaster($request->input('cadasterNumber'));
-
-        if (!$result['success']) {
-            return response()->json(['success' => false, 'message' => $result['error'] ?? __('messages.cadaster_invalid')], 422);
-        }
-
-        return response()->json(['success' => true, 'result' => $result['result']]);
+        return $this->cadasterLookup($request);
     }
 
     // ─── Step 3: Confirm + Submit ─────────────────────────────────────────────
@@ -158,11 +141,20 @@ final class GasBallonController extends BaseInsuranceController
             return redirect()->route('gas.index', ['locale' => getCurrentLocale()]);
         }
 
-        return view('pages.insurence.gas.confirm', compact('applicant', 'property', 'calculation'));
+        return view('pages.insurence.flow.confirm', $this->flowViewData([
+            'product' => $this->getProduct(),
+        ]));
     }
 
     public function storeApplication(Request $request): RedirectResponse
     {
+        $request->validate([
+            'offerta_agreed' => $this->offertaRule(),
+        ], [
+            'offerta_agreed.required' => __('messages.offerta_required'),
+            'offerta_agreed.accepted' => __('messages.offerta_required'),
+        ]);
+
         $applicant   = $this->sess('applicant');
         $property    = $this->sess('property');
         $calculation = $this->sess('calculation');
@@ -178,7 +170,7 @@ final class GasBallonController extends BaseInsuranceController
             $apiResponse = $this->submitXalqSugurta($apiBody);
         } catch (ProviderException $e) {
             return redirect()->route('gas.getConfirm', ['locale' => getCurrentLocale()])
-                ->withErrors(['error' => $e->getMessage()]);
+                ->withErrors(['error' => $this->providerErrorMessage($e)]);
         }
 
         $insuranceId = null;
@@ -213,7 +205,7 @@ final class GasBallonController extends BaseInsuranceController
     /** Convert Y-m-d to DD.MM.YYYY as required by Xalq Sugurta API */
     private function toApiDate(string $date): string
     {
-        return \Carbon\Carbon::parse($date)->format('d.m.Y');
+        return Carbon::parse($date)->format('d.m.Y');
     }
 
     private function buildGasApiBody(array $applicant, array $property, array $calculation): array

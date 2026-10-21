@@ -118,6 +118,9 @@ jobs:
               php artisan migrate --force
 
             docker compose -f docker-compose.prod.yml exec -T app \
+              php artisan storage:link
+
+            docker compose -f docker-compose.prod.yml exec -T app \
               php artisan config:cache
 
             docker compose -f docker-compose.prod.yml exec -T app \
@@ -125,6 +128,10 @@ jobs:
 
             docker compose -f docker-compose.prod.yml exec -T app \
               php artisan view:cache
+
+            # Admin panel: cached Filament components and Blade icons
+            docker compose -f docker-compose.prod.yml exec -T app \
+              php artisan filament:optimize
 
             echo "🧹 Eski Docker image larni tozalash..."
             docker image prune -f

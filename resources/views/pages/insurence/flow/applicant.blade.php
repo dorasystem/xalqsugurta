@@ -1,0 +1,91 @@
+@extends('layouts.app')
+@section('title', __('insurance.' . $flow['key'] . '.page_title'))
+
+@section('content')
+<x-insurence.flow
+    :icon="$flow['icon']"
+    :title="__('insurance.' . $flow['key'] . '.page_title')"
+    :subtitle="__('insurance.' . $flow['key'] . '.subtitle')"
+    :steps="$flowSteps"
+    :current="1"
+    :stepUrls="$flowUrls"
+>
+    <form action="{{ route($flow['key'] . '.storeApplicant', ['locale' => getCurrentLocale()]) }}" method="POST" class="xf-panel">
+        @csrf
+
+        <div class="xf-panel__head">
+            <h2 class="xf-panel__title">{{ __t('messages.flow.applicant_title') }}</h2>
+            <p class="xf-panel__subtitle">{{ __t('messages.flow.applicant_subtitle') }}</p>
+        </div>
+
+        <div class="xf-panel__body">
+            <div class="xf-row" style="--xf-cols: 2">
+                <x-insurence.field
+                    name="passport_seria"
+                    :label="__('insurance.passport.series')"
+                    :value="$applicant['passport_seria'] ?? null"
+                    :help="__t('messages.flow.passport_series_help')"
+                    maxlength="4"
+                    placeholder="AA"
+                    autocomplete="off"
+                    style="text-transform: uppercase"
+                    required
+                />
+                <x-insurence.field
+                    name="passport_number"
+                    :label="__('insurance.passport.number')"
+                    :value="$applicant['passport_number'] ?? null"
+                    inputmode="numeric"
+                    maxlength="7"
+                    placeholder="1234567"
+                    autocomplete="off"
+                    required
+                />
+            </div>
+
+            <div class="xf-row">
+                <x-insurence.field
+                    name="pinfl"
+                    :label="__t('messages.flow.pinfl')"
+                    :value="$applicant['pinfl'] ?? null"
+                    :help="__t('messages.flow.pinfl_help')"
+                    inputmode="numeric"
+                    maxlength="14"
+                    placeholder="31234567890123"
+                    autocomplete="off"
+                    required
+                />
+                <x-insurence.field
+                    name="phone"
+                    type="tel"
+                    :label="__('messages.phone_number')"
+                    :value="$applicant['phone'] ?? null"
+                    :help="__t('messages.flow.phone_help')"
+                    inputmode="tel"
+                    placeholder="+998 90 123 45 67"
+                    autocomplete="tel"
+                    required
+                />
+            </div>
+
+            @if ($applicant)
+                <x-insurence.found
+                    :title="$applicantName"
+                    :text="$applicant['address'] ?? ''"
+                />
+            @else
+                <p class="xf-note">
+                    <i class="bi bi-info-circle"></i>
+                    <span>{{ __t('messages.flow.applicant_subtitle') }}</span>
+                </p>
+            @endif
+        </div>
+
+        <x-insurence.actions :submit="__t('messages.next_step')" />
+    </form>
+
+    <x-slot:summary>
+        <x-insurence.summary :premium="null" :rate="$flow['rateLabel'] ?? null" :items="$summaryItems" />
+    </x-slot:summary>
+</x-insurence.flow>
+@endsection

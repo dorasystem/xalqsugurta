@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Register PayMe middleware alias
         $middleware->alias([
             'payme' => \App\Http\Middleware\PaymeMiddleware::class,
+            'product.on-sale' => \App\Http\Middleware\EnsureProductOnSale::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

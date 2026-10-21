@@ -8,8 +8,6 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
-                'resources/js/osago/main.js',
-                'resources/js/insurence/multi-step.js',
             ],
             refresh: true,
         }),

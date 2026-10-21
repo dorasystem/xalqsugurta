@@ -143,8 +143,8 @@ return [
 
     'osago' => [
         'product_name' => 'OSAGO Insurance',
-        'page_title' => 'MTPL - Application Details',
-        'subtitle' => 'Review and confirm application details',
+        'page_title' => 'MTPL — motor insurance',
+        'subtitle' => 'Compulsory motor third-party liability insurance',
         'applicant_info' => 'Applicant Information',
         'owner_info' => 'Vehicle Owner Information',
         'vehicle_info' => 'Vehicle Information',
@@ -205,6 +205,8 @@ return [
         ],
 
     'osgor' => [
+
+        'subtitle' => 'Compulsory insurance of the employer\'s civil liability to employees',
         'page_title' => 'OSGOR - Mandatory Employer Liability Insurance',
         'product_name' => 'OSGOR - Mandatory Employer Liability Insurance',
         'title' => 'OSGOR Insurance',
@@ -216,6 +218,8 @@ return [
     ],
 
     'osgop' => [
+
+        'subtitle' => 'Compulsory insurance of the carrier\'s civil liability for passenger transport',
         'page_title' => 'OSGOP - Mandatory Carrier Liability Insurance',
         'product_name' => 'OSGOP - Mandatory Carrier Liability Insurance',
         'title' => 'OSGOP Insurance',
