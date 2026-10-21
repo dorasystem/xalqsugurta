@@ -454,3 +454,34 @@
     margin-left: auto;
     color: var(--sc-muted);
 }
+
+/* Tenders (/tenders): open / closed badge */
+.xf-tender-status {
+    flex: 0 0 auto;
+    margin-left: auto;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font: 600 0.75rem/1.2 Inter, sans-serif;
+    white-space: nowrap;
+}
+
+.xf-tender-status--open {
+    background: #e6f6ec;
+    color: #157a3d;
+}
+
+.xf-tender-status--closed {
+    background: #f1f1f4;
+    color: #6b6a80;
+}
+
+/* A long e-mail goes under its label instead of breaking mid-word */
+.xf-summary__list li.xf-tender-email {
+    flex-direction: column;
+    gap: 4px;
+}
+
+.xf-tender-email b {
+    text-align: left;
+    overflow-wrap: anywhere;
+}

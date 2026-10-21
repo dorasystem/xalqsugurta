@@ -155,6 +155,11 @@
                                                 </a>
                                             </li>
                                             <li class="menu-item__row">
+                                                <a href="{{ route('tenders.index', ['locale' => getCurrentLocale()]) }}" class="menu-item__link">
+                                                    <span>{{ __('messages.header_tenders') }}</span>
+                                                </a>
+                                            </li>
+                                            <li class="menu-item__row">
                                                 <a href="{{ \App\Models\InfoPage::link('collegial-bodies') }}"
                                                     class="menu-item__link">
                                                     <span>{{ __('messages.header_collegial_bodies') }}</span>
@@ -346,6 +351,9 @@
                             </li>
                             <li class="menu-block__item">
                                 <a class="menu-block__link" href="{{ \App\Models\InfoPage::link('vacancies') }}">{{ __('messages.header_vacancies') }}</a>
+                            </li>
+                            <li class="menu-block__item">
+                                <a class="menu-block__link" href="{{ route('tenders.index', ['locale' => getCurrentLocale()]) }}">{{ __('messages.header_tenders') }}</a>
                             </li>
                             <li class="menu-block__item">
                                 <a class="menu-block__link"

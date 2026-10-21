@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\InfoPage;
 use App\Models\Product;
+use App\Models\Tender;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +28,15 @@ final class SeoController extends Controller
             if (Route::has($slug . '.index')) {
                 $pages[] = [$slug . '.index', [], 'weekly', '0.8'];
             }
+        }
+
+        $pages[] = ['tenders.index', [], 'weekly', '0.6'];
+        try {
+            foreach (Tender::visible()->pluck('slug') as $slug) {
+                $pages[] = ['tenders.show', ['slug' => $slug], 'monthly', '0.5'];
+            }
+        } catch (QueryException) {
+            // tenders not migrated yet: the sitemap must still work
         }
 
         foreach (InfoPage::publishedKeys() as $key) {

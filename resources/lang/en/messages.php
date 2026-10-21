@@ -22,7 +22,23 @@
             'online'  => 'Online in 5 minutes',
             'more'    => 'Learn more',
         ],
-        'info_page' => [
+        'tenders' => [
+        'title'           => 'Tenders',
+        'subtitle'        => 'Tenders announced by the company',
+        'open'            => 'Accepting proposals',
+        'closed'          => 'Closed tenders',
+        'none'            => 'There are no open tenders at the moment.',
+        'status'          => 'Status',
+        'status_open'     => 'Open',
+        'status_closed'   => 'Closed',
+        'published'       => 'Published: :date',
+        'deadline'        => 'Proposals until :date',
+        'published_label' => 'Published on',
+        'deadline_label'  => 'Proposals accepted until',
+        'email_label'     => 'E-mail for proposals',
+        'all'             => 'All tenders',
+    ],
+    'info_page' => [
             'sections' => [
                 'about'        => 'About the company',
                 'shareholders' => 'Shareholders and investors',
@@ -360,6 +376,7 @@
         'header_audit' => 'Audit',
         'header_business_plan' => 'Business plan',
         'header_vacancies' => 'Vacancies',
+        'header_tenders' => 'Tenders',
         'header_collegial_bodies' => 'Collegial bodies',
         'header_objectives' => 'The subject and objectives of the society',
         'header_company_structure' => 'The structure of the company',

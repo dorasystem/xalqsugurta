@@ -163,6 +163,10 @@ After order creation: redirect to `route('payment.show', ['locale', 'orderId'])`
 - `php artisan site:import-old-pages [--only=a,b] [--download] [--force]` fetches them (`App\Services\Site\OldSitePage` keeps `.template-content` as plain HTML: headings, lists, links; drops images, icons and the side menu). New pages are unpublished; existing ones are skipped unless `--force`. `--download` copies `/uploads/...` documents to the public disk (`info-pages/`) and links `/storage/...`.
 - Prod: nginx mounts the `app_storage` volume read-only and the deploy runs `storage:link`, so public-disk files (rules PDFs, page documents) are served.
 
+### Tenders
+- `/{locale}/tenders` and `/{locale}/tenders/{slug}` (`TenderController`, views `pages/tenders/{index,show}`): `tenders` rows (`Tender`, title/body per locale falling back to uz then ru, body cleaned by `SafeHtml`). Shown from `published_at`; "open" until the end of `deadline_at`, then listed under closed ones. Proposals go by e-mail (`email`), there is no upload form.
+- Admin: Katalog → Tenderlar (`TenderResource`). Header menu (about section), sitemap and site search link to the list. `TenderSeeder` holds the October 2026 tenders (`php artisan db:seed --class=TenderSeeder`, safe to re-run).
+
 ### Claims and call-back requests (Murojaatlar)
 - The insurer has no API for them: they are stored and handled by staff in the admin panel (group "Murojaatlar": `ClaimResource`, `CallbackRequestResource`, navigation badges = new ones).
 - `ClaimController`: `/{locale}/claims` (form; `?order=` pre-fills a policy only if `OrderService::canSeeDetails()`; `?product=` preselects), `claims.sent/{number}` (only for the browser that filed it), `claims.status` (number AND phone must match). Numbers `ZH-yymmdd-NNNN` (random). Up to 5 files (jpg/png/pdf, 10 MB) on the private `local` disk under `claims/{id}`; staff open them via `claims.file` — a 30-min signed link generated in `filament/admin/claim-files` + an admin session (`ClaimFileController`). Honeypot field `website`; throttled.

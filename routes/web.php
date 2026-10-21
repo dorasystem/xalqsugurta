@@ -11,6 +11,7 @@ use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\ProductPageController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SeoController;
+use App\Http\Controllers\TenderController;
 use App\Http\Controllers\ApiControllers\PropertyInfoController;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
@@ -27,6 +28,8 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
 
     // Product info pages (texts / FAQ / rules from the admin panel)
     Route::get('/search', [SearchController::class, 'index'])->middleware('throttle:60,1')->name('search');
+    Route::get('/tenders', [TenderController::class, 'index'])->name('tenders.index');
+    Route::get('/tenders/{slug}', [TenderController::class, 'show'])->where('slug', '[a-z0-9-]+')->name('tenders.show');
     Route::get('/info/{key}', [InfoPageController::class, 'show'])->where('key', '[a-z0-9-]+')->name('info.show');
     Route::get('/products/{product}', [ProductPageController::class, 'show'])->where('product', '[a-z0-9_-]+')->name('product.show');
 

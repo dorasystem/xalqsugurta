@@ -80,6 +80,7 @@ final class SearchController extends Controller
             ['title' => __t('messages.my_policies.title'), 'text' => __t('messages.my_policies.subtitle'), 'url' => route('my-policies', ['locale' => $locale]), 'icon' => 'bi-person-vcard'],
             ['title' => __t('messages.claims.title'), 'text' => __t('messages.claims.subtitle'), 'url' => route('claims.create', ['locale' => $locale]), 'icon' => 'bi-life-preserver'],
             ['title' => __t('messages.claims.check_status'), 'text' => null, 'url' => route('claims.status', ['locale' => $locale]), 'icon' => 'bi-search'],
+            ['title' => __t('messages.tenders.title'), 'text' => __t('messages.tenders.subtitle'), 'url' => route('tenders.index', ['locale' => $locale]), 'icon' => 'bi-megaphone'],
             ['title' => __t('messages.callback.title'), 'text' => __t('messages.callback.subtitle'), 'url' => route('callback', ['locale' => $locale]), 'icon' => 'bi-telephone'],
         ];
     }
