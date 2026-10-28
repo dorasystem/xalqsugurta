@@ -56,6 +56,7 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
     require __DIR__ . '/insurence/osgop.php';
     require __DIR__ . '/insurence/kasko.php';
     require __DIR__ . '/insurence/tourist.php';
+    require __DIR__ . '/insurence/travel.php';
 });
 
 Route::post('fetch-cadaster', [PropertyInfoController::class, 'fetchPropertyInfo']);

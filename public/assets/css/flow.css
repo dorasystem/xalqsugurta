@@ -1163,3 +1163,182 @@ textarea.xf-input { min-height: 110px; resize: vertical; line-height: 1.5; }
     font-size: var(--xf-fs-body);
 }
 .xf-file:focus-visible { outline: 2px solid var(--xf-brand); outline-offset: 2px; }
+
+/* ─── Travel (pages/insurence/travel) ─────────────────────────────────────── */
+
+/* Country picker: chosen chips + search with a suggestion list */
+.xf-picker {
+    position: relative;
+}
+
+.xf-picker__chosen {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.xf-picker__chosen:empty {
+    display: none;
+}
+
+.xf-picker__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 6px 5px 12px;
+    border-radius: 999px;
+    background: var(--xf-tint);
+    color: var(--xf-brand);
+    font-weight: 600;
+    font-size: var(--xf-fs-label);
+}
+
+.xf-picker__chip button {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+
+.xf-picker__chip button:hover {
+    background: #fff;
+}
+
+.xf-picker__list {
+    list-style: none;
+    margin: 0;
+    padding: 6px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    z-index: 30;
+    background: #fff;
+    border: 1px solid var(--xf-line);
+    border-radius: 14px;
+    box-shadow: 0 18px 40px -20px rgba(22, 20, 58, 0.45);
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.xf-picker__list li {
+    padding: 9px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: var(--xf-fs-body);
+    color: var(--xf-ink);
+}
+
+.xf-picker__list li.is-active,
+.xf-picker__list li[role="option"]:hover {
+    background: var(--xf-tint);
+}
+
+.xf-picker__list .xf-picker__none {
+    color: var(--xf-muted);
+    cursor: default;
+}
+
+/* Travellers' birth dates */
+.xf-birthdates {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.xf-birthdates__row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.xf-birthdates__row .xf-input {
+    max-width: 220px;
+}
+
+.xf-birthdates__no {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--xf-tint);
+    color: var(--xf-brand);
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: var(--xf-fs-meta);
+    flex-shrink: 0;
+}
+
+/* Programme cards */
+.xf-programs-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.xf-programs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+}
+
+.xf-program {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 16px;
+    border: 1.5px solid var(--xf-line);
+    border-radius: 14px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.xf-program:hover {
+    border-color: #c9c4ec;
+}
+
+.xf-program.is-selected {
+    border-color: var(--xf-brand);
+    background: var(--xf-tint);
+    box-shadow: 0 0 0 3px rgba(57, 49, 133, 0.12);
+}
+
+.xf-program:has(input:focus-visible) {
+    outline: 2px solid var(--xf-brand);
+    outline-offset: 2px;
+}
+
+.xf-program.is-disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.xf-program__name {
+    font: 700 var(--xf-fs-name)/1.3 Gilroy, sans-serif;
+    color: var(--xf-ink);
+}
+
+.xf-program__sum {
+    font-size: var(--xf-fs-meta);
+    color: var(--xf-muted);
+}
+
+.xf-program__price {
+    margin-top: 4px;
+    font: 800 1.05rem/1.25 Gilroy, sans-serif;
+    color: var(--xf-brand);
+    font-variant-numeric: tabular-nums;
+}
+
+.xf-program.is-disabled .xf-program__price {
+    font: 500 var(--xf-fs-meta)/1.35 Inter, sans-serif;
+    color: var(--xf-muted);
+}

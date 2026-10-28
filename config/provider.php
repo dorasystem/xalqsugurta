@@ -32,6 +32,18 @@ return [
         'eshop' => env('PROVIDER_ESHOP_PAYMENT', 'http://online.xalqsugurta.uz/xs/ins/eshop/payment'),
     ],
 
+    // Travel insurance abroad (ВЗР), API "website" v2 (docs/API.md → Travel). calc / sale use the
+    // insurer's website login (defaults to the provider pair); `get` (policies after payment) has its own pair.
+    'travel' => [
+        'base_url'     => env('PROVIDER_TRAVEL_URL', 'https://online.xalqsugurta.uz/xs/ins/website/'),
+        'username'     => env('PROVIDER_TRAVEL_USERNAME', env('PROVIDER_USERNAME')),
+        'password'     => env('PROVIDER_TRAVEL_PASSWORD', env('PROVIDER_PASSWORD')),
+        'get_username' => env('PROVIDER_TRAVEL_GET_USERNAME'),
+        'get_password' => env('PROVIDER_TRAVEL_GET_PASSWORD'),
+        // Send policy.return_url (https on the company's domain, agreed with the insurer)
+        'return_url'   => (bool) env('PROVIDER_TRAVEL_RETURN_URL', true),
+    ],
+
     'osgop' => [
         'health_life_damage_sum' => env('OSGOP_HEALTH_LIFE_DAMAGE_SUM', 40000000),
         'property_damage_sum'    => env('OSGOP_PROPERTY_DAMAGE_SUM', 4000000),

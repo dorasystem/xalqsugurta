@@ -231,6 +231,11 @@ return [
         ],
     ],
 
+    'travel' => [
+        'page_title'   => 'Chet elga chiquvchilar sug\'urtasi',
+        'product_name' => 'Chet elga chiquvchilar sug\'urtasi (VZR)',
+        'subtitle'     => 'Xorijga safar paytidagi tibbiy xarajatlar uchun polis',
+    ],
     'tourist' => [
         'page_title'   => 'Turistlarni baxtsiz hodisadan sug\'urtalash',
         'product_name' => 'Turistlarni baxtsiz hodisadan sug\'urtalash',

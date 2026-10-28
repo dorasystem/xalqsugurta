@@ -19,7 +19,7 @@ final class HomeController extends Controller
     private const BUSINESS = ['osgor', 'osgop'];
 
     /** Order of the quick-quote tabs */
-    private const QUICK = ['osago', 'kasko', 'property', 'gas', 'tourist', 'accident'];
+    private const QUICK = ['osago', 'travel', 'kasko', 'property', 'gas', 'tourist', 'accident'];
 
     public function __construct(private readonly OsagoPriceCalculator $osagoPrice) {}
 

@@ -80,6 +80,7 @@ class Product extends Model
         'kasko'    => 'transport',
         'accident' => 'personal',
         'tourist'  => 'personal',
+        'travel'   => 'personal',
         'property' => 'property',
         'gas'      => 'property',
         'osgor'    => 'business',

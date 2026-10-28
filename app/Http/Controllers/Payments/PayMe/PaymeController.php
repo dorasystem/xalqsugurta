@@ -19,6 +19,8 @@ class PaymeController extends Controller
     {
         // dd($request->all());
         $order = Order::findOrFail($request->id);
+        // Paid only through the insurer's own links (the policy is issued on its side)
+        abort_if(in_array($order->product_key, Order::INSURER_PAYMENT_ONLY, true), 404);
         $amount = $order->amount;
         $transactionId = $order->id;
         // $backUrl = route('show.insurance.pdf', ['id' => $order->id]);

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\OrderService;
 use App\Services\PaymentSettings;
+use App\Services\Travel\TravelPolicyService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -25,6 +27,13 @@ final class PaymentController extends Controller
                 ->withErrors(['error' => __('messages.order_not_found') ?? 'Order not found.']);
         }
 
+        // Paid on the insurer's side: ask it at most every 15 s whether the policy is out
+        if ($order->product_key === 'travel' && $order->status !== Order::STATUS_PAID && Cache::add('travel.policy.' . $order->id, 1, 15)) {
+            app(TravelPolicyService::class)->refresh($order);
+        }
+
+        $ownCashbox = !in_array($order->product_key, Order::INSURER_PAYMENT_ONLY, true);
+
         $state = match (true) {
             $order->status === Order::STATUS_PAID && $order->awaitsPolicy() => 'policy_pending',
             $order->status === Order::STATUS_PAID                           => 'paid',
@@ -39,10 +48,10 @@ final class PaymentController extends Controller
             'response'    => $order->insurances_response_data ?? [],
             // The insurer's own Click link when it gave one, else our Click merchant when it is set up in the panel
             'clickUrl'    => $order->click_url
-                ?: (PaymentSettings::clickReady() ? route('payment.click', ['id' => $order->id]) : null),
+                ?: ($ownCashbox && PaymentSettings::clickReady() ? route('payment.click', ['id' => $order->id]) : null),
             // The insurer's own Payme link when it gave one, else ours unless switched off in the panel
             'paymeUrl'    => $order->payme_url
-                ?: (PaymentSettings::paymeEnabled() ? route('payment.payme', ['id' => $order->id]) : null),
+                ?: ($ownCashbox && PaymentSettings::paymeEnabled() ? route('payment.payme', ['id' => $order->id]) : null),
         ]);
     }
 }
