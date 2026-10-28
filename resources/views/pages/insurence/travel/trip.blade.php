@@ -176,8 +176,9 @@
         calculating: @json(__t('messages.flow.calculating')),
         error: @json(__('messages.error_occurred')),
         chooseProgram: @json(__t('messages.travel.program_required')),
-        typeHelp: @json(__t('messages.travel.travelers_type_help')),
+        typeHelp: @json(__('messages.travel.travelers_type_help', [], $locale)),
         birthdates: @json(__t('messages.travel.birthdates')),
+        persons: @json(__t('messages.flow.persons_count', ['count' => ':count'])),
     };
 
     var form      = document.getElementById('trip_form');
@@ -203,6 +204,14 @@
         document.querySelectorAll('[data-summary="total"], #sidebar_premium').forEach(function (el) {
             el.textContent = text;
             el.classList.toggle('is-empty', text === '—');
+        });
+    }
+
+    // Sidebar rows (x-insurence.summary): what the price below is for
+    function setSummary(key, text) {
+        document.querySelectorAll('[data-summary="' + key + '"]').forEach(function (el) {
+            el.textContent = text;
+            el.classList.remove('is-pending');
         });
     }
 
@@ -354,6 +363,9 @@
         programs.innerHTML = '';
         var t = json.trip || {};
         facts.textContent = t.days ? T.days.replace(':days', t.days).replace(':date', t.policy_end_date || '') + (t.schengen ? ' ' + T.schengen : '') : '';
+        setSummary('countries', chosen.map(function (id) { return byId[id].name; }).join(', '));
+        setSummary('travelers', T.persons.replace(':count', dates.children.length));
+        if (t.start_date) setSummary('period', t.start_date + ' – ' + (t.policy_end_date || ''));
 
         json.programs.forEach(function (p) {
             var label = document.createElement('label');
@@ -368,6 +380,7 @@
             radio.checked = p.available && p.id === PROGRAM;
             radio.addEventListener('change', function () {
                 PROGRAM = p.id;
+                setSummary('program', p.name);
                 programs.querySelectorAll('.xf-program').forEach(function (l) { l.classList.toggle('is-selected', l.contains(radio)); });
                 setTotal(p.price);
                 showError('');
@@ -380,8 +393,9 @@
                 '<span class="xf-program__price"></span>');
             label.querySelector('.xf-program__name').textContent = p.name;
             label.querySelector('.xf-program__sum').textContent = T.liability + ': ' + String(p.liability).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' €';
-            label.querySelector('.xf-program__price').textContent = p.available ? p.price : (p.reason || T.unavailable);
-            if (radio.checked) { label.classList.add('is-selected'); setTotal(p.price); }
+            label.querySelector('.xf-program__price').textContent = p.available ? p.price : T.unavailable;
+            if (!p.available && p.reason) label.title = p.reason;
+            if (radio.checked) { label.classList.add('is-selected'); setTotal(p.price); setSummary('program', p.name); }
             programs.appendChild(label);
         });
 
