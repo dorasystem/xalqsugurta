@@ -77,6 +77,12 @@ class Order extends Model
     /** eshop contracts: a payment through the site's own Payme / Click is confirmed with eshop/payment */
     public const ESHOP_PAYMENT_CONFIRM = ['osgop', 'osgor', 'accident', 'tourist'];
 
+    /**
+     * Paid only through the insurer's own Payme / Click links: the insurer issues the policy when it
+     * sees the payment, and has no way to hear about one taken by the site's cashbox
+     */
+    public const INSURER_PAYMENT_ONLY = ['travel'];
+
     /** Every product whose payment through the site's cashbox is confirmed to the insurer (OSAGO: ERSP) */
     public const PAYMENT_CONFIRM = [...self::ESHOP_PAYMENT_CONFIRM, 'osago'];
 

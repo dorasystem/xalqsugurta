@@ -18,6 +18,7 @@ Bu hujjat new.xalqsugurta.uz sayti `online.xalqsugurta.uz` tizimi bilan qanday i
 - [OSGOR](#osgor-ish-beruvchi-javobgarligi-eshop)
 - [OSGOP](#osgop-tashuvchi-javobgarligi-eshop)
 - [OSAGO](#osago)
+- [Chet elga chiquvchilar (ВЗР)](#chet-elga-chiquvchilar-взр-websitetravel)
 - [Tashqi servislar](#tashqi-servislar)
 - [Kodda qayerda](#kodda-qayerda)
 - [Korxonaga ochiq savollar](#korxonaga-ochiq-savollar)
@@ -662,6 +663,27 @@ Saytning o'z Payme / Click kassasi orqali to'langan OSAGO polisi ERSP'ga (e-osgo
 
 **Ochiq savollar:** usulning aniq manzili (e-osgo'ga to'g'ridan-to'g'rimi yoki sug'urtachi proxy'si orqalimi), auth va sayt uchun `agencyId`.
 
+## Chet elga chiquvchilar (ВЗР, website/travel)
+
+Manba: «API вебсайта: страхование выезжающих за рубеж (ВЗР)», v2.0, 28.10.2026. Manzil: `https://online.xalqsugurta.uz/xs/ins/website/` (`provider.travel.base_url`). Test muhiti yo'q: har bir yangi `order_id` bilan muvaffaqiyatli `travel/sale` haqiqiy shartnoma yaratadi.
+
+| Metod | Manzil | Auth | Nima |
+|---|---|---|---|
+| GET | `reference/countries`, `programs`, `regions`, `districts`, … | yo'q | Ma'lumotnomalar (`items`, `hasMore`, `offset`). Sayt bir kunga keshlaydi |
+| POST | `travel/calc` | Basic (`provider.travel.username/password`, bo'sh bo'lsa provider logini) | Narx: dasturisiz — `programs[]` (har bir mavjud dastur), `policy.program` bilan — batafsil |
+| POST | `travel/sale` | Basic | Shartnoma, НАПП'da ro'yxat, `payme_url` / `click_url`. Bir daqiqagacha davom etadi |
+| POST | `get` | Basic, **alohida login** (`provider.travel.get_username/password`) | To'lovdan keyingi polislar: `polis_url` (PDF), `polis_status_id` 2 = berilgan |
+
+Sayt oqimi (`TravelController`): sayohat + dastur → sug'urtalovchi (pasport + JSHSHIR) → sayohatchilar → tasdiqlash → to'lov.
+- Narx har doim serverda hisoblanadi: 1-qadamda kiritilgan tug'ilgan sanalar bo'yicha, tasdiqlashdan oldin esa sayohatchilarning registrdagi haqiqiy sanalari bo'yicha. `travel/sale`ga `cost.insurance_premium` sifatida mijoz ko'rgan narx yuboriladi; narx o'zgargan bo'lsa API 40 kodini qaytaradi, sayt narxni qayta hisoblab ko'rsatadi.
+- `order_id` (`XS-yymmdd-XXXXXXXXXX`) sessiyada saqlanadi va urinish qaytarilganda (59, 52, 61, 56, uzilish) o'zgarmaydi — ikkinchi shartnoma tuzilmaydi. 51 / 57 (qat'iy rad) dan keyin yangi kalit olinadi. Sayohat yoki sayohatchilar o'zgarsa ham kalit yangilanadi.
+- Faqat O'zbekiston fuqarolari (`resident: 1`). Viloyat `reference/regions` ro'yxatidan tanlanadi; tuman yuborilmaydi (ixtiyoriy). Sayohatchilarning manzili / viloyati yuborilmaydi: API ularni sug'urtalovchidan oladi.
+- `policy.return_url` = `/{locale}/travel/paid?order=<order_id>` — faqat APP_URL `https://` bo'lsa va `PROVIDER_TRAVEL_RETURN_URL` yoqilgan bo'lsa. API 49 (manzil kelishilmagan) qaytarsa, sotuv return_url'siz qayta yuboriladi.
+- To'lov faqat sug'urtachining `payme_url` / `click_url` havolalari orqali (`Order::INSURER_PAYMENT_ONLY`): polisni sug'urtachi to'lovni ko'rganda beradi, saytning o'z kassasi orqali to'lovni u bilmaydi.
+- Polis: `TravelPolicyService` `get` orqali tekshiradi — to'lov sahifasida (15 soniyada bir), return_url'da va `travel:sync-policies` (har 10 daqiqada, cron kerak). Polis topilsa buyurtma «To'langan» bo'ladi, `download_url` = `polis_url`. `get` logini bo'lmasa buyurtma holati saytda o'zgarmaydi.
+
+**Ochiq savollar:** `get` uchun login / parol; `return_url` uchun saytning domeni (`new.xalqsugurta.uz`) kelishilganmi; `reference/regions` id'lari registrdagi `regionId` bilan bir xilmi (hozir viloyat qo'lda tanlanadi); travel/calc–sale uchun alohida login bormi yoki provider logini ishlatiladimi.
+
 ## Tashqi servislar
 
 | Servis | Manzil | Izoh |
@@ -680,6 +702,7 @@ Saytning o'z Payme / Click kassasi orqali to'langan OSAGO polisi ERSP'ga (e-osgo
 | `app/Http/Controllers/Insurence/AccidentController.php` | Baxtsiz hodisa sale body'si |
 | `app/Http/Controllers/Insurence/BaseInsuranceController.php` | Shaxs javobini sayt formatiga o'girish (`normalizePerson`) |
 | `app/Services/InsuranceApiService.php` | OSAGO |
+| `app/Services/Travel/TravelApi.php`, `TravelPolicyService.php` | ВЗР: ma'lumotnomalar, calc, sale, get |
 
 Muammoni topish uchun loglar: `storage/logs/laravel.log`. Qidirish uchun kalit so'zlar: `Provider HTTP Error`, `Accident Submit HTTP Error`, `Xalq Sugurta Submit`, `PerformTransactionRequest failed`.
 

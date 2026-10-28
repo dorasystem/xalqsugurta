@@ -114,6 +114,19 @@ class ProductSeeder extends Seeder
                 'icon_bg'    => '#e0f2fe',
                 'sort_order' => 8,
             ],
+            [
+                'name_uz'    => 'Chet elga chiquvchilar sug\'urtasi',
+                'name_ru'    => 'Страхование выезжающих за рубеж',
+                'name_en'    => 'Travel Insurance',
+                'desc_uz'    => 'Xorijga safar paytida tibbiy xarajatlarni qoplaydigan sug\'urta (VZR)',
+                'desc_ru'    => 'Покрытие медицинских расходов во время поездки за границу (ВЗР)',
+                'desc_en'    => 'Medical expenses cover while travelling abroad',
+                'route'      => 'travel',
+                'icon'       => 'bi bi-airplane-fill',
+                'icon_color' => '#0891b2',
+                'icon_bg'    => '#cffafe',
+                'sort_order' => 9,
+            ],
         ];
 
         foreach ($products as $product) {

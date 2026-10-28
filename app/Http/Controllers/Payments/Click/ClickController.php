@@ -22,6 +22,8 @@ class ClickController extends Controller
     public function payment(Request $request): RedirectResponse
     {
         $order = Order::findOrFail($request->id);
+        // Paid only through the insurer's own links (the policy is issued on its side)
+        abort_if(in_array($order->product_key, Order::INSURER_PAYMENT_ONLY, true), 404);
 
         abort_unless(PaymentSettings::clickReady(), 503, 'Click is not configured');
 

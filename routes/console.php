@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // Deletes API journal rows older than ApiLog::KEEP_DAYS (needs the scheduler cron: `php artisan schedule:run` every minute)
 Schedule::command('model:prune')->daily();
+
+// Travel orders are paid on the insurer's side: pick up their policies (needs the `get` login, provider.travel.get_*)
+Schedule::command('travel:sync-policies')->everyTenMinutes()->withoutOverlapping();

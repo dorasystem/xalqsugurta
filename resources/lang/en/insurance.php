@@ -230,6 +230,11 @@ return [
         ],
     ],
 
+    'travel' => [
+        'page_title'   => 'Travel insurance',
+        'product_name' => 'Travel insurance abroad',
+        'subtitle'     => 'A policy for medical expenses on a trip abroad',
+    ],
     'tourist' => [
         'page_title'   => 'Tourist Accident Insurance',
         'product_name' => 'Tourist Accident Insurance',
