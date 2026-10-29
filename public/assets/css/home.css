@@ -1310,6 +1310,11 @@ a.hp-tile--hero:hover .hp-tile__ring {
     font-weight: 700;
 }
 
+.biz-offer__list a {
+    color: var(--hp-brand);
+    text-decoration: none;
+}
+
 .biz-bento {
     grid-template-rows: auto;
 }

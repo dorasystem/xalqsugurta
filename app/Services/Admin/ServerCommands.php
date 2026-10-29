@@ -65,6 +65,12 @@ final class ServerCommands
             'Ma\'lumotlar',
             [['db:seed', ['--class' => 'Database\\Seeders\\BranchSeeder', '--force' => true]]],
         ],
+        'seed-offers' => [
+            'Arizali mahsulotlarni qo\'shish',
+            'OfferProductSeeder: «Mening oilam», «Mulkni barcha xavflardan», «Kollektiv baxtsiz hodisa» sahifalari. Mavjudlari o\'zgartirilmaydi.',
+            'Ma\'lumotlar',
+            [['db:seed', ['--class' => 'Database\\Seeders\\OfferProductSeeder', '--force' => true]]],
+        ],
         'travel-sync' => [
             'VZR polislarini tekshirish',
             'To\'langan "Chet elga chiquvchilar" polislarini sug\'urtachidan so\'raydi (har 10 daqiqada o\'zi ham bajariladi).',

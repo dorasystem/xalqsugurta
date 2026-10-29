@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\CallbackRequest;
 use App\Models\InfoPage;
+use App\Models\OfferProduct;
+use Illuminate\Database\QueryException;
 use App\Models\Product;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -29,7 +31,8 @@ final class BusinessController extends Controller
 
         return view('pages.business', [
             'online'    => collect(self::ONLINE)->map(fn (string $r) => $products->get($r))->filter()->values(),
-            'offers'    => self::OFFERS,
+            'offers'     => self::OFFERS,
+            'offerPages' => $this->offerPages(),
             'locale'    => $locale,
             'documents' => [
                 'tenders'              => route('tenders.index', ['locale' => $locale]),
@@ -40,7 +43,17 @@ final class BusinessController extends Controller
         ]);
     }
 
-    /** Request for an individual offer: stored as a call-back request with the "corporate" topic */
+    /** Offers that have their own page (OfferProduct), so the list links to it */
+    private function offerPages(): array
+    {
+        try {
+            return OfferProduct::where('is_active', true)->pluck('slug')->all();
+        } catch (QueryException) {
+            return [];
+        }
+    }
+
+        /** Request for an individual offer: stored as a call-back request with the "corporate" topic */
     public function request(Request $request, string $locale): RedirectResponse
     {
         if (filled($request->input('website'))) {
