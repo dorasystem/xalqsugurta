@@ -1,0 +1,340 @@
+/* ===========================
+   INNER PAGES, design "A" (first used by pages/branches): full-width header with
+   breadcrumbs and a display title, list + sticky side panel. Prefix in-, tokens follow home.css.
+   =========================== */
+
+.in {
+    --in-ink: #16123f;
+    --in-brand: #393185;
+    --in-brand-dark: #2a2466;
+    --in-gold: #f2b632;
+    --in-tint: #f3f1fb;
+    --in-text: #4a4670;
+    --in-muted: #6b6889;
+    --in-line: #e6e3f3;
+    --in-on-dark: #cfcaf5;
+
+    background: var(--in-tint);
+    color: var(--in-ink);
+    padding-bottom: 72px;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.in [hidden] {
+    display: none !important;
+}
+
+.in-wrap {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding-left: 24px;
+    padding-right: 24px;
+    box-sizing: border-box;
+}
+
+/* ─── Head ─── */
+
+.in-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 16px 32px;
+    padding-top: 32px;
+    padding-bottom: 20px;
+}
+
+.in-crumbs {
+    display: flex;
+    gap: 6px;
+    color: var(--in-muted);
+    font-size: 0.82rem;
+}
+
+.in-crumbs a {
+    color: var(--in-muted);
+    text-decoration: none;
+}
+
+.in-crumbs a:hover {
+    color: var(--in-brand);
+}
+
+.in-title {
+    margin: 6px 0 0;
+    font: 800 clamp(1.8rem, 3.2vw, 2.4rem)/1.1 Unbounded, Gilroy, sans-serif;
+    color: var(--in-ink);
+}
+
+.in-lead {
+    margin: 8px 0 0;
+    color: var(--in-text);
+}
+
+.in-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 0 1 420px;
+    margin-left: auto;
+    padding: 12px 16px;
+    border: 1px solid var(--in-line);
+    border-radius: 14px;
+    background: #fff;
+    color: var(--in-muted);
+}
+
+.in-search:focus-within {
+    border-color: var(--in-brand);
+}
+
+.in-search input {
+    width: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--in-ink);
+    font: 500 0.95rem Inter, Gilroy, sans-serif;
+}
+
+.in-empty {
+    margin: 0;
+    padding: 20px;
+    border-radius: 16px;
+    background: #fff;
+    color: var(--in-text);
+}
+
+/* ─── List + side panel ─── */
+
+.in-split {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.in-list {
+    display: flex;
+    flex: 1 1 440px;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.in-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    padding: 16px 18px;
+    border: 2px solid transparent;
+    border-radius: 16px;
+    background: #fff;
+    color: var(--in-ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.in-row:hover {
+    border-color: var(--in-line);
+}
+
+.in-row.is-active {
+    border-color: var(--in-brand);
+    box-shadow: 0 10px 24px -16px rgba(57, 49, 133, 0.6);
+}
+
+.in-row__text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.in-row__text b {
+    font-size: 0.95rem;
+}
+
+.in-row__text span {
+    color: var(--in-text);
+    font-size: 0.82rem;
+    line-height: 1.45;
+}
+
+.in-row__phone {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--in-brand);
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.in-aside {
+    position: sticky;
+    top: 16px;
+    display: flex;
+    flex: 1 1 520px;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+    scroll-margin-top: 16px;
+}
+
+/* Schematic map: a grid with one pin per branch */
+.in-map {
+    position: relative;
+    height: 380px;
+    overflow: hidden;
+    border-radius: 24px;
+    background-color: var(--in-ink);
+    background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+.in-map__area {
+    position: absolute;
+    inset: 28px;
+}
+
+.in-pin {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    margin: -7px 0 0 -7px;
+    padding: 0;
+    border: 3px solid var(--in-ink);
+    border-radius: 50%;
+    background: var(--in-on-dark);
+    cursor: pointer;
+    transition: transform 0.15s ease;
+}
+
+.in-pin:hover {
+    transform: scale(1.3);
+}
+
+.in-pin.is-active {
+    width: 22px;
+    height: 22px;
+    margin: -11px 0 0 -11px;
+    background: var(--in-gold);
+    box-shadow: 0 0 0 8px rgba(242, 182, 50, 0.25);
+}
+
+.in-map__hint {
+    position: absolute;
+    left: 20px;
+    bottom: 16px;
+    color: var(--in-on-dark);
+    font-size: 0.75rem;
+}
+
+.in-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 24px;
+    border-radius: 24px;
+    background: #fff;
+}
+
+.in-card__title {
+    margin: 0;
+    font: 800 1.35rem/1.2 Unbounded, Gilroy, sans-serif;
+    color: var(--in-ink);
+}
+
+.in-card__row {
+    display: flex;
+    gap: 10px;
+    margin: 0;
+    color: var(--in-text);
+    line-height: 1.5;
+}
+
+.in-card__row svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--in-brand);
+}
+
+.in-card__phones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.in-card__phones a {
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: var(--in-tint);
+    color: var(--in-brand);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.in-card__phones a:hover {
+    background: #e7e4f7;
+}
+
+.in-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.in-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.in-btn--brand {
+    background: var(--in-brand);
+    color: #fff;
+}
+
+.in-btn--brand:hover {
+    background: var(--in-brand-dark);
+    color: #fff;
+}
+
+.in-btn--line {
+    border: 1px solid var(--in-line);
+    color: var(--in-brand);
+}
+
+.in-btn--line:hover {
+    border-color: var(--in-brand);
+    color: var(--in-brand);
+}
+
+@media (max-width: 900px) {
+    .in-aside {
+        position: static;
+    }
+
+    .in-map {
+        height: 260px;
+    }
+
+    .in-search {
+        flex-basis: 100%;
+        margin-left: 0;
+    }
+}

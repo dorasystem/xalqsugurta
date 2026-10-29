@@ -1150,7 +1150,10 @@ return [
         'title'    => 'Filiallar',
         'subtitle' => 'Respublika bo‘ylab :count ta filial va ofis',
         'none'     => 'Filiallar ro‘yxati hozircha bo‘sh.',
-        'map'      => 'Xaritada ochish',
+        'map'      => 'Yo‘nalish olish',
+        'search'   => 'Viloyat, shahar yoki ko‘cha',
+        'hint'     => 'Sxematik joylashuv · nuqtani bosing',
+        'nothing'  => 'Bunday filial topilmadi.',
     ],
 
     // Questionnaire (pages/questionnaire); option keys are SurveyResponse::REASONS / PRODUCTS / CRITERIA

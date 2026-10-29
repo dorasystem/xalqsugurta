@@ -1152,7 +1152,10 @@
         'title'    => 'Branches',
         'subtitle' => ':count branches and offices across the country',
         'none'     => 'The list of branches is empty for now.',
-        'map'      => 'Open on the map',
+        'map'      => 'Get directions',
+        'search'   => 'Region, city or street',
+        'hint'     => 'Schematic layout · tap a dot',
+        'nothing'  => 'No branch found.',
     ],
 
     // Questionnaire (pages/questionnaire); option keys are SurveyResponse::REASONS / PRODUCTS / CRITERIA

@@ -1151,7 +1151,10 @@ return [
         'title'    => 'Филиалы',
         'subtitle' => ':count филиалов и офисов по всей республике',
         'none'     => 'Список филиалов пока пуст.',
-        'map'      => 'Открыть на карте',
+        'map'      => 'Проложить маршрут',
+        'search'   => 'Область, город или улица',
+        'hint'     => 'Схема расположения · нажмите на точку',
+        'nothing'  => 'Такой филиал не найден.',
     ],
 
     // Questionnaire (pages/questionnaire); option keys are SurveyResponse::REASONS / PRODUCTS / CRITERIA
