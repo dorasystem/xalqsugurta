@@ -22,7 +22,7 @@
                             <span></span>
                             <span></span>
                         </button>
-                        <a href="{{ \App\Models\InfoPage::link('branches') }}" class="header-button mob-hidden" type="button">
+                        <a href="{{ route('branches', ['locale' => getCurrentLocale()]) }}" class="header-button mob-hidden" type="button">
                             <svg width="20" height="20">
                                 <use xlink:href="#icon-pin"></use>
                             </svg>
@@ -40,7 +40,7 @@
                             </svg>
                             <span>(+998 71) 202-19-66</span>
                         </a>
-                        <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/@lang('routes.questionnaire')" class="header-button mob-hidden" type="button">
+                        <a href="{{ route('questionnaire', ['locale' => getCurrentLocale()]) }}" class="header-button mob-hidden" type="button">
                             <svg width="20" height="20">
                                 <use xlink:href="#icon-faq"></use>
                             </svg>

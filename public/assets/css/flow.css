@@ -1442,3 +1442,129 @@ textarea.xf-input { min-height: 110px; resize: vertical; line-height: 1.5; }
     opacity: 0.45;
     pointer-events: none;
 }
+
+/* ─── Branches (pages/branches) ───────────────────────────────────────────── */
+
+.xf-branches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+    gap: 16px;
+}
+
+.xf-branch {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+    border: 1px solid var(--xf-line);
+    border-radius: 16px;
+    background: #fff;
+}
+
+.xf-branch__name {
+    margin: 0;
+    color: var(--xf-ink);
+    font-size: var(--xf-fs-name);
+    line-height: 1.35;
+}
+
+.xf-branch__row {
+    display: flex;
+    gap: 10px;
+    margin: 0;
+    color: var(--xf-text);
+    font-size: var(--xf-fs-body);
+    line-height: 1.5;
+}
+
+.xf-branch__row > i {
+    flex-shrink: 0;
+    color: var(--xf-brand);
+}
+
+.xf-branch__phones span {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+}
+
+.xf-branch__phones a {
+    color: var(--xf-ink);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.xf-branch__map {
+    align-self: flex-start;
+    margin-top: auto;
+}
+
+/* ─── Questionnaire (pages/questionnaire) ─────────────────────────────────── */
+
+.xf-survey {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.xf-survey fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.xf-survey__options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 8px 0 10px;
+}
+
+.xf-survey__options--grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+}
+
+.xf-survey__option,
+.xf-survey__rank {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--xf-line);
+    border-radius: 12px;
+    color: var(--xf-text);
+    font-size: var(--xf-fs-body);
+    line-height: 1.45;
+    cursor: pointer;
+}
+
+.xf-survey__option:has(input:checked) {
+    border-color: var(--xf-brand);
+    background: var(--xf-tint-2);
+    color: var(--xf-ink);
+}
+
+.xf-survey__option input {
+    margin-top: 3px;
+    accent-color: var(--xf-brand);
+}
+
+.xf-survey__ranks {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.xf-survey__rank {
+    align-items: center;
+    cursor: default;
+}
+
+.xf-survey__rank select {
+    flex: 0 0 72px;
+    width: 72px;
+}
