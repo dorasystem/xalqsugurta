@@ -1,40 +1,49 @@
 @extends('layouts.app')
 @section('title', __t('messages.tenders.title'))
 
-{{-- Tenders. $open / $closed = Tender collections from TenderController --}}
+{{-- Tenders, design "A": rows with status and deadline, "how to send" panel beside. $open / $closed = Tender collections --}}
 @section('content')
-<x-insurence.flow icon="bi-megaphone" :title="__t('messages.tenders.title')" :subtitle="__t('messages.tenders.subtitle')">
+@php
+    $chips = [null => __t('messages.tenders.filter_all'), 'open' => __t('messages.tenders.status_open'), 'closed' => __t('messages.tenders.status_closed')];
+    $excerpt = fn ($t) => \Illuminate\Support\Str::limit(trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags((string) $t->body($locale)), ENT_QUOTES | ENT_HTML5, 'UTF-8'))), 230);
+@endphp
+<div class="in">
+    <x-inner.head :title="__t('messages.tenders.title')" :lead="__t('messages.tenders.subtitle')">
+        <nav class="in-chips" aria-label="{{ __t('messages.tenders.status') }}">
+            @foreach ($chips as $key => $label)
+                <a href="{{ route('tenders.index', array_filter(['locale' => $locale, 'state' => $key])) }}" @class(['in-chip', 'is-active' => $state === ($key ?: null)])>
+                    {{ $label }}@if ($key) · {{ $counts[$key] }}@endif
+                </a>
+            @endforeach
+        </nav>
+    </x-inner.head>
 
-    @foreach (['open' => $open, 'closed' => $closed] as $state => $list)
-        @continue($state === 'closed' && $list->isEmpty())
-        <section class="xf-panel">
-            <div class="xf-panel__head">
-                <h2 class="xf-panel__title">{{ __t('messages.tenders.' . $state) }}</h2>
-            </div>
-            <div class="xf-panel__body">
-                @forelse ($list as $tender)
-                    <a class="xf-search-hit" href="{{ route('tenders.show', ['locale' => $locale, 'slug' => $tender->slug]) }}">
-                        <span class="xf-search-hit__icon"><i class="bi bi-file-earmark-text"></i></span>
-                        <span>
-                            <strong>{{ $tender->title($locale) }}</strong>
-                            <small>
-                                {{ __t('messages.tenders.published', ['date' => $tender->published_at->format('d.m.Y')]) }}
-                                @if ($tender->deadline_at)
-                                    · {{ __t('messages.tenders.deadline', ['date' => $tender->deadline_at->format('d.m.Y')]) }}
-                                @endif
-                            </small>
+    <div class="in-wrap in-cols">
+        <div class="in-main">
+            @if ($open->isEmpty() && $closed->isEmpty())
+                <p class="in-empty">{{ __t('messages.tenders.none') }}</p>
+            @endif
+
+            @foreach (['open' => $open, 'closed' => $closed] as $key => $list)
+                @foreach ($list as $tender)
+                    <a @class(['in-trow', 'is-open' => $key === 'open']) href="{{ route('tenders.show', ['locale' => $locale, 'slug' => $tender->slug]) }}">
+                        <span class="in-trow__top">
+                            <span class="in-status in-status--{{ $key }}">{{ __t('messages.tenders.status_' . $key) }}</span>
+                            <span class="in-meta">{{ __t('messages.tenders.published', ['date' => $tender->published_at->format('d.m.Y')]) }}</span>
                         </span>
-                        <span class="xf-tender-status xf-tender-status--{{ $state }}">{{ __t('messages.tenders.status_' . $state) }}</span>
+                        <b class="in-trow__title">{{ $tender->title($locale) }}</b>
+                        <span class="in-trow__text">{{ $excerpt($tender) }}</span>
+                        @if ($tender->deadline_at)
+                            <span class="in-trow__deadline"><i class="bi bi-clock" aria-hidden="true"></i> {{ __t('messages.tenders.deadline', ['date' => $tender->deadline_at->format('d.m.Y')]) }}</span>
+                        @endif
                     </a>
-                @empty
-                    <p class="xf-note">
-                        <i class="bi bi-info-circle"></i>
-                        <span>{{ __t('messages.tenders.none') }}</span>
-                    </p>
-                @endforelse
-            </div>
-        </section>
-    @endforeach
+                @endforeach
+            @endforeach
+        </div>
 
-</x-insurence.flow>
+        <aside class="in-side">
+            @include('pages.tenders._how', ['email' => $email])
+        </aside>
+    </div>
+</div>
 @endsection

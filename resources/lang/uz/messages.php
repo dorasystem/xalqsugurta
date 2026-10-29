@@ -113,6 +113,12 @@ return [
         ],
     ],
     'tenders' => [
+        'filter_all' => 'Barchasi',
+        'others'     => 'Boshqa tenderlar',
+        'how_title'  => 'Taklif qanday yuboriladi',
+        'how_1'      => 'Tanlov shartlari bilan tanishing',
+        'how_2'      => 'Xizmat narxi ko‘rsatilgan tijorat taklifini tayyorlang',
+        'how_3'      => 'Muddat tugaguncha taklifni elektron pochtaga yuboring',
         'title'           => 'Tenderlar',
         'subtitle'        => 'Kompaniya e\'lon qilgan tanlovlar',
         'open'            => 'Takliflar qabul qilinmoqda',
@@ -129,6 +135,11 @@ return [
         'all'             => 'Barcha tenderlar',
     ],
     'info_page' => [
+        'hub_title' => 'Ma’lumotlar markazi',
+        'hub_lead'  => 'Kompaniya, aksiyadorlar va sug‘urta haqidagi rasmiy ma’lumotlar',
+        'open'      => 'Ochish',
+        'all'       => 'Barcha sahifalar',
+        'none'      => 'Sahifalar hozircha e’lon qilinmagan.',
         'sections' => [
             'about'        => 'Kompaniya haqida',
             'shareholders' => 'Aksiyadorlar va investorlar',
@@ -1135,6 +1146,10 @@ return [
 
     // Press centre (pages/news)
     'news' => [
+        'years'     => 'Yillar',
+        'all_years' => 'Barchasi',
+        'main'      => 'Asosiy',
+        'latest'    => 'So‘nggi xabarlar',
         'title'    => 'Matbuot markazi',
         'subtitle' => '«XALQ SUG‘URTA» AJ yangiliklari va e’lonlari',
         'none'     => 'Hozircha yangiliklar yo‘q.',
@@ -1158,6 +1173,9 @@ return [
 
     // Questionnaire (pages/questionnaire); option keys are SurveyResponse::REASONS / PRODUCTS / CRITERIA
     'survey' => [
+        'rank_hint' => 'Muhimlik tartibida bosing: birinchi bosilgani — eng muhim. Qayta bossangiz, tanlov bekor bo‘ladi.',
+        'next'      => 'Keyingisi',
+        'back'      => 'Orqaga',
         'title'             => 'Anketa',
         'subtitle'          => 'Fikringiz xizmatimizni yaxshilashga yordam beradi',
         'q_reason'          => 'Nega «XALQ SUG‘URTA»ni tanlaysiz?',

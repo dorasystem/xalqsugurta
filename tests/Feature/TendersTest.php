@@ -46,10 +46,14 @@ class TendersTest extends TestCase
 
         // On 21 October the audit tender (until 23.10) is open, the recourse one (until 20.10) is closed
         $this->get('/uz/tenders')->assertOk()
-            ->assertSeeInOrder(['Takliflar qabul qilinmoqda', 'auditorlik tashkilotini', 'Yakunlangan tanlovlar', 'Regress tartibidagi'])
+            ->assertSeeInOrder(['Qabul qilinmoqda', 'auditorlik tashkilotini', 'Qabul yakunlangan', 'Regress tartibidagi'])
             ->assertSee(route('tenders.show', ['locale' => 'uz', 'slug' => 'audit-2026-financial-statements']), false);
 
         $this->get('/ru/tenders')->assertOk()->assertSee('Конкурс по выбору аудиторской организации');
+
+        // Filters keep one state
+        $this->get('/uz/tenders?state=open')->assertOk()->assertSee('auditorlik tashkilotini')->assertDontSee('Regress tartibidagi');
+        $this->get('/uz/tenders?state=closed')->assertOk()->assertSee('Regress tartibidagi')->assertDontSee('auditorlik tashkilotini');
         $this->get('/en/tenders')->assertOk()->assertSee('Tender to select an audit firm');
     }
 

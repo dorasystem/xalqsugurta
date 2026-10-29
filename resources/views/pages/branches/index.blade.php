@@ -1,12 +1,6 @@
 @extends('layouts.app')
 @section('title', __t('messages.branches.title'))
 
-@push('head')
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&display=swap">
-    <link rel="stylesheet" href="{{ assetVersioned('assets/css/inner.css') }}">
-@endpush
 
 {{--
     Branches: list + schematic map + details of the chosen branch (design "A", inner.css).
@@ -20,23 +14,14 @@
         : null;
 @endphp
 <div class="in" data-branches>
-    <section class="in-wrap in-head">
-        <div>
-            <nav class="in-crumbs" aria-label="breadcrumb">
-                <a href="{{ route('home', ['locale' => $locale]) }}">{{ __t('messages.error_page.home') }}</a>
-                <span aria-hidden="true">/</span>
-                <span>{{ __t('messages.branches.title') }}</span>
-            </nav>
-            <h1 class="in-title">{{ __t('messages.branches.title') }}</h1>
-            <p class="in-lead">{{ __t('messages.branches.subtitle', ['count' => $branches->count()]) }}</p>
-        </div>
+    <x-inner.head :title="__t('messages.branches.title')" :lead="__t('messages.branches.subtitle', ['count' => $branches->count()])">
         @if ($branches->isNotEmpty())
             <label class="in-search">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
                 <input type="search" data-branch-search placeholder="{{ __t('messages.branches.search') }}" aria-label="{{ __t('messages.branches.search') }}" autocomplete="off">
             </label>
         @endif
-    </section>
+    </x-inner.head>
 
     @if ($branches->isEmpty())
         <section class="in-wrap"><p class="in-empty">{{ __t('messages.branches.none') }}</p></section>

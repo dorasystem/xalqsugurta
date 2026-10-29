@@ -113,6 +113,12 @@
         ],
     ],
     'tenders' => [
+        'filter_all' => 'All',
+        'others'     => 'Other tenders',
+        'how_title'  => 'How to send a proposal',
+        'how_1'      => 'Read the tender terms',
+        'how_2'      => 'Prepare a commercial offer with the price of the service',
+        'how_3'      => 'Email it before the deadline',
         'title'           => 'Tenders',
         'subtitle'        => 'Tenders announced by the company',
         'open'            => 'Accepting proposals',
@@ -129,6 +135,11 @@
         'all'             => 'All tenders',
     ],
     'info_page' => [
+        'hub_title' => 'Information centre',
+        'hub_lead'  => 'Official information about the company, shareholders and insurance',
+        'open'      => 'Open',
+        'all'       => 'All pages',
+        'none'      => 'No pages have been published yet.',
             'sections' => [
                 'about'        => 'About the company',
                 'shareholders' => 'Shareholders and investors',
@@ -1137,6 +1148,10 @@
 
     // Press centre (pages/news)
     'news' => [
+        'years'     => 'Years',
+        'all_years' => 'All',
+        'main'      => 'Top story',
+        'latest'    => 'Latest news',
         'title'    => 'Press centre',
         'subtitle' => 'News and announcements of JSC “XALQ SUG‘URTA”',
         'none'     => 'No news yet.',
@@ -1160,6 +1175,9 @@
 
     // Questionnaire (pages/questionnaire); option keys are SurveyResponse::REASONS / PRODUCTS / CRITERIA
     'survey' => [
+        'rank_hint' => 'Tap them in order of importance: the first one is the most important. Tap again to remove.',
+        'next'      => 'Next',
+        'back'      => 'Back',
         'title'             => 'Questionnaire',
         'subtitle'          => 'Your opinion helps us improve',
         'q_reason'          => 'Why do you choose “XALQ SUG‘URTA”?',

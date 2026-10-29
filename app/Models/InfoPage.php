@@ -45,6 +45,29 @@ class InfoPage extends Model
         'tax-benefits'       => ['useful', ['ru' => 'osnovanie-predostavleniya-nalogovyh-lgot']],
     ];
 
+    /** Bootstrap icon of each page's tile on the information centre (design "C") */
+    public const ICONS = [
+        'about'                => 'bi-building',
+        'management'           => 'bi-people',
+        'licenses'             => 'bi-patch-check',
+        'financial-statements' => 'bi-graph-up',
+        'audit'                => 'bi-clipboard-check',
+        'business-plan'        => 'bi-briefcase',
+        'vacancies'            => 'bi-person-workspace',
+        'collegial-bodies'     => 'bi-diagram-3',
+        'subject-objectives'   => 'bi-bullseye',
+        'company-structure'    => 'bi-diagram-2',
+        'regulation'           => 'bi-journal-text',
+        'branches'             => 'bi-geo-alt',
+        'affiliates'           => 'bi-link-45deg',
+        'stocks'               => 'bi-graph-up-arrow',
+        'dividend'             => 'bi-cash-coin',
+        'essential-facts'      => 'bi-megaphone',
+        'useful-information'   => 'bi-book',
+        'legislation'          => 'bi-bank',
+        'tax-benefits'         => 'bi-percent',
+    ];
+
     private const CACHE_KEY = 'info_pages.published';
 
     /** Container key holding publishedKeys() for this request: the header asks on every menu link */
@@ -83,6 +106,11 @@ class InfoPage extends Model
         }
 
         return is_array($source) ? ($source[$locale] ?? null) : null;
+    }
+
+    public function icon(): string
+    {
+        return self::ICONS[$this->key] ?? 'bi-file-earmark-text';
     }
 
     /** Title in the locale, falling back to Russian then Uzbek (some pages exist only in Russian) */

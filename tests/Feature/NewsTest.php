@@ -134,4 +134,17 @@ class NewsTest extends TestCase
         $this->artisan('site:import-old-news')->assertSuccessful();
         $this->assertSame(1, News::count());
     }
+
+    public function test_first_page_has_a_top_story_and_years_filter(): void
+    {
+        $this->news(['slug' => 'old', 'title_uz' => 'Eski xabar', 'published_at' => '2025-05-01']);
+        $this->news(['slug' => 'top', 'title_uz' => 'Eng yangi xabar', 'published_at' => '2026-10-25']);
+        $this->news();
+
+        $this->get('/uz/news')->assertOk()
+            ->assertSeeInOrder(['Asosiy', 'Eng yangi xabar', 'So‘nggi xabarlar', 'Tanlov e’lon qilamiz'])
+            ->assertSee('?year=2025', false);
+
+        $this->get('/uz/news?year=2025')->assertOk()->assertSee('Eski xabar')->assertDontSee('Eng yangi xabar');
+    }
 }

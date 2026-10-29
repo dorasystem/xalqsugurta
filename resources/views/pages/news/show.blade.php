@@ -1,29 +1,39 @@
 @extends('layouts.app')
 @section('title', $item->title($locale))
 
-{{-- One news item. $body = News::body() (clean HTML), $more = other latest news --}}
+{{-- One news item, design "A": the article with its picture, the latest news beside it. $body = clean HTML --}}
 @section('content')
-<x-insurence.flow icon="bi-newspaper" :title="$item->title($locale)" :subtitle="$item->published_at->format('d.m.Y')">
+<div class="in">
+    <x-inner.head :title="$item->title($locale)" :lead="$item->published_at->format('d.m.Y')"
+        :crumb="[__t('messages.news.title'), route('news.index', ['locale' => $locale])]" />
 
-    <article class="xf-panel">
-        @if ($item->imageUrl())
-            <img class="xf-news__cover" src="{{ $item->imageUrl() }}" alt="">
+    <div class="in-wrap in-cols">
+        <article class="in-main in-panel">
+            @if ($item->imageUrl())
+                <img class="in-cover" src="{{ $item->imageUrl() }}" alt="">
+            @endif
+            @if ($body)
+                <div class="in-prose">{!! $body !!}</div>
+            @endif
+        </article>
+
+        @if ($more->isNotEmpty())
+            <aside class="in-side">
+                <div class="in-latest">
+                    <span class="in-latest__label">{{ __t('messages.news.more') }}</span>
+                    @foreach ($more as $other)
+                        <a class="in-latest__item" href="{{ route('news.show', ['locale' => $locale, 'slug' => $other->slug]) }}">
+                            @include('pages.news._thumb', ['item' => $other])
+                            <span>
+                                <span class="in-meta">{{ $other->published_at->format('d.m.Y') }}</span><br>
+                                <b>{{ \Illuminate\Support\Str::limit($other->title($locale), 110) }}</b>
+                            </span>
+                        </a>
+                    @endforeach
+                </div>
+                <a class="in-btn in-btn--line" href="{{ route('news.index', ['locale' => $locale]) }}">← {{ __t('messages.news.all') }}</a>
+            </aside>
         @endif
-        @if ($body)
-            <div class="xf-panel__body xf-prose">{!! $body !!}</div>
-        @endif
-    </article>
-
-    @if ($more->isNotEmpty())
-        <h2 class="xf-news__more">{{ __t('messages.news.more') }}</h2>
-        <div class="xf-news">
-            @foreach ($more as $other)
-                @include('pages.news._card', ['item' => $other])
-            @endforeach
-        </div>
-    @endif
-
-    <p><a href="{{ route('news.index', ['locale' => $locale]) }}" class="xf-btn xf-btn--ghost"><i class="bi bi-arrow-left"></i> {{ __t('messages.news.all') }}</a></p>
-
-</x-insurence.flow>
+    </div>
+</div>
 @endsection
