@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Pages;
 
 use App\Jobs\RunServerCommand;
 use App\Models\CommandRun;
+use App\Services\Admin\DeployTrigger;
 use App\Services\Admin\ServerCommands;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
@@ -14,6 +15,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
+use RuntimeException;
 
 /**
  * Whitelisted server commands (App\Services\Admin\ServerCommands) with a button each and the
@@ -38,6 +40,24 @@ class ServerCommandsPage extends Page
         $groups = collect(ServerCommands::COMMANDS)->groupBy(fn (array $c) => $c[2], preserveKeys: true);
 
         return $schema->components([
+            Section::make('Deploy')
+                ->description('GitHub Actions\'dagi deployni ishga tushiradi: serverda git pull, yangi image, migratsiya va keshlar — main\'ga merge bo\'lgandagidek. Sayt 1–2 daqiqaga qayta ishga tushadi.')
+                ->schema([
+                    Actions::make([
+                        Action::make('deploy')
+                            ->label('Deployni ishga tushirish')
+                            ->icon('heroicon-o-rocket-launch')
+                            ->disabled(!DeployTrigger::ready())
+                            ->tooltip(DeployTrigger::ready() ? null : 'Serverdagi .env ga GITHUB_DEPLOY_TOKEN yozilmagan')
+                            ->requiresConfirmation()
+                            ->modalHeading('Deployni ishga tushirish')
+                            ->modalDescription('main tarmog\'idagi oxirgi kod serverga o\'rnatiladi. Sayt 1–2 daqiqaga ishlamay qolishi mumkin.')
+                            ->modalSubmitActionLabel('Ishga tushirish')
+                            ->action(fn () => $this->deploy()),
+                    ]),
+                    View::make('filament.admin.deploy-runs')
+                        ->viewData(fn () => ['ready' => DeployTrigger::ready(), 'runs' => DeployTrigger::runs()]),
+                ]),
             Text::make('Buyruq bosilgandan keyin fonda bajariladi, natijasi pastdagi ro\'yxatda chiqadi. Bir vaqtda bitta buyruq ishlaydi.'),
             ...$groups->map(fn ($commands, string $group) => Section::make($group)
                 ->schema([
@@ -58,6 +78,28 @@ class ServerCommandsPage extends Page
                     'running' => ServerCommands::busy() !== null,
                 ]),
         ]);
+    }
+
+    public function deploy(): void
+    {
+        try {
+            DeployTrigger::dispatch();
+        } catch (RuntimeException $e) {
+            Notification::make()->danger()->title('Deploy boshlanmadi')->body($e->getMessage())->send();
+
+            return;
+        }
+
+        CommandRun::create([
+            'command'     => ServerCommands::DEPLOY,
+            'status'      => CommandRun::STATUS_DONE,
+            'output'      => 'GitHub Actions\'da deploy ishga tushirildi (' . config('services.github_deploy.repo') . ', ' . config('services.github_deploy.ref') . ').',
+            'user_id'     => Filament::auth()->id(),
+            'started_at'  => now(),
+            'finished_at' => now(),
+        ]);
+
+        Notification::make()->success()->title('Deploy boshlandi')->body('Holatini "Deploy" bo\'limida kuzating.')->send();
     }
 
     public function start(string $key): void

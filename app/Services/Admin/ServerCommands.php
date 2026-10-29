@@ -82,9 +82,12 @@ final class ServerCommands
     /** A run older than this is treated as dead (the PHP process was killed) */
     public const STALE_MINUTES = 20;
 
+    /** command_runs key of the GitHub deploy (App\Services\Admin\DeployTrigger), kept for the history */
+    public const DEPLOY = 'deploy';
+
     public static function label(string $key): string
     {
-        return self::COMMANDS[$key][0] ?? $key;
+        return $key === self::DEPLOY ? 'Deploy (GitHub Actions)' : (self::COMMANDS[$key][0] ?? $key);
     }
 
     public static function busy(): ?CommandRun

@@ -3,6 +3,8 @@ name: 🚀 Deploy to Production
 on:
   push:
     branches: [main]
+  # Admin panel → Tizim → Server buyruqlari → "Deployni ishga tushirish" (App\Services\Admin\DeployTrigger)
+  workflow_dispatch:
 
 # ─── O'zgaruvchilar ─────────────────────────────────────────────────────────
 env:
