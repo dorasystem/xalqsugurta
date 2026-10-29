@@ -230,3 +230,43 @@
 .xs-attention__count { font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 .dark .xs-attention__item { border-color: rgba(255, 255, 255, 0.08); }
 .dark .xs-attention__text span { color: #a6a2c4; }
+
+/* ─── Server buyruqlari (filament/admin/command-runs) ─────────────────────── */
+
+.xs-runs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.xs-runs__item {
+    border: 1px solid var(--gray-200, #e5e7eb);
+    border-radius: 12px;
+    padding: 10px 14px;
+}
+
+.xs-runs__item summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    cursor: pointer;
+}
+
+.xs-runs__meta {
+    color: var(--gray-500, #6b7280);
+    font-size: 0.8rem;
+}
+
+.xs-runs__output {
+    margin: 10px 0 0;
+    max-height: 420px;
+    overflow: auto;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #16143a;
+    color: #e8e6f7;
+    font: 0.78rem/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
