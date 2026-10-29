@@ -1,6 +1,19 @@
+        @php
+            $siteSection = \App\Support\SiteMenu::current();
+            $siteMenu    = \App\Support\SiteMenu::groups($siteSection);
+        @endphp
         <!-- header -->
         <header class="header">
             <div class="header__wrapper">
+
+                {{-- Site sections: individuals / business / career, each with its own menu below --}}
+                <nav class="site-sections" aria-label="{{ __t('messages.sections.label') }}">
+                    <div class="site-sections__inner">
+                        @foreach (\App\Support\SiteMenu::SECTIONS as $key => [$routeName, $labelKey])
+                            <a href="{{ \App\Support\SiteMenu::sectionUrl($key) }}" @class(['site-sections__link', 'is-active' => $key === $siteSection]) @if ($key === $siteSection) aria-current="true" @endif>{{ __t($labelKey) }}</a>
+                        @endforeach
+                    </div>
+                </nav>
 
                 <div class="header-top">
                     <div class="header-top__left">
@@ -14,6 +27,12 @@
                                 <use xlink:href="#icon-pin"></use>
                             </svg>
                             <span>{{ __('messages.header_branches') }}</span>
+                        </a>
+                        <a href="tel:998555007171" class="header-button mob-hidden" type="button">
+                            <svg width="20" height="20">
+                                <use xlink:href="#icon-phone"></use>
+                            </svg>
+                            <span>(+998 55) 500-71-71</span>
                         </a>
                         <a href="tel:998712021966" class="header-button mob-hidden" type="button">
                             <svg width="20" height="20">
@@ -102,205 +121,41 @@
                 </div>
 
                 <div class="header-bottom">
-                    <a href="/" class="header-logo" aria-label="Логотип">
+                    <a href="{{ route('home', ['locale' => getCurrentLocale()]) }}" class="header-logo" aria-label="Логотип">
                         <picture>
                             <source media="(max-width:800px)" srcset="{{ asset('assets/img/logo-mobile.png') }}">
                             <img src="{{ asset('assets/img/logo.svg') }}" alt="logo">
                         </picture>
                     </a>
-                    <nav class="menu-header">
+                    <nav class="menu-header" aria-label="{{ __t('messages.sections.' . $siteSection) }}">
                         <ul class="menu-header__list">
-                            <li class="menu-header__item menu-item"> {{-- Kompaniya Haqida --}}
-                                <a class="menu-item__link menu-item-title" href="{{ \App\Models\InfoPage::link('about') }}">
-                                    <span>{{ __('messages.header_about_company') }}</span>
-                                    <svg width="20" height="20">
-                                        <use xlink:href="#icon-more"></use>
-                                    </svg>
-
-                                </a>
-                                <div class="menu-item__dropdown">
-                                    <div class="menu-item-dropdown__content">
-                                        <ul class="menu-item__list">
-                                            <li class="menu-item__row">{{-- ////////////////////////////////////////////////////////////// --}}
-                                                <a href="{{ \App\Models\InfoPage::link('management') }}"
-                                                    class="menu-item__link">
-                                                    <span>{{ __('messages.header_management') }}</span>
-                                                </a>
-                                            </li>
-                                            <li class="menu-item__row">
-                                                <a href="{{ \App\Models\InfoPage::link('licenses') }}" class="menu-item__link">
-                                                    <span>{{ __('messages.header_licenses') }}</span>
-                                                </a>
-                                            </li>
-                                            <li class="menu-item__row">
-                                                <a href="{{ \App\Models\InfoPage::link('financial-statements') }}"
-                                                    class="menu-item__link">
-                                                    <span>{{ __('messages.header_financial_reports') }}</span>
-                                                </a>
-                                            </li>
-                                            <li class="menu-item__row">
-                                                <a href="{{ \App\Models\InfoPage::link('audit') }}"
-                                                    class="menu-item__link">
-                                                    <span>{{ __('messages.header_audit') }}</span>
-                                                </a>
-                                            </li>
-                                            <li class="menu-item__row">
-                                                <a href="{{ \App\Models\InfoPage::link('business-plan') }}" class="menu-item__link">
-                                                    <span>{{ __('messages.header_business_plan') }}</span>
-                                                </a>
-                                            </li>
-                                            <li class="menu-item__row">
-                                                <a href="{{ \App\Models\InfoPage::link('vacancies') }}" class="menu-item__link">
-                                                    <span>{{ __('messages.header_vacancies') }}</span>
-                                                </a>
-                                            </li>
-                                            <li class="menu-item__row">
-                                                <a href="{{ route('tenders.index', ['locale' => getCurrentLocale()]) }}" class="menu-item__link">
-                                                    <span>{{ __('messages.header_tenders') }}</span>
-                                                </a>
-                                            </li>
-                                            <li class="menu-item__row">
-                                                <a href="{{ \App\Models\InfoPage::link('collegial-bodies') }}"
-                                                    class="menu-item__link">
-                                                    <span>{{ __('messages.header_collegial_bodies') }}</span>
-                                                </a>
-                                            </li>
-                                            <li class="menu-item__row">
-                                                <a href="{{ \App\Models\InfoPage::link('subject-objectives') }}"
-                                                    class="menu-item__link">
-                                                    <span>{{ __('messages.header_objectives') }}</span>
-                                                </a>
-                                            </li>
-                                            <li class="menu-item__row">
-                                                <a href="{{ \App\Models\InfoPage::link('company-structure') }}"
-                                                    class="menu-item__link">
-                                                    <span>{{ __('messages.header_company_structure') }}</span>
-                                                </a>
-                                            </li>
-                                            <li class="menu-item__row">
-                                                <a href="{{ \App\Models\InfoPage::link('regulation') }}" class="menu-item__link">
-                                                    <span>{{ __('messages.header_regulations') }}</span>
-                                                </a>
-                                            </li>
-                                            <li class="menu-item__row">
-                                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/@lang('routes.questionnaire')" class="menu-item__link">
-                                                    <span>{{ __('messages.header_questionnaire') }}</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                            </li>
-                            <li class="menu-header__item menu-item">  {{-- Aktsiyadorlari va investorlari --}}
-                                <a class="menu-item__link menu-item-title"
-                                    href="{{ \App\Models\InfoPage::link('affiliates') }}">
-                                    <span>{{ __('messages.header_shareholders') }}</span>
-                                    <svg width="20" height="20">
-                                        <use xlink:href="#icon-more"></use>
-                                    </svg>
-
-                                </a>
-                                <div class="menu-item__dropdown">
-                                    <div class="menu-item-dropdown__content">
-                                        <ul class="menu-item__list">
-                                            <li class="menu-item__row">
-                                                <a href="{{ \App\Models\InfoPage::link('affiliates') }}"
-                                                    class="menu-item__link">
-                                                    <span>{{ __('messages.header_affiliated_persons') }}</span>
-                                                </a>
-                                            </li>
-                                            <li class="menu-item__row">
-                                                <a href="{{ \App\Models\InfoPage::link('stocks') }}" class="menu-item__link">
-                                                    <span>{{ __('messages.header_shares') }}</span>
-                                                </a>
-                                            </li>
-                                            <li class="menu-item__row">
-                                                <a href="{{ \App\Models\InfoPage::link('dividend') }}" class="menu-item__link">
-                                                    <span>{{ __('messages.header_dividends') }}</span>
-                                                </a>
-                                            </li>
-                                            <li class="menu-item__row">
-                                                <a href="{{ \App\Models\InfoPage::link('essential-facts') }}"
-                                                    class="menu-item__link">
-                                                    <span>{{ __('messages.header_important_facts') }}</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                            </li>
-                            <li class="menu-header__item menu-item"> {{-- Sug’urta --}}
-                                <a class="menu-item__link menu-item-title" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/@lang('routes.insurance')">
-                                    <span>{{ __('messages.header_insurance') }}</span>
-                                    <svg width="20" height="20">
-                                        <use xlink:href="#icon-more"></use>
-                                    </svg>
-
-                                </a>
-                                <div class="menu-item__dropdown">
-                                    <div class="menu-item-dropdown__content">
-                                        <ul class="menu-item__list">
-                                            <li class="menu-item__row">
-                                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/@lang('routes.insurance')#private"
-                                                    class="menu-item__link" data-scroll="private">
-                                                    <span>{{ __('messages.header_private_clients') }}</span>
-                                                </a>
-                                            </li>
-                                            <li class="menu-item__row">
-                                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/@lang('routes.insurance')#corporate"
-                                                    class="menu-item__link" data-scroll="corporate">
-                                                    <span>{{ __('messages.header_corporate_clients') }}</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                            </li>
-                            <li class="menu-header__item menu-item"> {{-- Matbuot – markazi --}}
-                                <a class="menu-item__link menu-item-title" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/@lang('routes.news')">
-                                    <span>{{ __('messages.header_press_center') }}</span>
-
-                                </a>
-
-                            </li>
-                            <li class="menu-header__item menu-item"> {{-- Foydali ma’lumotlar --}}
-                                <a class="menu-item__link menu-item-title"
-                                    href="{{ \App\Models\InfoPage::link('legislation') }}">
-                                    <span>{{ __('messages.header_useful_info') }}</span>
-                                    <svg width="20" height="20">
-                                        <use xlink:href="#icon-more"></use>
-                                    </svg>
-
-                                </a>
-                                <div class="menu-item__dropdown">
-                                    <div class="menu-item-dropdown__content">
-                                        <ul class="menu-item__list">
-                                            <li class="menu-item__row">
-                                                <a href="{{ \App\Models\InfoPage::link('legislation') }}"
-                                                    class="menu-item__link">
-                                                    <span>{{ __('messages.header_insurance_legislation') }}</span>
-                                                </a>
-                                            </li>
-                                            <li class="menu-item__row">
-                                                <a href="{{ \App\Models\InfoPage::link('tax-benefits') }}"
-                                                    class="menu-item__link">
-                                                    <span>{{ __('messages.header_tax_benefits_basis') }}</span>
-                                                </a>
-                                            </li>
-                                            <li class="menu-item__row">
-                                                <a href="{{ \App\Models\InfoPage::link('useful-information') }}"
-                                                    class="menu-item__link">
-                                                    <span>{{ __('messages.header_insurance_terms') }}</span>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                            </li>
+                            @foreach ($siteMenu as $group)
+                                <li class="menu-header__item menu-item">
+                                    <a class="menu-item__link menu-item-title" href="{{ $group['url'] }}">
+                                        <span>{{ $group['label'] }}</span>
+                                        @if ($group['items'])
+                                            <svg width="20" height="20">
+                                                <use xlink:href="#icon-more"></use>
+                                            </svg>
+                                        @endif
+                                    </a>
+                                    @if ($group['items'])
+                                        <div class="menu-item__dropdown">
+                                            <div class="menu-item-dropdown__content">
+                                                <ul class="menu-item__list">
+                                                    @foreach ($group['items'] as $item)
+                                                        <li class="menu-item__row">
+                                                            <a href="{{ $item['url'] }}" class="menu-item__link">
+                                                                <span>{{ $item['label'] }}</span>
+                                                            </a>
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </li>
+                            @endforeach
                         </ul>
                     </nav>
                     <div class="header-bottom__buttons">
@@ -329,105 +184,26 @@
             </button>
 
             <div class="menu__columnL">
+                <nav class="site-sections site-sections--menu" aria-label="{{ __t('messages.sections.label') }}">
+                    @foreach (\App\Support\SiteMenu::SECTIONS as $key => [$routeName, $labelKey])
+                        <a href="{{ \App\Support\SiteMenu::sectionUrl($key) }}" @class(['site-sections__link', 'is-active' => $key === $siteSection]) @if ($key === $siteSection) aria-current="true" @endif>{{ __t($labelKey) }}</a>
+                    @endforeach
+                </nav>
                 <div class="menu-content">
-                    <div class="menu-block"> {{-- Kompaniya Haqida --}}
-                        <a class="menu-block__title" href="{{ \App\Models\InfoPage::link('about') }}" data-id="67e288002adb5">{{ __('messages.header_about_company') }}</a>
-                        <ul class="menu-block__list">
-                            <li class="menu-block__item">
-                                <a class="menu-block__link" href="{{ \App\Models\InfoPage::link('management') }}">{{ __('messages.header_management') }}</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link" href="{{ \App\Models\InfoPage::link('licenses') }}">{{ __('messages.header_licenses') }}</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link"
-                                    href="{{ \App\Models\InfoPage::link('financial-statements') }}">{{ __('messages.header_financial_reports') }}</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link" href="{{ \App\Models\InfoPage::link('audit') }}">{{ __('messages.header_audit') }}</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link" href="{{ \App\Models\InfoPage::link('business-plan') }}">{{ __('messages.header_business_plan') }}</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link" href="{{ \App\Models\InfoPage::link('vacancies') }}">{{ __('messages.header_vacancies') }}</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link" href="{{ route('tenders.index', ['locale' => getCurrentLocale()]) }}">{{ __('messages.header_tenders') }}</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link"
-                                    href="{{ \App\Models\InfoPage::link('collegial-bodies') }}">{{ __('messages.header_collegial_bodies') }}</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link"
-                                    href="{{ \App\Models\InfoPage::link('subject-objectives') }}">{{ __('messages.header_objectives') }}</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link" href="{{ \App\Models\InfoPage::link('company-structure') }}">{{ __('messages.header_company_structure') }}</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link" href="{{ \App\Models\InfoPage::link('regulation') }}">{{ __('messages.header_regulations') }}</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/@lang('routes.questionnaire')">{{ __('messages.header_questionnaire') }}</a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="menu-block"> {{-- Aktsiyadorlari va investorlari --}}
-                        <a class="menu-block__title" href="{{ \App\Models\InfoPage::link('affiliates') }}"
-                            data-id="67e288002adc1">{{ __('messages.header_shareholders') }}</a>
-                        <ul class="menu-block__list">
-                            <li class="menu-block__item">
-                                <a class="menu-block__link"
-                                    href="{{ \App\Models\InfoPage::link('affiliates') }}">{{ __('messages.header_affiliated_persons') }}</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link" href="{{ \App\Models\InfoPage::link('stocks') }}">{{ __('messages.header_shares') }}</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link" href="{{ \App\Models\InfoPage::link('dividend') }}">{{ __('messages.header_dividends') }}</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link" href="{{ \App\Models\InfoPage::link('essential-facts') }}">{{ __('messages.header_important_facts') }}</a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="menu-block"> {{-- Sug’urta --}}
-                        <a class="menu-block__title" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/@lang('routes.insurance')"
-                            data-id="67e288002adc6">{{ __('messages.header_insurance') }}</a>
-                        <ul class="menu-block__list">
-                            <li class="menu-block__item">
-                                <a class="menu-block__link" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/@lang('routes.insurance')#private">{{ __('messages.header_private_clients') }}</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link"
-                                    href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/@lang('routes.insurance')#corporate">{{ __('messages.header_corporate_clients') }}</a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="menu-block"> {{-- Matbuot – markazi --}}
-                        <a class="menu-block__title" href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/@lang('routes.news')"
-                            data-id="67e288002adc9">{{ __('messages.header_press_center') }}</a>
-                    </div>
-                    <div class="menu-block"> {{-- Foydali ma’lumotlar --}}
-                        <a class="menu-block__title"
-                            href="{{ \App\Models\InfoPage::link('legislation') }}"
-                            data-id="67e288002adca">{{ __('messages.header_useful_info') }}</a>
-                        <ul class="menu-block__list">
-                            <li class="menu-block__item">
-                                <a class="menu-block__link"
-                                    href="{{ \App\Models\InfoPage::link('legislation') }}">{{ __('messages.header_insurance_legislation') }}</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link"
-                                    href="{{ \App\Models\InfoPage::link('tax-benefits') }}">{{ __('messages.header_tax_benefits_basis') }}</a>
-                            </li>
-                            <li class="menu-block__item">
-                                <a class="menu-block__link" href="{{ \App\Models\InfoPage::link('useful-information') }}">{{ __('messages.header_insurance_terms') }}</a>
-                            </li>
-                        </ul>
-                    </div>
+                    @foreach ($siteMenu as $group)
+                        <div class="menu-block">
+                            <a class="menu-block__title" href="{{ $group['url'] }}">{{ $group['label'] }}</a>
+                            @if ($group['items'])
+                                <ul class="menu-block__list">
+                                    @foreach ($group['items'] as $item)
+                                        <li class="menu-block__item">
+                                            <a class="menu-block__link" href="{{ $item['url'] }}">{{ $item['label'] }}</a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </div>
+                    @endforeach
                 </div>
                 <div class="menu__footer">
                     <div class="social">

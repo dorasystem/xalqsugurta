@@ -14,6 +14,9 @@ class CallbackRequest extends Model
     /** Topics offered on the form (messages.callback.topic_*) */
     public const TOPICS = ['buy', 'claim', 'policy', 'other'];
 
+    /** Topic of offer requests from the business page (BusinessController) */
+    public const TOPIC_CORPORATE = 'corporate';
+
     protected $fillable = ['name', 'phone', 'topic', 'message', 'status', 'handled_by', 'handled_at', 'locale'];
 
     protected $casts = ['handled_at' => 'datetime'];
