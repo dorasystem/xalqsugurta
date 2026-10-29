@@ -79,7 +79,7 @@ final class SiteMenu
         $info   = fn (string $key): array => [__t('messages.header_' . self::INFO_LABELS[$key]), InfoPage::link($key, $locale)];
         $route  = fn (string $name, array $params = []): string => route($name, ['locale' => $locale] + $params);
         $press  = [
-            [__t('messages.header_press_center'), self::oldSite($locale, 'news')],
+            [__t('messages.header_press_center'), $route('news.index')],
             [__t('messages.sections.appeals'), $route('callback')],
         ];
 
