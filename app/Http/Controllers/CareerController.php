@@ -27,7 +27,8 @@ final class CareerController extends Controller
         $vacancy = Vacancy::open()->where('slug', $slug)->firstOrFail();
 
         return view('pages.career.show', [
-            'vacancy' => $vacancy,
+            'vacancy'   => $vacancy,
+            'vacancies' => Vacancy::open()->orderBy('sort_order')->orderByDesc('published_at')->get(),
             'body'    => $vacancy->body($locale),
             'locale'  => $locale,
         ]);

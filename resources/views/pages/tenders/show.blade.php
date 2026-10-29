@@ -1,38 +1,44 @@
 @extends('layouts.app')
 @section('title', $tender->title($locale))
 
-{{-- One tender. $body = Tender::body() (clean HTML) --}}
+{{-- One tender, design "A": its text, the deadline card and the "how to send" panel. $body = clean HTML --}}
 @section('content')
-<x-insurence.flow icon="bi-megaphone" :title="$tender->title($locale)" :subtitle="__t('messages.tenders.title')">
+@php $state = $tender->isOpen() ? 'open' : 'closed'; @endphp
+<div class="in">
+    <x-inner.head :title="$tender->title($locale)" :crumb="[__t('messages.tenders.title'), route('tenders.index', ['locale' => $locale])]" />
 
-    <section class="xf-panel">
-        <div class="xf-panel__body xf-prose">{!! $body !!}</div>
-    </section>
+    <div class="in-wrap in-cols">
+        <article class="in-main in-panel">
+            <span class="in-status in-status--{{ $state }}">{{ __t('messages.tenders.status_' . $state) }}</span>
+            <div class="in-prose">{!! $body !!}</div>
+        </article>
 
-    <x-slot:summary>
-        <aside class="xf-panel xf-summary">
-            <div class="xf-summary__top">
-                <small>{{ __t('messages.tenders.status') }}</small>
-                <span class="xf-tender-status xf-tender-status--{{ $tender->isOpen() ? 'open' : 'closed' }}">
-                    {{ __t('messages.tenders.status_' . ($tender->isOpen() ? 'open' : 'closed')) }}
-                </span>
-            </div>
-            <ul class="xf-summary__list">
-                <li><span>{{ __t('messages.tenders.published_label') }}</span><b>{{ $tender->published_at->format('d.m.Y') }}</b></li>
+        <aside class="in-side">
+            <div class="in-panel in-form">
                 @if ($tender->deadline_at)
-                    <li><span>{{ __t('messages.tenders.deadline_label') }}</span><b>{{ $tender->deadline_at->format('d.m.Y') }}</b></li>
+                    <span class="in-meta">{{ __t('messages.tenders.deadline_label') }}</span>
+                    <b class="in-deadline">{{ __t('messages.tenders.deadline', ['date' => $tender->deadline_at->format('d.m.Y')]) }}</b>
                 @endif
-                @if ($tender->email)
-                    <li class="xf-tender-email"><span>{{ __t('messages.tenders.email_label') }}</span><b><a href="mailto:{{ $tender->email }}">{{ $tender->email }}</a></b></li>
-                @endif
-            </ul>
-
-            <div class="xf-summary__help">
-                <i class="bi bi-arrow-left"></i>
-                <a href="{{ route('tenders.index', ['locale' => $locale]) }}">{{ __t('messages.tenders.all') }}</a>
+                <span class="in-meta">{{ __t('messages.tenders.published', ['date' => $tender->published_at->format('d.m.Y')]) }}</span>
             </div>
+            @if ($state === 'open')
+                @include('pages.tenders._how', ['email' => $tender->email ?: 'info@xalqsugurta.uz'])
+            @endif
+            @if ($others->isNotEmpty())
+                <div class="in-latest">
+                    <span class="in-latest__label">{{ __t('messages.tenders.others') }}</span>
+                    @foreach ($others as $other)
+                        <a class="in-latest__item" href="{{ route('tenders.show', ['locale' => $locale, 'slug' => $other->slug]) }}">
+                            <span>
+                                <span class="in-status in-status--{{ $other->isOpen() ? 'open' : 'closed' }}">{{ __t('messages.tenders.status_' . ($other->isOpen() ? 'open' : 'closed')) }}</span><br>
+                                <b>{{ \Illuminate\Support\Str::limit($other->title($locale), 110) }}</b>
+                            </span>
+                        </a>
+                    @endforeach
+                </div>
+            @endif
+            <a class="in-btn in-btn--line" href="{{ route('tenders.index', ['locale' => $locale]) }}">← {{ __t('messages.tenders.all') }}</a>
         </aside>
-    </x-slot:summary>
-
-</x-insurence.flow>
+    </div>
+</div>
 @endsection

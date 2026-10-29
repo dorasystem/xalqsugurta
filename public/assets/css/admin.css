@@ -277,3 +277,43 @@
     align-items: center;
     gap: 6px 12px;
 }
+
+/* ─── Anketa natijalari (filament/admin/survey-totals) ───────────────────── */
+
+.xs-survey {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.xs-survey > div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.xs-survey__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 80px 36px;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+}
+
+.xs-survey__bar {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--gray-100, #f3f4f6);
+    overflow: hidden;
+}
+
+.xs-survey__bar i {
+    display: block;
+    height: 100%;
+    background: #393185;
+}
+
+.xs-survey__muted {
+    color: var(--gray-500, #6b7280);
+    font-size: 0.75rem;
+}

@@ -133,7 +133,7 @@ class InfoPagesTest extends TestCase
             ->assertOk()
             ->assertSee('Litsenziyalar')
             ->assertSee('<p>Русский текст</p>', false)
-            ->assertSee('href="' . route('info.show', ['locale' => 'uz', 'key' => 'audit']) . '"', false)
+            ->assertSee('href="' . route('info.show', ['locale' => 'uz', 'key' => 'audit']) . '#page"', false)
             ->getContent();
 
         $this->assertStringNotContainsString('alert(1)', $html);
@@ -185,5 +185,16 @@ class InfoPagesTest extends TestCase
             ->assertHasNoFormErrors();
 
         $this->assertSame('/ru/info/branches', InfoPage::link('branches', 'ru'));
+    }
+
+    public function test_information_centre_lists_published_pages_by_section(): void
+    {
+        $this->page();
+        $this->page(['key' => 'stocks', 'section' => 'shareholders', 'title_uz' => 'Aksiyalar']);
+        $this->page(['key' => 'audit', 'title_uz' => 'Yopiq sahifa', 'is_published' => false]);
+
+        $this->get('/uz/info')->assertOk()
+            ->assertSeeInOrder(['Kompaniya haqida', 'Litsenziyalar', 'Aksiyadorlar va investorlar', 'Aksiyalar'])
+            ->assertDontSee('Yopiq sahifa');
     }
 }

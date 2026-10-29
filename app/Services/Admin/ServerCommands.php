@@ -59,6 +59,12 @@ final class ServerCommands
             'Ma\'lumotlar',
             [['db:seed', ['--class' => 'Database\\Seeders\\TenderSeeder', '--force' => true]]],
         ],
+        'seed-branches' => [
+            'Filiallarni qo\'shish',
+            'BranchSeeder: eski saytdagi 16 ta filial (rahbar, telefonlar, manzil, xaritadagi nuqta). Mavjudlari o\'zgartirilmaydi.',
+            'Ma\'lumotlar',
+            [['db:seed', ['--class' => 'Database\\Seeders\\BranchSeeder', '--force' => true]]],
+        ],
         'travel-sync' => [
             'VZR polislarini tekshirish',
             'To\'langan "Chet elga chiquvchilar" polislarini sug\'urtachidan so\'raydi (har 10 daqiqada o\'zi ham bajariladi).',

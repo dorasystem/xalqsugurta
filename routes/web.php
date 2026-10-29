@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Insurence\PaymentController;
+use App\Http\Controllers\BranchController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\CallbackController;
 use App\Http\Controllers\CareerController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\MyPoliciesController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\ProductPageController;
+use App\Http\Controllers\QuestionnaireController;
 use App\Http\Controllers\ResumeFileController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SeoController;
@@ -40,8 +42,12 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
     Route::get('/career', [CareerController::class, 'index'])->name('career.index');
     Route::post('/career/apply', [CareerController::class, 'apply'])->middleware('throttle:5,10')->name('career.apply');
     Route::get('/career/{slug}', [CareerController::class, 'show'])->where('slug', '[a-z0-9-]+')->name('career.show');
+    Route::get('/branches', [BranchController::class, 'index'])->name('branches');
+    Route::get('/questionnaire', [QuestionnaireController::class, 'create'])->name('questionnaire');
+    Route::post('/questionnaire', [QuestionnaireController::class, 'store'])->middleware('throttle:5,10')->name('questionnaire.store');
     Route::get('/news', [NewsController::class, 'index'])->name('news.index');
     Route::get('/news/{slug}', [NewsController::class, 'show'])->where('slug', '[a-z0-9-]+')->name('news.show');
+    Route::get('/info', [InfoPageController::class, 'index'])->name('info.index');
     Route::get('/info/{key}', [InfoPageController::class, 'show'])->where('key', '[a-z0-9-]+')->name('info.show');
     Route::get('/products/{product}', [ProductPageController::class, 'show'])->where('product', '[a-z0-9_-]+')->name('product.show');
 

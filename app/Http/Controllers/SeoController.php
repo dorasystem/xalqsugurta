@@ -42,6 +42,7 @@ final class SeoController extends Controller
             // vacancies not migrated yet
         }
 
+        $pages[] = ['branches', [], 'monthly', '0.6'];
         $pages[] = ['news.index', [], 'daily', '0.6'];
         try {
             foreach (News::visible()->pluck('slug') as $slug) {
