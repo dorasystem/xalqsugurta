@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Cache;
 
 /**
  * Site-wide settings edited in the admin panel (Tizim → Sayt sozlamalari):
- * social network links and the home page figures.
+ * social network links, the home page figures and the Europrotocol form.
  */
 final class SiteSettings
 {
@@ -25,6 +25,12 @@ final class SiteSettings
     public const STATS = 4;
 
     public const LOCALES = ['uz', 'ru', 'en'];
+
+    /** Europrotocol (road accident notice) blank shipped with the site, copied from the old site's /uploads/files/xalq.pdf */
+    public const EUROPROTOCOL_DEFAULT = '/assets/docs/europrotocol.pdf';
+
+    /** Public-disk folder of an uploaded replacement */
+    public const EUROPROTOCOL_DIR = 'documents';
 
     /** Filled links only (network => url): an empty one hides its icon */
     public static function social(): array
@@ -68,6 +74,14 @@ final class SiteSettings
         return $stats;
     }
 
+    /** Relative link to the Europrotocol PDF: the uploaded one when set, else the shipped file */
+    public static function europrotocolUrl(): string
+    {
+        $path = self::stored()['site.europrotocol'] ?? null;
+
+        return filled($path) ? '/storage/' . ltrim($path, '/') : self::EUROPROTOCOL_DEFAULT;
+    }
+
     public static function formValues(): array
     {
         $stored = self::stored();
@@ -100,6 +114,7 @@ final class SiteSettings
     private static function keys(): array
     {
         $keys = array_map(fn (string $n): string => 'site.social.' . $n, array_keys(self::SOCIAL));
+        $keys[] = 'site.europrotocol';
 
         for ($i = 1; $i <= self::STATS; $i++) {
             $keys[] = 'site.stats.' . $i . '.value';
