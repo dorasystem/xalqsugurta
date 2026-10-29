@@ -19,6 +19,64 @@
 
 /* ─── Header ─────────────────────────────────────────────────────────────── */
 
+/* Site sections (individuals / business / career): dark strip above the header */
+.site-sections {
+    margin: 0 calc(-1 * var(--wrapper));
+    padding: 0 var(--wrapper);
+    background: var(--sc-ink);
+}
+
+.site-sections__inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.site-sections__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 14px;
+    border-bottom: 2px solid transparent;
+    color: var(--sc-on-dark-muted);
+    font: 600 0.85rem/1 Gilroy, sans-serif;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.site-sections__link:hover,
+.site-sections__link:focus-visible {
+    color: var(--sc-on-dark);
+}
+
+.site-sections__link.is-active {
+    border-bottom-color: #f2b632;
+    color: var(--sc-on-dark);
+    font-weight: 700;
+}
+
+/* The same switch inside the mobile menu (dark brand background): pills */
+.site-sections--menu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 20px;
+    padding: 0;
+    background: none;
+}
+
+.site-sections--menu .site-sections__link {
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 999px;
+    color: var(--sc-on-dark);
+}
+
+.site-sections--menu .site-sections__link.is-active {
+    border-color: #f2b632;
+    background: #f2b632;
+    color: var(--sc-ink);
+}
+
 .header__wrapper {
     box-shadow: 0 1px 0 var(--sc-line), 0 8px 24px -18px rgba(22, 20, 58, 0.35);
 }

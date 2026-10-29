@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\InfoPage;
 use App\Models\Product;
 use App\Models\Tender;
+use App\Models\Vacancy;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
@@ -28,6 +29,16 @@ final class SeoController extends Controller
             if (Route::has($slug . '.index')) {
                 $pages[] = [$slug . '.index', [], 'weekly', '0.8'];
             }
+        }
+
+        $pages[] = ['business', [], 'weekly', '0.8'];
+        $pages[] = ['career.index', [], 'weekly', '0.6'];
+        try {
+            foreach (Vacancy::open()->pluck('slug') as $slug) {
+                $pages[] = ['career.show', ['slug' => $slug], 'weekly', '0.5'];
+            }
+        } catch (QueryException) {
+            // vacancies not migrated yet
         }
 
         $pages[] = ['tenders.index', [], 'weekly', '0.6'];

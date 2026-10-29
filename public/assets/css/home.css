@@ -1277,3 +1277,52 @@ a.hp-tile--hero:hover .hp-tile__ring {
     .hp-self__card,
     .hp-tile__ring { transition: none; }
 }
+
+/* ─── Business section page (pages/business) ─────────────────────────────── */
+
+.biz-offer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: 48px;
+    align-items: start;
+}
+
+.biz-offer__copy p {
+    margin: 12px 0 20px;
+    color: var(--hp-text);
+    line-height: 1.6;
+}
+
+.biz-offer__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.biz-offer__list li {
+    padding: 14px 18px;
+    border-radius: 14px;
+    background: var(--hp-tint);
+    color: var(--hp-ink);
+    font-weight: 700;
+}
+
+.biz-bento {
+    grid-template-rows: auto;
+}
+
+.biz-offer__form.xf {
+    min-height: 0;
+    padding: 0;
+    background: none;
+}
+
+@media (max-width: 900px) {
+    .biz-offer {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 24px;
+    }
+}

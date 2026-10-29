@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Insurence\PaymentController;
+use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\CallbackController;
+use App\Http\Controllers\CareerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\ClaimFileController;
@@ -9,6 +11,7 @@ use App\Http\Controllers\InfoPageController;
 use App\Http\Controllers\MyPoliciesController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\ProductPageController;
+use App\Http\Controllers\ResumeFileController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SeoController;
 use App\Http\Controllers\TenderController;
@@ -30,6 +33,12 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
     Route::get('/search', [SearchController::class, 'index'])->middleware('throttle:60,1')->name('search');
     Route::get('/tenders', [TenderController::class, 'index'])->name('tenders.index');
     Route::get('/tenders/{slug}', [TenderController::class, 'show'])->where('slug', '[a-z0-9-]+')->name('tenders.show');
+    // Site sections besides individuals (home): business and career (App\Support\SiteMenu)
+    Route::get('/business', [BusinessController::class, 'index'])->name('business');
+    Route::post('/business/request', [BusinessController::class, 'request'])->middleware('throttle:5,10')->name('business.request');
+    Route::get('/career', [CareerController::class, 'index'])->name('career.index');
+    Route::post('/career/apply', [CareerController::class, 'apply'])->middleware('throttle:5,10')->name('career.apply');
+    Route::get('/career/{slug}', [CareerController::class, 'show'])->where('slug', '[a-z0-9-]+')->name('career.show');
     Route::get('/info/{key}', [InfoPageController::class, 'show'])->where('key', '[a-z0-9-]+')->name('info.show');
     Route::get('/products/{product}', [ProductPageController::class, 'show'])->where('product', '[a-z0-9_-]+')->name('product.show');
 
@@ -66,6 +75,10 @@ Route::get('/get-districts', [ReferenceController::class, 'getDistricts'])->name
 // Claim attachments for staff (links are signed in the admin panel)
 Route::get('/admin-files/claims/{claim}/{index}', ClaimFileController::class)
     ->middleware('signed')->whereNumber('index')->name('claims.file');
+
+// CVs from the career page, for staff (links are signed in the admin panel)
+Route::get('/admin-files/resumes/{application}', ResumeFileController::class)
+    ->middleware('signed')->name('career.resume');
 
 // Search engines: products on sale in every locale; payment and "my policies" pages are private
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('sitemap');

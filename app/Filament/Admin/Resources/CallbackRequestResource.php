@@ -29,10 +29,11 @@ class CallbackRequestResource extends Resource
     protected static ?int $navigationSort = 2;
 
     public const TOPICS = [
-        'buy'    => 'Polis olish',
-        'claim'  => 'Sug\'urta hodisasi',
-        'policy' => 'Mavjud polis',
-        'other'  => 'Boshqa',
+        'buy'       => 'Polis olish',
+        'claim'     => 'Sug\'urta hodisasi',
+        'policy'    => 'Mavjud polis',
+        'other'     => 'Boshqa',
+        'corporate' => 'Korporativ taklif',
     ];
 
     public static function canCreate(): bool
@@ -62,7 +63,8 @@ class CallbackRequestResource extends Resource
                     ->formatStateUsing(fn (?string $state) => $state ? formatPhone($state) : null)
                     ->url(fn (CallbackRequest $record) => 'tel:+' . $record->phone),
                 TextColumn::make('topic')->label('Mavzu')->formatStateUsing(fn (?string $state) => self::TOPICS[$state] ?? $state)->placeholder('—'),
-                TextColumn::make('message')->label('Izoh')->limit(60)->wrap()->placeholder('—'),
+                TextColumn::make('message')->label('Izoh')->limit(120)->wrap()->placeholder('—')
+                    ->formatStateUsing(fn (?string $state) => $state ? str_replace("\n", ' · ', $state) : null),
                 TextColumn::make('locale')->label('Til')->badge()->color('gray'),
                 TextColumn::make('status')->label('Holat')->badge()
                     ->formatStateUsing(fn (string $state) => $state === CallbackRequest::STATUS_DONE ? 'Bog\'lanildi' : 'Yangi')
@@ -74,6 +76,7 @@ class CallbackRequestResource extends Resource
                     CallbackRequest::STATUS_NEW  => 'Yangi',
                     CallbackRequest::STATUS_DONE => 'Bog\'lanildi',
                 ])->default(CallbackRequest::STATUS_NEW),
+                SelectFilter::make('topic')->label('Mavzu')->options(self::TOPICS),
             ])
             ->recordActions([
                 Action::make('done')
