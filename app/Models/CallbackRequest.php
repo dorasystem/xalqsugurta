@@ -17,6 +17,9 @@ class CallbackRequest extends Model
     /** Topic of offer requests from the business page (BusinessController) */
     public const TOPIC_CORPORATE = 'corporate';
 
+    /** Topic of applications from the products sold on application (OfferController) */
+    public const TOPIC_PRODUCT = 'product';
+
     protected $fillable = ['name', 'phone', 'topic', 'message', 'status', 'handled_by', 'handled_at', 'locale'];
 
     protected $casts = ['handled_at' => 'datetime'];

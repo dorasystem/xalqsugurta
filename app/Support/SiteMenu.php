@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\InfoPage;
+use App\Models\OfferProduct;
 use App\Models\Product;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Route;
@@ -28,7 +29,8 @@ final class SiteMenu
     ];
 
     /**
-     * Products of the old site's catalogue (/sugurta#private, #corporate): label key => [our product
+     * Products of the old site's catalogue; a null route = sold on application (OfferProduct with the
+     * same key, /{locale}/insurance/{key}) while that row is active, else the old site's page. (/sugurta#private, #corporate): label key => [our product
      * route, old-site path]. Our page is used while the product is on sale, else the old one.
      */
     private const PRODUCTS = [
@@ -52,6 +54,17 @@ final class SiteMenu
     public static function current(): string
     {
         $name = (string) Route::currentRouteName();
+
+        // Products sold on application belong to the section of their audience
+        if (str_starts_with($name, 'offers.')) {
+            try {
+                $audience = OfferProduct::where('slug', (string) request()->route('slug'))->value('audience');
+            } catch (QueryException) {
+                $audience = null;
+            }
+
+            return $audience === 'business' ? 'business' : 'private';
+        }
 
         foreach (self::SECTION_ROUTES as $section => $prefixes) {
             foreach ($prefixes as $prefix) {
@@ -159,13 +172,32 @@ final class SiteMenu
 
         return collect(self::PRODUCTS[$section])->map(function (array $p, string $key) use ($onSale, $locale): array {
             [$route, $oldPath] = $p;
-            $url = $route !== null && isset($onSale[$route]) ? $onSale[$route]->cardUrl() : 'https://xalqsugurta.uz/' . $oldPath;
+            $url = match (true) {
+                $route !== null && isset($onSale[$route]) => $onSale[$route]->cardUrl(),
+                $route === null && in_array($key, self::offers(), true) => route('offers.show', ['locale' => $locale, 'slug' => $key]),
+                default => 'https://xalqsugurta.uz/' . $oldPath,
+            };
 
             return [__t('messages.sections.products.' . $key), $url];
         })->values()->all();
     }
 
-    /** route => Product on sale (once per request; empty before the products table exists) */
+    /** Slugs of active OfferProducts (once per request; empty before the table exists) */
+    private static function offers(): array
+    {
+        if (!app()->bound('site_menu.offers')) {
+            try {
+                $slugs = OfferProduct::where('is_active', true)->pluck('slug')->all();
+            } catch (QueryException) {
+                $slugs = [];
+            }
+            app()->instance('site_menu.offers', $slugs);
+        }
+
+        return app('site_menu.offers');
+    }
+
+        /** route => Product on sale (once per request; empty before the products table exists) */
     private static function productsOnSale(): array
     {
         if (!app()->bound('site_menu.products')) {

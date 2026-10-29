@@ -34,6 +34,7 @@ class CallbackRequestResource extends Resource
         'policy'    => 'Mavjud polis',
         'other'     => 'Boshqa',
         'corporate' => 'Korporativ taklif',
+        'product'   => 'Mahsulot arizasi',
     ];
 
     public static function canCreate(): bool

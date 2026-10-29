@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="{{ assetVersioned('assets/css/flow.css') }}">
 @endpush
 
-{{-- "For business" section. $online = Product rows sold online, $offers = individual-offer keys, $documents = key => url --}}
+{{-- "For business" section. $online = Product rows sold online, $offers = individual-offer keys ($offerPages have their own page), $documents = key => url --}}
 @section('content')
 @php
     $name  = fn ($p) => $p->{'name_' . $locale} ?: $p->name_uz;
@@ -73,7 +73,13 @@
             <ul class="biz-offer__list">
                 @foreach ($offers as $key)
                     @continue($key === 'other')
-                    <li>{{ __t('messages.sections.products.' . $key) }}</li>
+                    <li>
+                        @if (in_array($key, $offerPages, true))
+                            <a href="{{ route('offers.show', ['locale' => $locale, 'slug' => $key]) }}">{{ __t('messages.sections.products.' . $key) }} →</a>
+                        @else
+                            {{ __t('messages.sections.products.' . $key) }}
+                        @endif
+                    </li>
                 @endforeach
             </ul>
         </div>

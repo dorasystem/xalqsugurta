@@ -12,6 +12,7 @@ use App\Http\Controllers\InfoPageController;
 use App\Http\Controllers\MyPoliciesController;
 use App\Http\Controllers\NewsController;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ProductPageController;
 use App\Http\Controllers\QuestionnaireController;
 use App\Http\Controllers\ResumeFileController;
@@ -47,6 +48,8 @@ Route::group(['prefix' => '{locale}', 'where' => ['locale' => 'ru|uz|en']], func
     Route::post('/questionnaire', [QuestionnaireController::class, 'store'])->middleware('throttle:5,10')->name('questionnaire.store');
     Route::get('/news', [NewsController::class, 'index'])->name('news.index');
     Route::get('/news/{slug}', [NewsController::class, 'show'])->where('slug', '[a-z0-9-]+')->name('news.show');
+    Route::get('/insurance/{slug}', [OfferController::class, 'show'])->where('slug', '[a-z_]+')->name('offers.show');
+    Route::post('/insurance/{slug}', [OfferController::class, 'request'])->where('slug', '[a-z_]+')->middleware('throttle:5,10')->name('offers.request');
     Route::get('/info', [InfoPageController::class, 'index'])->name('info.index');
     Route::get('/info/{key}', [InfoPageController::class, 'show'])->where('key', '[a-z0-9-]+')->name('info.show');
     Route::get('/products/{product}', [ProductPageController::class, 'show'])->where('product', '[a-z0-9_-]+')->name('product.show');
