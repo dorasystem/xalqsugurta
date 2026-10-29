@@ -6,9 +6,11 @@ use App\Filament\Admin\Pages\ServerCommandsPage;
 use App\Models\CommandRun;
 use App\Models\InfoPage;
 use App\Models\User;
+use App\Services\Admin\DeployTrigger;
 use App\Services\Admin\ServerCommands;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -77,5 +79,76 @@ class ServerCommandsTest extends TestCase
         $run = CommandRun::create(['command' => 'unknown', 'status' => CommandRun::STATUS_RUNNING, 'started_at' => now()]);
         ServerCommands::run($run);
         $this->assertSame(CommandRun::STATUS_FAILED, $run->fresh()->status);
+    }
+
+    // ─── Deploy (GitHub Actions) ───────────────────────────────────────────
+
+    private const RUNS = 'api.github.com/repos/dorasystem/xalqsugurta/actions/workflows/deploy.yml/runs*';
+
+    private const DISPATCH = 'api.github.com/repos/dorasystem/xalqsugurta/actions/workflows/deploy.yml/dispatches';
+
+    public function test_deploy_needs_a_token(): void
+    {
+        config(['services.github_deploy.token' => null]);
+        Http::fake();
+        $this->actingAs(User::factory()->create());
+
+        $this->get(ServerCommandsPage::getUrl())->assertOk()->assertSee('GITHUB_DEPLOY_TOKEN');
+        Livewire::test(ServerCommandsPage::class)->call('deploy');
+
+        Http::assertNothingSent();
+        $this->assertSame(0, CommandRun::count());
+    }
+
+    public function test_deploy_starts_the_workflow_and_lists_runs(): void
+    {
+        config(['services.github_deploy.token' => 'github_pat_test']);
+        Http::fake([
+            self::RUNS     => Http::response(['workflow_runs' => [[
+                'status' => 'completed', 'conclusion' => 'success', 'event' => 'push',
+                'head_sha' => 'df109f3e92d7', 'html_url' => 'https://github.com/dorasystem/xalqsugurta/actions/runs/1',
+                'created_at' => '2026-10-30T08:00:00Z',
+            ]]]),
+            self::DISPATCH => Http::response(null, 204),
+        ]);
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $this->get(ServerCommandsPage::getUrl())->assertOk()->assertSee('Muvaffaqiyatli')->assertSee('df109f3');
+
+        Livewire::test(ServerCommandsPage::class)->call('deploy');
+
+        Http::assertSent(fn ($request) => str_ends_with($request->url(), '/dispatches')
+            && $request['ref'] === 'main'
+            && $request->hasHeader('Authorization', 'Bearer github_pat_test'));
+        $run = CommandRun::sole();
+        $this->assertSame(ServerCommands::DEPLOY, $run->command);
+        $this->assertSame($user->id, $run->user_id);
+    }
+
+    public function test_deploy_is_refused_while_one_runs_or_when_github_says_no(): void
+    {
+        config(['services.github_deploy.token' => 'github_pat_test']);
+        Http::fake([
+            self::RUNS     => Http::sequence()
+                ->push(['workflow_runs' => [['status' => 'in_progress', 'conclusion' => null, 'event' => 'push', 'head_sha' => 'abc', 'html_url' => '', 'created_at' => '']]])
+                ->push(['workflow_runs' => []]),
+            self::DISPATCH => Http::response(['message' => 'Resource not accessible by personal access token'], 403),
+        ]);
+
+        try {
+            DeployTrigger::dispatch();
+            $this->fail('A running deploy must block a new one');
+        } catch (\RuntimeException $e) {
+            $this->assertStringContainsString('bajarilmoqda', $e->getMessage());
+        }
+
+        \Illuminate\Support\Facades\Cache::flush();
+        try {
+            DeployTrigger::dispatch();
+            $this->fail('A 403 must be reported');
+        } catch (\RuntimeException $e) {
+            $this->assertStringContainsString('Actions: read and write', $e->getMessage());
+        }
     }
 }

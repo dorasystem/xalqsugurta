@@ -100,4 +100,13 @@ return [
         ],
     ],
 
+    // Admin panel "Deployni ishga tushirish": starts .github/workflows/deploy.yml (workflow_dispatch).
+    // The token is a fine-grained GitHub token with Actions: read & write on this repository only.
+    'github_deploy' => [
+        'token'    => env('GITHUB_DEPLOY_TOKEN'),
+        'repo'     => env('GITHUB_DEPLOY_REPO', 'dorasystem/xalqsugurta'),
+        'workflow' => env('GITHUB_DEPLOY_WORKFLOW', 'deploy.yml'),
+        'ref'      => env('GITHUB_DEPLOY_REF', 'main'),
+    ],
+
 ];
