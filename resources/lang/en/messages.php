@@ -1134,4 +1134,16 @@
         'sent'              => 'Your CV has been received',
         'sent_text'         => 'The HR department will review it and contact you.',
     ],
+
+    // Press centre (pages/news)
+    'news' => [
+        'title'    => 'Press centre',
+        'subtitle' => 'News and announcements of JSC “XALQ SUG‘URTA”',
+        'none'     => 'No news yet.',
+        'more'     => 'More news',
+        'all'      => 'All news',
+        'pages'    => 'Pages',
+        'newer'    => 'Newer',
+        'older'    => 'Older',
+    ],
 ];

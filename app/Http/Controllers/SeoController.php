@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\InfoPage;
+use App\Models\News;
 use App\Models\Product;
 use App\Models\Tender;
 use App\Models\Vacancy;
@@ -39,6 +40,15 @@ final class SeoController extends Controller
             }
         } catch (QueryException) {
             // vacancies not migrated yet
+        }
+
+        $pages[] = ['news.index', [], 'daily', '0.6'];
+        try {
+            foreach (News::visible()->pluck('slug') as $slug) {
+                $pages[] = ['news.show', ['slug' => $slug], 'monthly', '0.5'];
+            }
+        } catch (QueryException) {
+            // news not migrated yet
         }
 
         $pages[] = ['tenders.index', [], 'weekly', '0.6'];

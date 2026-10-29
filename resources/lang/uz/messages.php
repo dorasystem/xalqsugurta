@@ -370,7 +370,6 @@ return [
     'osgop_product_desc'    => 'Yo\'lovchi tashuvchilar uchun majburiy javobgarlik sug\'urtasi',
     'language' => 'Til',
     'select_language' => 'Til tanlash',
-    'news' => 'Yangiliklar',
     'login' => 'Kirish',
     'register' => 'Ro\'yxatdan o\'tish',
     'profile' => 'Profil',
@@ -1132,5 +1131,17 @@ return [
         'send'              => 'Yuborish',
         'sent'              => 'Rezyumeingiz qabul qilindi',
         'sent_text'         => 'Kadrlar bo‘limi ko‘rib chiqib, siz bilan bog‘lanadi.',
+    ],
+
+    // Press centre (pages/news)
+    'news' => [
+        'title'    => 'Matbuot markazi',
+        'subtitle' => '«XALQ SUG‘URTA» AJ yangiliklari va e’lonlari',
+        'none'     => 'Hozircha yangiliklar yo‘q.',
+        'more'     => 'Boshqa yangiliklar',
+        'all'      => 'Barcha yangiliklar',
+        'pages'    => 'Sahifalar',
+        'newer'    => 'Yangiroq',
+        'older'    => 'Eskiroq',
     ],
 ];

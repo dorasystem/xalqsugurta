@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\InfoPage;
+use App\Models\News;
 use App\Models\Product;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-/** Site search (/{locale}/search?q=): products on sale, published company pages and the service pages */
+/** Site search (/{locale}/search?q=): products on sale, published company pages, news and the service pages */
 final class SearchController extends Controller
 {
     private const MIN_LENGTH = 2;
@@ -71,6 +73,25 @@ final class SearchController extends Controller
             }
         }
 
+        try {
+            $news = News::visible()->orderByDesc('published_at')->limit(200)->get();
+        } catch (QueryException) {
+            $news = [];   // not migrated yet
+        }
+        foreach ($news as $item) {
+            $body = $item->body($locale);
+            $text = $body !== null ? trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($body), ENT_QUOTES | ENT_HTML5, 'UTF-8'))) : null;
+
+            if ($matches($item->title($locale), $text)) {
+                $results[] = [
+                    'title' => $item->title($locale),
+                    'text'  => $text !== null ? self::snippet($text, $needle) : null,
+                    'url'   => route('news.show', ['locale' => $locale, 'slug' => $item->slug]),
+                    'icon'  => 'bi-newspaper',
+                ];
+            }
+        }
+
         return $results;
     }
 
@@ -80,6 +101,7 @@ final class SearchController extends Controller
             ['title' => __t('messages.my_policies.title'), 'text' => __t('messages.my_policies.subtitle'), 'url' => route('my-policies', ['locale' => $locale]), 'icon' => 'bi-person-vcard'],
             ['title' => __t('messages.claims.title'), 'text' => __t('messages.claims.subtitle'), 'url' => route('claims.create', ['locale' => $locale]), 'icon' => 'bi-life-preserver'],
             ['title' => __t('messages.claims.check_status'), 'text' => null, 'url' => route('claims.status', ['locale' => $locale]), 'icon' => 'bi-search'],
+            ['title' => __t('messages.news.title'), 'text' => __t('messages.news.subtitle'), 'url' => route('news.index', ['locale' => $locale]), 'icon' => 'bi-newspaper'],
             ['title' => __t('messages.tenders.title'), 'text' => __t('messages.tenders.subtitle'), 'url' => route('tenders.index', ['locale' => $locale]), 'icon' => 'bi-megaphone'],
             ['title' => __t('messages.callback.title'), 'text' => __t('messages.callback.subtitle'), 'url' => route('callback', ['locale' => $locale]), 'icon' => 'bi-telephone'],
         ];

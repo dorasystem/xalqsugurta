@@ -17,7 +17,7 @@
                                 <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/{{ __('routes.insurance') }}" class="footer-menu__link">{{ __('messages.insurance') }}</a>
                             </li>
                             <li class="footer-menu__item">{{-- Matbuot - markazi --}}
-                                <a href="https://xalqsugurta.uz/{{ getCurrentLocale() }}/{{ __('routes.news') }}" class="footer-menu__link">{{ __('messages.press_center') }}</a>
+                                <a href="{{ route('news.index', ['locale' => getCurrentLocale()]) }}" class="footer-menu__link">{{ __('messages.press_center') }}</a>
                             </li>
                             <li class="footer-menu__item">
                                 <a href="{{ route('my-policies', ['locale' => getCurrentLocale()]) }}" class="footer-menu__link">{{ __t('messages.my_policies.title') }}</a>
