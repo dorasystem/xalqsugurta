@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Pages;
 
 use App\Services\SiteSettings;
 use Filament\Actions\Action;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -59,6 +60,20 @@ class SiteSettingsPage extends Page
                         TextInput::make('site.stats.' . $i . '.label_ru')->label('Matn (RU)')->maxLength(60),
                         TextInput::make('site.stats.' . $i . '.label_en')->label('Matn (EN)')->maxLength(60),
                     ]))->all()),
+
+                Section::make('Yevroprotokol')
+                    ->icon('heroicon-o-document-text')
+                    ->description('Sarlavhadagi "Yevroprotokol" tugmasi ochadigan YTH xabarnomasi blanki. Bo\'sh bo\'lsa saytga qo\'shilgan nusxa (eski saytdagi xalq.pdf) ochiladi.')
+                    ->schema([
+                        FileUpload::make('site.europrotocol')
+                            ->label('Yangi blank (PDF)')
+                            ->disk('public')
+                            ->directory(SiteSettings::EUROPROTOCOL_DIR)
+                            ->acceptedFileTypes(['application/pdf'])
+                            ->maxSize(20480)
+                            ->downloadable()
+                            ->openable(),
+                    ]),
             ]);
     }
 
